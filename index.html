@@ -362,13 +362,17 @@ const Storage = (function(){
   // участники: я + принятые друзья; тренировки: мои + подопечных (где я активный тренер)
   async function fetchSocial(client, profile){
     const since = dstr(new Date(Date.now()-120*86400000));
-    const [{data:friends}, {data:links}, {data:details}, {data:weights}, {data:activity}] = await Promise.all([
+    const res = await Promise.all([
       client.rpc('my_friends'),
       client.from('trainer_links').select('*'),
       client.from('profile_details').select('*'),          // RLS: свои + тех, кто разрешил показывать
       client.from('body_weights').select('*').order('date'),
       client.from('daily_activity').select('*').gte('date', since)
     ]);
+    const [{data:friends}, {data:links}, {data:details}, {data:weights}, {data:activity}] = res;
+    // ошибки загрузки не прячем — иначе раздел просто выглядит пустым
+    const errs = res.map((r,i)=>r.error?['участники','тренеры','личные данные','вес','активность'][i]+': '+r.error.message:null).filter(Boolean);
+    if(errs.length) setTimeout(()=>toast('Ошибка загрузки — '+errs.join('; ')), 800);
     const traineeIds = (links||[]).filter(l=>l.trainer_id===selfId && l.active).map(l=>l.trainee_id);
     const {data:wRows} = await client.from('workouts').select('*').in('participant_id', [selfId, ...traineeIds]);
     const self = (DB.participants[0] && DB.participants[0].id===selfId) ? DB.participants[0]
