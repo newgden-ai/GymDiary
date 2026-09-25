@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ТренДневник</title>
+<style>
+:root{
+  --bg:#f6f5f2; --surface:#ffffff; --surface2:#f0eee8; --border:#e2ded4;
+  --text:#1f2320; --text-dim:#6b6f68; --accent:#3d5a45; --accent2:#8a9a5b;
+  --danger:#b3503f; --warn:#c08a2e; --radius:10px;
+  --shadow:0 1px 2px rgba(0,0,0,.06);
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#181a17; --surface:#20221f; --surface2:#272a25; --border:#33362f;
+    --text:#e9e8e2; --text-dim:#9a9d94; --accent:#8fae7d; --accent2:#c7d69a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#181a17; --surface:#20221f; --surface2:#272a25; --border:#33362f;
+  --text:#e9e8e2; --text-dim:#9a9d94; --accent:#8fae7d; --accent2:#c7d69a;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.4;}
+button,input,select,textarea{font-family:inherit;font-size:14px;color:var(--text);}
+button{cursor:pointer;}
+a{color:var(--accent);}
+h1,h2,h3{margin:0 0 8px;font-weight:600;}
+.hidden{display:none!important;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:210px;flex:0 0 210px;background:var(--surface);border-right:1px solid var(--border);padding:16px 10px;position:sticky;top:0;height:100vh;overflow:auto;}
+.brand{font-weight:700;font-size:17px;padding:6px 10px 18px;letter-spacing:.2px;}
+.navitem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);color:var(--text-dim);cursor:pointer;margin-bottom:2px;background:none;border:none;width:100%;text-align:left;}
+.navitem:hover{background:var(--surface2);}
+.navitem.active{background:var(--accent);color:#fff;}
+.main{flex:1;min-width:0;padding:18px 20px 90px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 13px;font-weight:500;}
+.btn:hover{filter:brightness(0.97);}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn.danger{background:var(--danger);color:#fff;border-color:var(--danger);}
+.btn.ghost{background:transparent;border-color:transparent;}
+.btn.sm{padding:5px 9px;font-size:12.5px;border-radius:6px;}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:12px;background:var(--surface2);border:1px solid var(--border);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);}
+.row{display:flex;gap:8px;align-items:center;}
+.grow{flex:1;}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.field label{font-size:12px;color:var(--text-dim);}
+.field input,.field select,.field textarea{padding:8px 9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);width:100%;}
+.field textarea{resize:vertical;min-height:50px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+/* calendar */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.cal-head{background:var(--surface2);padding:6px;text-align:center;font-size:12px;color:var(--text-dim);}
+.cal-cell{background:var(--surface);min-height:92px;padding:5px;cursor:pointer;display:flex;flex-direction:column;gap:3px;}
+.cal-cell:hover{background:var(--surface2);}
+.cal-cell.other{opacity:.4;}
+.cal-cell.today .daynum{background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
+.daynum{font-size:12px;font-weight:600;}
+.chip{font-size:11px;border-radius:5px;padding:2px 5px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.week-cols{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
+.week-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:6px;min-height:220px;}
+.week-col.today{outline:2px solid var(--accent);}
+.week-colhead{font-size:12px;color:var(--text-dim);margin-bottom:6px;text-align:center;}
+.agenda-item{background:var(--surface2);border-radius:8px;padding:7px 8px;margin-bottom:6px;cursor:pointer;font-size:12.5px;}
+.agenda-item .t{font-weight:600;}
+.day-list .agenda-item{font-size:14px;padding:10px;}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;padding:20px 10px;overflow:auto;z-index:50;}
+.modal{background:var(--surface);border-radius:14px;max-width:640px;width:100%;padding:18px;margin:10px 0 60px;}
+.modal h2{margin-bottom:12px;}
+.block-card{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px;background:var(--surface2);}
+.ex-card{border:1px dashed var(--border);border-radius:8px;padding:8px;margin:6px 0;background:var(--surface);}
+.set-row{display:grid;grid-template-columns:24px 1fr 1fr 1fr auto;gap:6px;align-items:center;margin-bottom:4px;}
+.set-row input{padding:6px;}
+.tonnage-line{font-size:12px;color:var(--text-dim);margin-top:4px;}
+.tot-box{background:var(--accent);color:#fff;border-radius:10px;padding:10px 12px;margin-top:10px;}
+.tot-box .big{font-size:20px;font-weight:700;}
+.muted{color:var(--text-dim);font-size:12.5px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
+.color-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+.chips-wrap{display:flex;gap:6px;flex-wrap:wrap;}
+.bottomnav{display:none;}
+::-webkit-scrollbar{width:8px;height:8px;}
+@media (max-width:860px){
+  .sidebar{display:none;}
+  .main{padding:12px 10px 90px;}
+  .grid2,.grid3{grid-template-columns:1fr;}
+  .week-cols{grid-template-columns:1fr;}
+  .cal-cell{min-height:60px;}
+  .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));justify-content:space-around;z-index:40;}
+  .bottomnav button{background:none;border:none;color:var(--text-dim);font-size:10.5px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;flex:1;}
+  .bottomnav button.active{color:var(--accent);font-weight:600;}
+  .bnicon{font-size:18px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main" id="main"></div>
+</div>
+<div class="bottomnav" id="bottomnav"></div>
+<div id="modalRoot"></div>
+
+<script>
+/* ===================== STORAGE MODULE ===================== */
+const Storage = (function(){
+  const KEY = 'wt_db_v1';
+  function seed(){
+    const uid = () => Math.random().toString(36).slice(2,10);
+    const you = {id: uid(), name:'Я', color:'#3d5a45'};
+    const exercises = [
+      ['Жим лёжа','chest',[ 'triceps','shoulders'],'strength'],
+      ['Жим гантелей лёжа','chest',['triceps'],'strength'],
+      ['Разведение гантелей','chest',[],'strength'],
+      ['Присед со штангой','quads',['glutes'],'strength'],
+      ['Румынская тяга','hamstrings',['glutes','back'],'strength'],
+      ['Становая тяга','back',['hamstrings','glutes'],'strength'],
+      ['Подтягивания','back',['biceps'],'strength'],
+      ['Тяга штанги в наклоне','back',['biceps'],'strength'],
+      ['Жим штанги стоя','shoulders',['triceps'],'strength'],
+      ['Махи гантелями в стороны','shoulders',[],'strength'],
+      ['Подъём штанги на бицепс','biceps',['forearms'],'strength'],
+      ['Французский жим','triceps',[],'strength'],
+      ['Разгибание на трицепс блок','triceps',[],'strength'],
+      ['Скручивания','abs',[],'strength'],
+      ['Подъём ног в висе','abs',[],'strength'],
+      ['Икры стоя','calves',[],'strength'],
+      ['Выпады','quads',['glutes'],'strength'],
+      ['Бег','other',[],'cardio'],
+      ['Велотренажёр','other',[],'cardio'],
+      ['Гребля','back',['other'],'cardio'],
+      ['Растяжка общая','other',[],'stretch']
+    ].map(e=>({id:uid(),name:e[0],mainGroup:e[1],secondaryGroups:e[2],type:e[3]}));
+    return {
+      participants:[you],
+      exercises,
+      workouts:[],
+      templates:[],
+      settings:{units:'kg', theme:'auto', restDefault:90, themeColor:'forest'}
+    };
+  }
+  let db = null;
+  function load(){
+    if(db) return db;
+    try{
+      const raw = localStorage.getItem(KEY);
+      if(raw){ db = JSON.parse(raw); }
+      else { db = seed(); save(); }
+    }catch(e){ db = seed(); }
+    if(!db.settings) db.settings = {units:'kg',theme:'auto',restDefault:90,themeColor:'forest'};
+    if(!db.settings.themeColor) db.settings.themeColor = 'forest';
+    return db;
+  }
+  let saveTimer=null;
+  function save(){
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(()=>{
+      try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch(e){ console.error('save failed',e); }
+    },150);
+  }
+  function exportJSON(){
+    const blob = new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download='trendnevnik-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }
+  function importJSON(obj){ db = obj; save(); }
+  return {load, save, exportJSON, importJSON, uid: ()=>Math.random().toString(36).slice(2,10)};
+})();
+
+/* ===================== CALC MODULE (tonnage) ===================== */
+const Calc = (function(){
+  function setTonnage(s){ return (Number(s.weight)||0) * (Number(s.reps)||0); }
+  function exTonnage(ex){ return (ex.sets||[]).reduce((a,s)=>a+setTonnage(s),0); }
+  function blockTonnage(b){ return (b.exercises||[]).reduce((a,ex)=>a+exTonnage(ex),0); }
+  function workoutTonnage(w){ return (w.blocks||[]).reduce((a,b)=>a+blockTonnage(b),0); }
+  function muscleBreakdown(w, exercisesDb){
+    const map = {};
+    (w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{
+      const info = exercisesDb.find(e=>e.id===ex.exerciseId);
+      if(!info) return;
+      const t = exTonnage(ex);
+      if(t<=0) return;
+      map[info.mainGroup] = (map[info.mainGroup]||0) + t;
+    }));
+    return map;
+  }
+  return {setTonnage, exTonnage, blockTonnage, workoutTonnage, muscleBreakdown};
+})();
+
+/* ===================== CONSTANTS ===================== */
+const MUSCLE_GROUPS = [
+  ['chest','Грудь'],['back','Спина'],['shoulders','Плечи'],['biceps','Бицепс'],
+  ['triceps','Трицепс'],['forearms','Предплечья'],['quads','Квадрицепс'],
+  ['hamstrings','Бицепс бедра'],['glutes','Ягодицы'],['calves','Икры'],
+  ['abs','Пресс'],['other','Другое']
+];
+const MG = Object.fromEntries(MUSCLE_GROUPS);
+const WORKOUT_TYPES = [['strength','Силовая'],['cardio','Кардио'],['functional','Функциональная'],['stretch','Растяжка'],['other','Другое']];
+const TONNAGE_COMPARISONS = [
+  [50,'кот 🐈'],
+  [200,'пианино 🎹'],
+  [800,'мотоцикл 🏍️'],
+  [1500,'легковой автомобиль 🚗'],
+  [3000,'внедорожник 🚙'],
+  [5000,'белый носорог 🦏'],
+  [7000,'слон 🐘'],
+  [9000,'мини-экскаватор 🚜'],
+  [15000,'городской автобус 🚌'],
+  [25000,'строительный экскаватор 🏗️'],
+  [40000,'грузовик-фура 🚛'],
+  [60000,'башенный кран 🏗️'],
+  [100000,'синий кит 🐋'],
+  [200000,'плавучий портовый кран 🏗️'],
+  [1000000,'речной танкер-баржа 🚢'],
+  [10000000,'океанский супертанкер 🛳️'],
+  [13500000,'экскаватор Bagger 293 — крупнейшая самоходная машина в мире ⛏️']
+];
+function tonnageComparison(kg){
+  let best=null;
+  for(const [th,label] of TONNAGE_COMPARISONS){ if(kg>=th) best=[th,label]; }
+  return best;
+}
+function nextTonnageComparison(kg){
+  return TONNAGE_COMPARISONS.find(([th])=>kg<th) || null;
+}
+const WORKOUT_MILESTONES = [10,25,50,100,250,500];
+const HOUR_MILESTONES = [10,25,50,100,200];
+const STREAK_MILESTONES = [2,4,8,12,26,52];
+function weeklyStreak(workouts){
+  if(!workouts.length) return {current:0, longest:0};
+  const weeks = Array.from(new Set(workouts.map(w=>weekKeyOf(w.date)))).sort();
+  let longest=1, run=1;
+  for(let i=1;i<weeks.length;i++){
+    const diffDays = Math.round((parseD(weeks[i])-parseD(weeks[i-1]))/86400000);
+    run = (diffDays===7) ? run+1 : 1;
+    longest = Math.max(longest, run);
+  }
+  const thisWeek = weekKeyOf(dstr(new Date()));
+  let current=0;
+  const lastWeek = weeks[weeks.length-1];
+  const gapFromNow = Math.round((parseD(thisWeek)-parseD(lastWeek))/86400000)/7;
+  if(gapFromNow<=1){
+    current=1;
+    for(let i=weeks.length-1;i>0;i--){
+      const diffDays = Math.round((parseD(weeks[i])-parseD(weeks[i-1]))/86400000);
+      if(diffDays===7) current++; else break;
+    }
+  }
+  return {current, longest};
+}
+function milestoneBlock(current, milestones, icon, label){
+  const reached = milestones.filter(m=>current>=m);
+  const next = milestones.find(m=>current>current-1 && current<m) ?? milestones.find(m=>current<m);
+  const pct = next ? Math.min(100, Math.round(current/next*100)) : 100;
+  return `<div style="margin-bottom:10px">
+    <div class="row" style="justify-content:space-between">
+      <span>${icon} ${esc(label)}</span>
+      <span class="muted">${fmtNum(current)}${next?(' / '+next):' · максимум достигнут'}</span>
+    </div>
+    <div style="background:var(--surface2);border-radius:6px;height:6px;overflow:hidden;margin-top:4px">
+      <div style="background:var(--accent);height:100%;width:${pct}%"></div>
+    </div>
+    ${reached.length?`<div class="muted" style="margin-top:2px">Получено: ${reached.map(m=>'🏅'+m).join(' ')}</div>`:''}
+  </div>`;
+}
+const WT = Object.fromEntries(WORKOUT_TYPES);
+const PALETTE = ['#3d5a45','#8a5a3d','#3d5a8a','#8a3d6e','#c08a2e','#5a3d8a','#3d8a7a','#b3503f'];
+const WEEKDAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const PRESET_THEMES = [
+  {id:'forest', name:'Лес', accent:'#3d5a45', accent2:'#8a9a5b'},
+  {id:'ocean', name:'Океан', accent:'#2a5d78', accent2:'#5fa8c9'},
+  {id:'sunset', name:'Закат', accent:'#b3503f', accent2:'#e0894f'},
+  {id:'grape', name:'Виноград', accent:'#5a3d8a', accent2:'#9a7bc9'},
+  {id:'graphite', name:'Графит', accent:'#3a3f3d', accent2:'#7a8078'},
+  {id:'rose', name:'Роза', accent:'#a13d63', accent2:'#d97fa3'}
+];
+
+/* ===================== UTIL ===================== */
+function pad(n){return n<10?'0'+n:''+n;}
+function dstr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function parseD(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function fmtDate(s){const d=parseD(s);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});}
+function fmtDateShort(s){const d=parseD(s);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmtNum(n){return Math.round(n*10)/10;}
+function convW(kg, units){ return units==='lb' ? fmtNum(kg*2.20462) : fmtNum(kg); }
+function unitLabel(units){ return units==='lb' ? 'фунт' : 'кг'; }
+function toKg(v, units){ return units==='lb' ? (Number(v)||0)/2.20462 : (Number(v)||0); }
+
+/* ===================== APP STATE ===================== */
+const DB = Storage.load();
+const State = {
+  view:'calendar', calMode:'month', calDate:new Date(),
+  modal:null, // {type, ...}
+  historyFilters:{participant:'', period:'all', group:'', type:''},
+  statsPeriod:'month', statsParticipant:'',
+  participantProfile:null
+};
+
+function rerender(){ renderNav(); renderMain(); }
+
+/* ===================== NAV ===================== */
+const NAV_ITEMS = [
+  ['calendar','📅','Календарь'],
+  ['history','🏋️','Тренировки'],
+  ['templates','🗂️','Шаблоны'],
+  ['participants','👥','Участники'],
+  ['stats','📊','Статистика'],
+  ['settings','⚙️','Настройки']
+];
+function renderNav(){
+  const sb = document.getElementById('sidebar');
+  sb.innerHTML = '<div class="brand">🏋 ТренДневник</div>' + NAV_ITEMS.map(([id,icon,label])=>
+    `<button class="navitem ${State.view===id?'active':''}" data-nav="${id}">${icon} ${label}</button>`
+  ).join('');
+  sb.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{State.view=b.dataset.nav; State.participantProfile=null; rerender();});
+
+  const bn = document.getElementById('bottomnav');
+  bn.innerHTML = NAV_ITEMS.map(([id,icon,label])=>
+    `<button class="${State.view===id?'active':''}" data-nav="${id}"><span class="bnicon">${icon}</span>${label}</button>`
+  ).join('');
+  bn.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{State.view=b.dataset.nav; State.participantProfile=null; rerender();});
+}
+
+/* ===================== MAIN ROUTER ===================== */
+function renderMain(){
+  const m = document.getElementById('main');
+  if(State.view==='calendar') m.innerHTML = viewCalendar();
+  else if(State.view==='history') m.innerHTML = viewHistory();
+  else if(State.view==='templates') m.innerHTML = viewTemplates();
+  else if(State.view==='participants') m.innerHTML = State.participantProfile ? viewParticipantProfile(State.participantProfile) : viewParticipants();
+  else if(State.view==='stats') m.innerHTML = viewStats();
+  else if(State.view==='settings') m.innerHTML = viewSettings();
+  applyTheme();
+}
+
+/* ===================== CALENDAR VIEW ===================== */
+function occurrencesInRange(from,to){
+  // returns workouts (materialized) with date within [from,to]
+  return DB.workouts.filter(w=>{
+    const d=parseD(w.date); return d>=from && d<=to;
+  });
+}
+function viewCalendar(){
+  const d = State.calDate;
+  let header='', body='';
+  if(State.calMode==='month'){
+    const y=d.getFullYear(), m=d.getMonth();
+    const first = new Date(y,m,1);
+    const startOffset = (first.getDay()+6)%7; // Monday-first
+    const gridStart = new Date(y,m,1-startOffset);
+    header = d.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+    let cells='';
+    const today=new Date();
+    for(let i=0;i<42;i++){
+      const cd = new Date(gridStart); cd.setDate(gridStart.getDate()+i);
+      const isOther = cd.getMonth()!==m;
+      const isToday = sameDay(cd,today);
+      const ds = dstr(cd);
+      const dayWorkouts = DB.workouts.filter(w=>w.date===ds).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+      const chips = dayWorkouts.slice(0,3).map(w=>{
+        const p = DB.participants.find(x=>x.id===w.participantId);
+        return `<div class="chip" style="background:${p?p.color:'#888'}" data-open-workout="${w.id}">${w.time||''} ${esc(w.name||WT[w.type]||'')}</div>`;
+      }).join('');
+      const more = dayWorkouts.length>3 ? `<div class="muted">+${dayWorkouts.length-3} ещё</div>` : '';
+      cells += `<div class="cal-cell ${isOther?'other':''} ${isToday?'today':''}" data-day="${ds}">
+        <div class="daynum">${cd.getDate()}</div>${chips}${more}</div>`;
+    }
+    body = `<div class="cal-grid">${WEEKDAYS.map(w=>`<div class="cal-head">${w}</div>`).join('')}${cells}</div>`;
+  } else if(State.calMode==='week'){
+    const startOffset = (d.getDay()+6)%7;
+    const weekStart = new Date(d); weekStart.setDate(d.getDate()-startOffset);
+    header = 'Неделя ' + fmtDateShort(dstr(weekStart)) + ' — ' + fmtDateShort(dstr(new Date(weekStart.getFullYear(),weekStart.getMonth(),weekStart.getDate()+6)));
+    const today=new Date();
+    let cols='';
+    for(let i=0;i<7;i++){
+      const cd=new Date(weekStart); cd.setDate(weekStart.getDate()+i);
+      const ds=dstr(cd);
+      const items = DB.workouts.filter(w=>w.date===ds).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+      cols += `<div class="week-col ${sameDay(cd,today)?'today':''}" data-day="${ds}">
+        <div class="week-colhead">${WEEKDAYS[i]} ${cd.getDate()}</div>
+        ${items.map(w=>{const p=DB.participants.find(x=>x.id===w.participantId);
+          return `<div class="agenda-item" style="border-left:3px solid ${p?p.color:'#888'}" data-open-workout="${w.id}"><span class="t">${w.time||''}</span> ${esc(w.name||WT[w.type]||'')}<br><span class="muted">${p?esc(p.name):''}</span></div>`;}).join('')}
+        <button class="btn sm ghost" data-add-day="${ds}">+ добавить</button>
+      </div>`;
+    }
+    body = `<div class="week-cols">${cols}</div>`;
+  } else { // day
+    const ds = dstr(d);
+    header = fmtDate(ds);
+    const items = DB.workouts.filter(w=>w.date===ds).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    body = `<div class="day-list card">${items.length? items.map(w=>{
+      const p=DB.participants.find(x=>x.id===w.participantId);
+      const t=Calc.workoutTonnage(w);
+      return `<div class="agenda-item" style="border-left:4px solid ${p?p.color:'#888'}" data-open-workout="${w.id}">
+        <div class="t">${w.time||'--:--'} · ${esc(w.name||WT[w.type]||'')} ${w.duration?('· '+w.duration+' мин'):''}</div>
+        <div class="muted">${p?esc(p.name):''} · ${WT[w.type]||''} ${t>0?('· тоннаж '+fmtNum(t)+' кг'):''}</div>
+      </div>`;
+    }).join('') : '<div class="muted">Нет тренировок в этот день</div>'}
+    <button class="btn primary" style="margin-top:8px" data-add-day="${ds}">+ Добавить тренировку</button>
+    </div>`;
+  }
+  return `
+  <div class="topbar">
+    <div class="row">
+      <button class="btn" data-cal-nav="prev">←</button>
+      <button class="btn" data-cal-nav="today">Сегодня</button>
+      <button class="btn" data-cal-nav="next">→</button>
+      <h2 style="margin-left:8px;text-transform:capitalize">${header}</h2>
+    </div>
+    <div class="row">
+      ${['month','week','day'].map(mm=>`<button class="btn ${State.calMode===mm?'primary':''}" data-cal-mode="${mm}">${mm==='month'?'Месяц':mm==='week'?'Неделя':'День'}</button>`).join('')}
+      <button class="btn primary" data-add-day="${dstr(State.calMode==='month'?new Date():d)}">+ Тренировка</button>
+    </div>
+  </div>
+  ${body}`;
+}
+
+/* ===================== WORKOUT MODAL ===================== */
+function blankSet(){return {weight:'',reps:'',time:'',distance:'',note:''};}
+function blankExercise(exerciseId){return {exerciseId, isDropset:false, sets:[blankSet()]};}
+function blankBlock(kind){return {id:Storage.uid(), kind:kind||'normal', restSeconds:60, exercises:[]};}
+
+function openWorkoutModal(opts){
+  // opts: {date} for new, {workoutId} for edit, {templateId,date} to instantiate from template
+  let w;
+  if(opts.workoutId){
+    w = JSON.parse(JSON.stringify(DB.workouts.find(x=>x.id===opts.workoutId)));
+  } else if(opts.templateId){
+    const t = DB.templates.find(x=>x.id===opts.templateId);
+    w = {id:Storage.uid(), date:opts.date||dstr(new Date()), time:'09:00', duration:60, name:t.name,
+      participantId:(DB.participants[0]||{}).id, type:'strength', blocks:JSON.parse(JSON.stringify(t.blocks)),
+      notes:'', result:'', recurringId:null};
+  } else {
+    w = {id:Storage.uid(), date:opts.date||dstr(new Date()), time:'09:00', duration:60, name:'',
+      participantId:(DB.participants[0]||{}).id, type:'strength', blocks:[], notes:'', result:'', recurringId:null};
+  }
+  State.modal = {kind:'workout', w, isNew: !opts.workoutId, recurRule:{on:false, freq:'weekly', days:[], until:''}};
+  renderModal();
+}
+function closeModal(){ State.modal=null; renderModal(); }
+
+function lastResultFor(exerciseId, participantId, excludeWorkoutId){
+  const past = DB.workouts.filter(w=>w.id!==excludeWorkoutId && w.participantId===participantId)
+    .sort((a,b)=> (b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
+  for(const w of past){
+    for(const b of w.blocks||[]){
+      for(const ex of b.exercises||[]){
+        if(ex.exerciseId===exerciseId && ex.sets && ex.sets.length){
+          return {date:w.date, sets:ex.sets};
+        }
+      }
+    }
+  }
+  return null;
+}
+function bestSetFor(exerciseId, participantId, excludeWorkoutId, isCardio){
+  let best=null, bestDate=null, bestScore=-1;
+  DB.workouts.forEach(w=>{
+    if(w.id===excludeWorkoutId || w.participantId!==participantId) return;
+    (w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{
+      if(ex.exerciseId!==exerciseId) return;
+      (ex.sets||[]).forEach(s=>{
+        const score = isCardio ? (Number(s.distance)||0) : Calc.setTonnage(s);
+        if(score>bestScore && score>0){ bestScore=score; best=s; bestDate=w.date; }
+      });
+    }));
+  });
+  return best ? {set:best, date:bestDate} : null;
+}
+
+function renderModal(){
+  const root = document.getElementById('modalRoot');
+  if(!State.modal){ root.innerHTML=''; return; }
+  if(State.modal.kind==='workout') root.innerHTML = renderWorkoutModal();
+  else if(State.modal.kind==='confirmDelete') root.innerHTML = renderConfirmModal();
+  else if(State.modal.kind==='recurEdit') root.innerHTML = renderRecurEditModal();
+  else if(State.modal.kind==='saveTemplate') root.innerHTML = renderSaveTemplateModal();
+  else if(State.modal.kind==='exercisePicker') root.innerHTML = renderExercisePicker();
+}
+
+function renderWorkoutModal(){
+  const {w, isNew} = State.modal;
+  const units = DB.settings.units;
+  const total = Calc.workoutTonnage(w);
+  const mg = Calc.muscleBreakdown(w, DB.exercises);
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop>
+    <h2>${isNew?'Новая тренировка':'Редактирование'}</h2>
+    <div class="grid3">
+      <div class="field"><label>Дата</label><input type="date" data-w="date" value="${w.date}"></div>
+      <div class="field"><label>Время</label><input type="time" data-w="time" value="${w.time||''}"></div>
+      <div class="field"><label>Длительность, мин</label><input type="text" inputmode="numeric" data-w="duration" value="${w.duration||''}"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Название</label><input type="text" data-w="name" value="${esc(w.name)}" placeholder="Грудь + трицепс"></div>
+      <div class="field"><label>Участник</label><select data-w="participantId">${DB.participants.map(p=>`<option value="${p.id}" ${p.id===w.participantId?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>
+    </div>
+    <div class="field"><label>Тип тренировки</label><select data-w="type">${WORKOUT_TYPES.map(([id,l])=>`<option value="${id}" ${id===w.type?'selected':''}>${l}</option>`).join('')}</select></div>
+
+    ${isNew ? renderRecurControls() : ''}
+
+    <h3 style="margin-top:14px">Блоки</h3>
+    <div id="blocksWrap">${w.blocks.map((b,bi)=>renderBlockCard(b,bi,w,units)).join('') || '<div class="muted">Пока нет упражнений</div>'}</div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn sm" data-add-block="normal">+ Обычный блок</button>
+      <button class="btn sm" data-add-block="superset">+ Суперсет</button>
+    </div>
+
+    <div class="tot-box">
+      <div>Общий тоннаж</div>
+      <div class="big">${fmtNum(convW(total,units))} ${unitLabel(units)}</div>
+      <div style="margin-top:6px;font-size:12.5px">${Object.keys(mg).map(g=>`${MG[g]||g}: ${fmtNum(convW(mg[g],units))}`).join(' · ') || 'Нет данных по группам мышц'}</div>
+      ${total>0 ? (()=>{ const cmp=tonnageComparison(total); return cmp?`<div style="margin-top:6px;font-size:12.5px">≈ ${cmp[1]}</div>`:''; })() : ''}
+    </div>
+
+    <div class="field" style="margin-top:10px"><label>Заметки</label><textarea data-w="notes">${esc(w.notes||'')}</textarea></div>
+    <div class="field"><label>Результат / самочувствие</label><input type="text" data-w="result" value="${esc(w.result||'')}"></div>
+
+    <div class="row" style="justify-content:space-between;margin-top:10px;flex-wrap:wrap">
+      <div class="row">
+        <button class="btn primary" data-save-workout="1">Сохранить</button>
+        <button class="btn" data-save-as-template="1">Сохранить как шаблон</button>
+      </div>
+      <div class="row">
+        ${!isNew?'<button class="btn danger" data-delete-workout="1">Удалить</button>':''}
+        <button class="btn ghost" data-close-modal="1">Отмена</button>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+function renderRecurControls(){
+  const r = State.modal.recurRule;
+  return `<div class="card" style="margin:8px 0;background:var(--surface2)">
+    <label class="row"><input type="checkbox" data-recur-on ${r.on?'checked':''}> Повторяющаяся тренировка</label>
+    ${r.on?`<div class="grid2" style="margin-top:8px">
+      <div class="field"><label>Частота</label><select data-recur-freq>
+        <option value="daily" ${r.freq==='daily'?'selected':''}>Каждый день</option>
+        <option value="weekly" ${r.freq==='weekly'?'selected':''}>По дням недели</option>
+      </select></div>
+      <div class="field"><label>До какой даты</label><input type="date" data-recur-until value="${r.until}"></div>
+    </div>
+    ${r.freq==='weekly'?`<div class="chips-wrap">${WEEKDAYS.map((d,i)=>`<label class="pill"><input type="checkbox" data-recur-day="${i}" ${r.days.includes(i)?'checked':''}> ${d}</label>`).join('')}</div>`:''}
+    </div>`:''}
+  </div>`;
+}
+
+function renderBlockCard(b,bi,w,units){
+  const bTon = Calc.blockTonnage(b);
+  return `<div class="block-card" data-block="${bi}">
+    <div class="row" style="justify-content:space-between">
+      <div class="row"><b>${b.kind==='superset'?'Суперсет':'Блок'} ${bi+1}</b>
+        <span class="muted">отдых <input type="text" inputmode="numeric" style="width:52px" data-block-rest="${bi}" value="${b.restSeconds||0}"> сек</span></div>
+      <div class="row">
+        <span class="muted">${fmtNum(convW(bTon,units))} ${unitLabel(units)}</span>
+        <button class="btn sm danger" data-remove-block="${bi}">✕</button>
+      </div>
+    </div>
+    ${b.exercises.map((ex,ei)=>renderExerciseCard(ex,bi,ei,w,units)).join('')}
+    <button class="btn sm ghost" data-add-exercise="${bi}">+ Упражнение</button>
+  </div>`;
+}
+
+function renderExerciseCard(ex,bi,ei,w,units){
+  const info = DB.exercises.find(x=>x.id===ex.exerciseId) || {name:'—',type:'strength'};
+  const isCardio = info.type==='cardio';
+  const ton = Calc.exTonnage(ex);
+  const prev = lastResultFor(ex.exerciseId, w.participantId, w.id);
+  const best = bestSetFor(ex.exerciseId, w.participantId, w.id, isCardio);
+  return `<div class="ex-card" data-ex="${bi}.${ei}">
+    <div class="row" style="justify-content:space-between">
+      <b>${esc(info.name)}</b>
+      <div class="row">
+        ${!isCardio?`<label class="muted"><input type="checkbox" data-dropset="${bi}.${ei}" ${ex.isDropset?'checked':''}> дроп-сет</label>`:''}
+        <button class="btn sm danger" data-remove-exercise="${bi}.${ei}">✕</button>
+      </div>
+    </div>
+    ${prev?`<div class="muted">Пред.: ${prev.sets.map(s=>isCardio?`${s.time||''}${s.distance?(' '+s.distance+'км'):''}`:`${convW(s.weight,units)}×${s.reps}`).join(', ')} (${fmtDateShort(prev.date)})</div>`:''}
+    ${best?`<div class="muted">🏆 Лучший подход: ${isCardio?`${best.set.distance||0} км за ${best.set.time||'?'} мин`:`${convW(best.set.weight,units)} ${unitLabel(units)} × ${best.set.reps}`} — ${fmtDateShort(best.date)}</div>`:''}
+    ${ex.sets.map((s,si)=>`<div class="set-row">
+      <span class="muted">${ex.isDropset?('э'+(si+1)):(si+1)}</span>
+      ${isCardio?`
+        <input type="text" inputmode="decimal" placeholder="время, мин" data-set="${bi}.${ei}.${si}.time" value="${s.time}">
+        <input type="text" inputmode="decimal" placeholder="дистанция, км" data-set="${bi}.${ei}.${si}.distance" value="${s.distance}">
+        <input type="text" placeholder="заметка" data-set="${bi}.${ei}.${si}.note" value="${esc(s.note)}">
+      `:`
+        <input type="text" inputmode="decimal" placeholder="вес, ${unitLabel(units)}" data-set="${bi}.${ei}.${si}.weight" value="${s.weight!==''?convW(s.weight,units):''}">
+        <input type="text" inputmode="numeric" placeholder="повт." data-set="${bi}.${ei}.${si}.reps" value="${s.reps}">
+        <input type="text" placeholder="заметка" data-set="${bi}.${ei}.${si}.note" value="${esc(s.note)}">
+      `}
+      <button class="btn sm ghost" data-remove-set="${bi}.${ei}.${si}">✕</button>
+    </div>`).join('')}
+    <button class="btn sm ghost" data-add-set="${bi}.${ei}">+ ${ex.isDropset?'этап':'подход'}</button>
+    
+  </div>`;
+}
+
+function renderExercisePicker(){
+  const q = (State.modal.query||'').toLowerCase();
+  const list = DB.exercises.filter(e=>e.name.toLowerCase().includes(q));
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:420px">
+    <h2>Выбор упражнения</h2>
+    <input type="text" placeholder="Поиск или новое название..." data-exsearch value="${esc(State.modal.query||'')}" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text)">
+    <div style="max-height:300px;overflow:auto">
+      ${list.map(e=>`<div class="agenda-item" data-pick-exercise="${e.id}">${esc(e.name)} <span class="muted">· ${MG[e.mainGroup]||''} · ${WT[e.type]||e.type}</span></div>`).join('') || '<div class="muted">Не найдено</div>'}
+    </div>
+    ${State.modal.query? `<button class="btn primary" style="margin-top:8px" data-create-exercise="1">+ Создать «${esc(State.modal.query)}»</button>`:''}
+    <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn ghost" data-close-modal="1">Отмена</button></div>
+  </div></div>`;
+}
+
+function renderConfirmModal(){
+  const c = State.modal;
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:380px">
+    <h2>${esc(c.title)}</h2><p>${esc(c.text)}</p>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn ghost" data-close-modal="1">Отмена</button>
+      <button class="btn danger" data-confirm-yes="1">Да, удалить</button>
+    </div></div></div>`;
+}
+
+function renderRecurEditModal(){
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:380px">
+    <h2>Повторяющаяся тренировка</h2>
+    <p class="muted">Что изменить?</p>
+    <div class="row" style="flex-direction:column;align-items:stretch">
+      <button class="btn" data-recur-scope="single">Только это занятие</button>
+      <button class="btn" data-recur-scope="future">Это и все будущие</button>
+      <button class="btn ghost" data-close-modal="1">Отмена</button>
+    </div></div></div>`;
+}
+
+function renderSaveTemplateModal(){
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:380px">
+    <h2>Сохранить как шаблон</h2>
+    <div class="field"><label>Название шаблона</label><input type="text" id="tplName" value="${esc(State.modal.suggestedName||'')}"></div>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn ghost" data-close-modal="1">Отмена</button>
+      <button class="btn primary" data-confirm-template="1">Сохранить</button>
+    </div></div></div>`;
+}
+
+/* ===================== EVENT DELEGATION (bound once; survives re-renders) ===================== */
+function pathGet(idx){ return idx.split('.').map(Number); }
+
+function handleModalClick(e, ds){
+  const modal = State.modal; if(!modal) return false;
+  if(ds.closeOverlay!==undefined){ if(e.target===e.currentTarget||e.target.hasAttribute('data-close-overlay')) closeModal(); return true; }
+  if(ds.closeModal!==undefined){ closeModal(); return true; }
+
+  if(modal.kind==='workout'){
+    const w = modal.w;
+    if(ds.addBlock!==undefined){ w.blocks.push(blankBlock(ds.addBlock)); renderModal(); return true; }
+    if(ds.removeBlock!==undefined){ w.blocks.splice(+ds.removeBlock,1); renderModal(); return true; }
+    if(ds.addExercise!==undefined){ modal.pendingBlock=+ds.addExercise; modal.kind='exercisePicker'; modal.query=''; modal._back={w,isNew:modal.isNew,recurRule:modal.recurRule}; renderModal(); return true; }
+    if(ds.removeExercise!==undefined){ const [bi,ei]=pathGet(ds.removeExercise); w.blocks[bi].exercises.splice(ei,1); renderModal(); return true; }
+    if(ds.addSet!==undefined){ const [bi,ei]=pathGet(ds.addSet); w.blocks[bi].exercises[ei].sets.push(blankSet()); renderModal(); return true; }
+    if(ds.removeSet!==undefined){ const [bi,ei,si]=pathGet(ds.removeSet); w.blocks[bi].exercises[ei].sets.splice(si,1); renderModal(); return true; }
+    if(ds.saveWorkout!==undefined){ saveWorkoutFromModal(); return true; }
+    if(ds.saveAsTemplate!==undefined){ State.modal={kind:'saveTemplate', suggestedName:w.name, sourceBlocks:w.blocks}; renderModal(); return true; }
+    if(ds.deleteWorkout!==undefined){
+      State.modal={kind:'confirmDelete', title:'Удалить тренировку?', text:'Это действие нельзя отменить.', onYes:()=>{
+        if(w.recurringId){ State.modal={kind:'recurEdit', mode:'delete', w}; renderModal(); return; }
+        DB.workouts = DB.workouts.filter(x=>x.id!==w.id); Storage.save(); closeModal(); rerender();
+      }};
+      renderModal(); return true;
+    }
+  } else if(modal.kind==='exercisePicker'){
+    if(ds.pickExercise!==undefined){
+      const bi = modal.pendingBlock; const back=modal._back;
+      back.w.blocks[bi].exercises.push(blankExercise(ds.pickExercise));
+      State.modal = {kind:'workout', w:back.w, isNew:back.isNew, recurRule:back.recurRule};
+      renderModal(); return true;
+    }
+    if(ds.createExercise!==undefined){
+      const name = (modal.query||'').trim(); if(!name) return true;
+      const ex = {id:Storage.uid(), name, mainGroup:'other', secondaryGroups:[], type:'strength'};
+      DB.exercises.push(ex); Storage.save();
+      const bi = modal.pendingBlock; const back=modal._back;
+      back.w.blocks[bi].exercises.push(blankExercise(ex.id));
+      State.modal = {kind:'workout', w:back.w, isNew:back.isNew, recurRule:back.recurRule};
+      renderModal(); return true;
+    }
+  } else if(modal.kind==='confirmDelete'){
+    if(ds.confirmYes!==undefined){ modal.onYes(); return true; }
+  } else if(modal.kind==='recurEdit'){
+    if(ds.recurScope!==undefined){ handleRecurScope(ds.recurScope); return true; }
+  } else if(modal.kind==='saveTemplate'){
+    if(ds.confirmTemplate!==undefined){
+      const name = document.getElementById('tplName').value.trim() || 'Без названия';
+      DB.templates.push({id:Storage.uid(), name, blocks: JSON.parse(JSON.stringify(modal.sourceBlocks))});
+      Storage.save(); closeModal(); if(State.view==='templates') rerender();
+      return true;
+    }
+  }
+  return false;
+}
+
+function preserveFocusAndRerender(renderFn){
+  const ae = document.activeElement;
+  let attr=null, val=null, start=null, end=null;
+  if(ae && (ae.tagName==='INPUT'||ae.tagName==='TEXTAREA')){
+    for(const a of ['data-set','data-w','data-block-rest','data-setting']){
+      if(ae.hasAttribute(a)){ attr=a; val=ae.getAttribute(a); break; }
+    }
+    start = ae.selectionStart; end = ae.selectionEnd;
+  }
+  renderFn();
+  if(attr){
+    const again = document.querySelector('['+attr+'="'+CSS.escape(val)+'"]');
+    if(again){ again.focus(); if(start!=null && again.setSelectionRange){ try{ again.setSelectionRange(start,end); }catch(err){} } }
+  }
+}
+function handleModalChange(e, ds){
+  const modal = State.modal; if(!modal) return false;
+  if(modal.kind==='workout'){
+    const w = modal.w;
+    if(ds.w!==undefined){ w[ds.w] = e.target.value; if(ds.w==='participantId') renderModal(); else Storage.save(); return true; }
+    if(ds.blockRest!==undefined){ w.blocks[+ds.blockRest].restSeconds = +e.target.value; return true; }
+    if(ds.dropset!==undefined){ const [bi,ei]=pathGet(ds.dropset); w.blocks[bi].exercises[ei].isDropset = e.target.checked; renderModal(); return true; }
+    if(ds.set!==undefined){
+      const parts = ds.set.split('.'); const bi=+parts[0],ei=+parts[1],si=+parts[2],field=parts[3];
+      let val = e.target.value;
+      if(field==='weight'){ w.blocks[bi].exercises[ei].sets[si].weight = val===''?'':toKg(val, DB.settings.units); }
+      else if(field==='reps'||field==='time'||field==='distance'){ w.blocks[bi].exercises[ei].sets[si][field]=val===''?'':Number(val); }
+      else { w.blocks[bi].exercises[ei].sets[si][field]=val; }
+      preserveFocusAndRerender(renderModal); return true;
+    }
+    if(ds.recurOn!==undefined){ modal.recurRule.on = e.target.checked; renderModal(); return true; }
+    if(ds.recurFreq!==undefined){ modal.recurRule.freq = e.target.value; renderModal(); return true; }
+    if(ds.recurUntil!==undefined){ modal.recurRule.until = e.target.value; return true; }
+    if(ds.recurDay!==undefined){
+      const i = +ds.recurDay; const days = modal.recurRule.days; const p = days.indexOf(i);
+      if(e.target.checked && p===-1) days.push(i);
+      if(!e.target.checked && p!==-1) days.splice(p,1);
+      return true;
+    }
+  }
+  return false;
+}
+
+function handleRecurScope(scope){
+  const w = State.modal.w;
+  const mode = State.modal.mode;
+  if(mode==='delete'){
+    if(scope==='single'){ DB.workouts = DB.workouts.filter(x=>x.id!==w.id); }
+    else { DB.workouts = DB.workouts.filter(x=> !(x.recurringId===w.recurringId && x.date>=w.date)); }
+  } else if(mode==='save'){
+    if(scope==='single'){
+      const idx = DB.workouts.findIndex(x=>x.id===w.id); DB.workouts[idx]=w;
+    } else {
+      const idx = DB.workouts.findIndex(x=>x.id===w.id);
+      const orig = DB.workouts[idx];
+      DB.workouts.forEach((x,i)=>{ if(x.recurringId===w.recurringId && x.date>=w.date){
+        DB.workouts[i] = Object.assign({}, w, {id:x.id, date:x.date});
+      }});
+    }
+  }
+  Storage.save(); closeModal(); rerender();
+}
+
+function saveWorkoutFromModal(){
+  const w = State.modal.w, isNew = State.modal.isNew, recur = State.modal.recurRule;
+  if(!w.name) w.name = WT[w.type] || 'Тренировка';
+  if(isNew){
+    if(recur && recur.on){
+      const groupId = Storage.uid();
+      const start = parseD(w.date);
+      const until = recur.until? parseD(recur.until) : new Date(start.getFullYear(), start.getMonth()+2, start.getDate());
+      let cur = new Date(start);
+      let count=0;
+      while(cur<=until && count<400){
+        const wd = (cur.getDay()+6)%7;
+        const match = recur.freq==='daily' ? true : recur.days.includes(wd);
+        if(match){
+          const copy = JSON.parse(JSON.stringify(w));
+          copy.id = Storage.uid(); copy.date = dstr(cur); copy.recurringId = groupId;
+          DB.workouts.push(copy); count++;
+        }
+        cur = new Date(cur.getFullYear(),cur.getMonth(),cur.getDate()+1);
+      }
+    } else {
+      DB.workouts.push(w);
+    }
+    Storage.save(); closeModal(); rerender();
+  } else {
+    if(w.recurringId){
+      State.modal = {kind:'recurEdit', mode:'save', w};
+      renderModal();
+    } else {
+      const idx = DB.workouts.findIndex(x=>x.id===w.id); DB.workouts[idx]=w;
+      Storage.save(); closeModal(); rerender();
+    }
+  }
+}
+
+/* ===================== HISTORY VIEW ===================== */
+function viewHistory(){
+  const f = State.historyFilters;
+  let list = DB.workouts.slice().sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
+  if(f.participant) list = list.filter(w=>w.participantId===f.participant);
+  if(f.type) list = list.filter(w=>w.type===f.type);
+  if(f.group) list = list.filter(w=> Object.keys(Calc.muscleBreakdown(w,DB.exercises)).includes(f.group));
+  if(f.period && f.period!=='all'){
+    const now = new Date(); let from = new Date(0);
+    if(f.period==='week') from = new Date(now.getFullYear(),now.getMonth(),now.getDate()-7);
+    if(f.period==='month') from = new Date(now.getFullYear(),now.getMonth()-1,now.getDate());
+    if(f.period==='3m') from = new Date(now.getFullYear(),now.getMonth()-3,now.getDate());
+    list = list.filter(w=>parseD(w.date)>=from);
+  }
+  const units = DB.settings.units;
+  return `<div class="topbar"><h2>Тренировки</h2><button class="btn primary" data-add-day="${dstr(new Date())}">+ Тренировка</button></div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="grid3">
+      <div class="field"><label>Участник</label><select data-hf="participant"><option value="">Все</option>${DB.participants.map(p=>`<option value="${p.id}" ${f.participant===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>
+      <div class="field"><label>Период</label><select data-hf="period">${[['all','Все'],['week','7 дней'],['month','30 дней'],['3m','3 месяца']].map(([id,l])=>`<option value="${id}" ${f.period===id?'selected':''}>${l}</option>`).join('')}</select></div>
+      <div class="field"><label>Тип</label><select data-hf="type"><option value="">Все</option>${WORKOUT_TYPES.map(([id,l])=>`<option value="${id}" ${f.type===id?'selected':''}>${l}</option>`).join('')}</select></div>
+    </div>
+    <div class="field"><label>Группа мышц</label><select data-hf="group"><option value="">Все</option>${MUSCLE_GROUPS.map(([id,l])=>`<option value="${id}" ${f.group===id?'selected':''}>${l}</option>`).join('')}</select></div>
+  </div>
+  <table><thead><tr><th>Дата</th><th>Название</th><th>Участник</th><th>Тип</th><th>Тоннаж</th><th>Группы</th><th></th></tr></thead><tbody>
+  ${list.map(w=>{
+    const p=DB.participants.find(x=>x.id===w.participantId);
+    const t=Calc.workoutTonnage(w); const mg=Calc.muscleBreakdown(w,DB.exercises);
+    return `<tr>
+      <td>${fmtDateShort(w.date)}</td>
+      <td><a href="#" data-open-workout="${w.id}">${esc(w.name)}</a></td>
+      <td><span class="color-dot" style="background:${p?p.color:'#888'}"></span> ${p?esc(p.name):''}</td>
+      <td>${WT[w.type]||''}</td>
+      <td>${t>0?fmtNum(convW(t,units))+' '+unitLabel(units):'—'}</td>
+      <td class="muted">${Object.keys(mg).map(g=>MG[g]).join(', ')}</td>
+      <td><button class="btn sm" data-repeat-workout="${w.id}">Повторить</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" class="muted">Нет тренировок</td></tr>'}
+  </tbody></table>`;
+}
+
+/* ===================== TEMPLATES VIEW ===================== */
+function viewTemplates(){
+  return `<div class="topbar"><h2>Шаблоны</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px">
+  ${DB.templates.map(t=>{
+    const exCount = t.blocks.reduce((a,b)=>a+b.exercises.length,0);
+    return `<div class="card">
+      <div class="row" style="justify-content:space-between"><b>${esc(t.name)}</b>
+        <button class="btn sm danger" data-delete-template="${t.id}">✕</button></div>
+      <div class="muted">${t.blocks.length} блок(ов), ${exCount} упражнений</div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn sm primary" data-use-template="${t.id}">Создать тренировку</button>
+        <button class="btn sm" data-rename-template="${t.id}">Переименовать</button>
+      </div>
+    </div>`;
+  }).join('') || '<div class="muted">Пока нет шаблонов. Сохраните тренировку как шаблон, чтобы она появилась здесь.</div>'}
+  </div>`;
+}
+
+/* ===================== PARTICIPANTS VIEW ===================== */
+function viewParticipants(){
+  return `<div class="topbar"><h2>Участники</h2><button class="btn primary" data-add-participant="1">+ Добавить</button></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+  ${DB.participants.map(p=>{
+    const wCount = DB.workouts.filter(w=>w.participantId===p.id).length;
+    return `<div class="card" data-open-participant="${p.id}" style="cursor:pointer">
+      <div class="row"><span class="color-dot" style="background:${p.color}"></span><b>${esc(p.name)}</b></div>
+      <div class="muted">${wCount} тренировок</div>
+    </div>`;
+  }).join('')}
+  </div>`;
+}
+function weekKeyOf(ds){ const d=parseD(ds); const day=(d.getDay()+6)%7; const monday=new Date(d.getFullYear(),d.getMonth(),d.getDate()-day); return dstr(monday); }
+function monthKeyOf(ds){ return ds.slice(0,7); }
+function groupSumBy(workouts, keyFn){ const m={}; workouts.forEach(w=>{ const k=keyFn(w.date); m[k]=(m[k]||0)+Calc.workoutTonnage(w); }); return m; }
+function avgOfValues(obj){ const vals=Object.values(obj); return vals.length? vals.reduce((a,b)=>a+b,0)/vals.length : 0; }
+
+function viewParticipantProfile(pid){
+  const p = DB.participants.find(x=>x.id===pid);
+  if(!p) { State.participantProfile=null; return viewParticipants(); }
+  const workouts = DB.workouts.filter(w=>w.participantId===pid).sort((a,b)=>b.date.localeCompare(a.date));
+  const units = DB.settings.units;
+  const totalT = workouts.reduce((a,w)=>a+Calc.workoutTonnage(w),0);
+
+  const groupBest = {};
+  workouts.forEach(w=>{ const mgb = Calc.muscleBreakdown(w,DB.exercises); Object.keys(mgb).forEach(g=>{ groupBest[g] = Math.max(groupBest[g]||0, mgb[g]); }); });
+  const bestWorkoutT = workouts.reduce((a,w)=>Math.max(a, Calc.workoutTonnage(w)), 0);
+  const avgWorkoutT = workouts.length ? totalT/workouts.length : 0;
+  const avgWeekT = avgOfValues(groupSumBy(workouts, weekKeyOf));
+  const avgMonthT = avgOfValues(groupSumBy(workouts, monthKeyOf));
+  const totalHours = workouts.reduce((a,w)=>a+(Number(w.duration)||0),0)/60;
+  const streak = weeklyStreak(workouts);
+  const bestCmp = tonnageComparison(bestWorkoutT);
+
+  return `<div class="topbar"><button class="btn ghost" data-back-participants="1">← Назад</button><h2>${esc(p.name)}</h2></div>
+  <div class="card grid3" style="margin-bottom:10px">
+    <div><div class="muted">Тренировок</div><div class="big" style="font-size:20px;font-weight:700">${workouts.length}</div></div>
+    <div><div class="muted">Общий тоннаж</div><div class="big" style="font-size:20px;font-weight:700">${fmtNum(convW(totalT,units))} ${unitLabel(units)}</div></div>
+    <div><div class="muted">Цвет</div><span class="color-dot" style="background:${p.color}"></span></div>
+  </div>
+  <div class="row" style="margin-bottom:10px">
+    <input type="text" id="editPname" value="${esc(p.name)}" style="padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text)">
+    <select id="editPcolor">${PALETTE.map(c=>`<option value="${c}" ${p.color===c?'selected':''} style="background:${c}">цвет</option>`).join('')}</select>
+    <button class="btn sm" data-save-participant="${p.id}">Сохранить</button>
+    <button class="btn sm danger" data-delete-participant="${p.id}">Удалить участника</button>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <h3>🏆 Достижения</h3>
+    ${bestCmp?`<div class="tot-box" style="margin-bottom:10px">
+      <div>Лучшая тренировка — как поднять:</div>
+      <div class="big">${bestCmp[1]}</div>
+      <div style="margin-top:4px;font-size:12px">${fmtNum(convW(bestWorkoutT,units))} ${unitLabel(units)}</div>
+    </div>`:''}
+    ${milestoneBlock(workouts.length, WORKOUT_MILESTONES, '📅', 'Проведено тренировок')}
+    ${milestoneBlock(fmtNum(totalHours), HOUR_MILESTONES, '⏱️', 'Часов в зале')}
+    ${milestoneBlock(streak.current, STREAK_MILESTONES, '🔥', 'Недель подряд с тренировкой (сейчас)')}
+    <div class="muted">Рекордная серия: ${streak.longest} нед.</div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <h3>Личная статистика</h3>
+    <table><tbody>
+      <tr><td>Лучший тоннаж за тренировку</td><td><b>${fmtNum(convW(bestWorkoutT,units))} ${unitLabel(units)}</b></td></tr>
+      <tr><td>Средний тоннаж за тренировку</td><td><b>${fmtNum(convW(avgWorkoutT,units))} ${unitLabel(units)}</b></td></tr>
+      <tr><td>Средний тоннаж за неделю</td><td><b>${fmtNum(convW(avgWeekT,units))} ${unitLabel(units)}</b></td></tr>
+      <tr><td>Средний тоннаж за месяц</td><td><b>${fmtNum(convW(avgMonthT,units))} ${unitLabel(units)}</b></td></tr>
+      ${Object.keys(groupBest).sort((a,b)=>groupBest[b]-groupBest[a]).map(g=>`<tr><td>Лучший тоннаж — ${MG[g]||g}</td><td><b>${fmtNum(convW(groupBest[g],units))} ${unitLabel(units)}</b></td></tr>`).join('') || `<tr><td colspan="2" class="muted">Нет данных по группам мышц</td></tr>`}
+    </tbody></table>
+  </div>
+  <table><thead><tr><th>Дата</th><th>Название</th><th>Тоннаж</th></tr></thead><tbody>
+  ${workouts.map(w=>`<tr><td>${fmtDateShort(w.date)}</td><td><a href="#" data-open-workout="${w.id}">${esc(w.name)}</a></td><td>${fmtNum(convW(Calc.workoutTonnage(w),units))}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">Нет тренировок</td></tr>'}
+  </tbody></table>`;
+}
+
+/* ===================== STATISTICS VIEW ===================== */
+function viewStats(){
+  const units = DB.settings.units;
+  let list = DB.workouts.slice();
+  if(State.statsParticipant) list = list.filter(w=>w.participantId===State.statsParticipant);
+  const now = new Date(); let from=new Date(0);
+  const periodMap = {week:7,month:30,'3m':90,'6m':180,year:365};
+  if(State.statsPeriod!=='all'){ const days=periodMap[State.statsPeriod]||30; from=new Date(now.getFullYear(),now.getMonth(),now.getDate()-days); }
+  list = list.filter(w=>parseD(w.date)>=from);
+
+  const totalT = list.reduce((a,w)=>a+Calc.workoutTonnage(w),0);
+  const avgT = list.length? totalT/list.length : 0;
+  const hours = list.reduce((a,w)=>a+(Number(w.duration)||0),0)/60;
+  const mgTotals = {};
+  list.forEach(w=>{ const b=Calc.muscleBreakdown(w,DB.exercises); Object.keys(b).forEach(g=>mgTotals[g]=(mgTotals[g]||0)+b[g]); });
+
+  const exTotals = {};
+  list.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{
+    const info = DB.exercises.find(e=>e.id===ex.exerciseId); if(!info) return;
+    const key = ex.exerciseId;
+    exTotals[key] = exTotals[key] || {name:info.name, maxW:0, maxR:0, tonnage:0, count:0};
+    ex.sets.forEach(s=>{
+      exTotals[key].maxW = Math.max(exTotals[key].maxW, Number(s.weight)||0);
+      exTotals[key].maxR = Math.max(exTotals[key].maxR, Number(s.reps)||0);
+      exTotals[key].tonnage += Calc.setTonnage(s);
+    });
+    exTotals[key].count++;
+  })));
+
+  // simple sparkline of tonnage by day
+  const byDay = {};
+  list.forEach(w=>{ byDay[w.date]=(byDay[w.date]||0)+Calc.workoutTonnage(w); });
+  const days = Object.keys(byDay).sort();
+  const maxV = Math.max(1,...days.map(d=>byDay[d]));
+  const svgW=560, svgH=110, step = days.length>1? svgW/(days.length-1) : svgW;
+  const pts = days.map((d,i)=>`${i*step},${svgH-6-(byDay[d]/maxV)*(svgH-16)}`).join(' ');
+
+  return `<div class="topbar"><h2>Статистика</h2>
+    <div class="row">
+      <select data-stats-participant><option value="">Все участники</option>${DB.participants.map(p=>`<option value="${p.id}" ${State.statsParticipant===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+      <select data-stats-period>${[['week','Неделя'],['month','Месяц'],['3m','3 месяца'],['6m','6 месяцев'],['year','Год'],['all','Всё время']].map(([id,l])=>`<option value="${id}" ${State.statsPeriod===id?'selected':''}>${l}</option>`).join('')}</select>
+    </div></div>
+
+  <div class="grid3" style="margin-bottom:10px">
+    <div class="card"><div class="muted">Тренировок</div><div style="font-size:22px;font-weight:700">${list.length}</div></div>
+    <div class="card"><div class="muted">Общий тоннаж</div><div style="font-size:22px;font-weight:700">${fmtNum(convW(totalT,units))} ${unitLabel(units)}</div></div>
+    <div class="card"><div class="muted">Часы тренировок</div><div style="font-size:22px;font-weight:700">${fmtNum(hours)} ч</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:10px">
+    <h3>Тоннаж по дням</h3>
+    ${days.length>1? `<svg viewBox="0 0 ${svgW} ${svgH}" style="width:100%;height:110px"><polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>` : '<div class="muted">Недостаточно данных для графика</div>'}
+  </div>
+
+  <div class="card" style="margin-bottom:10px">
+    <h3>По группам мышц</h3>
+    <table><thead><tr><th>Группа</th><th>Тоннаж</th></tr></thead><tbody>
+    ${Object.keys(mgTotals).sort((a,b)=>mgTotals[b]-mgTotals[a]).map(g=>`<tr><td>${MG[g]||g}</td><td>${fmtNum(convW(mgTotals[g],units))} ${unitLabel(units)}</td></tr>`).join('') || '<tr><td colspan="2" class="muted">Нет данных</td></tr>'}
+    </tbody></table>
+  </div>
+
+  <div class="card">
+    <h3>По упражнениям</h3>
+    <table><thead><tr><th>Упражнение</th><th>Макс. вес</th><th>Макс. повт.</th><th>Тоннаж</th><th>Раз</th></tr></thead><tbody>
+    ${Object.values(exTotals).sort((a,b)=>b.tonnage-a.tonnage).map(e=>`<tr><td>${esc(e.name)}</td><td>${fmtNum(convW(e.maxW,units))}</td><td>${e.maxR}</td><td>${fmtNum(convW(e.tonnage,units))}</td><td>${e.count}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Нет данных</td></tr>'}
+    </tbody></table>
+  </div>`;
+}
+
+/* ===================== SETTINGS VIEW ===================== */
+function viewSettings(){
+  const s = DB.settings;
+  return `<div class="topbar"><h2>Настройки</h2></div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="field"><label>Единицы веса</label><select data-setting="units"><option value="kg" ${s.units==='kg'?'selected':''}>Килограммы</option><option value="lb" ${s.units==='lb'?'selected':''}>Фунты</option></select></div>
+    <div class="field"><label>Тема</label><select data-setting="theme"><option value="auto" ${s.theme==='auto'?'selected':''}>Системная</option><option value="light" ${s.theme==='light'?'selected':''}>Светлая</option><option value="dark" ${s.theme==='dark'?'selected':''}>Тёмная</option></select></div>
+    <div class="field"><label>Таймер отдыха по умолчанию, сек</label><input type="text" inputmode="numeric" data-setting="restDefault" value="${s.restDefault}"></div>
+    <div class="field"><label>Цветовая палитра</label>
+      <div class="chips-wrap">${PRESET_THEMES.map(t=>`<button class="pill" data-pick-theme="${t.id}" style="border:2px solid ${s.themeColor===t.id?'var(--text)':'var(--border)'};background:${t.accent};color:#fff">${esc(t.name)}</button>`).join('')}</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <h3>Управление упражнениями</h3>
+    <table><thead><tr><th>Название</th><th>Группа</th><th>Тип</th><th></th></tr></thead><tbody>
+    ${DB.exercises.map(e=>`<tr><td>${esc(e.name)}</td><td>${MG[e.mainGroup]||''}</td><td>${WT[e.type]||e.type}</td><td><button class="btn sm danger" data-delete-exercise="${e.id}">✕</button></td></tr>`).join('')}
+    </tbody></table>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <h3>Резервное копирование</h3>
+    <div class="row">
+      <button class="btn" data-export="1">Экспорт (скачать JSON)</button>
+      <label class="btn">Импорт JSON<input type="file" id="importFile" accept="application/json" style="display:none"></label>
+    </div>
+    <p class="muted">Импорт полностью заменит текущие данные.</p>
+  </div>
+  <div class="card">
+    <h3>Таймер отдыха</h3>
+    <div class="row"><span id="timerDisplay" style="font-size:22px;font-weight:700">${fmtTime(timerLeft)}</span>
+      <button class="btn" data-timer="start">Старт</button>
+      <button class="btn" data-timer="pause">Пауза</button>
+      <button class="btn" data-timer="reset">Сброс</button>
+    </div>
+  </div>`;
+}
+let timerInterval=null, timerRunning=false, timerLeft = 90;
+function fmtTime(t){ const m=Math.floor(t/60), s=t%60; return pad(m)+':'+pad(s); }
+
+/* ===================== MAIN VIEW EVENT HANDLERS (delegated) ===================== */
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', DB.settings.theme==='auto' ? '' : DB.settings.theme);
+  const t = PRESET_THEMES.find(x=>x.id===DB.settings.themeColor) || PRESET_THEMES[0];
+  document.documentElement.style.setProperty('--accent', t.accent);
+  document.documentElement.style.setProperty('--accent2', t.accent2);
+}
+
+function handleMainClick(e, ds){
+  if(ds.nav!==undefined){ State.view=ds.nav; State.participantProfile=null; rerender(); return true; }
+  if(ds.calNav!==undefined){
+    const act = ds.calNav, d = State.calDate;
+    if(act==='today') State.calDate = new Date();
+    else{
+      const dir = act==='prev'?-1:1;
+      if(State.calMode==='month') State.calDate = new Date(d.getFullYear(), d.getMonth()+dir, 1);
+      else if(State.calMode==='week') State.calDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()+7*dir);
+      else State.calDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()+dir);
+    }
+    renderMain(); return true;
+  }
+  if(ds.calMode!==undefined){ State.calMode=ds.calMode; renderMain(); return true; }
+  if(ds.openWorkout!==undefined){ e.preventDefault(); openWorkoutModal({workoutId:ds.openWorkout}); return true; }
+  if(ds.addDay!==undefined){ openWorkoutModal({date:ds.addDay}); return true; }
+  if(ds.day!==undefined){ if(State.calMode==='month'){ State.calDate=parseD(ds.day); State.calMode='day'; renderMain(); } return true; }
+  if(ds.repeatWorkout!==undefined){
+    const orig = DB.workouts.find(w=>w.id===ds.repeatWorkout);
+    const copy = JSON.parse(JSON.stringify(orig));
+    copy.id = Storage.uid(); copy.date = dstr(new Date()); copy.recurringId=null;
+    DB.workouts.push(copy); Storage.save();
+    openWorkoutModal({workoutId:copy.id}); return true;
+  }
+  if(ds.useTemplate!==undefined){ openWorkoutModal({templateId:ds.useTemplate, date:dstr(new Date())}); return true; }
+  if(ds.deleteTemplate!==undefined){ DB.templates=DB.templates.filter(t=>t.id!==ds.deleteTemplate); Storage.save(); renderMain(); return true; }
+  if(ds.renameTemplate!==undefined){
+    const t = DB.templates.find(x=>x.id===ds.renameTemplate);
+    const nn = prompt('Новое название шаблона', t.name); if(nn){ t.name=nn; Storage.save(); renderMain(); }
+    return true;
+  }
+  if(ds.addParticipant!==undefined){
+    const name = prompt('Имя участника'); if(name){ DB.participants.push({id:Storage.uid(), name, color:PALETTE[DB.participants.length%PALETTE.length]}); Storage.save(); renderMain(); }
+    return true;
+  }
+  if(ds.openParticipant!==undefined){ State.participantProfile=ds.openParticipant; renderMain(); return true; }
+  if(ds.backParticipants!==undefined){ State.participantProfile=null; renderMain(); return true; }
+  if(ds.saveParticipant!==undefined){
+    const p = DB.participants.find(x=>x.id===ds.saveParticipant);
+    p.name = document.getElementById('editPname').value || p.name;
+    p.color = document.getElementById('editPcolor').value;
+    Storage.save(); renderMain(); return true;
+  }
+  if(ds.deleteParticipant!==undefined){
+    if(!confirm('Удалить участника и всю его историю тренировок?')) return true;
+    const pid = ds.deleteParticipant;
+    DB.participants = DB.participants.filter(x=>x.id!==pid);
+    DB.workouts = DB.workouts.filter(w=>w.participantId!==pid);
+    Storage.save(); State.participantProfile=null; renderMain(); return true;
+  }
+  if(ds.deleteExercise!==undefined){
+    if(!confirm('Удалить упражнение?')) return true;
+    DB.exercises = DB.exercises.filter(x=>x.id!==ds.deleteExercise);
+    Storage.save(); renderMain(); return true;
+  }
+  if(ds.export!==undefined){ Storage.exportJSON(); return true; }
+  if(ds.pickTheme!==undefined){ DB.settings.themeColor = ds.pickTheme; Storage.save(); applyTheme(); renderMain(); return true; }
+  if(ds.timer!==undefined){
+    const act = ds.timer;
+    if(act==='start' && !timerRunning){
+      timerRunning=true;
+      timerInterval = setInterval(()=>{
+        if(timerLeft>0){ timerLeft--; const d=document.getElementById('timerDisplay'); if(d) d.textContent=fmtTime(timerLeft); }
+        else { clearInterval(timerInterval); timerRunning=false; }
+      },1000);
+    } else if(act==='pause'){ clearInterval(timerInterval); timerRunning=false; }
+    else if(act==='reset'){ clearInterval(timerInterval); timerRunning=false; timerLeft=DB.settings.restDefault||90; const d=document.getElementById('timerDisplay'); if(d) d.textContent=fmtTime(timerLeft); }
+    return true;
+  }
+  return false;
+}
+
+function handleMainChange(e, ds){
+  if(ds.hf!==undefined){ State.historyFilters[ds.hf]=e.target.value; renderMain(); return true; }
+  if(ds.statsParticipant!==undefined){ State.statsParticipant=e.target.value; renderMain(); return true; }
+  if(ds.statsPeriod!==undefined){ State.statsPeriod=e.target.value; renderMain(); return true; }
+  if(ds.setting!==undefined){
+    const key = ds.setting; const val = e.target.value;
+    DB.settings[key] = (key==='restDefault') ? Number(val) : val;
+    Storage.save();
+    if(key==='theme') applyTheme();
+    if(key==='restDefault' && !timerRunning) timerLeft = Number(val)||90;
+    preserveFocusAndRerender(renderMain); return true;
+  }
+  if(e.target.id==='importFile'){
+    const file = e.target.files[0]; if(!file) return true;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{ const obj = JSON.parse(reader.result); Storage.importJSON(obj); location.reload(); }
+      catch(err){ alert('Не удалось прочитать файл: '+err.message); }
+    };
+    reader.readAsText(file);
+    return true;
+  }
+  return false;
+}
+
+/* ===================== GLOBAL DELEGATED LISTENERS (bound once) ===================== */
+function initEvents(){
+  document.addEventListener('click', (e)=>{
+    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template]');
+    if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
+    const overlay = e.target.closest('.overlay');
+    if(overlay && e.target===overlay){ closeModal(); return; }
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-rename-template],[data-add-participant],[data-open-participant],[data-back-participants],[data-save-participant],[data-delete-participant],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
+    if(mainEl){ handleMainClick(e, mainEl.dataset); }
+  });
+  function onChangeOrInput(e){
+    if(e.target.matches('[data-exsearch]')){
+      if(e.type!=='input') return;
+      State.modal.query = e.target.value; renderModal();
+      const el = document.querySelector('[data-exsearch]'); if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+      return;
+    }
+    // for free-text/number fields use 'input' for live recalculation; for select/checkbox use 'change'
+    const tag = e.target.tagName;
+    const isTextish = tag==='INPUT' && ['text','number','date','time'].includes(e.target.type);
+    if(isTextish && e.type!=='input') return;
+    if(!isTextish && e.type!=='change') return;
+    const modalEl = e.target.closest('#modalRoot [data-w],#modalRoot [data-block-rest],#modalRoot [data-dropset],#modalRoot [data-set],#modalRoot [data-recur-on],#modalRoot [data-recur-freq],#modalRoot [data-recur-until],#modalRoot [data-recur-day]');
+    if(modalEl){ if(handleModalChange(e, modalEl.dataset)) return; }
+    const mainEl = e.target.closest('[data-hf],[data-stats-participant],[data-stats-period],[data-setting],#importFile');
+    if(mainEl){ handleMainChange(e, mainEl.dataset); }
+  }
+  document.addEventListener('change', onChangeOrInput);
+  document.addEventListener('input', onChangeOrInput);
+}
+
+/* ===================== INIT ===================== */
+applyTheme();
+initEvents();
+rerender();
+</script>
+</body>
+</html>

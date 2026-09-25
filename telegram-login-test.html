@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тест входа через Telegram</title>
+<style>
+  body{font-family:-apple-system,sans-serif;padding:20px;max-width:600px;margin:0 auto;background:#f6f5f2}
+  #status{font-size:16px;font-weight:600;padding:12px;border-radius:8px;background:#fff;border:1px solid #e2ded4;margin-bottom:12px}
+  #log{background:#20221f;color:#c7d69a;padding:12px;border-radius:8px;white-space:pre-wrap;font-size:12px;line-height:1.5}
+  h2{font-size:18px}
+</style>
+</head>
+<body>
+<h2>Тест авторизации: Telegram → Supabase</h2>
+<div id="status">Загрузка…</div>
+<pre id="log"></pre>
+
+<!-- ВАЖНО: этот скрипт должен подключаться именно с telegram.org, поэтому эту
+     страницу нельзя открывать как опубликованный артефакт Claude — только
+     с реального хостинга (локально + туннель, или GitHub Pages и т.п.) -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ===== ЗАПОЛНИТЕ ПЕРЕД ЗАПУСКОМ =====
+const SUPABASE_URL = "https://avobjimkmpdbntwxcldb.supabase.co/rest/v1/";
+const SUPABASE_ANON_KEY = "sb_publishable_N4j63GohZUT4goIim9Ch4g_62KeetyE"; // Project Settings -> API -> anon public
+// =====================================
+
+const FUNCTION_URL = SUPABASE_URL + "/functions/v1/telegram-auth";
+const logEl = document.getElementById("log");
+const statusEl = document.getElementById("status");
+function log(msg){ logEl.textContent += msg + "\n"; console.log(msg); }
+function setStatus(msg){ statusEl.textContent = msg; }
+
+async function loginWithTelegram(){
+  try{
+    if(!window.supabase){
+      setStatus("❌ Библиотека supabase-js не загрузилась (проверьте интернет / адрес CDN).");
+      return;
+    }
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if(!tg || !tg.initData){
+      setStatus("❌ Страница открыта не изнутри Telegram (initData пустой). Откройте её через кнопку мини-аппа в вашем боте, а не напрямую в браузере.");
+      log("window.Telegram доступен: " + !!window.Telegram);
+      return;
+    }
+    tg.ready();
+    log("initData получен, длина: " + tg.initData.length);
+    setStatus("Проверяем подпись на сервере…");
+
+    const res = await fetch(FUNCTION_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({initData: tg.initData})
+    });
+    const payload = await res.json();
+    if(!res.ok || payload.error){
+      setStatus("❌ Ошибка сервера: " + (payload.error || res.status));
+      log(JSON.stringify(payload, null, 2));
+      return;
+    }
+    log("Код входа получен для " + payload.email);
+    setStatus("Обмениваем код на сессию…");
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: payload.email, token: payload.otp, type: "email"
+    });
+    if(error){
+      setStatus("❌ Не удалось войти: " + error.message);
+      return;
+    }
+    setStatus("✅ Вход выполнен. user_id: " + data.user.id);
+    log("Сессия установлена для " + data.user.email);
+
+    const { data: profile, error: profErr } = await supabase.from("profiles").select("*").eq("id", data.user.id).single();
+    if(profErr){ log("Не удалось прочитать профиль: " + profErr.message); }
+    else { log("Профиль из базы:\n" + JSON.stringify(profile, null, 2)); }
+  }catch(e){
+    setStatus("❌ Неожиданная ошибка, см. подробности ниже");
+    log(String(e && e.stack || e));
+  }
+}
+loginWithTelegram();
+</script>
+</body>
+</html>
