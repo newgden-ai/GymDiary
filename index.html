@@ -120,7 +120,7 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
 
 <script>
 // ===== ЗАПОЛНИТЕ ПЕРЕД ЗАГРУЗКОЙ НА ХОСТИНГ =====
-const SUPABASE_URL = "https://avobjimkmpdbntwxcldb.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://avobjimkmpdbntwxcldb.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_N4j63GohZUT4goIim9Ch4g_62KeetyE";
 // =================================================
 </script>
@@ -161,10 +161,20 @@ const Auth = (function(){
       payload = await res.json();
     }catch(e){ setStatus('❌ Нет связи с сервером входа'); log(String(e)); return null; }
 
-    if(!res.ok || payload.error){ setStatus('❌ Ошибка входа: '+(payload.error||res.status)); log(JSON.stringify(payload)); return null; }
+    if(!res.ok || payload.error){
+      setStatus('Ошибка входа: '+(payload.error||res.status));
+      log('HTTP: ' + res.status);
+      log('Ответ сервера: ' + JSON.stringify(payload));
+      log('URL: ' + SUPABASE_URL + '/functions/v1/telegram-auth');
+      return null;
+    }
 
     const { data, error } = await client.auth.verifyOtp({ email: payload.email, token: payload.otp, type:'email' });
-    if(error){ setStatus('❌ Не удалось войти: '+error.message); return null; }
+    if(error){
+  setStatus('❌ Не удалось войти: '+error.message);
+  log('VERIFY OTP ERROR: ' + JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+  return null;
+}
 
     session = data.session;
     setStatus('Загружаем данные…');
