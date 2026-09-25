@@ -136,13 +136,13 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:10px;max-height:420px;overflow:auto;padding-right:2px;}
 .ach-tile{background:radial-gradient(circle at 50% 30%,#2a2a2e 0,#121214 70%);border:1px solid #2c2c30;border-radius:12px;padding:10px 6px 8px;text-align:center;color:#e9e9ea;display:flex;flex-direction:column;align-items:center;gap:3px;}
 .ach-tile .ico{width:44px;height:44px;opacity:.35;filter:grayscale(1);}
-.ach-tile.got{border-color:#5a1f22;box-shadow:0 0 0 1px rgba(227,38,46,.25) inset;}
+.ach-tile.got{border-color:color-mix(in srgb,var(--ach) 55%,#121214);box-shadow:0 0 14px -6px var(--ach) inset;}
 .ach-tile.got .ico{opacity:1;filter:drop-shadow(0 0 6px rgba(255,255,255,.25));}
 .ach-t{font-size:12px;font-weight:700;line-height:1.2;}
 .ach-d{font-size:10.5px;color:#9a9aa0;line-height:1.2;}
-.ach-ok{font-size:10px;color:#ff5a60;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.ach-ok{font-size:10px;color:var(--ach);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
 .ach-bar{width:80%;height:4px;background:#2c2c30;border-radius:3px;overflow:hidden;margin-top:2px;}
-.ach-bar i{display:block;height:100%;background:var(--ico-red);}
+.ach-bar i{display:block;height:100%;background:var(--ach);}
 .chip.planned{opacity:.55;outline:1.5px dashed rgba(255,255,255,.8);outline-offset:-2px;}
 .agenda-item.planned{opacity:.7;border-style:dashed;}
 .btn.finish{background:#2e7d4f;color:#fff;border-color:#2e7d4f;}
@@ -546,16 +546,18 @@ function achievementsList(workouts){
   const hours = workouts.reduce((a,w)=>a+(Number(w.duration)||0),0)/60;
   const streak = weeklyStreak(workouts).longest;
   const cleanLabel = l => l.replace(/\s*[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]+/gu,'').replace(/\s+—.*$/,'').trim();
-  const out = [{icon:'star', title:'Первая тренировка', desc:'Начало пути', cur:workouts.length, target:1}];
-  WORKOUT_MILESTONES.forEach(n=>out.push({icon:'dumbbell', title:`${n} тренировок`, desc:'Проведено тренировок', cur:workouts.length, target:n}));
-  HOUR_MILESTONES.forEach(n=>out.push({icon:'stopwatch', title:`${n} часов`, desc:'Время в зале', cur:fmtNum(hours), target:n}));
-  STREAK_MILESTONES.forEach(n=>out.push({icon:'flame', title:`${n} нед. подряд`, desc:'Серия без пропуска недели', cur:streak, target:n}));
-  TONNAGE_COMPARISONS.forEach(([th,label])=>out.push({icon:'trophy', title:cleanLabel(label), desc:`${fmtNum(th)} кг за тренировку`, cur:Math.round(best), target:th}));
+  // цвет ачивки: по категории; кубки тоннажа — по уровню (бронза → серебро → золото → платина → бриллиант)
+  const TIER = ['#cd7f32','#cd7f32','#cd7f32','#c9d1da','#c9d1da','#c9d1da','#f5b82e','#f5b82e','#f5b82e','#9fe3ff','#9fe3ff','#9fe3ff','#b388ff','#b388ff','#b388ff','#ff7ad9','#ff7ad9'];
+  const out = [{icon:'flag', color:'#3ecf8e', title:'Первая тренировка', desc:'Начало пути', cur:workouts.length, target:1}];
+  WORKOUT_MILESTONES.forEach(n=>out.push({icon:'dumbbell', color:'#4da3ff', title:`${n} тренировок`, desc:'Проведено тренировок', cur:workouts.length, target:n}));
+  HOUR_MILESTONES.forEach(n=>out.push({icon:'stopwatch', color:'#2ed3c6', title:`${n} часов`, desc:'Время в зале', cur:fmtNum(hours), target:n}));
+  STREAK_MILESTONES.forEach(n=>out.push({icon:'flame', color:'#ff8a2b', title:`${n} нед. подряд`, desc:'Серия без пропуска недели', cur:streak, target:n}));
+  TONNAGE_COMPARISONS.forEach(([th,label],i)=>out.push({icon:'trophy', color:TIER[i]||'#f5b82e', title:cleanLabel(label), desc:`${fmtNum(th)} кг за тренировку`, cur:Math.round(best), target:th}));
   return out.map(a=>({...a, got: a.cur>=a.target, pct: Math.min(100, Math.round(a.cur/a.target*100))}));
 }
 function achievementsCard(workouts){
   const list = achievementsList(workouts); const got = list.filter(a=>a.got);
-  const tile = a => `<div class="ach-tile ${a.got?'got':''}" title="${esc(a.desc)}">
+  const tile = a => `<div class="ach-tile ${a.got?'got':''}" style="--ico-red:${a.color};--ach:${a.color}" title="${esc(a.desc)}">
     ${icon(a.icon, true)}
     <div class="ach-t">${esc(a.title)}</div>
     <div class="ach-d">${esc(a.desc)}</div>
@@ -664,7 +666,7 @@ const ICON_PATHS = {
   stats: `<rect x="8" y="33" width="5.5" height="10" rx="1" fill="url(#gmX)"/><rect x="16.5" y="29" width="5.5" height="14" rx="1" fill="url(#gmX)"/><rect x="25" y="31" width="5.5" height="12" rx="1" fill="url(#gmX)"/><rect x="33.5" y="23" width="5.5" height="20" rx="1" fill="url(#gmX)"/><path d="M5 27l10-9 7 6 16-15" fill="none" stroke="var(--ico-red)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M31 8.5h7.5V16" fill="none" stroke="var(--ico-red)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`,
   settings: `<path fill-rule="evenodd" d="M39.3 21.7L44.0 25.0L43.4 28.9L38.0 30.6L36.4 33.2L37.4 38.8L34.3 41.2L29.2 38.6L26.3 39.3L23.0 44.0L19.1 43.4L17.4 38.0L14.8 36.4L9.2 37.4L6.8 34.3L9.4 29.2L8.7 26.3L4.0 23.0L4.6 19.1L10.0 17.4L11.6 14.8L10.6 9.2L13.7 6.8L18.8 9.4L21.7 8.7L25.0 4.0L28.9 4.6L30.6 10.0L33.2 11.6L38.8 10.6L41.2 13.7L38.6 18.8ZM35 24a11 11 0 1 0 -22 0a11 11 0 1 0 22 0Z" fill="url(#gmX)"/><path d="M24 16.5a7.5 7.5 0 1 1-6.5 3.8" fill="none" stroke="var(--ico-red)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,
   help: `<path d="M11 9a3 3 0 0 1 3-3h20a3 3 0 0 1 3 3v33H14a3 3 0 0 1-3-3z" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 39a3 3 0 0 1 3-3h23" fill="none" stroke="url(#gmX)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="14" r="2.3" fill="var(--ico-red)"/><path d="M24 20v10" fill="none" stroke="var(--ico-red)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`,
-  trophy: `<path d="M14 7h20v10a10 10 0 0 1-20 0z" fill="url(#gmX)"/><path d="M14 11H8.5v2.5a6.5 6.5 0 0 0 6.5 6.5M34 11h5.5v2.5A6.5 6.5 0 0 1 33 20" fill="none" stroke="url(#gmX)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="21.5" y="26" width="5" height="8" fill="url(#gmX)"/><rect x="15" y="34" width="18" height="5.5" rx="2" fill="url(#gmX)"/><path d="M24.0 9.7L25.4 13.6L29.5 13.7L26.3 16.2L27.4 20.2L24.0 17.9L20.6 20.2L21.7 16.2L18.5 13.7L22.6 13.6Z" fill="var(--ico-red)" stroke="#1b1b1d" stroke-width=".8"/>`,
+  trophy: `<path d="M14 7h20v10a10 10 0 0 1-20 0z" fill="url(#gmX)"/><path d="M14 11H8.5v2.5a6.5 6.5 0 0 0 6.5 6.5M34 11h5.5v2.5A6.5 6.5 0 0 1 33 20" fill="none" stroke="url(#gmX)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 12.5h18" stroke="var(--ico-red)" stroke-width="3.2"/><path d="M19.5 18.5c1.2 2.6 3 3.8 5 3.8" fill="none" stroke="#ffffff" stroke-opacity=".7" stroke-width="1.8" stroke-linecap="round"/><rect x="21.5" y="26" width="5" height="8" fill="url(#gmX)"/><rect x="15" y="34" width="18" height="5.5" rx="2" fill="var(--ico-red)"/>`,
   stopwatch: `<circle cx="24" cy="27" r="15" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="19.5" y="4.5" width="9" height="4.5" rx="1.2" fill="url(#gmX)"/><path d="M24 9v3M35.5 14.5l2.5-2.5" fill="none" stroke="url(#gmX)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 16v2.5M24 35.5V38M13 27h2.5M32.5 27H35" fill="none" stroke="url(#gmX)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 27l6.5-8" fill="none" stroke="var(--ico-red)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="27" r="2.4" fill="var(--ico-red)"/>`,
   flame: `<path d="M24 45c-9 0-15-6-15-14 0-9 6-13 8-20 1 4 3 6 5 7 0-6 3-11 8-15-1 7 3 11 6 15 2 3 3 6 3 10 0 10-6 17-15 17z" fill="url(#gmX)"/><path d="M24 41c-4.5 0-7.5-3-7.5-7 0-4 3-6.5 4-10 1 2.5 2.5 3.5 4 4 0-3 1.5-5.5 4-7.5-.5 4 1.5 6 3 8 1 1.5 1.5 3 1.5 5 0 4.5-4 7.5-9 7.5z" fill="#1b1b1d" stroke="var(--ico-red)" stroke-width="2"/>`,
   target: `<circle cx="24" cy="24" r="13" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 4v8M24 36v8M4 24h8M36 24h8" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="24" r="5" fill="var(--ico-red)"/>`,
@@ -673,7 +675,7 @@ const ICON_PATHS = {
   dumbbell: `<rect x="3" y="21.5" width="3.5" height="5" rx="1" fill="url(#gmX)"/><rect x="41.5" y="21.5" width="3.5" height="5" rx="1" fill="url(#gmX)"/><rect x="6.5" y="16.5" width="4.5" height="15" rx="1.6" fill="url(#gmX)"/><rect x="12" y="12.5" width="5.5" height="23" rx="2" fill="url(#gmX)"/><rect x="30.5" y="12.5" width="5.5" height="23" rx="2" fill="url(#gmX)"/><rect x="37" y="16.5" width="4.5" height="15" rx="1.6" fill="url(#gmX)"/><rect x="17.5" y="21.5" width="13" height="5" fill="var(--ico-red)"/>`,
   shaker: `<path d="M15.5 6.5h17l1.5 7h-20z" fill="var(--ico-red)"/><path d="M14 15h20l-2.2 26.5a3.5 3.5 0 0 1-3.5 3.2h-8.6a3.5 3.5 0 0 1-3.5-3.2z" fill="url(#gmX)"/><path d="M26 23h4.5M26 28.5h3M26 34h4.5" fill="none" stroke="#1b1b1d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
   bicep: `<path d="M8 42c-2.5-9 0-19 5-27 2.5-4 7.5-5.5 10-2.5 1.5 2 .5 4.5-1.5 5.5l-3.5 2c-1 4-.5 8 1.5 10.5 4.5-4.5 12.5-5.5 18-1.5 4.5 3.3 4.5 9.5 0 12.5-3.5 2.3-9 2.5-12.5.5z" fill="url(#gmX)"/><path d="M27 33.5c3-2 7.5-2 10 .5" fill="none" stroke="var(--ico-red)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`,
-  star: `<path d="M24.0 6.0L28.7 18.5L42.1 19.1L31.6 27.5L35.2 40.4L24.0 33.0L12.8 40.4L16.4 27.5L5.9 19.1L19.3 18.5Z" fill="none" stroke="url(#gmX)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M24.0 14.5L26.8 21.6L34.5 22.1L28.6 27.0L30.5 34.4L24.0 30.3L17.5 34.4L19.4 27.0L13.5 22.1L21.2 21.6Z" fill="none" stroke="var(--ico-red)" stroke-width="2.6" stroke-linejoin="round"/>`,
+  flag: `<path d="M13 43V6" fill="none" stroke="url(#gmX)" stroke-width="3.4" stroke-linecap="round"/><path d="M14.5 8c6-3 10 3 16 0 2.5-1.2 4.5-1.5 6-1v17c-1.5-.5-3.5-.2-6 1-6 3-10-3-16 0z" fill="var(--ico-red)"/><path d="M8 43h11" stroke="url(#gmX)" stroke-width="3" stroke-linecap="round"/>`,
   download: `<path d="M17 14h-3a4 4 0 0 0-4 4v20a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4V18a4 4 0 0 0-4-4h-3" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 6v22M17 21.5l7 7 7-7" fill="none" stroke="var(--ico-red)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`,
   upload: `<path d="M17 14h-3a4 4 0 0 0-4 4v20a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4V18a4 4 0 0 0-4-4h-3" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 32V8M17 15l7-7 7 7" fill="none" stroke="var(--ico-red)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`
 };
