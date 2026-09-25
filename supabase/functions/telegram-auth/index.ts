@@ -331,6 +331,9 @@ async function cron(kind: string) {
         friend_accepted: `🤝 ${who} подтвердил(а) заявку — теперь вы участники друг у друга.`,
         trainer_offer: `🏋️ ${who} предлагает стать вашим тренером. Принять или отклонить можно в разделе «Участники».`,
         trainer_assigned: `✅ ${who} принял(а) вас как тренера. Его (её) тренировки теперь в вашем календаре.`,
+        achievement_pending: `🏅 Новый сертификат на проверке от ${who}: «${esc(n.payload?.name)}». Откройте Настройки → Админ-панель.`,
+        achievement_approved: `🏅 Ваш сертификат «${esc(n.payload?.name)}» подтверждён! Он уже в «Достижениях → Соревнования».`,
+        achievement_rejected: `Сертификат «${esc(n.payload?.name)}» отклонён.${n.payload?.comment ? " Причина: " + esc(n.payload.comment) + "." : ""} Можно загрузить заново.`,
       };
       if (to?.telegram_id && text[n.type]) { await send(to.telegram_id, text[n.type], appKb()); sent++; await sleep(40); }
       await admin.from("notifications").update({ telegram_sent: true }).eq("id", n.id);

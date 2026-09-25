@@ -162,6 +162,14 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .base-group{margin-bottom:8px;border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:0 10px;}
 .base-group summary{padding:11px 0;cursor:pointer;font-weight:600;}
 .base-group[open] summary{border-bottom:1px solid var(--border);margin-bottom:10px;}
+.cert-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.cert-row:last-child{border-bottom:none;}
+.cert-img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:var(--surface2);border:1px solid var(--border);flex:0 0 auto;cursor:zoom-in;}
+.st-rej{background:var(--danger);color:#fff;border-color:var(--danger);}
+.adm-row{display:grid;grid-template-columns:110px 1fr 36px;gap:8px;align-items:center;padding:4px 0;}
+.adm-row .muted{grid-column:1/-1;margin-top:-4px;font-size:11.5px;}
+.adm-bar{height:10px;background:var(--surface2);border-radius:6px;overflow:hidden;}
+.adm-bar i{display:block;height:100%;border-radius:6px;}
 .set-ton{font-size:11px;color:var(--text-dim);margin:-2px 0 4px 34px;}
 .tonnage-line{font-size:12px;color:var(--text-dim);margin-top:4px;}
 .tot-box{background:var(--accent);color:var(--on-accent,#fff);border-radius:10px;padding:10px 12px;margin-top:10px;}
@@ -353,7 +361,7 @@ const Storage = (function(){
     Object.assign(DB, {
       participants: social.participants,
       friends: social.friends, trainerLinks: social.links,
-      details: social.details, weights: social.weights, activity: social.activity,
+      details: social.details, weights: social.weights, activity: social.activity, certs: social.certs,
       me: { role: profile?.role || 'user', inviteCode: profile?.invite_code || '' },
       exercises, templates, workouts,
       settings: {
@@ -380,11 +388,12 @@ const Storage = (function(){
       client.from('trainer_links').select('*'),
       client.from('profile_details').select('*'),          // RLS: свои + тех, кто разрешил показывать
       client.from('body_weights').select('*').order('date'),
-      client.from('daily_activity').select('*').gte('date', since)
+      client.from('daily_activity').select('*').gte('date', since),
+      client.from('user_achievements').select('*').not('competition_name','is',null).order('competition_date',{ascending:false})
     ]);
-    const [{data:friends}, {data:links}, {data:details}, {data:weights}, {data:activity}] = res;
+    const [{data:friends}, {data:links}, {data:details}, {data:weights}, {data:activity}, {data:certs}] = res;
     // ошибки загрузки не прячем — иначе раздел просто выглядит пустым
-    const errs = res.map((r,i)=>r.error?['участники','тренеры','личные данные','вес','активность'][i]+': '+r.error.message:null).filter(Boolean);
+    const errs = res.map((r,i)=>r.error?['участники','тренеры','личные данные','вес','активность','сертификаты'][i]+': '+r.error.message:null).filter(Boolean);
     if(errs.length) setTimeout(()=>toast('Ошибка загрузки — '+errs.join('; ')), 800);
     const traineeIds = (links||[]).filter(l=>l.trainer_id===selfId && l.active).map(l=>l.trainee_id);
     const {data:wRows} = await client.from('workouts').select('*').in('participant_id', [selfId, ...traineeIds]);
@@ -397,7 +406,7 @@ const Storage = (function(){
       const tl = (links||[]).find(l=>l.trainer_id===selfId && l.trainee_id===f.other_id && l.active);
       return {id:f.other_id, name:f.name, color: tl ? (tl.color || autoColor()) : (f.color||'#888')};
     })];
-    return { friends: friends||[], links: links||[], wRows: wRows||[], participants, details: details||[], weights: weights||[], activity: activity||[] };
+    return { friends: friends||[], links: links||[], wRows: wRows||[], participants, details: details||[], weights: weights||[], activity: activity||[], certs: certs||[] };
   }
   // перечитать участников/заявки/тренировки после действий в разделе «Участники»
   async function reloadSocial(){
@@ -405,7 +414,7 @@ const Storage = (function(){
     clearTimeout(saveTimer); await syncAll();
     const social = await fetchSocial(client, null);
     Object.assign(DB, { participants: social.participants, friends: social.friends, trainerLinks: social.links,
-      details: social.details, weights: social.weights, activity: social.activity,
+      details: social.details, weights: social.weights, activity: social.activity, certs: social.certs,
       workouts: social.wRows.map(workoutFromDb) });
     snapshot.workouts = JSON.parse(JSON.stringify(social.wRows.map(r=>workoutToDb(workoutFromDb(r)))));
   }
@@ -610,6 +619,7 @@ const ACH_CATS = [
   {id:'hours', name:'Часы', color:'#2ed3c6', hint:'время в зале'},
   {id:'streak', name:'Серии', color:'#ff5a8a', hint:'недель подряд'},
   {id:'rare', name:'Редкие', color:'#b388ff', hint:'уникальное'},
+  {id:'cert', name:'Соревнования', color:'#ffd166', hint:'подтверждённые сертификаты — добавить: Участники → вы → Сертификаты'},
   {id:'beast', name:'Звери', color:'#c7a36a', hint:'вес в одном повторении — отдельная ачивка за каждое упражнение'}
 ];
 const COUNT_STEPS = [1,3,5,10,15,20,25,30,40,50,60,75,90,100,125,150,175,200,250,300,365,400,500,600,700,750,800,900,1000,1500];
@@ -642,6 +652,10 @@ function achievementsList(workouts){
   ev('🎯','Ровно тонна','Тоннаж тренировки ровно 1000 кг', tons.some(t=>Math.abs(t-1000)<0.01));
   ev('🔁','Тоннаж-палиндром','Тоннаж читается одинаково с обеих сторон, например 12 321 кг', tons.some(isPalindromeNum));
   ev('🎂','Тренировка в день рождения','Тренировка в свой день рождения', (()=>{ const d=(DB.details||[]).find(x=>x.user_id===(workouts[0]||{}).participantId); return !!(d&&d.birth_date) && workouts.some(w=>w.date.slice(5)===d.birth_date.slice(5)); })());
+  const uid = (workouts[0]||{}).participantId || State.achFor;
+  (DB.certs||[]).filter(c=>c.user_id===uid && c.status==='approved').forEach(c=>
+    out.push({cat:'cert', icon:/1|золот|перв/i.test(c.result||'')?'🥇':/2|серебр|втор/i.test(c.result||'')?'🥈':/3|бронз|трет/i.test(c.result||'')?'🥉':'🏅',
+      title:c.competition_name, desc:[c.result, c.competition_date?fmtDate(c.competition_date):'', c.competition_place].filter(Boolean).join(' · '), cur:1, target:1}));
   // максимальный вес за одно повторение в каждом упражнении (без веса — собственный вес, как в тоннаже)
   const maxByEx = {};
   workouts.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>(ex.sets||[]).forEach(s=>{
@@ -657,7 +671,8 @@ function achievementsList(workouts){
   });
   return out.map(a=>({...a, got: a.cur>=a.target, pct: Math.min(100, Math.round(a.cur/a.target*100))}));
 }
-function achievementsCard(workouts){
+function achievementsCard(workouts, pid){
+  State.achFor = pid || (workouts[0]||{}).participantId;
   // считаем только проведённые тренировки, запланированные на будущее — нет
   const all = achievementsList(workouts.filter(w=>w.status==='done' || (w.date<=dstr(new Date()) && hasFilledSets(w)))); const tab = State.achTab || 'weight';
   const cat = id => ACH_CATS.find(c=>c.id===id);
@@ -848,7 +863,9 @@ function renderMain(){
   else if(State.view==='stats') m.innerHTML = viewStats();
   else if(State.view==='settings') m.innerHTML = viewSettings();
   else if(State.view==='help') m.innerHTML = viewHelp();
+  else if(State.view==='admin') m.innerHTML = viewAdmin();
   applyTheme();
+  hydrateCertImages();
 }
 
 /* ===================== CALENDAR VIEW ===================== */
@@ -998,6 +1015,7 @@ function renderModal(){
   else if(State.modal.kind==='importTemplates') root.innerHTML = renderImportModal();
   else if(State.modal.kind==='help') root.innerHTML = renderHelpModal();
   else if(State.modal.kind==='achBeast') root.innerHTML = renderBeastModal();
+  else if(State.modal.kind==='cert') root.innerHTML = renderCertModal();
 }
 
 function renderWorkoutModal(){
@@ -1221,6 +1239,8 @@ function handleModalClick(e, ds){
       State.modal = {kind:'workout', w:back.w, isNew:back.isNew, recurRule:back.recurRule};
       renderModal(); return true;
     }
+  } else if(modal.kind==='cert'){
+    if(ds.sendCert!==undefined){ sendCert(); return true; }
   } else if(modal.kind==='importTemplates'){
     if(ds.importExample!==undefined){ modal.text = IMPORT_EXAMPLE; modal.error=''; renderModal(); return true; }
     if(ds.importRun!==undefined){
@@ -1680,7 +1700,8 @@ function viewParticipantProfile(pid){
     <button class="btn sm" data-drop-link="${linkWith(p.id).asTrainer.id}">Перестать тренировать</button>
     <button class="btn sm ghost del-link" data-remove-friend="${p.id}">Удалить</button></div>`}
   ${detailsCard(p.id)}
-  ${achievementsCard(workouts)}
+  ${certsCard(p.id)}
+  ${achievementsCard(workouts, p.id)}
   <div class="card" style="margin-bottom:10px">
     <h3>Личная статистика</h3>
     <table><tbody>
@@ -1739,7 +1760,7 @@ function viewStats(){
       <select data-stats-period>${[['week','Неделя'],['month','Месяц'],['3m','3 месяца'],['6m','6 месяцев'],['year','Год'],['all','Всё время']].map(([id,l])=>`<option value="${id}" ${State.statsPeriod===id?'selected':''}>${l}</option>`).join('')}</select>
     </div></div>
 
-  ${achievementsCard(DB.workouts.filter(w=>w.participantId===(State.statsParticipant||selfParticipantId())))}
+  ${achievementsCard(DB.workouts.filter(w=>w.participantId===(State.statsParticipant||selfParticipantId())), State.statsParticipant||selfParticipantId())}
   <div class="grid3" style="margin-bottom:10px">
     <div class="card"><div class="muted">Тренировок</div><div style="font-size:22px;font-weight:700">${list.length}</div></div>
     <div class="card"><div class="muted">Общий тоннаж</div><div style="font-size:22px;font-weight:700">${fmtNum(convW(totalT,units))} ${unitLabel(units)}</div></div>
@@ -1798,6 +1819,7 @@ function viewSettings(){
     </div>
     <p class="muted">Импорт полностью заменит текущие данные.</p>
   </div>
+  ${isAdmin()?`<div class="card" style="margin-bottom:10px"><h3>🛡️ Администрирование</h3><div class="muted" style="margin-bottom:8px">Модерация сертификатов и статистика пользователей по полу и возрасту.</div><button class="btn primary" data-open-admin="1">Открыть админ-панель</button></div>`:''}
   <div class="card">
     <h3>Таймер отдыха</h3>
     <div class="row"><span id="timerDisplay" style="font-size:22px;font-weight:700">${fmtTime(timerLeft)}</span>
@@ -1915,6 +1937,149 @@ async function saveDetails(){
     if(!we) DB.weights = (DB.weights||[]).filter(x=>!(x.user_id===uid && x.date===wrow.date)).concat([wrow]);
   }
   toast('Личные данные сохранены'); renderMain();
+}
+
+/* ===================== СЕРТИФИКАТЫ СОРЕВНОВАНИЙ ===================== */
+const CERT_STATUS = {pending:['на модерации','st-plan'], approved:['подтверждён','st-done'], rejected:['отклонён','st-rej']};
+// фото лежат в закрытом хранилище — показываем по временной ссылке
+const certUrlCache = {};
+async function hydrateCertImages(){
+  const imgs = [...document.querySelectorAll('img[data-cert-path]:not([src])')]; if(!imgs.length) return;
+  const c = Auth.getClient(); if(!c || !c.storage) return;
+  for(const img of imgs){
+    const path = img.dataset.certPath;
+    if(!certUrlCache[path]){ const {data} = await c.storage.from('certificates').createSignedUrl(path, 3600); certUrlCache[path] = data && data.signedUrl; }
+    if(certUrlCache[path]){ img.src = certUrlCache[path]; img.dataset.zoom = certUrlCache[path]; }
+  }
+}
+function certsCard(uid){
+  const mine = uid===selfParticipantId();
+  const list = (DB.certs||[]).filter(c=>c.user_id===uid);
+  if(!mine && !list.length) return '';
+  return `<div class="card" style="margin-bottom:10px">
+    <div class="row" style="justify-content:space-between"><h3 style="margin:0">🏅 Сертификаты соревнований</h3>
+      ${mine?'<button class="btn sm primary" data-add-cert="1">+ Добавить</button>':''}</div>
+    ${mine?'<div class="muted" style="margin:4px 0 8px">После проверки администратором сертификат появится в «Достижениях → Соревнования».</div>':''}
+    ${list.map(c=>`<div class="cert-row">
+      ${c.certificate_image_url?`<img class="cert-img" data-cert-path="${esc(c.certificate_image_url)}" alt="">`:'<div class="cert-img"></div>'}
+      <div class="grow" style="min-width:0"><b>${esc(c.competition_name)}</b>
+        <div class="muted">${[c.result, c.competition_date?fmtDate(c.competition_date):'', c.competition_place].filter(Boolean).map(esc).join(' · ')}</div>
+        <span class="pill ${CERT_STATUS[c.status][1]}">${CERT_STATUS[c.status][0]}</span>
+        ${c.status==='rejected'&&c.review_comment?`<div class="muted">Причина: ${esc(c.review_comment)}</div>`:''}
+      </div>
+      ${mine&&c.status!=='approved'?`<button class="btn sm ghost del-link" data-del-cert="${c.id}">Удалить</button>`:''}
+    </div>`).join('') || '<div class="muted">Пока нет сертификатов.</div>'}
+  </div>`;
+}
+function renderCertModal(){
+  const m = State.modal;
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:460px">
+    <h2>Новый сертификат</h2>
+    <div class="field"><label>Соревнование *</label><input type="text" id="certName" placeholder="Кубок города по жиму лёжа"></div>
+    <div class="grid2">
+      <div class="field"><label>Дата</label><input type="date" id="certDate"></div>
+      <div class="field"><label>Результат</label><input type="text" id="certResult" placeholder="1 место / КМС"></div>
+    </div>
+    <div class="field"><label>Место проведения</label><input type="text" id="certPlace" placeholder="Ташкент"></div>
+    <div class="field"><label>Фото сертификата *</label><input type="file" id="certFile" accept="image/*"></div>
+    ${m.error?`<div style="color:var(--danger)">${esc(m.error)}</div>`:''}
+    <div class="row" style="justify-content:flex-end;margin-top:10px">
+      <button class="btn ghost" data-close-modal="1">Отмена</button>
+      <button class="btn primary" data-send-cert="1" ${m.busy?'disabled':''}>${m.busy?'Отправляем…':'Отправить на проверку'}</button>
+    </div>
+  </div></div>`;
+}
+// уменьшаем фото до 1600 px (JPEG) — быстрее загрузка из мобильной сети
+function compressImage(file, max=1600){
+  return new Promise((res, rej)=>{
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = ()=>{ const k = Math.min(1, max/Math.max(img.width, img.height)); const c = document.createElement('canvas');
+      c.width = Math.round(img.width*k); c.height = Math.round(img.height*k); c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url); c.toBlob(b=>b?res(b):rej(new Error('не удалось обработать фото')), 'image/jpeg', 0.85); };
+    img.onerror = ()=>rej(new Error('файл не похож на изображение')); img.src = url;
+  });
+}
+async function sendCert(){
+  const m = State.modal, v = id => document.getElementById(id).value.trim();
+  const name = v('certName'), file = document.getElementById('certFile').files[0];
+  if(!name || !file){ m.error = 'Укажите название соревнования и приложите фото'; renderModal(); return; }
+  const row = { id:Storage.uid(), user_id:selfParticipantId(), competition_name:name, competition_date:v('certDate')||null,
+    result:v('certResult')||null, competition_place:v('certPlace')||null };
+  m.busy = true; m.error = ''; renderModal();
+  try{
+    const c = Auth.getClient(), blob = await compressImage(file), path = `${row.user_id}/${row.id}.jpg`;
+    const up = await c.storage.from('certificates').upload(path, blob, {contentType:'image/jpeg', upsert:true});
+    if(up.error) throw new Error('фото: '+up.error.message);
+    row.certificate_image_url = path;
+    const {data, error} = await c.from('user_achievements').insert(row).select().single();
+    if(error) throw new Error(error.message);
+    DB.certs = [data||{...row, status:'pending'}, ...(DB.certs||[])];
+    closeModal(); renderMain(); toast('Сертификат отправлен на проверку администратору');
+  }catch(e){ m.busy = false; m.error = 'Не удалось отправить: '+e.message; renderModal(); }
+}
+
+/* ===================== АДМИН-ПАНЕЛЬ ===================== */
+const GENDER_RU = {male:'Мужчины', female:'Женщины', unknown:'Пол не указан'};
+const AGE_ORDER = ['до 18','18–24','25–34','35–44','45–54','55+','не указан'];
+async function loadAdmin(){
+  const c = Auth.getClient(), days = State.adminDays ?? 30;
+  const [st, pend] = await Promise.all([
+    c.rpc('admin_stats', {p_days: days}),
+    c.from('user_achievements').select('*').eq('status','pending').not('competition_name','is',null).order('created_at')
+  ]);
+  const ids = [...new Set((pend.data||[]).map(x=>x.user_id))];
+  const {data:names} = ids.length ? await c.from('profiles').select('id,name,telegram_username').in('id', ids) : {data:[]};
+  State.admin = { stats: st.data||[], error: st.error&&st.error.message, pending: pend.data||[], names: names||[] };
+  if(State.view==='admin') renderMain();
+}
+function viewAdmin(){
+  if(!isAdmin()) return '<div class="muted">Раздел только для администратора.</div>';
+  const A = State.admin;
+  if(!A){ loadAdmin(); return '<div class="topbar"><h2>Админ-панель</h2></div><div class="muted">Загрузка…</div>'; }
+  const rows = A.stats, sum = (list,k)=>list.reduce((a,r)=>a+Number(r[k]||0),0);
+  const byG = ['male','female','unknown'].map(g=>({g, list:rows.filter(r=>r.gender===g)})).filter(x=>x.list.length);
+  const byA = AGE_ORDER.map(a=>({a, list:rows.filter(r=>r.age_group===a)})).filter(x=>x.list.length);
+  const maxU = Math.max(1, ...byA.map(x=>sum(x.list,'users')));
+  const bar = (n,max,color) => `<div class="adm-bar"><i style="width:${Math.round(n/max*100)}%;background:${color}"></i></div>`;
+  const nameOf = id => { const p=A.names.find(x=>x.id===id); return p ? p.name+(p.telegram_username?' (@'+p.telegram_username+')':'') : 'Пользователь'; };
+  return `<div class="topbar"><button class="btn ghost" data-nav="settings">← Настройки</button><h2>Админ-панель</h2></div>
+  <div class="card" style="margin-bottom:10px">
+    <h3>Модерация сертификатов <span class="muted">${A.pending.length}</span></h3>
+    ${A.pending.map(c=>`<div class="cert-row">
+      <img class="cert-img" data-cert-path="${esc(c.certificate_image_url||'')}" alt="">
+      <div class="grow" style="min-width:0"><b>${esc(c.competition_name)}</b>
+        <div class="muted">${esc(nameOf(c.user_id))}</div>
+        <div class="muted">${[c.result, c.competition_date?fmtDate(c.competition_date):'', c.competition_place].filter(Boolean).map(esc).join(' · ')}</div>
+        <input type="text" id="rej_${c.id}" placeholder="Причина отказа (если отклоняете)" style="width:100%;margin-top:6px;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface)">
+        <div class="row" style="margin-top:6px"><button class="btn sm primary" data-review-cert="${c.id}.1">Подтвердить</button><button class="btn sm" data-review-cert="${c.id}.0">Отклонить</button></div>
+      </div></div>`).join('') || '<div class="muted">Новых сертификатов нет.</div>'}
+  </div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between"><h3 style="margin:0">Пользователи по полу и возрасту</h3>
+      <select data-admin-days>${[[7,'7 дней'],[30,'30 дней'],[90,'3 месяца'],[365,'год'],[0,'всё время']].map(([d,l])=>`<option value="${d}" ${(State.adminDays??30)==d?'selected':''}>${l}</option>`).join('')}</select></div>
+    ${A.error?`<div style="color:var(--danger)">Ошибка: ${esc(A.error)}</div>`:''}
+    <div class="grid3" style="margin:10px 0">
+      <div><div class="muted">Пользователей</div><div style="font-size:22px;font-weight:700">${sum(rows,'users')}</div></div>
+      <div><div class="muted">Активных за период</div><div style="font-size:22px;font-weight:700">${sum(rows,'active_users')}</div></div>
+      <div><div class="muted">Тренировок / тоннаж</div><div style="font-size:22px;font-weight:700">${sum(rows,'workouts')} · ${fmtNum(sum(rows,'total_tonnage')/1000)} т</div></div>
+    </div>
+    <h3>По полу</h3>
+    ${byG.map(x=>`<div class="adm-row"><span>${GENDER_RU[x.g]}</span>${bar(sum(x.list,'users'),Math.max(1,sum(rows,'users')),x.g==='female'?'#e76f9a':x.g==='male'?'#4da3ff':'#999')}<b>${sum(x.list,'users')}</b><span class="muted">актив. ${sum(x.list,'active_users')} · трен. ${sum(x.list,'workouts')}</span></div>`).join('')}
+    <h3 style="margin-top:12px">По возрасту</h3>
+    ${byA.map(x=>`<div class="adm-row"><span>${x.a}</span>${bar(sum(x.list,'users'),maxU,'var(--accent)')}<b>${sum(x.list,'users')}</b><span class="muted">актив. ${sum(x.list,'active_users')} · трен. ${sum(x.list,'workouts')}</span></div>`).join('')}
+    <h3 style="margin-top:12px">Пол × возраст</h3>
+    <table><thead><tr><th>Пол</th><th>Возраст</th><th>Польз.</th><th>Активн.</th><th>Трен.</th><th>Ср. тоннаж</th></tr></thead><tbody>
+      ${rows.map(r=>`<tr><td>${GENDER_RU[r.gender]||r.gender}</td><td>${r.age_group}</td><td>${r.users}</td><td>${r.active_users}</td><td>${r.workouts}</td><td>${fmtNum(r.avg_tonnage)} кг</td></tr>`).join('')}
+    </tbody></table>
+  </div>`;
+}
+async function reviewCert(id, approve){
+  const comment = approve ? null : ((document.getElementById('rej_'+id)||{}).value||'').trim() || null;
+  const {error} = await Auth.getClient().from('user_achievements').update({status: approve?'approved':'rejected', review_comment: comment,
+    reviewed_at: new Date().toISOString(), reviewed_by: selfParticipantId()}).eq('id', id);
+  if(error) return toast('Ошибка: '+error.message);
+  toast(approve ? 'Сертификат подтверждён — пользователю придёт сообщение' : 'Сертификат отклонён');
+  State.admin.pending = State.admin.pending.filter(x=>x.id!==id); renderMain();
 }
 
 /* ===================== SOCIAL HELPERS ===================== */
@@ -2053,6 +2218,19 @@ function handleMainClick(e, ds){
   }
   if(ds.saveDetails!==undefined){ saveDetails(); return true; }
   if(ds.achTab!==undefined){ State.achTab = ds.achTab; const y=window.scrollY; renderMain(); window.scrollTo(0,y); return true; }
+  if(ds.addCert!==undefined){ State.modal={kind:'cert'}; renderModal(); return true; }
+  if(ds.delCert!==undefined){
+    const id=ds.delCert, c=DB.certs.find(x=>x.id===id);
+    askConfirm('Удалить сертификат?','«'+c.competition_name+'» будет удалён.','Да, удалить', async()=>{
+      const cl=Auth.getClient(); const {error}=await cl.from('user_achievements').delete().eq('id',id);
+      if(error) return toast('Ошибка: '+error.message);
+      if(c.certificate_image_url) cl.storage.from('certificates').remove([c.certificate_image_url]);
+      DB.certs=DB.certs.filter(x=>x.id!==id); renderMain(); });
+    return true;
+  }
+  if(ds.reviewCert!==undefined){ const [id,a]=ds.reviewCert.split('.'); reviewCert(id, a==='1'); return true; }
+  if(ds.openAdmin!==undefined){ State.view='admin'; State.admin=null; rerender(); return true; }
+  if(ds.certPath!==undefined && ds.zoom){ openZoom(ds.zoom); return true; }
   if(ds.achBeast!==undefined){ State.modal={kind:'achBeast', beast:(State.achBeasts||[]).find(a=>a.title===ds.achBeast)}; renderModal(); return true; }
   if(ds.achInfo!==undefined){ const [t,d,st]=ds.achInfo.split('|'); toast(`${t}: ${d} — ${st}`); return true; }
   if(ds.traineeColor!==undefined){
@@ -2101,6 +2279,7 @@ function handleMainClick(e, ds){
 }
 
 function handleMainChange(e, ds){
+  if(ds.adminDays!==undefined){ State.adminDays=Number(e.target.value); State.admin=null; renderMain(); return true; }
   if(ds.hf!==undefined){ State.historyFilters[ds.hf]=e.target.value; renderMain(); return true; }
   if(ds.exEdit!==undefined){
     if(!isAdmin()) return true;
@@ -2139,11 +2318,11 @@ function handleMainChange(e, ds){
 /* ===================== GLOBAL DELEGATED LISTENERS (bound once) ===================== */
 function initEvents(){
   document.addEventListener('click', (e)=>{
-    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-finish-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom]');
+    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-finish-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom],#modalRoot [data-send-cert]');
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){
@@ -2166,7 +2345,7 @@ function initEvents(){
     if(!isTextish && e.type!=='change') return;
     const modalEl = e.target.closest('#modalRoot [data-w],#modalRoot [data-block-rest],#modalRoot [data-dropset],#modalRoot [data-set],#modalRoot [data-recur-on],#modalRoot [data-recur-freq],#modalRoot [data-recur-until],#modalRoot [data-recur-day]');
     if(modalEl){ if(handleModalChange(e, modalEl.dataset)) return; }
-    const mainEl = e.target.closest('#pdMemTerm,#importTplFile,[data-hf],[data-ex-edit],[data-stats-participant],[data-stats-period],[data-setting],#importFile');
+    const mainEl = e.target.closest('[data-admin-days],#pdMemTerm,#importTplFile,[data-hf],[data-ex-edit],[data-stats-participant],[data-stats-period],[data-setting],#importFile');
     if(mainEl){ handleMainChange(e, mainEl.dataset); }
   }
   // помним раскрытую группу базовых программ между перерисовками
