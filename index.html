@@ -166,6 +166,15 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .ach-tile.ach-machine .ach-tag{font-style:normal;text-transform:uppercase;font-size:9px;letter-spacing:.4px;color:#f5b82e;}
 .ach-tile.ach-machine.got{border-color:#f5b82e;box-shadow:0 0 14px -6px #f5b82e inset;}
 .result-modal .ach-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}
+/* герои: портрет в медали. relief — рельефная бронза с ободком, mono — однотонная гравировка */
+.hero-medal{width:74px;height:74px;border-radius:50%;padding:5px;margin:2px auto 4px;}
+.hero-medal img{width:100%;height:100%;border-radius:50%;display:block;}
+.hero-medal.relief{background:radial-gradient(circle at 35% 30%,#f3d08a,#a8782e 45%,#5a3b12 100%);box-shadow:inset 0 2px 3px rgba(255,255,255,.5),inset 0 -3px 5px rgba(0,0,0,.6),0 3px 8px rgba(0,0,0,.6);}
+.hero-medal.relief img{filter:grayscale(1) sepia(1) saturate(1.4) hue-rotate(-8deg) contrast(1.35) brightness(.95);box-shadow:inset 0 0 8px rgba(0,0,0,.8);}
+.hero-medal.mono{background:#3b3d42;border:2px solid #6c6f76;box-shadow:inset 0 0 0 3px #26272b;}
+.hero-medal.mono img{filter:grayscale(1) contrast(1.6) brightness(1.05);mix-blend-mode:luminosity;opacity:.9;}
+.ach-tile.ach-hero:not(.got) .hero-medal{filter:grayscale(1) brightness(.5);}
+.ach-tile.ach-hero .ach-t{font-family:Impact,'Arial Black',sans-serif;font-weight:400;text-transform:uppercase;font-size:11px;letter-spacing:.2px;overflow-wrap:normal;word-break:normal;hyphens:auto;}
 .ach-chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none;}
 .ach-chip{flex:0 0 auto;border:1px solid var(--border);background:var(--surface2);border-radius:999px;padding:5px 10px;font-size:12.5px;white-space:nowrap;}
 .ach-chip b{color:var(--ach);filter:brightness(.8);}
@@ -675,6 +684,75 @@ const MACHINE_TAGS = {
   'Плавучий кран Sleipnir':'Бог морских подъёмов.','Сухогруз':'Трюм полон. Курс — прогресс.','Контейнеровоз':'Тысячи контейнеров — один капитан.',
   'Круизный лайнер':'Отдых — только после рекорда.','Нефтяной танкер':'Топливо — ярость.','Супертанкер':'Максимальная осадка. Максимальный вес.'
 };
+// ===== ГЕРОИ «LIGHT WEIGHT»: по 2–5 ачивок, условия из нескольких пунктов; портреты — img/heroes/<id>.webp =====
+// style: 'relief' — рельефная медаль, 'mono' — однотонная гравировка
+const HERO_NAMES = {coleman:'Ронни Коулман', hall:'Эдди Холл', statham:'Джейсон Стэйтем', rock:'Дуэйн «Скала» Джонсон', willis:'Брюс Уиллис',
+  vandamme:'Жан-Клод Ван Дамм', lundgren:'Дольф Лундгрен', cavill:'Генри Кавилл', bjornsson:'Хафтор Бьёрнссон', reacher:'Джек Ричер',
+  hemsworth:'Крис Хемсворт', stallone:'Сильвестр Сталлоне', snipes:'Уэсли Снайпс'};
+const HERO_ACH = [
+  {h:'coleman', style:'relief', title:'Yeah buddy!', desc:'Присед ≥ 1,5 веса тела и становая ≥ 2 веса тела', check:c=>c.all([[c.maxW(RX.squat), 1.5*c.bw], [c.maxW(RX.dead), 2*c.bw]])},
+  {h:'coleman', style:'mono', title:'8 × Мистер Олимпия', desc:'Ронни выиграл «Мистер Олимпия» 8 раз подряд (1998–2005): 8 недель подряд с тренировками и 8 тренировок с приседом', check:c=>c.all([[c.streak, 8], [c.workoutsWith(RX.squat), 8]])},
+  {h:'coleman', style:'relief', rare:true, title:'800 фунтов', desc:'Ронни приседал и тянул 800 фунтов (363 кг) на 2 повтора: присед или становая 363 кг × 2', check:c=>c.all([[Math.max(c.maxW(RX.squat,2), c.maxW(RX.dead,2)), 363]])},
+  {h:'hall', style:'relief', title:'Зверь', desc:'Становая тяга ≥ 2,5 веса тела', check:c=>c.all([[c.maxW(RX.dead), 2.5*c.bw]])},
+  {h:'hall', style:'mono', title:'Сильнейший человек планеты', desc:'Эдди — победитель World’s Strongest Man 2017: тренировка со становой и тоннажем ≥ 10 т', check:c=>c.all([[c.bestTonWith(RX.dead), 10000]])},
+  {h:'hall', style:'relief', rare:true, title:'500 кг', desc:'Первым в истории потянул 500 кг в становой (2016). Повтори!', check:c=>c.all([[c.maxW(RX.dead), 500]])},
+  {h:'statham', style:'mono', title:'Прыжок с вышки', desc:'Стэйтем 12 лет был в сборной Великобритании по прыжкам в воду: 3 кардио- или функциональные тренировки за одну неделю', check:c=>c.all([[c.maxWeekOf(w=>['cardio','functional'].includes(w.type)), 3]])},
+  {h:'statham', style:'relief', title:'Перевозчик', desc:'10 подтягиваний в одном подходе и 30 отжиманий в одном подходе', check:c=>c.all([[c.maxReps(RX.pullup), 10], [c.maxReps(RX.pushup), 30]])},
+  {h:'rock', style:'mono', title:'Подъём в 4 утра', desc:'Скала известен тренировками в 4 утра: тренировка, начатая раньше 5:00', check:c=>c.all([[c.count(w=>w.time && w.time<'05:00'), 1]])},
+  {h:'rock', style:'relief', title:'Iron Paradise', desc:'Как в его «Железном раю»: 5 тренировок за одну неделю', check:c=>c.all([[c.maxWeekOf(()=>true), 5]])},
+  {h:'rock', style:'relief', title:'Скала', desc:'20 тренировок по 60 минут и дольше', check:c=>c.all([[c.count(w=>Number(w.duration)>=60), 20]])},
+  {h:'willis', style:'relief', title:'Крепкий орешек', desc:'Тренировки 5 дней подряд', check:c=>c.all([[c.dayStreak, 5]])},
+  {h:'willis', style:'mono', title:'Yippee-ki-yay', desc:'«Крепкий орешек» — рождественское кино: тренировка 24 или 25 декабря', check:c=>c.all([[c.count(w=>['12-24','12-25'].includes(w.date.slice(5))), 1]])},
+  {h:'vandamme', style:'relief', title:'Шпагат', desc:'Знаменитый шпагат Ван Дамма: 10 тренировок с растяжкой', check:c=>c.all([[c.count(w=>c.hasType(w,'stretch')), 10]])},
+  {h:'vandamme', style:'mono', title:'Кровавый спорт', desc:'«Кровавый спорт» (1988): ноги и растяжка в одной тренировке, 3 раза', check:c=>c.all([[c.count(w=>c.has(w,RX.legs) && c.hasType(w,'stretch')), 3]])},
+  {h:'lundgren', style:'relief', title:'Иван Драго', desc:'«Рокки 4» (1985): жим лёжа ≥ 1,25 веса тела', check:c=>c.all([[c.maxW(RX.bench), 1.25*c.bw]])},
+  {h:'lundgren', style:'mono', title:'Если он умрёт — он умрёт', desc:'Тренировка 90+ минут с тоннажем ≥ 8 т', check:c=>c.all([[c.count(w=>Number(w.duration)>=90 && Calc.workoutTonnage(w)>=8000), 1]])},
+  {h:'lundgren', style:'mono', title:'Инженер-химик', desc:'У Дольфа магистратура по химической технологии: 20 тренировок с заметками — дневник как лабораторный журнал', check:c=>c.all([[c.count(w=>(w.notes||'').trim().length>=10), 20]])},
+  {h:'cavill', style:'relief', title:'Человек из стали', desc:'«Человек из стали» (2013): 12 недель подряд с тренировками', check:c=>c.all([[c.streak, 12]])},
+  {h:'cavill', style:'mono', title:'Супер-подтягивания', desc:'15 подтягиваний в одном подходе', check:c=>c.all([[c.maxReps(RX.pullup), 15]])},
+  {h:'bjornsson', style:'relief', title:'Гора', desc:'Рост ≥ 190 см, вес ≥ 100 кг и становая ≥ 200 кг', check:c=>c.all([[c.height, 190], [c.bw, 100], [c.maxW(RX.dead), 200]])},
+  {h:'bjornsson', style:'relief', rare:true, title:'501 кг', desc:'Мировой рекорд в становой тяге (2020). Кто следующий?', check:c=>c.all([[c.maxW(RX.dead), 501]])},
+  {h:'reacher', style:'mono', title:'Шкаф', desc:'Ричер — 195 см и больше 100 кг: жим лёжа ≥ 100 кг и 10 подтягиваний в подходе', check:c=>c.all([[c.maxW(RX.bench), 100], [c.maxReps(RX.pullup), 10]])},
+  {h:'reacher', style:'mono', title:'Военная полиция', desc:'4 недели подряд по 3+ тренировки в неделю', check:c=>c.all([[c.weeksInRowWith(3), 4]])},
+  {h:'hemsworth', style:'relief', title:'Молот Тора', desc:'«Молотки» с гантелью ≥ 20 кг', check:c=>c.all([[c.maxW(RX.hammer), 20]])},
+  {h:'hemsworth', style:'mono', title:'Бог грома', desc:'Подъём штанги на бицепс ≥ 50 кг и 3 тренировки рук за одну неделю', check:c=>c.all([[c.maxW(RX.curl), 50], [c.maxWeekOf(w=>c.hasGroup(w,['biceps','triceps'])), 3]])},
+  {h:'stallone', style:'relief', title:'Ступени Рокки', desc:'Рокки взбегал по 72 ступеням: 72 подхода за одну неделю', check:c=>c.all([[c.maxWeekSets, 72]])},
+  {h:'stallone', style:'mono', title:'Итальянский жеребец', desc:'10 беговых тренировок', check:c=>c.all([[c.count(w=>c.has(w,RX.run)), 10]])},
+  {h:'stallone', style:'mono', title:'Сырые яйца на завтрак', desc:'5 тренировок раньше 7:00', check:c=>c.all([[c.count(w=>w.time && w.time<'07:00'), 5]])},
+  {h:'snipes', style:'mono', title:'Блэйд', desc:'«Блэйд» (1998) охотится ночью: 3 тренировки после 22:00', check:c=>c.all([[c.count(w=>w.time && w.time>='22:00'), 3]])},
+  {h:'snipes', style:'relief', title:'Охотник на вампиров', desc:'Тренировка после 23:00 с тоннажем ≥ 5 т', check:c=>c.all([[c.count(w=>w.time && w.time>='23:00' && Calc.workoutTonnage(w)>=5000), 1]])}
+];
+const RX = { squat:/присед|squat/i, dead:/станов|deadlift/i, bench:/жим.*лёж|жим.*леж|bench/i, pullup:/подтяг/i, pushup:/отжим/i,
+  hammer:/молот/i, curl:/бицепс|сгибани.*рук/i, legs:/присед|выпад|жим ног|разгибание ног|сгибание ног/i, run:/бег/i };
+// контекст для условий героев
+function heroContext(workouts){
+  const uid = (workouts[0]||{}).participantId || State.achFor;
+  const exOf = id => DB.exercises.find(e=>e.id===id) || {};
+  const sets = []; workouts.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>(ex.sets||[]).forEach(s=>sets.push({w, ex, info:exOf(ex.exerciseId), s})))));
+  const byWeek = {}; workouts.forEach(w=>{ const k=weekKeyOf(w.date); (byWeek[k]=byWeek[k]||[]).push(w); });
+  const d = (DB.details||[]).find(x=>x.user_id===uid) || {};
+  const dates = [...new Set(workouts.map(w=>w.date))].sort(); let run=0, best=0, prev=null;
+  dates.forEach(ds=>{ run = prev && (parseD(ds)-parseD(prev))/86400000===1 ? run+1 : 1; best=Math.max(best,run); prev=ds; });
+  const weeks = Object.keys(byWeek).sort(); let wr=0, wbest=0, wprev=null;
+  const c = {
+    bw: bodyWeightOn(uid, dstr(new Date())), height: Number(d.height_cm)||0, streak: weeklyStreak(workouts).longest, dayStreak: best,
+    maxW: (rx, minReps=1) => Math.max(0, ...sets.filter(x=>rx.test(x.info.name||'') && Number(x.s.reps)>=minReps).map(x=>Number(x.s.weight)||0)),
+    maxReps: rx => Math.max(0, ...sets.filter(x=>rx.test(x.info.name||'')).map(x=>Number(x.s.reps)||0)),
+    has: (w, rx) => (w.blocks||[]).some(b=>(b.exercises||[]).some(ex=>rx.test(exOf(ex.exerciseId).name||''))),
+    hasType: (w, t) => (w.blocks||[]).some(b=>(b.exercises||[]).some(ex=>exOf(ex.exerciseId).type===t)),
+    hasGroup: (w, gs) => (w.blocks||[]).some(b=>(b.exercises||[]).some(ex=>gs.includes(exOf(ex.exerciseId).mainGroup))),
+    workoutsWith: rx => workouts.filter(w=>c.has(w,rx)).length,
+    bestTonWith: rx => Math.max(0, ...workouts.filter(w=>c.has(w,rx)).map(w=>Calc.workoutTonnage(w))),
+    count: fn => workouts.filter(fn).length,
+    maxWeekOf: fn => Math.max(0, ...Object.values(byWeek).map(ws=>ws.filter(fn).length)),
+    maxWeekSets: Math.max(0, ...Object.values(byWeek).map(ws=>ws.reduce((a,w)=>a+(w.blocks||[]).reduce((b,bl)=>b+(bl.exercises||[]).reduce((e,ex)=>e+(ex.sets||[]).filter(s=>Number(s.reps)>0||Number(s.time)>0).length,0),0),0))),
+    weeksInRowWith: n => { let r=0, bst=0, pv=null; weeks.forEach(k=>{ if(byWeek[k].length>=n){ r = pv && (parseD(k)-parseD(pv))/86400000===7 ? r+1 : 1; bst=Math.max(bst,r); pv=k; } else { r=0; pv=null; } }); return bst; },
+    // все условия выполнены; прогресс — по самому отстающему условию
+    all: pairs => { const ok = pairs.every(([v,t])=>t>0 && v>=t); const pct = Math.min(...pairs.map(([v,t])=>t>0?Math.min(1,v/t):0));
+      return {got:ok, cur:Math.round(pct*100), target:100}; }
+  };
+  return c;
+}
 const ACH_CATS = [
   {id:'weight', name:'Равный по весу', color:'#f5b82e', hint:'за одну тренировку'},
   {id:'machine', name:'Как техника', color:'#ff8a2b', hint:'весь поднятый вес'},
@@ -684,6 +762,7 @@ const ACH_CATS = [
   {id:'streak', name:'Серии', color:'#ff5a8a', hint:'недель подряд'},
   {id:'rare', name:'Редкие', color:'#b388ff', hint:'уникальное'},
   {id:'cert', name:'Соревнования', color:'#ffd166', hint:'подтверждённые сертификаты — добавить: Участники → вы → Сертификаты'},
+  {id:'hero', name:'Герои', color:'#e0b04a', hint:'ачивки героев «Light weight» — выполните все условия'},
   {id:'beast', name:'Звери', color:'#c7a36a', hint:'вес в одном повторении — отдельная ачивка за каждое упражнение'}
 ];
 const COUNT_STEPS = [1,3,5,10,15,20,25,30,40,50,60,75,90,100,125,150,175,200,250,300,365,400,500,600,700,750,800,900,1000,1500];
@@ -721,6 +800,9 @@ function achievementsList(workouts){
   (DB.certs||[]).filter(c=>c.user_id===uid && c.status==='approved').forEach(c=>
     out.push({cat:'cert', icon:/1|золот|перв/i.test(c.result||'')?'🥇':/2|серебр|втор/i.test(c.result||'')?'🥈':/3|бронз|трет/i.test(c.result||'')?'🥉':'🏅',
       title:c.competition_name, desc:[c.result, c.competition_date?fmtDate(c.competition_date):'', c.competition_place].filter(Boolean).join(' · '), cur:1, target:1}));
+  const hc = heroContext(workouts);
+  HERO_ACH.forEach(a=>{ const r = a.check(hc); out.push({cat:'hero', icon:'', hero:a.h, style:a.style, rare:a.rare, title:a.title,
+    desc:`${HERO_NAMES[a.h]}: ${a.desc}`, cur:r.cur, target:r.target, heroGot:r.got}); });
   // максимальный вес за одно повторение в каждом упражнении (без веса — собственный вес, как в тоннаже)
   const maxByEx = {};
   workouts.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>(ex.sets||[]).forEach(s=>{
@@ -734,7 +816,7 @@ function achievementsList(workouts){
     const holders = exIds.filter(id=>maxByEx[id]>=kg).map(id=>{ const e=DB.exercises.find(x=>x.id===id); return {name:e.name, group:MG[e.mainGroup]||'Другое', kg:maxByEx[id]}; });
     out.push({cat:'beast', icon:i, title:n, desc:`${fmtNum(kg)} кг в одном повторении`, cur:Math.round(topLift), target:kg, count:holders.length, holders});
   });
-  return out.map(a=>({...a, got: a.cur>=a.target, pct: Math.min(100, Math.round(a.cur/a.target*100))}));
+  return out.map(a=>({...a, got: a.cat==='hero' ? a.heroGot : a.cur>=a.target, pct: Math.min(100, Math.round(a.cur/a.target*100))}));
 }
 function achievementsCard(workouts, pid){
   State.achFor = pid || (workouts[0]||{}).participantId;
@@ -750,9 +832,9 @@ function achievementsCard(workouts, pid){
 function achTile(a, color){
   return `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''} ach-${a.cat} ${a.badge?'has-badge':''}" style="--ach:${a.tone?a.tone[1]:color}${a.tone?`;--hue:${a.tone[0]}deg`:''}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
     ${a.count>1?`<span class="ach-x">×${a.count}</span>`:''}
-    ${a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}">`:`<div class="ach-emo">${a.icon}</div>
+    ${a.hero?`<div class="hero-medal ${a.style}"><img src="img/heroes/${a.hero}.webp" alt=""></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}">`:`<div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>${a.tag?`<div class="ach-tag">${esc(a.tag)}</div>`:''}`}
-    ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${fmtNum(a.cur)} / ${fmtNum(a.target)}</div>`}
+    ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${a.cat==='hero'?a.cur+'%':fmtNum(a.cur)+' / '+fmtNum(a.target)}</div>`}
   </div>`;
 }
 function achCardHtml(all, list, tab, cat, tile){
