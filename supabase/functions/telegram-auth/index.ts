@@ -58,7 +58,7 @@ async function verifyInitData(initData: string, botToken: string) {
 Deno.serve(async (req) => {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "content-type",
+    "Access-Control-Allow-Headers": "content-type, apikey, authorization",
   };
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -78,11 +78,16 @@ Deno.serve(async (req) => {
 
     // Ищем пользователя по telegram_id в profiles (это наш источник правды,
     // так как auth.admin.listUsers не умеет фильтровать по метаданным надёжно)
-    const { data: existing } = await admin
+    const { data: existing, error: profileLookupError } = await admin
       .from("profiles")
       .select("id")
       .eq("telegram_id", tgUser.id)
       .maybeSingle();
+
+    console.log(
+      "PROFILE_LOOKUP_ERROR:",
+      profileLookupError ? JSON.stringify(profileLookupError) : "none"
+    );
 
     let userId: string;
 
