@@ -141,6 +141,31 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .ach-tile.rare.got{border-color:#b388ff;box-shadow:0 0 16px -4px #b388ff inset, 0 0 10px -4px #b388ff;}
 .ach-tile{position:relative;}
 .ach-x{position:absolute;top:6px;right:7px;font-size:11px;font-weight:800;color:#121214;background:var(--ach);border-radius:999px;padding:1px 6px;}
+.ach-tag{font-size:10px;line-height:1.25;color:#b9b9c0;font-style:italic;}
+.ach-badge{width:100%;aspect-ratio:1;object-fit:contain;filter:grayscale(1) brightness(.55);opacity:.55;}
+.ach-tile.got .ach-badge{filter:drop-shadow(0 0 10px color-mix(in srgb,var(--ach) 60%,transparent));opacity:1;}
+.ach-tile.has-badge{padding:4px 4px 8px;}
+/* «Зоопарк» — рельефная однотонная медаль (как иллюстрированные значки): тон задаётся --ach / --hue */
+.ach-tile.ach-zoo:not(.has-badge){border-radius:50% 50% 16px 16px / 38% 38% 16px 16px;border:3px solid color-mix(in srgb,var(--ach) 70%,#000);
+  background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--ach) 55%,#1a1a1a) 0,color-mix(in srgb,var(--ach) 22%,#0e0e0e) 75%);
+  box-shadow:inset 0 2px 2px rgba(255,255,255,.18),inset 0 -3px 6px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.4);}
+.ach-tile.ach-zoo:not(.has-badge) .ach-emo{font-size:40px;opacity:.4;
+  filter:grayscale(1) sepia(1) hue-rotate(calc(var(--hue,30deg) - 35deg)) saturate(.7) brightness(.85) contrast(1.15) drop-shadow(-1px -1px 0 rgba(255,255,255,.35)) drop-shadow(1px 2px 1px rgba(0,0,0,.85));}
+.ach-tile.ach-zoo.got:not(.has-badge) .ach-emo{opacity:1;}
+.ach-tile.ach-zoo .ach-t{font-family:Impact,'Arial Black',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:.3px;font-size:12px;
+  color:color-mix(in srgb,var(--ach) 55%,#fff);text-shadow:0 1px 0 rgba(0,0,0,.9),0 -1px 0 rgba(255,255,255,.15);}
+.ach-tile.ach-zoo .ach-tag{color:color-mix(in srgb,var(--ach) 40%,#ddd);}
+.ach-tile.ach-zoo:not(.got){filter:saturate(.35) brightness(.8);}
+/* «Как техника» — стальная плита, заклёпки, опасная полоса */
+.ach-tile.ach-machine{border-radius:6px;border:2px solid #3a3a3e;background:
+  repeating-linear-gradient(135deg,#f5b82e 0 8px,#141414 8px 16px) top/100% 7px no-repeat,
+  radial-gradient(circle at 7px 16px,#8d8d92 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 7px) 16px,#8d8d92 0 2px,transparent 3px),
+  radial-gradient(circle at 7px calc(100% - 7px),#8d8d92 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 7px) calc(100% - 7px),#8d8d92 0 2px,transparent 3px),
+  linear-gradient(180deg,#2e2f33,#18191b);padding-top:14px;}
+.ach-tile.ach-machine .ach-t{font-family:Impact,'Arial Black','Oswald',sans-serif;text-transform:uppercase;letter-spacing:.3px;font-weight:400;font-size:12px;color:#f5f5f5;}
+.ach-tile.ach-machine .ach-tag{font-style:normal;text-transform:uppercase;font-size:9px;letter-spacing:.4px;color:#f5b82e;}
+.ach-tile.ach-machine.got{border-color:#f5b82e;box-shadow:0 0 14px -6px #f5b82e inset;}
+.result-modal .ach-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}
 .ach-chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none;}
 .ach-chip{flex:0 0 auto;border:1px solid var(--border);background:var(--surface2);border-radius:999px;padding:5px 10px;font-size:12.5px;white-space:nowrap;}
 .ach-chip b{color:var(--ach);filter:brightness(.8);}
@@ -148,7 +173,7 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .ach-chip.on b{filter:none;}
 .ach-tile.got{border-color:color-mix(in srgb,var(--ach) 55%,#121214);box-shadow:0 0 14px -6px var(--ach) inset;}
 
-.ach-t{font-size:12px;font-weight:700;line-height:1.2;}
+.ach-t{font-size:12px;font-weight:700;line-height:1.2;overflow-wrap:anywhere;hyphens:auto;max-width:100%;}
 .ach-d{font-size:10.5px;color:#9a9aa0;line-height:1.2;}
 .ach-ok{font-size:10px;color:var(--ach);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
 .ach-bar{width:80%;height:4px;background:#2c2c30;border-radius:3px;overflow:hidden;margin-top:2px;}
@@ -170,6 +195,16 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .adm-row .muted{grid-column:1/-1;margin-top:-4px;font-size:11.5px;}
 .adm-bar{height:10px;background:var(--surface2);border-radius:6px;overflow:hidden;}
 .adm-bar i{display:block;height:100%;border-radius:6px;}
+.ex-thumb{flex:0 0 auto;object-fit:contain;background:#fff;border-radius:8px;border:1px solid var(--border);padding:2px;cursor:zoom-in;}
+.agenda-item.row{gap:10px;align-items:center;}
+/* Light weight: постер по центру, вокруг — переливающийся контур */
+.lw-box{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;}
+.lw-frame{position:relative;padding:4px;border-radius:18px;max-height:68vh;aspect-ratio:2/3;background:conic-gradient(from var(--lw-a,0deg),#ff2d55,#ffb800,#2ee6a6,#2f7ec2,#b388ff,#ff2d55);animation:lwspin 3s linear infinite;box-shadow:0 0 28px rgba(255,80,80,.45);}
+.lw-frame img{display:block;height:100%;max-height:calc(68vh - 8px);width:auto;max-width:86vw;border-radius:14px;object-fit:cover;}
+@property --lw-a{syntax:'<angle>';initial-value:0deg;inherits:false;}
+@keyframes lwspin{to{--lw-a:360deg;}}
+.lw-text{color:#fff;text-align:center;font-size:15px;line-height:1.45;max-width:420px;}
+.lw-ok{font-weight:700;}
 .set-ton{font-size:11px;color:var(--text-dim);margin:-2px 0 4px 34px;}
 .tonnage-line{font-size:12px;color:var(--text-dim);margin-top:4px;}
 .tot-box{background:var(--accent);color:var(--on-accent,#fff);border-radius:10px;padding:10px 12px;margin-top:10px;}
@@ -588,10 +623,10 @@ const ACH_MACHINE = [
 ];
 // C «Зоопарк» — вес за лучшую НЕДЕЛЮ в забавных животных
 const ACH_ZOO = [
-  [36,'🦡','3 барсука'],[48,'🐀','Стая из 12 опоссумов'],[48,'🦝','Семейка из 6 енотов'],[60,'🐇','Отряд из 30 кроликов'],[180,'🦥','30 ленивцев'],
-  [250,'🦫','Плотина из 10 бобров'],[315,'🐺','Волчья стая'],[480,'🦘','8 кенгуру'],[550,'🐼','5 панд'],[600,'🐧','Колония из 20 пингвинов'],
+  [36,'🦡','Семья барсуков'],[48,'🐀','Стая из 12 опоссумов'],[48,'🦝','Семья енотов'],[60,'🐇','Отряд из 30 кроликов'],[180,'🦥','30 ленивцев'],
+  [250,'🦫','Плотина из 10 бобров'],[315,'🐺','Семья волков'],[480,'🦘','8 кенгуру'],[550,'🐼','5 панд'],[600,'🐧','Колония из 20 пингвинов'],
   [900,'🐊','Семья крокодилов'],[1200,'🐦','10 страусов'],[1440,'🦍','8 горилл'],[1800,'🦌','Стадо из 12 оленей'],[2200,'🐅','10 тигров'],
-  [2250,'🐻','5 белых медведей'],[2850,'🦁','15 львов'],[3000,'🫎','6 лосей'],[3500,'🦓','Табун из 10 зебр'],[6000,'🐄','Стадо из 10 коров'],
+  [2250,'🐻','5 белых медведей'],[2850,'🦁','Семья львов'],[3000,'🦈','Семья акул'],[3000,'🫎','6 лосей'],[3500,'🦓','Табун из 10 зебр'],[6000,'🐄','Стадо из 10 коров'],
   [6000,'🐫','Караван из 12 верблюдов'],[7200,'🦬','8 бизонов'],[7200,'🦒','6 жирафов'],[7500,'🦛','5 бегемотов'],[9200,'🦏','4 носорога'],
   [12000,'🦭','Лежбище из 10 моржей'],[16000,'🦣','2 мамонта'],[18000,'🐘','3 слона'],[24000,'🦖','3 тираннозавра'],[40000,'🐳','Кашалот'],
   [70000,'🦕','Аргентинозавр'],[150000,'🐋','Синий кит']
@@ -611,6 +646,35 @@ const ACH_BEASTS = [
   [200,'🦁','Лев'],[220,'🐅','Тигр'],[300,'🐻','Бурый медведь'],[350,'🦓','Зебра'],[450,'🐻‍❄️','Белый медведь'],[500,'🐎','Лошадь'],
   [600,'🐄','Корова'],[700,'🐫','Верблюд'],[900,'🦬','Бизон'],[1200,'🦒','Жираф'],[1500,'🦛','Бегемот']
 ];
+// готовые иллюстрированные значки (img/badges/…) — показываются вместо эмодзи; можно добавлять новые
+const ACH_BADGES = {'Семья барсуков':'zoo_badgers','Семья крокодилов':'zoo_crocodiles','Семья волков':'zoo_wolves','Семья акул':'zoo_sharks','Семья львов':'zoo_lions','Семья енотов':'zoo_raccoons'};
+// «Зоопарк» — с юмором
+const ZOO_TAGS = {
+  'Семья барсуков':'Копаем глубже, чем твои отмазки.','Стая из 12 опоссумов':'Притворились мёртвыми. Встали. Подняли.','Семья енотов':'Маленькие вредители. Большие планы.',
+  'Отряд из 30 кроликов':'Размножаются быстрее твоих отговорок.','30 ленивцев':'Медленно. Зато все тридцать.','Плотина из 10 бобров':'Строим форму. Бревно за бревном.',
+  'Семья волков':'Вместе мы сильнее. И голоднее.','8 кенгуру':'Прыгнули в зал без очереди.','5 панд':'Бамбук не жмётся сам.',
+  'Колония из 20 пингвинов':'Во фраках, но на спортивном.','Семья крокодилов':'Мы не плаваем. Мы правим.','10 страусов':'Голову в песок? Только после подхода.',
+  '8 горилл':'Бьют себя в грудь. После жима — можно.','Стадо из 12 оленей':'Рога — не главное. Главное — ноги.','10 тигров':'Полоски — это растяжки от массы.',
+  '5 белых медведей':'Холодный расчёт. Горячий пампинг.','Семья львов':'Сначала семья. Потом всё остальное.','Семья акул':'Не важно, кто рядом. Важно, кто в воде.',
+  '6 лосей':'Сохатые. Но не сдающиеся.','Табун из 10 зебр':'Чёрное, белое и много повторений.','Стадо из 10 коров':'Му-у-ускулы.',
+  'Караван из 12 верблюдов':'Воду не пьём, пока не доделаем.','8 бизонов':'Прут напролом. Как ты на тренировку.','6 жирафов':'Высокие цели — буквально.',
+  '5 бегемотов':'Лишний вес? Это масса.','4 носорога':'Бронированные мотивацией.','Лежбище из 10 моржей':'Лежим. Но только между подходами.',
+  '2 мамонта':'Вымерли все, кроме тех, кто тренируется.','3 слона':'Не забудем ни одного пропущенного дня ног.','3 тираннозавра':'Руки короткие. Жим — тяжёлый.',
+  'Кашалот':'Нырнул на глубину веса.','Аргентинозавр':'Древний. Огромный. Сдвинул.','Синий кит':'Самый большой на планете. Пока.'
+};
+// «Как техника» — жёстко
+const MACHINE_TAGS = {
+  'Пикап':'Загружен. Заведён. Поехали.','Грузовой лифт':'Поднимает. Без разговоров.','Автомобильный домкрат':'Надавил — поднял.',
+  'Ручная таль':'Цепь натянута. Отказа нет.','Вилочный погрузчик':'Взял на вилы — и в стеллаж.','Мини-экскаватор':'Маленький. Злой. Копает.',
+  'Грузовик':'Тонны на борту. Ни шагу назад.','Вертолёт-кран Ми-26':'Висит в воздухе с грузом. Как ты на турнике.','Автокран':'Стрела выдвинута. Вес в воздухе.',
+  'Фура':'Дальнобой по тоннажу.','Экскаватор':'Ковш за ковшом. Тонна за тонной.','Башенный кран':'Выше всех. Тяжелее всех.',
+  'Товарный вагон':'Сцепка крепкая. Состав тяжёлый.','Портовый кран':'Контейнеры — разминка.','Ракета Saturn V':'Отрыв от земли — это про тебя.',
+  'Ан-124 «Руслан»':'Тяжёлая авиация. Тяжёлые веса.','Ан-225 «Мрия»':'Легенда грузоподъёмности.','Карьерный самосвал БелАЗ':'Колесо выше тебя. Пока.',
+  'Козловой кран':'Держит небо на двух ногах.','Речная баржа':'Тонет только слабость.','Самый мощный башенный кран':'Стальной гигант. Стальные нервы.',
+  'Плавучий кран':'Поднимает мосты. Буквально.','Грузовой поезд':'Не остановить.','Экскаватор Bagger 293 (за смену)':'Горы — это просто грунт.',
+  'Плавучий кран Sleipnir':'Бог морских подъёмов.','Сухогруз':'Трюм полон. Курс — прогресс.','Контейнеровоз':'Тысячи контейнеров — один капитан.',
+  'Круизный лайнер':'Отдых — только после рекорда.','Нефтяной танкер':'Топливо — ярость.','Супертанкер':'Максимальная осадка. Максимальный вес.'
+};
 const ACH_CATS = [
   {id:'weight', name:'Равный по весу', color:'#f5b82e', hint:'за одну тренировку'},
   {id:'machine', name:'Как техника', color:'#ff8a2b', hint:'весь поднятый вес'},
@@ -637,8 +701,9 @@ function achievementsList(workouts){
   const out = [];
   const add = (cat, icon, title, desc, cur, target, rare) => out.push({cat, icon, title, desc, cur, target, rare});
   ACH_WEIGHT.forEach(([t,i,n])=>add('weight', i, n, `Поднял за тренировку вес, равный: ${n.toLowerCase()} (${fmtNum(t)} кг)`, Math.round(best), t));
-  ACH_MACHINE.forEach(([t,i,n])=>add('machine', i, n, `Поднял в сумме столько, сколько поднимает ${n.toLowerCase()} (${fmtNum(t/1000)} т)`, Math.round(total), t));
-  ACH_ZOO.forEach(([t,i,n])=>add('zoo', i, n, `За неделю поднял столько, сколько весят ${n.toLowerCase()} (${fmtNum(t)} кг)`, Math.round(bestWeek), t));
+  ACH_MACHINE.forEach(([t,i,n])=>{ add('machine', i, n, `Поднял в сумме столько, сколько поднимает ${n.toLowerCase()} (${fmtNum(t/1000)} т)`, Math.round(total), t); out[out.length-1].tag = MACHINE_TAGS[n]; });
+  const ZOO_TONES = [[36,'#a07a3c'],[95,'#6f7f55'],[0,'#7c7f86'],[22,'#a0633c'],[270,'#7a6a8c']];
+  ACH_ZOO.forEach(([t,i,n],zi)=>{ add('zoo', i, n, `За неделю поднял столько, сколько весят ${n.toLowerCase()} (${fmtNum(t)} кг)`, Math.round(bestWeek), t); Object.assign(out[out.length-1], {tag:ZOO_TAGS[n], badge:ACH_BADGES[n], tone:ZOO_TONES[zi%5]}); });
   COUNT_STEPS.forEach(n=>add('count', n>=365?'🏅':n>=100?'💪':'🏋️', `${n} ${plural(n,'тренировка','тренировки','тренировок')}`, 'Проведено тренировок', workouts.length, n));
   HOUR_STEPS.forEach(n=>add('hours', n>=500?'⌛':'⏱️', `${n} ${plural(n,'час','часа','часов')}`, 'Время в зале', fmtNum(hours), n));
   STREAK_STEPS.forEach(n=>add('streak', n>=52?'☀️':'🔥', `${n} ${plural(n,'неделя','недели','недель')} подряд`, 'Каждую неделю хотя бы одна тренировка', streak, n));
@@ -678,12 +743,19 @@ function achievementsCard(workouts, pid){
   const cat = id => ACH_CATS.find(c=>c.id===id);
   const list = all.filter(a=>tab==='got' ? a.got : a.cat===tab);
   State.achBeasts = all.filter(a=>a.cat==='beast');
-  const tile = a => `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''}" style="--ach:${cat(a.cat).color}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
+  const tile = a => achTile(a, cat(a.cat).color);
+  return achCardHtml(all, list, tab, cat, tile);
+}
+// одна плитка ачивки (используется и в «Достижениях», и в итогах тренировки)
+function achTile(a, color){
+  return `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''} ach-${a.cat} ${a.badge?'has-badge':''}" style="--ach:${a.tone?a.tone[1]:color}${a.tone?`;--hue:${a.tone[0]}deg`:''}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
     ${a.count>1?`<span class="ach-x">×${a.count}</span>`:''}
-    <div class="ach-emo">${a.icon}</div>
-    <div class="ach-t">${esc(a.title)}</div>
+    ${a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}">`:`<div class="ach-emo">${a.icon}</div>
+    <div class="ach-t">${esc(a.title)}</div>${a.tag?`<div class="ach-tag">${esc(a.tag)}</div>`:''}`}
     ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${fmtNum(a.cur)} / ${fmtNum(a.target)}</div>`}
   </div>`;
+}
+function achCardHtml(all, list, tab, cat, tile){
   const chip = (id, name, color) => { const n = id==='got' ? all.filter(a=>a.got).length : all.filter(a=>a.cat===id&&a.got).length;
     const t = id==='got' ? '' : id==='beast' ? ' · ×'+all.filter(a=>a.cat==='beast').reduce((s,a)=>s+a.count,0) : '/'+all.filter(a=>a.cat===id).length;
     return `<button class="ach-chip ${tab===id?'on':''}" style="--ach:${color}" data-ach-tab="${id}">${name} <b>${n}${t}</b></button>`; };
@@ -1016,6 +1088,7 @@ function renderModal(){
   else if(State.modal.kind==='help') root.innerHTML = renderHelpModal();
   else if(State.modal.kind==='achBeast') root.innerHTML = renderBeastModal();
   else if(State.modal.kind==='cert') root.innerHTML = renderCertModal();
+  else if(State.modal.kind==='result') root.innerHTML = renderResultModal();
 }
 
 function renderWorkoutModal(){
@@ -1115,7 +1188,7 @@ function renderExerciseCard(ex,bi,ei,w,units){
   const isDrop = ex.isDropset && !isCardio;
   return `<div class="ex-card ${isDrop?'dropset':''}" data-ex="${bi}.${ei}">
     <div class="row" style="justify-content:space-between">
-      <div class="row"><b>${esc(info.name)}</b>${helpBtn(info.name)}${isDrop?'<span class="drop-badge">ДРОП-СЕТ</span>':''}</div>
+      <div class="row">${exThumb(info,46)}<b>${esc(info.name)}</b>${helpBtn(info.name)}${isDrop?'<span class="drop-badge">ДРОП-СЕТ</span>':''}</div>
       <div class="row">
         ${!isCardio?`<label class="muted"><input type="checkbox" data-dropset="${bi}.${ei}" ${ex.isDropset?'checked':''}> дроп-сет</label>`:''}
         <button class="btn sm danger" data-remove-exercise="${bi}.${ei}">✕</button>
@@ -1149,7 +1222,7 @@ function renderExercisePicker(){
     <h2>Выбор упражнения</h2>
     <input type="text" placeholder="Поиск или новое название..." data-exsearch value="${esc(State.modal.query||'')}" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text)">
     <div style="max-height:300px;overflow:auto">
-      ${list.map(e=>`<div class="agenda-item" data-pick-exercise="${e.id}">${esc(e.name)} <span class="muted">· ${MG[e.mainGroup]||''} · ${WT[e.type]||e.type}</span></div>`).join('') || '<div class="muted">Не найдено</div>'}
+      ${list.map(e=>`<div class="agenda-item row" style="flex-wrap:nowrap" data-pick-exercise="${e.id}">${exThumb(e,36).replace(/ data-zoom="[^"]*"/,'')}<span>${esc(e.name)} <span class="muted">· ${MG[e.mainGroup]||''} · ${WT[e.type]||e.type}</span></span></div>`).join('') || '<div class="muted">Не найдено</div>'}
     </div>
     ${State.modal.query? `<button class="btn primary" style="margin-top:8px" data-create-exercise="1">+ Создать «${esc(State.modal.query)}»</button>`:''}
     <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn ghost" data-close-modal="1">Отмена</button></div>
@@ -1333,6 +1406,68 @@ function handleRecurScope(scope){
   Storage.save(); closeModal(); rerender();
 }
 
+// ===== LIGHT WEIGHT: новый личный рекорд веса в упражнении =====
+// постеры лежат в img/lightweight/01.jpg … NN.jpg — чтобы добавить персонажа, положите следующий номер и увеличьте LW_COUNT
+const LW_COUNT = 15;
+const lwShown = new Set();   // уже показанные рекорды в этой сессии (id тренировки + упражнение + вес)
+// рекорды тренировки: максимальный вес (≥1 повтор) больше, чем во всех прошлых тренировках этого участника
+function findRecords(w){
+  const out = [];
+  (w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{
+    let best = null;
+    (ex.sets||[]).forEach(st=>{ const wt = Number(st.weight)||0, r = Number(st.reps)||0; if(wt>0 && r>=1 && (!best || wt>best.weight || (wt===best.weight && r>best.reps))) best = {weight:wt, reps:r}; });
+    if(!best) return;
+    let prev = 0;
+    DB.workouts.forEach(o=>{ if(o.id===w.id || o.participantId!==w.participantId) return;
+      (o.blocks||[]).forEach(ob=>(ob.exercises||[]).forEach(oe=>{ if(oe.exerciseId!==ex.exerciseId) return;
+        (oe.sets||[]).forEach(st=>{ if(Number(st.reps)>=1) prev = Math.max(prev, Number(st.weight)||0); }); })); });
+    const info = DB.exercises.find(e=>e.id===ex.exerciseId);
+    if(prev>0 && best.weight>prev && !out.some(x=>x.exerciseId===ex.exerciseId)) out.push({exerciseId:ex.exerciseId, name:info?info.name:'упражнение', weight:best.weight, reps:best.reps, prev});
+  }));
+  return out;
+}
+function showLightWeight(w){
+  const recs = findRecords(w).filter(r=>!lwShown.has(w.id+r.exerciseId+r.weight));
+  if(!recs.length) return;
+  recs.forEach(r=>lwShown.add(w.id+r.exerciseId+r.weight));
+  const n = 1 + Math.floor(Math.random()*LW_COUNT), units = DB.settings.units;
+  const box = document.createElement('div'); box.className = 'lw-box';
+  box.innerHTML = `<div class="lw-frame"><img src="img/lightweight/${String(n).padStart(2,'0')}.jpg" alt="Light weight"></div>
+    <div class="lw-text">${recs.map(r=>`Впервые достигнут вес <b>${convW(r.weight,units)} ${unitLabel(units)}</b> в упражнении <b>${esc(r.name)}</b>, количество повторений <b>${r.reps}</b>`).join('<br>')}</div>
+    <button class="btn primary lw-ok">Light weight, baby! 💪</button>`;
+  box.onclick = e=>{ if(e.target===box || e.target.classList.contains('lw-ok')) box.remove(); };
+  document.body.appendChild(box);
+}
+// ачивки, полученные именно этой тренировкой: сравниваем «до» и «после» её учёта
+function workoutAchievements(w){
+  const pid = w.participantId, today = dstr(new Date());
+  const isDone = o => o.status==='done' || (o.date<=today && hasFilledSets(o));
+  const others = DB.workouts.filter(o=>o.participantId===pid && o.id!==w.id && isDone(o));
+  State.achFor = pid;
+  const before = achievementsList(others), after = achievementsList([...others, w]);
+  return after.filter(a=>{ const b = before.find(x=>x.cat===a.cat && x.title===a.title) || {};
+    return a.got && (!b.got || (a.cat==='beast' && a.count>(b.count||0))); })
+    .map(a=>{ const b = before.find(x=>x.cat===a.cat && x.title===a.title) || {}; return a.cat==='beast' ? {...a, count:a.count-(b.count||0)} : a; });
+}
+function renderResultModal(){
+  const {w, achs, recs} = State.modal, units = DB.settings.units, t = Calc.workoutTonnage(w), cmp = tonnageComparison(t);
+  const col = id => (ACH_CATS.find(c=>c.id===id)||{}).color || '#ffd166';
+  return `<div class="overlay" data-close-overlay="1"><div class="modal result-modal" data-stop style="max-width:520px">
+    <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h2 style="margin:0">💪 Итоги тренировки</h2><button class="btn sm ghost" data-close-modal="1">✕</button></div>
+    <div class="muted" style="margin-top:2px">${esc(w.name||'Тренировка')} · ${fmtDate(w.date)}</div>
+    <div class="tot-box"><div>Тоннаж</div><div class="big">${fmtNum(convW(t,units))} ${unitLabel(units)}</div>${cmp?`<div style="font-size:12.5px;margin-top:4px">≈ ${cmp[1]}</div>`:''}</div>
+    ${recs.length?`<h3 style="margin-top:14px">🏆 Новые рекорды</h3>${recs.map(r=>`<div class="help-row" style="cursor:default"><span class="grow">${esc(r.name)}</span><b>${convW(r.weight,units)} ${unitLabel(units)} × ${r.reps}</b><span class="muted">было ${convW(r.prev,units)}</span></div>`).join('')}`:''}
+    <h3 style="margin-top:14px">🏅 Получено за тренировку ${achs.length?`<span class="muted">${achs.length}</span>`:''}</h3>
+    ${achs.length?`<div class="ach-grid" style="max-height:none">${achs.map(a=>achTile(a, col(a.cat))).join('')}</div>`:'<div class="muted">В этот раз без новых ачивок — но каждая тренировка приближает к следующей!</div>'}
+    <button class="btn primary" style="width:100%;margin-top:14px" data-close-modal="1">Отлично!</button>
+  </div></div>`;
+}
+function showWorkoutResult(w){
+  const achs = workoutAchievements(w), recs = findRecords(w);
+  State.modal = {kind:'result', w, achs, recs}; renderModal();
+  showLightWeight(w);   // постер поверх итогов, если есть рекорд
+  return achs;
+}
 function hasFilledSets(w){ return (w.blocks||[]).some(b=>(b.exercises||[]).some(ex=>(ex.sets||[]).some(s=>Number(s.reps)>0||Number(s.time)>0||Number(s.distance)>0))); }
 // «Завершить»: отмечаем выполненной, сохраняем на сервер и просим бота прислать итог (участнику и его тренерам)
 async function finishWorkout(){
@@ -1341,20 +1476,23 @@ async function finishWorkout(){
   if(!w.name) w.name = WT[w.type] || 'Тренировка';
   w.status = 'done';
   const idx = DB.workouts.findIndex(x=>x.id===w.id); if(idx<0) DB.workouts.push(w); else DB.workouts[idx]=w;
-  State.modal = null; renderModal(); rerender();
+  rerender();
+  const achs = showWorkoutResult(w);
   try{
     await Storage.flush();
     const r = await fetch(SUPABASE_URL + '/functions/v1/telegram-bot', { method:'POST',
       headers:{'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+Auth.getToken()},
-      body: JSON.stringify({action:'workout_done', workout_id:w.id}) });
+      body: JSON.stringify({action:'workout_done', workout_id:w.id, achievements: achs.slice(0,30).map(a=>`${a.icon} ${a.title}${a.cat==='beast'&&a.count>1?' ×'+a.count:''}`)}) });
     toast(r.ok ? '💪 Тренировка завершена — итог отправлен в бот' : 'Тренировка сохранена, но бот не ответил');
   }catch(e){ toast('Тренировка сохранена, но бот недоступен'); }
 }
 function saveWorkoutFromModal(){
   const w = State.modal.w, isNew = State.modal.isNew, recur = State.modal.recurRule;
+  const wasDone = !isNew && (DB.workouts.find(x=>x.id===w.id)||{}).status==='done';
   // прошедшая тренировка с заполненными подходами считается выполненной (для вечернего вопроса бота)
   if(w.status!=='done' && w.date<=dstr(new Date()) && hasFilledSets(w)) w.status='done';
   if(isNew && w.status!=='done') w.status='planned';
+  if(w.status==='done' && !wasDone && !(recur && recur.on)) setTimeout(()=>showWorkoutResult(w), 50);
   if(!w.name) w.name = WT[w.type] || 'Тренировка';
   if(isNew){
     if(recur && recur.on){
@@ -1471,6 +1609,8 @@ function findHelp(name){
   const n = normName(name);
   return helpItems().find(it=>normName(it.name)===n || (it.aliases||[]).some(a=>normName(a)===n)) || null;
 }
+function exFig(info){ if(!info) return ''; if(info.imageUrl) return info.imageUrl; const h = findHelp(info.name); return (h && h.fig) || ''; }
+const exThumb = (info, size) => { const src = exFig(info); return src ? `<img class="ex-thumb" src="${esc(src)}" style="width:${size}px;height:${size}px" data-zoom="${esc(src)}" alt="" loading="lazy">` : ''; };
 const helpBtn = key => `<button class="help-btn" data-help="${esc(key)}" title="Справка">i</button>`;
 function viewHelp(){
   const q = normName(State.helpQuery||'');
@@ -1479,7 +1619,7 @@ function viewHelp(){
   <input type="search" data-help-search value="${esc(State.helpQuery||'')}" placeholder="Поиск упражнения…" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:10px">
   ${groups.map(g=>`<div class="card" style="margin-bottom:10px">
     <h3>${esc(g.group)}</h3>
-    ${g.items.map(it=>`<div class="help-row">${helpBtn(it.name)}<span data-help="${esc(it.name)}">${esc(it.name)}</span></div>`).join('')}
+    ${g.items.map(it=>`<div class="help-row">${it.fig?`<img class="ex-thumb" src="${it.fig}" style="width:40px;height:40px" alt="" loading="lazy" data-help="${esc(it.name)}">`:helpBtn(it.name)}<span data-help="${esc(it.name)}">${esc(it.name)}</span></div>`).join('')}
   </div>`).join('') || '<div class="muted">Ничего не найдено</div>'}`;
 }
 function renderHelpModal(){
@@ -1808,7 +1948,7 @@ function viewSettings(){
       <select data-ex-edit="${e.id}.type">${WORKOUT_TYPES.map(([id,l])=>`<option value="${id}" ${e.type===id?'selected':''}>${l}</option>`).join('')}</select>
       <button class="btn sm danger" data-delete-exercise="${e.id}">✕</button></div>`).join('')
     : `<table><thead><tr><th>Название</th><th>Группа</th><th>Тип</th></tr></thead><tbody>
-    ${DB.exercises.map(e=>`<tr><td>${esc(e.name)}</td><td>${MG[e.mainGroup]||''}</td><td>${WT[e.type]||e.type}</td></tr>`).join('')}
+    ${DB.exercises.map(e=>`<tr><td><span class="row" style="flex-wrap:nowrap">${exThumb(e,30)}${esc(e.name)}</span></td><td>${MG[e.mainGroup]||''}</td><td>${WT[e.type]||e.type}</td></tr>`).join('')}
     </tbody></table>`}
   </div>
   <div class="card" style="margin-bottom:10px">
@@ -2230,7 +2370,7 @@ function handleMainClick(e, ds){
   }
   if(ds.reviewCert!==undefined){ const [id,a]=ds.reviewCert.split('.'); reviewCert(id, a==='1'); return true; }
   if(ds.openAdmin!==undefined){ State.view='admin'; State.admin=null; rerender(); return true; }
-  if(ds.certPath!==undefined && ds.zoom){ openZoom(ds.zoom); return true; }
+  if(ds.zoom!==undefined){ openZoom(ds.zoom); return true; }
   if(ds.achBeast!==undefined){ State.modal={kind:'achBeast', beast:(State.achBeasts||[]).find(a=>a.title===ds.achBeast)}; renderModal(); return true; }
   if(ds.achInfo!==undefined){ const [t,d,st]=ds.achInfo.split('|'); toast(`${t}: ${d} — ${st}`); return true; }
   if(ds.traineeColor!==undefined){
@@ -2322,7 +2462,7 @@ function initEvents(){
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){

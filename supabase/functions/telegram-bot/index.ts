@@ -102,9 +102,14 @@ async function ensureProfile(from: { id: number; first_name?: string; last_name?
   const { data } = await admin.from("profiles").select("*").eq("id", id).single();
   return data;
 }
-const setState = (id: string, state: Record<string, unknown>) => admin.from("profiles").update({ bot_state: state }).eq("id", id);
+// ошибки базы не глотаем: иначе бот «не помнит» шаг анкеты и задаёт один и тот же вопрос по кругу
+const must = async (p: PromiseLike<{ error: any }>, what: string) => {
+  const { error } = await p;
+  if (error) throw new Error(`${what}: ${error.message}`);
+};
+const setState = (id: string, state: Record<string, unknown>) => must(admin.from("profiles").update({ bot_state: state }).eq("id", id), "profiles.bot_state");
 const saveDetails = (id: string, patch: Record<string, unknown>) =>
-  admin.from("profile_details").upsert({ user_id: id, ...patch, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  must(admin.from("profile_details").upsert({ user_id: id, ...patch, updated_at: new Date().toISOString() }, { onConflict: "user_id" }), "profile_details");
 
 // ---------------- анкета ----------------
 async function askAge(chat: number, id: string) {
@@ -237,13 +242,18 @@ const fmt = (n: number) => Math.round(n).toLocaleString("ru-RU");
 async function workoutSummary(w: any) {
   const ids = new Set<string>();
   (w.blocks ?? []).forEach((b: any) => (b.exercises ?? []).forEach((e: any) => ids.add(e.exerciseId)));
-  const { data: exs } = ids.size ? await admin.from("exercises").select("id,name,main_group").in("id", [...ids]) : { data: [] };
+  const { data: exs } = ids.size ? await admin.from("exercises").select("id,name,main_group,type").in("id", [...ids]) : { data: [] };
   const info = new Map((exs ?? []).map((e: any) => [e.id, e]));
+  // собственный вес на дату тренировки: подход без веса = повторения × вес спортсмена (как в приложении)
+  const { data: bwRow } = await admin.from("body_weights").select("weight_kg").eq("user_id", w.participant_id).lte("date", w.date).order("date", { ascending: false }).limit(1);
+  let bw = Number(bwRow?.[0]?.weight_kg) || 0;
+  if (!bw) { const { data: d } = await admin.from("profile_details").select("weight_kg").eq("user_id", w.participant_id).maybeSingle(); bw = Number(d?.weight_kg) || 0; }
   let total = 0, sets = 0; const groups: Record<string, number> = {}; const lines: string[] = [];
   for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) {
     let t = 0, n = 0;
-    for (const s of e.sets ?? []) { const v = (Number(s.weight) || 0) * (Number(s.reps) || 0); if (v > 0 || Number(s.reps) > 0 || s.time) n++; t += v; }
     const ex: any = info.get(e.exerciseId);
+    const ownBw = ex && ["strength", "functional"].includes(ex.type) ? bw : 0;
+    for (const s of e.sets ?? []) { const wt = Number(s.weight) || 0; const v = (wt > 0 ? wt : ownBw) * (Number(s.reps) || 0); if (v > 0 || Number(s.reps) > 0 || s.time) n++; t += v; }
     if (!n) continue;
     sets += n; total += t;
     if (ex && t > 0) groups[ex.main_group] = (groups[ex.main_group] ?? 0) + t;
@@ -262,6 +272,29 @@ async function workoutSummary(w: any) {
   ].filter(Boolean).join("\n");
 }
 
+// ---------------- LIGHT WEIGHT: новые рекорды ----------------
+// постеры: img/lightweight/01.jpg … в папке приложения; добавили персонажа — увеличьте LW_COUNT
+const LW_COUNT = 15;
+async function findRecords(w: any) {
+  const { data: others } = await admin.from("workouts").select("id,blocks").eq("participant_id", w.participant_id).neq("id", w.id);
+  const prev: Record<string, number> = {};
+  for (const o of others ?? []) for (const b of o.blocks ?? []) for (const e of b.exercises ?? []) for (const s of e.sets ?? [])
+    if (Number(s.reps) >= 1) prev[e.exerciseId] = Math.max(prev[e.exerciseId] ?? 0, Number(s.weight) || 0);
+  const out: { exerciseId: string; weight: number; reps: number }[] = [];
+  for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) {
+    let best: { weight: number; reps: number } | null = null;
+    for (const s of e.sets ?? []) {
+      const wt = Number(s.weight) || 0, r = Number(s.reps) || 0;
+      if (wt > 0 && r >= 1 && (!best || wt > best.weight || (wt === best.weight && r > best.reps))) best = { weight: wt, reps: r };
+    }
+    if (best && (prev[e.exerciseId] ?? 0) > 0 && best.weight > prev[e.exerciseId] && !out.some((x) => x.exerciseId === e.exerciseId))
+      out.push({ exerciseId: e.exerciseId, ...best });
+  }
+  if (!out.length) return [];
+  const { data: exs } = await admin.from("exercises").select("id,name").in("id", out.map((x) => x.exerciseId));
+  return out.map((r) => ({ ...r, name: exs?.find((e: any) => e.id === r.exerciseId)?.name ?? "упражнение" }));
+}
+
 async function onWorkoutDone(req: Request, body: any) {
   const jwt = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
   const { data: u } = await admin.auth.getUser(jwt);
@@ -276,7 +309,18 @@ async function onWorkoutDone(req: Request, body: any) {
   const text = await workoutSummary(w);
   const { data: people } = await admin.from("profiles").select("id,name,telegram_id").in("id", [w.participant_id, ...(links ?? []).map((l: any) => l.trainer_id)]);
   const athlete = (people ?? []).find((x: any) => x.id === w.participant_id);
-  if (athlete?.telegram_id) await send(athlete.telegram_id, "✅ Тренировка завершена!\n\n" + text, appKb("📒 Открыть дневник"));
+  // ачивки, полученные за эту тренировку (считает приложение и присылает списком)
+  const achs = Array.isArray(body.achievements) ? body.achievements.filter((x: unknown) => typeof x === "string").slice(0, 30) : [];
+  const achText = achs.length ? `\n\n🏅 <b>Новые ачивки (${achs.length}):</b>\n` + achs.map((a: string) => "• " + esc(a.slice(0, 80))).join("\n") : "";
+  if (athlete?.telegram_id) await send(athlete.telegram_id, "✅ Тренировка завершена!\n\n" + text + achText, appKb("📒 Открыть дневник"));
+  // новый рекорд — постер «Light weight» с подписью
+  const records = await findRecords(w);
+  if (athlete?.telegram_id && records.length && APP_URL) {
+    const n = String(1 + Math.floor(Math.random() * LW_COUNT)).padStart(2, "0");
+    const caption = "🏆 LIGHT WEIGHT, BABY!\n\n" + records.map((r) =>
+      `Впервые достигнут вес ${fmt(r.weight)} кг в упражнении «${esc(r.name)}», количество повторений ${r.reps}.`).join("\n");
+    await tg("sendPhoto", { chat_id: athlete.telegram_id, photo: `${APP_URL}img/lightweight/${n}.jpg`, caption, parse_mode: "HTML" });
+  }
   for (const t of (people ?? []).filter((x: any) => x.id !== w.participant_id && x.telegram_id))
     await send(t.telegram_id, `👀 Подопечный <b>${esc(athlete?.name)}</b> завершил тренировку:\n\n` + text);
   return json({ ok: true });
@@ -288,6 +332,24 @@ async function recipients() {
   return data ?? [];
 }
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+// абонемент: за 4 дня и за 1 день до окончания (запускается вместе с утренней рассылкой)
+async function membershipReminders() {
+  let sent = 0;
+  const in4 = today(4), in1 = today(1);
+  const { data: list } = await admin.from("profile_details").select("user_id,membership_end").in("membership_end", [in4, in1]);
+  for (const m of list ?? []) {
+    const { data: p } = await admin.from("profiles").select("telegram_id").eq("id", m.user_id).maybeSingle();
+    if (!p?.telegram_id) continue;
+    const [y, mo, da] = m.membership_end.split("-");
+    const text = m.membership_end === in1
+      ? `🎫 Завтра (${da}.${mo}) последний день абонемента в зал. Не забудьте продлить!`
+      : `🎫 Абонемент в зал заканчивается через 4 дня — ${da}.${mo}.${y}. Самое время продлить 💪`;
+    await send(p.telegram_id, text, appKb("🎫 Обновить дату абонемента"));
+    sent++; await sleep(40);
+  }
+  return sent;
+}
 
 async function cron(kind: string) {
   let sent = 0;
@@ -303,6 +365,9 @@ async function cron(kind: string) {
         friend_accepted: `🤝 ${who} подтвердил(а) заявку — теперь вы участники друг у друга.`,
         trainer_offer: `🏋️ ${who} предлагает стать вашим тренером. Принять или отклонить можно в разделе «Участники».`,
         trainer_assigned: `✅ ${who} принял(а) вас как тренера. Его (её) тренировки теперь в вашем календаре.`,
+        achievement_pending: `🏅 Новый сертификат на проверке от ${who}: «${esc(n.payload?.name)}». Откройте Настройки → Админ-панель.`,
+        achievement_approved: `🏅 Ваш сертификат «${esc(n.payload?.name)}» подтверждён! Он уже в «Достижениях → Соревнования».`,
+        achievement_rejected: `Сертификат «${esc(n.payload?.name)}» отклонён.${n.payload?.comment ? " Причина: " + esc(n.payload.comment) + "." : ""} Можно загрузить заново.`,
       };
       if (to?.telegram_id && text[n.type]) { await send(to.telegram_id, text[n.type], appKb()); sent++; await sleep(40); }
       await admin.from("notifications").update({ telegram_sent: true }).eq("id", n.id);
@@ -310,6 +375,7 @@ async function cron(kind: string) {
     return sent;
   }
 
+  if (kind === "morning") sent += await membershipReminders(); // напоминания об абонементе — всем, даже с выключенными напоминаниями
   const users = await recipients();
   const d = today();
   for (const p of users) {
@@ -351,8 +417,14 @@ Deno.serve(async (req) => {
     if (req.headers.get("x-telegram-bot-api-secret-token") !== null) {
       if (req.headers.get("x-telegram-bot-api-secret-token") !== WEBHOOK_SECRET) return new Response("forbidden", { status: 403 });
       const upd = await req.json();
-      if (upd.message) await onMessage(upd.message);
-      else if (upd.callback_query) await onCallback(upd.callback_query);
+      const chatId = upd.message?.chat?.id ?? upd.callback_query?.message?.chat?.id;
+      try {
+        if (upd.message) await onMessage(upd.message);
+        else if (upd.callback_query) await onCallback(upd.callback_query);
+      } catch (e) {
+        console.log("BOT_UPDATE_ERROR", String(e));
+        if (chatId) await send(chatId, "⚠️ Не удалось сохранить ответ — ошибка базы данных:\n<code>" + esc(String(e).slice(0, 300)) + "</code>\nСообщите администратору.");
+      }
       return new Response("ok");
     }
     const body = await req.json().catch(() => ({}));

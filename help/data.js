@@ -16,7 +16,8 @@ window.HELP_DATA = [
     ],
     "aliases": [
      "Присед со штангой"
-    ]
+    ],
+    "fig": "help/fig/01_01.webp"
    },
    {
     "name": "Выпады",
@@ -24,14 +25,16 @@ window.HELP_DATA = [
     "images": [
      "help/img/004.jpg",
      "help/img/005.jpg"
-    ]
+    ],
+    "fig": "help/fig/01_02.webp"
    },
    {
     "name": "Жим ногами",
     "note": "Высокая постановка стоп на платформе — акцент на ягодицы и заднюю поверхность бедра. Низкая постановка — акцент на квадрицепс. Узкая постановка сильнее грузит внешнюю часть квадрицепса, широкая — внутреннюю поверхность бедра.",
     "images": [
      "help/img/006.jpg"
-    ]
+    ],
+    "fig": "help/fig/01_03.webp"
    },
    {
     "name": "Сгибание ног",
@@ -40,14 +43,16 @@ window.HELP_DATA = [
      "help/img/007.jpg",
      "help/img/008.jpg",
      "help/img/009.jpg"
-    ]
+    ],
+    "fig": "help/fig/01_04.webp"
    },
    {
     "name": "Разгибание ног",
     "note": "Разворот стоп наружу смещает акцент на внутреннюю головку квадрицепса, внутрь — на внешнюю головку. Чем ближе к полной амплитуде разгибания, тем выше нагрузка на коленный сустав.",
     "images": [
      "help/img/010.jpg"
-    ]
+    ],
+    "fig": "help/fig/01_05.webp"
    },
    {
     "name": "Подъём на носки",
@@ -58,7 +63,8 @@ window.HELP_DATA = [
     ],
     "aliases": [
      "Икры стоя"
-    ]
+    ],
+    "fig": "help/fig/01_06.webp"
    }
   ]
  },
@@ -75,7 +81,8 @@ window.HELP_DATA = [
     ],
     "aliases": [
      "Жим лёжа"
-    ]
+    ],
+    "fig": "help/fig/02_01.webp"
    },
    {
     "name": "Отжимания",
@@ -83,7 +90,8 @@ window.HELP_DATA = [
     "images": [
      "help/img/015.jpg",
      "help/img/016.jpg"
-    ]
+    ],
+    "fig": "help/fig/02_02.webp"
    },
    {
     "name": "Разводка с гантелями",
@@ -93,7 +101,8 @@ window.HELP_DATA = [
     ],
     "aliases": [
      "Разведение гантелей"
-    ]
+    ],
+    "fig": "help/fig/02_03.webp"
    },
    {
     "name": "Отжимания на брусьях",
@@ -101,7 +110,8 @@ window.HELP_DATA = [
     "images": [
      "help/img/018.jpg",
      "help/img/019.jpg"
-    ]
+    ],
+    "fig": "help/fig/02_04.webp"
    }
   ]
  },
@@ -115,14 +125,16 @@ window.HELP_DATA = [
     "images": [
      "help/img/020.jpg",
      "help/img/021.jpg"
-    ]
+    ],
+    "fig": "help/fig/03_01.webp"
    },
    {
     "name": "Тяга штанги в наклоне",
     "note": "Хват сверху — акцент на широчайшие мышцы спины, хват снизу — сильнее включает бицепс. Более горизонтальный корпус увеличивает нагрузку на среднюю часть спины.",
     "images": [
      "help/img/022.jpg"
-    ]
+    ],
+    "fig": "help/fig/03_02.webp"
    },
    {
     "name": "Горизонтальная тяга",
@@ -130,7 +142,8 @@ window.HELP_DATA = [
     "images": [
      "help/img/023.jpg",
      "help/img/024.jpg"
-    ]
+    ],
+    "fig": "help/fig/03_03.webp"
    },
    {
     "name": "Супермен",
@@ -147,7 +160,8 @@ window.HELP_DATA = [
      "help/img/027.jpg",
      "help/img/028.jpg",
      "help/img/029.jpg"
-    ]
+    ],
+    "fig": "help/fig/03_05.webp"
    }
   ]
  },
@@ -162,7 +176,8 @@ window.HELP_DATA = [
      "help/img/030.jpg",
      "help/img/031.jpg",
      "help/img/032.jpg"
-    ]
+    ],
+    "fig": "help/fig/04_01.webp"
    },
    {
     "name": "Подъём гантелей в стороны",
@@ -174,7 +189,8 @@ window.HELP_DATA = [
     ],
     "aliases": [
      "Махи гантелями в стороны"
-    ]
+    ],
+    "fig": "help/fig/04_02.webp"
    },
    {
     "name": "Разведения в наклоне",
@@ -183,14 +199,16 @@ window.HELP_DATA = [
      "help/img/036.jpg",
      "help/img/037.jpg",
      "help/img/038.jpg"
-    ]
+    ],
+    "fig": "help/fig/04_03.webp"
    },
    {
     "name": "Шраги",
     "note": "Подъём плеч строго вверх — акцент на верхнюю часть трапеции. Лёгкое движение плеч назад в верхней точке дополнительно включает среднюю часть трапеции.",
     "images": [
      "help/img/039.jpg"
-    ]
+    ],
+    "fig": "help/fig/04_04.webp"
    }
   ]
  },
@@ -209,7 +227,8 @@ window.HELP_DATA = [
     ],
     "aliases": [
      "Подъём гантелей на бицепс"
-    ]
+    ],
+    "fig": "help/fig/05_01.webp"
    },
    {
     "name": "Французский жим",
@@ -217,7 +236,8 @@ window.HELP_DATA = [
     "images": [
      "help/img/044.jpg",
      "help/img/045.jpg"
-    ]
+    ],
+    "fig": "help/fig/05_02.webp"
    },
    {
     "name": "Трицепс на блоке",
@@ -228,14 +248,16 @@ window.HELP_DATA = [
     ],
     "aliases": [
      "Разгибание на трицепс блок"
-    ]
+    ],
+    "fig": "help/fig/05_03.webp"
    },
    {
     "name": "Подъём штанги на бицепс",
     "note": "EZ-гриф снижает нагрузку на запястья. Широкий хват — акцент на внутреннюю (короткую) головку бицепса, узкий хват — на внешнюю (длинную) головку.",
     "images": [
      "help/img/048.jpg"
-    ]
+    ],
+    "fig": "help/fig/05_04.webp"
    }
   ]
  },
@@ -258,7 +280,8 @@ window.HELP_DATA = [
     "images": [
      "help/img/052.jpg",
      "help/img/053.jpg"
-    ]
+    ],
+    "fig": "help/fig/06_02.webp"
    },
    {
     "name": "Гиперэкстензия",
@@ -266,7 +289,8 @@ window.HELP_DATA = [
     "images": [
      "help/img/054.jpg",
      "help/img/055.jpg"
-    ]
+    ],
+    "fig": "help/fig/06_03.webp"
    },
    {
     "name": "Махи ногой назад",
@@ -274,7 +298,8 @@ window.HELP_DATA = [
     "images": [
      "help/img/056.jpg",
      "help/img/057.jpg"
-    ]
+    ],
+    "fig": "help/fig/06_04.webp"
    }
   ]
  },
@@ -289,7 +314,8 @@ window.HELP_DATA = [
      "help/img/058.jpg",
      "help/img/059.jpg",
      "help/img/060.jpg"
-    ]
+    ],
+    "fig": "help/fig/07_01.webp"
    },
    {
     "name": "Подъём ног",
@@ -301,7 +327,8 @@ window.HELP_DATA = [
     ],
     "aliases": [
      "Подъём ног в висе"
-    ]
+    ],
+    "fig": "help/fig/07_02.webp"
    },
    {
     "name": "Планка",
@@ -310,7 +337,8 @@ window.HELP_DATA = [
      "help/img/064.jpg",
      "help/img/065.jpg",
      "help/img/066.jpg"
-    ]
+    ],
+    "fig": "help/fig/07_03.webp"
    },
    {
     "name": "Боковая планка",
@@ -318,7 +346,8 @@ window.HELP_DATA = [
     "images": [
      "help/img/067.jpg",
      "help/img/068.jpg"
-    ]
+    ],
+    "fig": "help/fig/07_04.webp"
    }
   ]
  },
@@ -333,7 +362,8 @@ window.HELP_DATA = [
      "help/img/071.jpg",
      "help/img/072.jpg",
      "help/img/073.jpg"
-    ]
+    ],
+    "fig": "help/fig/08_01.webp"
    },
    {
     "name": "Растяжка квадрицепса",
@@ -349,7 +379,8 @@ window.HELP_DATA = [
      "help/img/075.jpg",
      "help/img/076.jpg",
      "help/img/077.jpg"
-    ]
+    ],
+    "fig": "help/fig/08_03.webp"
    },
    {
     "name": "Растяжка плеч",
@@ -358,7 +389,8 @@ window.HELP_DATA = [
      "help/img/078.jpg",
      "help/img/079.jpg",
      "help/img/080.jpg"
-    ]
+    ],
+    "fig": "help/fig/08_04.webp"
    }
   ]
  },
@@ -380,7 +412,8 @@ window.HELP_DATA = [
     "note": "Акцент на приводящие мышцы бедра и заднюю поверхность бедра. Стопы направлены вверх, а не в пол — безопаснее для коленей. Разворот таза важнее глубины.",
     "images": [
      "help/img/084.jpg"
-    ]
+    ],
+    "fig": "help/fig/09_02.webp"
    },
    {
     "name": "Выпад с растяжкой (подводящее)",
@@ -398,7 +431,8 @@ window.HELP_DATA = [
      "help/img/088.jpg",
      "help/img/089.jpg",
      "help/img/090.jpg"
-    ]
+    ],
+    "fig": "help/fig/09_04.webp"
    },
    {
     "name": "Поза голубя (подводящее)",
@@ -417,7 +451,8 @@ window.HELP_DATA = [
     "images": [
      "help/img/091.jpg",
      "help/img/092.jpg"
-    ]
+    ],
+    "fig": "help/fig/10_01.webp"
    },
    {
     "name": "Бег на улице (без инвентаря)",
@@ -451,7 +486,8 @@ window.HELP_DATA = [
     "note": "Движение вперёд — акцент на переднюю поверхность бедра и икры, назад — на ягодицы и заднюю поверхность бедра. Использование поручней подключает верх тела.",
     "images": [
      "help/img/096.jpg"
-    ]
+    ],
+    "fig": "help/fig/10_05.webp"
    },
    {
     "name": "Гребной тренажёр (зал)",
@@ -468,14 +504,16 @@ window.HELP_DATA = [
     "note": "Прыжки на двух ногах — акцент на икры и голеностоп. Высокое поднимание колен дополнительно включает пресс. Мягкое приземление на носки снижает нагрузку на колени.",
     "images": [
      "help/img/098.jpg"
-    ]
+    ],
+    "fig": "help/fig/10_07.webp"
    },
    {
     "name": "Берпи (без инвентаря)",
     "note": "Полный вариант с прыжком — максимальная нагрузка на всё тело. Облегчённый вариант без прыжка снижает нагрузку на плечи и колени. Эффективен как интервальная нагрузка.",
     "images": [
      "help/img/099.jpg"
-    ]
+    ],
+    "fig": "help/fig/10_08.webp"
    },
    {
     "name": "Скалолаз (без инвентаря)",
@@ -491,7 +529,8 @@ window.HELP_DATA = [
      "help/img/101.jpg",
      "help/img/102.jpg",
      "help/img/103.jpg"
-    ]
+    ],
+    "fig": "help/fig/10_10.webp"
    }
   ]
  }
