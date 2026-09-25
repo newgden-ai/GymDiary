@@ -242,13 +242,18 @@ const fmt = (n: number) => Math.round(n).toLocaleString("ru-RU");
 async function workoutSummary(w: any) {
   const ids = new Set<string>();
   (w.blocks ?? []).forEach((b: any) => (b.exercises ?? []).forEach((e: any) => ids.add(e.exerciseId)));
-  const { data: exs } = ids.size ? await admin.from("exercises").select("id,name,main_group").in("id", [...ids]) : { data: [] };
+  const { data: exs } = ids.size ? await admin.from("exercises").select("id,name,main_group,type").in("id", [...ids]) : { data: [] };
   const info = new Map((exs ?? []).map((e: any) => [e.id, e]));
+  // собственный вес на дату тренировки: подход без веса = повторения × вес спортсмена (как в приложении)
+  const { data: bwRow } = await admin.from("body_weights").select("weight_kg").eq("user_id", w.participant_id).lte("date", w.date).order("date", { ascending: false }).limit(1);
+  let bw = Number(bwRow?.[0]?.weight_kg) || 0;
+  if (!bw) { const { data: d } = await admin.from("profile_details").select("weight_kg").eq("user_id", w.participant_id).maybeSingle(); bw = Number(d?.weight_kg) || 0; }
   let total = 0, sets = 0; const groups: Record<string, number> = {}; const lines: string[] = [];
   for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) {
     let t = 0, n = 0;
-    for (const s of e.sets ?? []) { const v = (Number(s.weight) || 0) * (Number(s.reps) || 0); if (v > 0 || Number(s.reps) > 0 || s.time) n++; t += v; }
     const ex: any = info.get(e.exerciseId);
+    const ownBw = ex && ["strength", "functional"].includes(ex.type) ? bw : 0;
+    for (const s of e.sets ?? []) { const wt = Number(s.weight) || 0; const v = (wt > 0 ? wt : ownBw) * (Number(s.reps) || 0); if (v > 0 || Number(s.reps) > 0 || s.time) n++; t += v; }
     if (!n) continue;
     sets += n; total += t;
     if (ex && t > 0) groups[ex.main_group] = (groups[ex.main_group] ?? 0) + t;

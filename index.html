@@ -135,9 +135,17 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .zoom-close{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:10px;z-index:2;width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:18px;}
 .ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:10px;max-height:420px;overflow:auto;padding-right:2px;}
 .ach-tile{background:radial-gradient(circle at 50% 30%,#2a2a2e 0,#121214 70%);border:1px solid #2c2c30;border-radius:12px;padding:10px 6px 8px;text-align:center;color:#e9e9ea;display:flex;flex-direction:column;align-items:center;gap:3px;}
-.ach-tile .ico{width:44px;height:44px;opacity:.35;filter:grayscale(1);}
+.ach-emo{font-size:34px;line-height:44px;height:44px;filter:grayscale(1) brightness(.9);opacity:.35;}
+.ach-tile.got .ach-emo{filter:drop-shadow(0 0 8px color-mix(in srgb,var(--ach) 70%,transparent));opacity:1;}
+.ach-tile.rare{background:radial-gradient(circle at 50% 30%,#2f2640 0,#131018 70%);}
+.ach-tile.rare.got{border-color:#b388ff;box-shadow:0 0 16px -4px #b388ff inset, 0 0 10px -4px #b388ff;}
+.ach-chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none;}
+.ach-chip{flex:0 0 auto;border:1px solid var(--border);background:var(--surface2);border-radius:999px;padding:5px 10px;font-size:12.5px;white-space:nowrap;}
+.ach-chip b{color:var(--ach);filter:brightness(.8);}
+.ach-chip.on{background:#141416;color:#fff;border-color:var(--ach);}
+.ach-chip.on b{filter:none;}
 .ach-tile.got{border-color:color-mix(in srgb,var(--ach) 55%,#121214);box-shadow:0 0 14px -6px var(--ach) inset;}
-.ach-tile.got .ico{opacity:1;filter:drop-shadow(0 0 6px rgba(255,255,255,.25));}
+
 .ach-t{font-size:12px;font-weight:700;line-height:1.2;}
 .ach-d{font-size:10.5px;color:#9a9aa0;line-height:1.2;}
 .ach-ok{font-size:10px;color:var(--ach);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
@@ -149,6 +157,9 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .st-done{background:#2e7d4f;color:#fff;border-color:#2e7d4f;}
 .st-plan{border-style:dashed;}
 .act-tag{font-size:10px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.base-group{margin-bottom:8px;border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:0 10px;}
+.base-group summary{padding:11px 0;cursor:pointer;font-weight:600;}
+.base-group[open] summary{border-bottom:1px solid var(--border);margin-bottom:10px;}
 .set-ton{font-size:11px;color:var(--text-dim);margin:-2px 0 4px 34px;}
 .tonnage-line{font-size:12px;color:var(--text-dim);margin-top:4px;}
 .tot-box{background:var(--accent);color:var(--on-accent,#fff);border-radius:10px;padding:10px 12px;margin-top:10px;}
@@ -461,22 +472,26 @@ const Storage = (function(){
 
 /* ===================== CALC MODULE (tonnage) ===================== */
 const Calc = (function(){
-  function setTonnage(s){ return (Number(s.weight)||0) * (Number(s.reps)||0); }
-  function exTonnage(ex){ return (ex.sets||[]).reduce((a,s)=>a+setTonnage(s),0); }
-  function blockTonnage(b){ return (b.exercises||[]).reduce((a,ex)=>a+exTonnage(ex),0); }
-  function workoutTonnage(w){ return (w.blocks||[]).reduce((a,b)=>a+blockTonnage(b),0); }
+  // bw — вес спортсмена: подход без веса отягощения (подтягивания, отжимания…) = повторения × собственный вес
+  function setTonnage(s, bw){ const wt = Number(s.weight)||0, r = Number(s.reps)||0; return (wt>0 ? wt : (Number(bw)||0)) * r; }
+  function exTonnage(ex, bw){ return (ex.sets||[]).reduce((a,s)=>a+setTonnage(s, bw),0); }
+  // bwFor(w, ex) задаёт приложение: какой собственный вес подставлять для упражнения этой тренировки (0 — не учитывать)
+  let bwFor = () => 0;
+  function setBodyWeightProvider(fn){ bwFor = fn; }
+  function blockTonnage(b, w){ return (b.exercises||[]).reduce((a,ex)=>a+exTonnage(ex, w?bwFor(w,ex):0),0); }
+  function workoutTonnage(w){ return (w.blocks||[]).reduce((a,b)=>a+blockTonnage(b, w),0); }
   function muscleBreakdown(w, exercisesDb){
     const map = {};
     (w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{
       const info = exercisesDb.find(e=>e.id===ex.exerciseId);
       if(!info) return;
-      const t = exTonnage(ex);
+      const t = exTonnage(ex, bwFor(w, ex));
       if(t<=0) return;
       map[info.mainGroup] = (map[info.mainGroup]||0) + t;
     }));
     return map;
   }
-  return {setTonnage, exTonnage, blockTonnage, workoutTonnage, muscleBreakdown};
+  return {setTonnage, exTonnage, blockTonnage, workoutTonnage, muscleBreakdown, setBodyWeightProvider, bwFor:(w,ex)=>bwFor(w,ex)};
 })();
 
 /* ===================== CONSTANTS ===================== */
@@ -540,32 +555,101 @@ function weeklyStreak(workouts){
   }
   return {current, longest};
 }
-// все ачивки: получено / в процессе (по тренировкам участника)
+// ===================== АЧИВКИ =====================
+// A «Равный по весу» — лучшая ОДНА тренировка ≥ веса предмета/транспорта
+const ACH_WEIGHT = [
+  [10,'🍉','Арбуз'],[15,'🚲','Велосипед'],[30,'🛶','Каноэ'],[60,'🛞','Колесо грузовика'],[70,'🧺','Стиральная машина'],
+  [90,'🧊','Холодильник'],[110,'🛵','Скутер'],[200,'🏍️','Мотоцикл'],[250,'🎹','Пианино'],[500,'🎼','Концертный рояль'],
+  [750,'🛩️','Лёгкий самолёт'],[800,'🏎️','Гоночный болид'],[1400,'🚗','Легковой автомобиль'],[1700,'🚓','Полицейская машина'],[2000,'🚤','Катер'],
+  [2500,'🚙','Внедорожник'],[3000,'🚐','Микроавтобус'],[3500,'🚑','Скорая помощь'],[5000,'🚜','Трактор'],[7000,'🚁','Вертолёт'],
+  [8000,'🚚','Грузовик'],[10000,'⛵','Парусная яхта'],[11000,'🚎','Троллейбус'],[12000,'🚌','Городской автобус'],[14000,'🚒','Пожарная машина'],
+  [20000,'🚊','Трамвай'],[36000,'🚛','Гружёная фура'],[42000,'✈️','Пассажирский самолёт'],[50000,'🚃','Вагон поезда'],[60000,'🏠','Деревянный дом'],
+  [120000,'🚂','Локомотив'],[300000,'🚀','Ракета «Союз»']
+];
+// B «Как техника» — ВЕСЬ поднятый вес за всё время ≥ грузоподъёмности машины
+const ACH_MACHINE = [
+  [1000,'🛻','Пикап'],[1500,'🛗','Грузовой лифт'],[2000,'🔧','Автомобильный домкрат'],[3000,'🪝','Ручная таль'],[5000,'🚜','Вилочный погрузчик'],
+  [8000,'⛏️','Мини-экскаватор'],[10000,'🚚','Грузовик'],[20000,'🚁','Вертолёт-кран Ми-26'],[25000,'🏗️','Автокран'],[40000,'🚛','Фура'],
+  [50000,'⛏️','Экскаватор'],[64000,'🏗️','Башенный кран'],[70000,'🚃','Товарный вагон'],[100000,'⚓','Портовый кран'],[140000,'🚀','Ракета Saturn V'],
+  [150000,'✈️','Ан-124 «Руслан»'],[250000,'✈️','Ан-225 «Мрия»'],[450000,'🚧','Карьерный самосвал БелАЗ'],[500000,'🏗️','Козловой кран'],[1000000,'🚢','Речная баржа'],
+  [2000000,'🏗️','Самый мощный башенный кран'],[3000000,'⚓','Плавучий кран'],[5000000,'🚂','Грузовой поезд'],[13500000,'⛏️','Экскаватор Bagger 293 (за смену)'],[20000000,'🏗️','Плавучий кран Sleipnir'],
+  [50000000,'🚢','Сухогруз'],[100000000,'🚢','Контейнеровоз'],[200000000,'🛳️','Круизный лайнер'],[300000000,'🛢️','Нефтяной танкер'],[500000000,'🚢','Супертанкер']
+];
+// C «Зоопарк» — вес за лучшую НЕДЕЛЮ в забавных животных
+const ACH_ZOO = [
+  [36,'🦡','3 барсука'],[48,'🐀','Стая из 12 опоссумов'],[48,'🦝','Семейка из 6 енотов'],[60,'🐇','Отряд из 30 кроликов'],[180,'🦥','30 ленивцев'],
+  [250,'🦫','Плотина из 10 бобров'],[315,'🐺','Волчья стая'],[480,'🦘','8 кенгуру'],[550,'🐼','5 панд'],[600,'🐧','Колония из 20 пингвинов'],
+  [900,'🐊','Семья крокодилов'],[1200,'🐦','10 страусов'],[1440,'🦍','8 горилл'],[1800,'🦌','Стадо из 12 оленей'],[2200,'🐅','10 тигров'],
+  [2250,'🐻','5 белых медведей'],[2850,'🦁','15 львов'],[3000,'🫎','6 лосей'],[3500,'🦓','Табун из 10 зебр'],[6000,'🐄','Стадо из 10 коров'],
+  [6000,'🐫','Караван из 12 верблюдов'],[7200,'🦬','8 бизонов'],[7200,'🦒','6 жирафов'],[7500,'🦛','5 бегемотов'],[9200,'🦏','4 носорога'],
+  [12000,'🦭','Лежбище из 10 моржей'],[16000,'🦣','2 мамонта'],[18000,'🐘','3 слона'],[24000,'🦖','3 тираннозавра'],[40000,'🐳','Кашалот'],
+  [70000,'🦕','Аргентинозавр'],[150000,'🐋','Синий кит']
+];
+// D «Редкие» — знаменитые уникальные вещи (весь поднятый вес) и редкие события
+const ACH_RARE_THINGS = [
+  [4725,'👨‍🚀','Корабль «Восток» Гагарина'],[5500,'🌕','Командный модуль «Аполлона-11»'],[5660,'🎨','Статуя Давида'],[11000,'🔭','Телескоп «Хаббл»'],[13700,'🔔','Колокол Биг-Бена'],[14000,'🗿','Статуя моаи'],[15000,'🌙','Лунный модуль'],[25000,'🪨','Камень Стоунхенджа'],[60000,'☄️','Метеорит Гоба'],[202000,'🔔','Царь-колокол'],[225000,'🗽','Статуя Свободы'],
+  [420000,'🛰️','Международная космическая станция'],[635000,'🕊️','Статуя Христа-Искупителя'],[1600000,'🪨','Гром-камень Медного всадника'],[2100000,'🎡','Колесо «Лондонский глаз»'],[7300000,'🗼','Эйфелева башня'],
+  [8000000,'🗽','«Родина-мать зовёт!»'],[20000000,'🦁','Большой Сфинкс'],[32000000,'📡','Останкинская башня'],[52000000,'🚢','«Титаник»'],[500000000,'🏙️','Бурдж-Халифа'],[887000000,'🌉','Мост «Золотые Ворота»'],[6000000000,'🔺','Пирамида Хеопса']
+];
+const ACH_CATS = [
+  {id:'weight', name:'Равный по весу', color:'#f5b82e', hint:'за одну тренировку'},
+  {id:'machine', name:'Как техника', color:'#ff8a2b', hint:'весь поднятый вес'},
+  {id:'zoo', name:'Зоопарк', color:'#3ecf8e', hint:'за лучшую неделю'},
+  {id:'count', name:'Тренировки', color:'#4da3ff', hint:'количество'},
+  {id:'hours', name:'Часы', color:'#2ed3c6', hint:'время в зале'},
+  {id:'streak', name:'Серии', color:'#ff5a8a', hint:'недель подряд'},
+  {id:'rare', name:'Редкие', color:'#b388ff', hint:'уникальное'}
+];
+const COUNT_STEPS = [1,3,5,10,15,20,25,30,40,50,60,75,90,100,125,150,175,200,250,300,365,400,500,600,700,750,800,900,1000,1500];
+const HOUR_STEPS = [1,3,5,10,15,20,25,30,40,50,60,75,100,125,150,175,200,250,300,350,400,500,600,750,1000,1250,1500,2000,2500,3000];
+const STREAK_STEPS = [2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,30,35,40,45,52,60,70,78,90,104,130,156,208];
+const plural = (n, one, few, many) => { const m10=n%10, m100=n%100; return m10===1&&m100!==11?one:(m10>=2&&m10<=4&&(m100<12||m100>14)?few:many); };
+function isPalindromeNum(n){ const s=String(Math.round(n)); return s.length>=4 && s===[...s].reverse().join(''); }
+// все ачивки участника: получено / прогресс
 function achievementsList(workouts){
-  const best = workouts.reduce((a,w)=>Math.max(a, Calc.workoutTonnage(w)), 0);
+  const tons = workouts.map(w=>Calc.workoutTonnage(w));
+  const best = Math.max(0, ...tons), total = tons.reduce((a,b)=>a+b,0);
+  const bestWeek = Math.max(0, ...Object.values(groupSumBy(workouts, weekKeyOf)));
   const hours = workouts.reduce((a,w)=>a+(Number(w.duration)||0),0)/60;
   const streak = weeklyStreak(workouts).longest;
-  const cleanLabel = l => l.replace(/\s*[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]+/gu,'').replace(/\s+—.*$/,'').trim();
-  // цвет ачивки: по категории; кубки тоннажа — по уровню (бронза → серебро → золото → платина → бриллиант)
-  const TIER = ['#cd7f32','#cd7f32','#cd7f32','#c9d1da','#c9d1da','#c9d1da','#f5b82e','#f5b82e','#f5b82e','#9fe3ff','#9fe3ff','#9fe3ff','#b388ff','#b388ff','#b388ff','#ff7ad9','#ff7ad9'];
-  const out = [{icon:'flag', color:'#3ecf8e', title:'Первая тренировка', desc:'Начало пути', cur:workouts.length, target:1}];
-  WORKOUT_MILESTONES.forEach(n=>out.push({icon:'dumbbell', color:'#4da3ff', title:`${n} тренировок`, desc:'Проведено тренировок', cur:workouts.length, target:n}));
-  HOUR_MILESTONES.forEach(n=>out.push({icon:'stopwatch', color:'#2ed3c6', title:`${n} часов`, desc:'Время в зале', cur:fmtNum(hours), target:n}));
-  STREAK_MILESTONES.forEach(n=>out.push({icon:'flame', color:'#ff8a2b', title:`${n} нед. подряд`, desc:'Серия без пропуска недели', cur:streak, target:n}));
-  TONNAGE_COMPARISONS.forEach(([th,label],i)=>out.push({icon:'trophy', color:TIER[i]||'#f5b82e', title:cleanLabel(label), desc:`${fmtNum(th)} кг за тренировку`, cur:Math.round(best), target:th}));
+  const out = [];
+  const add = (cat, icon, title, desc, cur, target, rare) => out.push({cat, icon, title, desc, cur, target, rare});
+  ACH_WEIGHT.forEach(([t,i,n])=>add('weight', i, n, `Поднял за тренировку вес, равный: ${n.toLowerCase()} (${fmtNum(t)} кг)`, Math.round(best), t));
+  ACH_MACHINE.forEach(([t,i,n])=>add('machine', i, n, `Поднял в сумме столько, сколько поднимает ${n.toLowerCase()} (${fmtNum(t/1000)} т)`, Math.round(total), t));
+  ACH_ZOO.forEach(([t,i,n])=>add('zoo', i, n, `За неделю поднял столько, сколько весят ${n.toLowerCase()} (${fmtNum(t)} кг)`, Math.round(bestWeek), t));
+  COUNT_STEPS.forEach(n=>add('count', n>=365?'🏅':n>=100?'💪':'🏋️', `${n} ${plural(n,'тренировка','тренировки','тренировок')}`, 'Проведено тренировок', workouts.length, n));
+  HOUR_STEPS.forEach(n=>add('hours', n>=500?'⌛':'⏱️', `${n} ${plural(n,'час','часа','часов')}`, 'Время в зале', fmtNum(hours), n));
+  STREAK_STEPS.forEach(n=>add('streak', n>=52?'☀️':'🔥', `${n} ${plural(n,'неделя','недели','недель')} подряд`, 'Каждую неделю хотя бы одна тренировка', streak, n));
+  ACH_RARE_THINGS.forEach(([t,i,n])=>add('rare', i, n, `Поднял в сумме больше, чем весит ${n} (${fmtNum(t/1000)} т)`, Math.round(total), t, true));
+  const ev = (icon, title, desc, ok) => add('rare', icon, title, desc, ok?1:0, 1, true);
+  ev('🎆','Новогодняя тренировка','Тренировка 1 января', workouts.some(w=>w.date.slice(5)==='01-01'));
+  ev('🐸','Високосный атлет','Тренировка 29 февраля', workouts.some(w=>w.date.slice(5)==='02-29'));
+  ev('🐈‍⬛','Пятница, 13-е','Тренировка в пятницу 13-го', workouts.some(w=>w.date.slice(8)==='13' && parseD(w.date).getDay()===5));
+  ev('🌅','Ранняя пташка','Тренировка раньше 6:00', workouts.some(w=>w.time && w.time<'06:00'));
+  ev('🦉','Ночная сова','Тренировка после 23:00', workouts.some(w=>w.time && w.time>='23:00'));
+  ev('🎯','Ровно тонна','Тоннаж тренировки ровно 1000 кг', tons.some(t=>Math.abs(t-1000)<0.01));
+  ev('🔁','Тоннаж-палиндром','Тоннаж читается одинаково с обеих сторон, например 12 321 кг', tons.some(isPalindromeNum));
+  ev('🎂','Тренировка в день рождения','Тренировка в свой день рождения', (()=>{ const d=(DB.details||[]).find(x=>x.user_id===(workouts[0]||{}).participantId); return !!(d&&d.birth_date) && workouts.some(w=>w.date.slice(5)===d.birth_date.slice(5)); })());
   return out.map(a=>({...a, got: a.cur>=a.target, pct: Math.min(100, Math.round(a.cur/a.target*100))}));
 }
 function achievementsCard(workouts){
-  const list = achievementsList(workouts); const got = list.filter(a=>a.got);
-  const tile = a => `<div class="ach-tile ${a.got?'got':''}" style="--ico-red:${a.color};--ach:${a.color}" title="${esc(a.desc)}">
-    ${icon(a.icon, true)}
+  // считаем только проведённые тренировки, запланированные на будущее — нет
+  const all = achievementsList(workouts.filter(w=>w.status==='done' || (w.date<=dstr(new Date()) && hasFilledSets(w)))); const tab = State.achTab || 'weight';
+  const cat = id => ACH_CATS.find(c=>c.id===id);
+  const list = all.filter(a=>tab==='got' ? a.got : a.cat===tab);
+  const tile = a => `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''}" style="--ach:${cat(a.cat).color}" data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':fmtNum(a.cur)+' / '+fmtNum(a.target)}">
+    <div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>
-    <div class="ach-d">${esc(a.desc)}</div>
-    ${a.got?'<div class="ach-ok">получено</div>':`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${fmtNum(a.cur)} / ${fmtNum(a.target)}</div>`}
+    ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${fmtNum(a.cur)} / ${fmtNum(a.target)}</div>`}
   </div>`;
+  const chip = (id, name, color) => { const n = id==='got' ? all.filter(a=>a.got).length : all.filter(a=>a.cat===id&&a.got).length;
+    const t = id==='got' ? '' : '/'+all.filter(a=>a.cat===id).length;
+    return `<button class="ach-chip ${tab===id?'on':''}" style="--ach:${color}" data-ach-tab="${id}">${name} <b>${n}${t}</b></button>`; };
   return `<div class="card" style="margin-bottom:10px">
-    <div class="row" style="justify-content:space-between"><h3 class="row" style="gap:6px;margin:0"><span class="ach-ico">${icon('trophy')}</span>Достижения</h3><span class="muted">${got.length} из ${list.length}</span></div>
-    <div class="ach-grid">${[...got, ...list.filter(a=>!a.got)].map(tile).join('')}</div>
+    <div class="row" style="justify-content:space-between"><h3 class="row" style="gap:6px;margin:0"><span class="ach-ico">${icon('trophy')}</span>Достижения</h3><span class="muted">${all.filter(a=>a.got).length} из ${all.length}</span></div>
+    <div class="ach-chips">${chip('got','Мои','#e9e9ea')}${ACH_CATS.map(c=>chip(c.id,c.name,c.color)).join('')}</div>
+    ${tab!=='got'?`<div class="muted" style="margin-top:6px">${cat(tab).hint}</div>`:''}
+    <div class="ach-grid">${[...list.filter(a=>a.got), ...list.filter(a=>!a.got)].map(tile).join('') || '<div class="muted">Пока нет полученных ачивок — всё впереди!</div>'}</div>
   </div>`;
 }
 function milestoneBlock(current, milestones, icon, label){
@@ -644,6 +728,19 @@ function toKg(v, units){ return units==='lb' ? (Number(v)||0)/2.20462 : (Number(
 /* ===================== APP STATE ===================== */
 const DB = { participants:[{id:'', name:'Я', color:'#3d5a45'}], exercises:[], workouts:[], templates:[], settings:{units:'kg', theme:'auto', restDefault:90, themeColor:'forest'} };
 function selfParticipantId(){ return DB.participants[0].id; }
+// собственный вес участника на дату тренировки: последний замер не позже даты, иначе ближайший позже, иначе из анкеты
+function bodyWeightOn(uid, date){
+  const list = (DB.weights||[]).filter(x=>x.user_id===uid);
+  const before = list.filter(x=>x.date<=date).sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const after = list.filter(x=>x.date>date).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const d = (DB.details||[]).find(x=>x.user_id===uid);
+  return Number((before||after||{}).weight_kg) || Number(d&&d.weight_kg) || 0;
+}
+Calc.setBodyWeightProvider((w, ex)=>{
+  const info = DB.exercises.find(e=>e.id===ex.exerciseId);
+  if(!info || !['strength','functional'].includes(info.type)) return 0;
+  return bodyWeightOn(w.participantId, w.date);
+});
 function isAdmin(){ return (DB.me&&DB.me.role)==='admin'; }
 const State = {
   view:'calendar', calMode:'month', calDate:new Date(),
@@ -845,7 +942,7 @@ function bestSetFor(exerciseId, participantId, excludeWorkoutId, isCardio){
     (w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{
       if(ex.exerciseId!==exerciseId) return;
       (ex.sets||[]).forEach(s=>{
-        const score = isCardio ? (Number(s.distance)||0) : Calc.setTonnage(s);
+        const score = isCardio ? (Number(s.distance)||0) : Calc.setTonnage(s, Calc.bwFor(w, ex));
         if(score>bestScore && score>0){ bestScore=score; best=s; bestDate=w.date; }
       });
     }));
@@ -936,7 +1033,7 @@ function renderRecurControls(){
 }
 
 function renderBlockCard(b,bi,w,units){
-  const bTon = Calc.blockTonnage(b);
+  const bTon = Calc.blockTonnage(b, w);
   return `<div class="block-card" data-block="${bi}">
     <div class="row" style="justify-content:space-between">
       <div class="row"><b>${b.kind==='superset'?'Суперсет':b.kind==='dropset'?'Дроп-сет':'Блок'} ${bi+1}</b>
@@ -954,7 +1051,9 @@ function renderBlockCard(b,bi,w,units){
 function renderExerciseCard(ex,bi,ei,w,units){
   const info = DB.exercises.find(x=>x.id===ex.exerciseId) || {name:'—',type:'strength'};
   const isCardio = info.type==='cardio';
-  const ton = Calc.exTonnage(ex);
+  const bw = Calc.bwFor(w, ex);
+  const ton = Calc.exTonnage(ex, bw);
+  const needBw = !isCardio && !bw && ex.sets.some(s=>!(Number(s.weight)>0) && Number(s.reps)>0);
   const prev = lastResultFor(ex.exerciseId, w.participantId, w.id);
   const best = bestSetFor(ex.exerciseId, w.participantId, w.id, isCardio);
   const isDrop = ex.isDropset && !isCardio;
@@ -980,7 +1079,8 @@ function renderExerciseCard(ex,bi,ei,w,units){
         <input type="text" class="set-note" placeholder="заметка" data-set="${bi}.${ei}.${si}.note" value="${esc(s.note)}">
       `}
       <button class="btn sm ghost" data-remove-set="${bi}.${ei}.${si}">✕</button>
-    </div>${isDrop && Calc.setTonnage(s)>0?`<div class="set-ton">${convW(s.weight,units)} × ${s.reps} = ${fmtNum(convW(Calc.setTonnage(s),units))} ${unitLabel(units)}</div>`:''}`).join('')}
+    </div>${!isCardio && Number(s.reps)>0 && (isDrop || !(Number(s.weight)>0)) && Calc.setTonnage(s,bw)>0?`<div class="set-ton">${Number(s.weight)>0?convW(s.weight,units):'свой вес '+convW(bw,units)} × ${s.reps} = ${fmtNum(convW(Calc.setTonnage(s,bw),units))} ${unitLabel(units)}</div>`:''}`).join('')}
+    ${needBw?`<div class="muted" style="font-size:11.5px">Подходы без веса считаются как повторения × ваш вес — укажите вес в «Участники → вы → Личные данные».</div>`:''}
     <button class="btn sm ghost" data-add-set="${bi}.${ei}">+ ${isDrop?'этап':'подход'}</button>
     ${!isCardio && ton>0?`<div class="tonnage-line">${isDrop?'Тоннаж дроп-сета':'Тоннаж упражнения'}: <b>${fmtNum(convW(ton,units))} ${unitLabel(units)}</b></div>`:''}
   </div>`;
@@ -1277,7 +1377,7 @@ function templateCard(t){
   const mine = t.ownerId===selfParticipantId();
   const canEdit = mine || isAdmin();
   return `<div class="card">
-    <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b style="min-width:0;overflow-wrap:anywhere">${esc(t.name)}</b>
+    <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b style="min-width:0;overflow-wrap:anywhere">${esc(t.ownerId?t.name:t.name.split(' · ').slice(2).join(' · ')||t.name)}</b>
       ${canEdit?`<button class="btn sm ghost del-link" data-delete-template="${t.id}">Удалить</button>`:''}</div>
     <div class="muted">${t.blocks.length} блок(ов), ${exCount} упражнений${!mine?` · ${t.ownerId?('автор: '+esc(t.authorName||'участник')):'базовая программа'}`:''}</div>
     <div class="row" style="margin-top:8px;flex-wrap:wrap">
@@ -1292,13 +1392,19 @@ function templateCard(t){
 function viewTemplates(){
   const me = selfParticipantId();
   const mine = DB.templates.filter(t=>t.ownerId===me);
-  const shared = DB.templates.filter(t=>t.ownerId!==me);
+  const shared = DB.templates.filter(t=>t.ownerId!==me && t.ownerId);
+  const base = DB.templates.filter(t=>!t.ownerId).sort((a,b)=>a.name.localeCompare(b.name,'ru'));
+  // «Базовая · Бодибилдинг · Пн: грудь» → группа «Бодибилдинг»
+  const groups = {}; base.forEach(t=>{ const g=(t.name.split(' · ')[1]||'Другое'); (groups[g]=groups[g]||[]).push(t); });
   const grid = list => `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:14px">${list.map(templateCard).join('')}</div>`;
   return `<div class="topbar"><h2>Шаблоны</h2><button class="btn" data-import-templates="1">Импорт</button></div>
   <h3>Мои шаблоны</h3>
   ${mine.length? grid(mine) : '<div class="muted" style="margin-bottom:14px">Пока нет шаблонов. Сохраните тренировку как шаблон или импортируйте.</div>'}
   <h3>Общие шаблоны</h3>
-  ${shared.length? grid(shared) : '<div class="muted">Общих шаблонов пока нет.</div>'}`;
+  ${shared.length? grid(shared) : '<div class="muted" style="margin-bottom:14px">Общих шаблонов пока нет.</div>'}
+  ${base.length?`<h3>Базовые программы</h3>
+  <div class="muted" style="margin-bottom:8px">По рекомендациям ACSM и NSCA: каждую крупную группу мышц — не реже 2 раз в неделю, нагрузку увеличивать постепенно, начинать с разминки и заканчивать растяжкой.</div>
+  ${Object.keys(groups).map(g=>`<details class="base-group" ${State.openBase===g?'open':''} data-base-group="${esc(g)}"><summary>${esc(g)} <span class="muted">${groups[g].length}</span></summary>${grid(groups[g])}</details>`).join('')}`:''}`;
 }
 
 /* ===================== ЭКСПРЕСС-СПРАВКА (данные — help/data.js) ===================== */
@@ -1576,7 +1682,7 @@ function viewStats(){
     ex.sets.forEach(s=>{
       exTotals[key].maxW = Math.max(exTotals[key].maxW, Number(s.weight)||0);
       exTotals[key].maxR = Math.max(exTotals[key].maxR, Number(s.reps)||0);
-      exTotals[key].tonnage += Calc.setTonnage(s);
+      exTotals[key].tonnage += Calc.setTonnage(s, Calc.bwFor(w, ex));
     });
     exTotals[key].count++;
   })));
@@ -1881,6 +1987,8 @@ function handleMainClick(e, ds){
     return true;
   }
   if(ds.saveDetails!==undefined){ saveDetails(); return true; }
+  if(ds.achTab!==undefined){ State.achTab = ds.achTab; const y=window.scrollY; renderMain(); window.scrollTo(0,y); return true; }
+  if(ds.achInfo!==undefined){ const [t,d,st]=ds.achInfo.split('|'); toast(`${t}: ${d} — ${st}`); return true; }
   if(ds.traineeColor!==undefined){
     const [linkId,color]=ds.traineeColor.split('|'); const l=DB.trainerLinks.find(x=>x.id===linkId);
     const p=DB.participants.find(x=>x.id===l.trainee_id); l.color=color; p.color=color; renderMain();
@@ -1968,7 +2076,7 @@ function initEvents(){
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-ach-tab],[data-ach-info],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){
@@ -1994,6 +2102,8 @@ function initEvents(){
     const mainEl = e.target.closest('#importTplFile,[data-hf],[data-ex-edit],[data-stats-participant],[data-stats-period],[data-setting],#importFile');
     if(mainEl){ handleMainChange(e, mainEl.dataset); }
   }
+  // помним раскрытую группу базовых программ между перерисовками
+  document.addEventListener('toggle', e=>{ const d=e.target; if(d.classList && d.classList.contains('base-group')){ if(d.open) State.openBase=d.dataset.baseGroup; else if(State.openBase===d.dataset.baseGroup) State.openBase=null; } }, true);
   document.addEventListener('change', onChangeOrInput);
   document.addEventListener('input', onChangeOrInput);
 }
