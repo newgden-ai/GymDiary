@@ -139,6 +139,8 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .ach-tile.got .ach-emo{filter:drop-shadow(0 0 8px color-mix(in srgb,var(--ach) 70%,transparent));opacity:1;}
 .ach-tile.rare{background:radial-gradient(circle at 50% 30%,#2f2640 0,#131018 70%);}
 .ach-tile.rare.got{border-color:#b388ff;box-shadow:0 0 16px -4px #b388ff inset, 0 0 10px -4px #b388ff;}
+.ach-tile{position:relative;}
+.ach-x{position:absolute;top:6px;right:7px;font-size:11px;font-weight:800;color:#121214;background:var(--ach);border-radius:999px;padding:1px 6px;}
 .ach-chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none;}
 .ach-chip{flex:0 0 auto;border:1px solid var(--border);background:var(--surface2);border-radius:999px;padding:5px 10px;font-size:12.5px;white-space:nowrap;}
 .ach-chip b{color:var(--ach);filter:brightness(.8);}
@@ -591,6 +593,15 @@ const ACH_RARE_THINGS = [
   [420000,'🛰️','Международная космическая станция'],[635000,'🕊️','Статуя Христа-Искупителя'],[1600000,'🪨','Гром-камень Медного всадника'],[2100000,'🎡','Колесо «Лондонский глаз»'],[7300000,'🗼','Эйфелева башня'],
   [8000000,'🗽','«Родина-мать зовёт!»'],[20000000,'🦁','Большой Сфинкс'],[32000000,'📡','Останкинская башня'],[52000000,'🚢','«Титаник»'],[500000000,'🏙️','Бурдж-Халифа'],[887000000,'🌉','Мост «Золотые Ворота»'],[6000000000,'🔺','Пирамида Хеопса']
 ];
+// E «Звери» — вес в ОДНОМ повторении упражнения, равный весу животного. Ачивка даётся за каждое упражнение отдельно:
+// «Барсук ×3» = три разных упражнения, где поднято ≥ 15 кг за повторение
+const ACH_BEASTS = [
+  [1,'🐹','Морская свинка'],[2,'🐇','Кролик'],[4,'🐈','Кот'],[6,'🦊','Лиса'],[8,'🦝','Енот'],[11,'🦦','Выдра'],[15,'🦡','Барсук'],
+  [20,'🦫','Бобр'],[25,'🐕','Лабрадор'],[32,'🐧','Императорский пингвин'],[40,'🐺','Волк'],[50,'🐐','Горный козёл'],[60,'🦘','Кенгуру'],
+  [70,'🐒','Шимпанзе'],[80,'🐆','Леопард'],[100,'🐼','Большая панда'],[120,'🐗','Кабан'],[150,'🦌','Благородный олень'],[180,'🦍','Горилла'],
+  [200,'🦁','Лев'],[220,'🐅','Тигр'],[300,'🐻','Бурый медведь'],[350,'🦓','Зебра'],[450,'🐻‍❄️','Белый медведь'],[500,'🐎','Лошадь'],
+  [600,'🐄','Корова'],[700,'🐫','Верблюд'],[900,'🦬','Бизон'],[1200,'🦒','Жираф'],[1500,'🦛','Бегемот']
+];
 const ACH_CATS = [
   {id:'weight', name:'Равный по весу', color:'#f5b82e', hint:'за одну тренировку'},
   {id:'machine', name:'Как техника', color:'#ff8a2b', hint:'весь поднятый вес'},
@@ -598,7 +609,8 @@ const ACH_CATS = [
   {id:'count', name:'Тренировки', color:'#4da3ff', hint:'количество'},
   {id:'hours', name:'Часы', color:'#2ed3c6', hint:'время в зале'},
   {id:'streak', name:'Серии', color:'#ff5a8a', hint:'недель подряд'},
-  {id:'rare', name:'Редкие', color:'#b388ff', hint:'уникальное'}
+  {id:'rare', name:'Редкие', color:'#b388ff', hint:'уникальное'},
+  {id:'beast', name:'Звери', color:'#c7a36a', hint:'вес в одном повторении — отдельная ачивка за каждое упражнение'}
 ];
 const COUNT_STEPS = [1,3,5,10,15,20,25,30,40,50,60,75,90,100,125,150,175,200,250,300,365,400,500,600,700,750,800,900,1000,1500];
 const HOUR_STEPS = [1,3,5,10,15,20,25,30,40,50,60,75,100,125,150,175,200,250,300,350,400,500,600,750,1000,1250,1500,2000,2500,3000];
@@ -630,6 +642,19 @@ function achievementsList(workouts){
   ev('🎯','Ровно тонна','Тоннаж тренировки ровно 1000 кг', tons.some(t=>Math.abs(t-1000)<0.01));
   ev('🔁','Тоннаж-палиндром','Тоннаж читается одинаково с обеих сторон, например 12 321 кг', tons.some(isPalindromeNum));
   ev('🎂','Тренировка в день рождения','Тренировка в свой день рождения', (()=>{ const d=(DB.details||[]).find(x=>x.user_id===(workouts[0]||{}).participantId); return !!(d&&d.birth_date) && workouts.some(w=>w.date.slice(5)===d.birth_date.slice(5)); })());
+  // максимальный вес за одно повторение в каждом упражнении (без веса — собственный вес, как в тоннаже)
+  const maxByEx = {};
+  workouts.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>(ex.sets||[]).forEach(s=>{
+    if(!(Number(s.reps)>=1)) return;
+    const wt = Number(s.weight)>0 ? Number(s.weight) : Calc.bwFor(w, ex);
+    if(wt>0 && wt>(maxByEx[ex.exerciseId]||0)) maxByEx[ex.exerciseId] = wt;
+  }))));
+  const exIds = Object.keys(maxByEx).filter(id=>DB.exercises.some(e=>e.id===id));
+  const topLift = Math.max(0, ...exIds.map(id=>maxByEx[id]));
+  ACH_BEASTS.forEach(([kg,i,n])=>{
+    const holders = exIds.filter(id=>maxByEx[id]>=kg).map(id=>{ const e=DB.exercises.find(x=>x.id===id); return {name:e.name, group:MG[e.mainGroup]||'Другое', kg:maxByEx[id]}; });
+    out.push({cat:'beast', icon:i, title:n, desc:`${fmtNum(kg)} кг в одном повторении`, cur:Math.round(topLift), target:kg, count:holders.length, holders});
+  });
   return out.map(a=>({...a, got: a.cur>=a.target, pct: Math.min(100, Math.round(a.cur/a.target*100))}));
 }
 function achievementsCard(workouts){
@@ -637,13 +662,15 @@ function achievementsCard(workouts){
   const all = achievementsList(workouts.filter(w=>w.status==='done' || (w.date<=dstr(new Date()) && hasFilledSets(w)))); const tab = State.achTab || 'weight';
   const cat = id => ACH_CATS.find(c=>c.id===id);
   const list = all.filter(a=>tab==='got' ? a.got : a.cat===tab);
-  const tile = a => `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''}" style="--ach:${cat(a.cat).color}" data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':fmtNum(a.cur)+' / '+fmtNum(a.target)}">
+  State.achBeasts = all.filter(a=>a.cat==='beast');
+  const tile = a => `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''}" style="--ach:${cat(a.cat).color}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
+    ${a.count>1?`<span class="ach-x">×${a.count}</span>`:''}
     <div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>
     ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${fmtNum(a.cur)} / ${fmtNum(a.target)}</div>`}
   </div>`;
   const chip = (id, name, color) => { const n = id==='got' ? all.filter(a=>a.got).length : all.filter(a=>a.cat===id&&a.got).length;
-    const t = id==='got' ? '' : '/'+all.filter(a=>a.cat===id).length;
+    const t = id==='got' ? '' : id==='beast' ? ' · ×'+all.filter(a=>a.cat==='beast').reduce((s,a)=>s+a.count,0) : '/'+all.filter(a=>a.cat===id).length;
     return `<button class="ach-chip ${tab===id?'on':''}" style="--ach:${color}" data-ach-tab="${id}">${name} <b>${n}${t}</b></button>`; };
   return `<div class="card" style="margin-bottom:10px">
     <div class="row" style="justify-content:space-between"><h3 class="row" style="gap:6px;margin:0"><span class="ach-ico">${icon('trophy')}</span>Достижения</h3><span class="muted">${all.filter(a=>a.got).length} из ${all.length}</span></div>
@@ -651,6 +678,16 @@ function achievementsCard(workouts){
     ${tab!=='got'?`<div class="muted" style="margin-top:6px">${cat(tab).hint}</div>`:''}
     <div class="ach-grid">${[...list.filter(a=>a.got), ...list.filter(a=>!a.got)].map(tile).join('') || '<div class="muted">Пока нет полученных ачивок — всё впереди!</div>'}</div>
   </div>`;
+}
+function renderBeastModal(){
+  const a = State.modal.beast; const byGroup = {};
+  (a.holders||[]).forEach(h=>(byGroup[h.group]=byGroup[h.group]||[]).push(h));
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:420px">
+    <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h2 style="margin:0">${a.icon} ${esc(a.title)} ×${a.count}</h2><button class="btn sm ghost" data-close-modal="1">✕</button></div>
+    <p class="muted">${esc(a.desc)}. Ачивка за каждое упражнение, где вы подняли столько за одно повторение:</p>
+    ${Object.keys(byGroup).map(g=>`<h3 style="margin-top:10px">${esc(g)} <span class="muted">×${byGroup[g].length}</span></h3>
+      ${byGroup[g].sort((x,y)=>y.kg-x.kg).map(h=>`<div class="help-row" style="cursor:default"><span class="grow">${esc(h.name)}</span><b>${fmtNum(h.kg)} кг</b></div>`).join('')}`).join('')}
+  </div></div>`;
 }
 function milestoneBlock(current, milestones, icon, label){
   const reached = milestones.filter(m=>current>=m);
@@ -960,6 +997,7 @@ function renderModal(){
   else if(State.modal.kind==='exercisePicker') root.innerHTML = renderExercisePicker();
   else if(State.modal.kind==='importTemplates') root.innerHTML = renderImportModal();
   else if(State.modal.kind==='help') root.innerHTML = renderHelpModal();
+  else if(State.modal.kind==='achBeast') root.innerHTML = renderBeastModal();
 }
 
 function renderWorkoutModal(){
@@ -1795,6 +1833,21 @@ function fmtTime(t){ const m=Math.floor(t/60), s=t%60; return pad(m)+':'+pad(s);
 
 /* ===================== ЛИЧНЫЕ ДАННЫЕ И ВЕС ===================== */
 const ACTIVITY_LABELS = {work:'😮‍💨 работа', steps:'🚶', moving:'📦 переезд', house:'🧹 по дому', outdoor:'🚴 прогулка', sport:'⚽ спорт', kids:'👶 дети', sick:'🤒 болел', other:'✍️ актив.'};
+// абонемент: срок → дата окончания (последний день действия)
+const MEMBERSHIP_TERMS = [['1w','1 неделя'],['2w','2 недели'],['1m','1 месяц'],['2m','2 месяца'],['3m','3 месяца'],['6m','6 месяцев'],['12m','12 месяцев'],['custom','Своя дата окончания']];
+function membershipEnd(start, term){
+  if(!start || !term || term==='custom') return null;
+  const d = parseD(start), n = parseInt(term);
+  if(term.endsWith('w')) d.setDate(d.getDate() + 7*n); else d.setMonth(d.getMonth() + n);
+  d.setDate(d.getDate() - 1);
+  return dstr(d);
+}
+function membershipStatus(end){
+  if(!end) return '';
+  const days = Math.round((parseD(end) - parseD(dstr(new Date())))/86400000);
+  if(days < 0) return `<span style="color:var(--danger)">Абонемент закончился ${fmtDate(end)}</span>`;
+  return `Действует до <b>${fmtDate(end)}</b> · осталось ${days===0?'<b>последний день</b>':`<b>${days}</b> ${plural(days,'день','дня','дней')}`}`;
+}
 const GOAL_OPTIONS = ['Похудеть','Набрать мышечную массу','Стать сильнее','Выносливость','Здоровье и тонус','Восстановление после травмы'];
 function ageFrom(bd){ if(!bd) return ''; const b=parseD(bd), n=new Date(); let a=n.getFullYear()-b.getFullYear(); if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate())) a--; return a; }
 function weightChart(uid){
@@ -1828,6 +1881,16 @@ function detailsCard(uid){
       <div class="field"><label>Рост, см</label><input type="text" inputmode="numeric" id="pdHeight" value="${v.height_cm??''}"></div>
     </div>
     <div class="field"><label>Цель занятий</label><input type="text" id="pdGoal" list="pdGoals" value="${esc(v.goal||'')}"><datalist id="pdGoals">${GOAL_OPTIONS.map(g=>`<option value="${g}">`).join('')}</datalist></div>
+    <div class="card" style="background:var(--surface2);margin:4px 0 12px">
+      <b>🎫 Абонемент в зал</b>
+      <div class="grid2" style="margin-top:8px">
+        <div class="field"><label>Дата покупки</label><input type="date" id="pdMemStart" value="${v.membership_start||''}"></div>
+        <div class="field"><label>Срок</label><select id="pdMemTerm">
+          <option value="">—</option>${MEMBERSHIP_TERMS.map(([k,l])=>`<option value="${k}" ${v.membership_term===k?'selected':''}>${l}</option>`).join('')}</select></div>
+      </div>
+      <div class="field ${v.membership_term==='custom'?'':'hidden'}" id="pdMemEndWrap"><label>Дата окончания</label><input type="date" id="pdMemEnd" value="${v.membership_end||''}"></div>
+      <div class="muted">${membershipStatus(v.membership_end) || 'Бот напомнит за 4 дня и за 1 день до окончания.'}</div>
+    </div>
     <label class="row"><input type="checkbox" id="pdPublic" ${v.show_public?'checked':''}> Показывать всем моим участникам</label>
     <label class="row" style="margin-top:4px"><input type="checkbox" id="pdTrainer" ${v.show_trainer||v.show_public?'checked':''}> Показывать тренеру</label>
     <button class="btn primary" style="margin-top:10px" data-save-details="1">Сохранить</button>
@@ -1840,7 +1903,9 @@ async function saveDetails(){
   const age = num('pdAge'), weight = num('pdWeight'), pub = document.getElementById('pdPublic').checked;
   let birth = null; if(age){ const b=new Date(); b.setFullYear(b.getFullYear()-Math.floor(age)); birth = dstr(b); }
   const row = { user_id:uid, birth_date:birth, gender:document.getElementById('pdGender').value||null, weight_kg:weight, height_cm:num('pdHeight'),
-    goal:document.getElementById('pdGoal').value.trim()||null, show_public:pub, show_trainer:pub||document.getElementById('pdTrainer').checked, updated_at:new Date().toISOString() };
+    goal:document.getElementById('pdGoal').value.trim()||null, show_public:pub,
+    membership_start:document.getElementById('pdMemStart').value||null, membership_term:document.getElementById('pdMemTerm').value||null,
+    membership_end:(document.getElementById('pdMemTerm').value==='custom' ? document.getElementById('pdMemEnd').value : membershipEnd(document.getElementById('pdMemStart').value, document.getElementById('pdMemTerm').value))||null, show_trainer:pub||document.getElementById('pdTrainer').checked, updated_at:new Date().toISOString() };
   const {error} = await c.from('profile_details').upsert(row);
   if(error) return toast('Не сохранено: '+error.message);
   DB.details = (DB.details||[]).filter(x=>x.user_id!==uid).concat([row]);
@@ -1988,6 +2053,7 @@ function handleMainClick(e, ds){
   }
   if(ds.saveDetails!==undefined){ saveDetails(); return true; }
   if(ds.achTab!==undefined){ State.achTab = ds.achTab; const y=window.scrollY; renderMain(); window.scrollTo(0,y); return true; }
+  if(ds.achBeast!==undefined){ State.modal={kind:'achBeast', beast:(State.achBeasts||[]).find(a=>a.title===ds.achBeast)}; renderModal(); return true; }
   if(ds.achInfo!==undefined){ const [t,d,st]=ds.achInfo.split('|'); toast(`${t}: ${d} — ${st}`); return true; }
   if(ds.traineeColor!==undefined){
     const [linkId,color]=ds.traineeColor.split('|'); const l=DB.trainerLinks.find(x=>x.id===linkId);
@@ -2052,6 +2118,7 @@ function handleMainChange(e, ds){
     if(key==='restDefault' && !timerRunning) timerLeft = Number(val)||90;
     preserveFocusAndRerender(renderMain); return true;
   }
+  if(e.target.id==='pdMemTerm'){ document.getElementById('pdMemEndWrap').classList.toggle('hidden', e.target.value!=='custom'); return true; }
   if(e.target.id==='importTplFile'){
     const file=e.target.files[0]; if(!file) return true;
     const r=new FileReader(); r.onload=()=>{ State.modal.text=r.result; State.modal.error=''; renderModal(); }; r.readAsText(file); return true;
@@ -2076,7 +2143,7 @@ function initEvents(){
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-ach-tab],[data-ach-info],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){
@@ -2099,7 +2166,7 @@ function initEvents(){
     if(!isTextish && e.type!=='change') return;
     const modalEl = e.target.closest('#modalRoot [data-w],#modalRoot [data-block-rest],#modalRoot [data-dropset],#modalRoot [data-set],#modalRoot [data-recur-on],#modalRoot [data-recur-freq],#modalRoot [data-recur-until],#modalRoot [data-recur-day]');
     if(modalEl){ if(handleModalChange(e, modalEl.dataset)) return; }
-    const mainEl = e.target.closest('#importTplFile,[data-hf],[data-ex-edit],[data-stats-participant],[data-stats-period],[data-setting],#importFile');
+    const mainEl = e.target.closest('#pdMemTerm,#importTplFile,[data-hf],[data-ex-edit],[data-stats-participant],[data-stats-period],[data-setting],#importFile');
     if(mainEl){ handleMainChange(e, mainEl.dataset); }
   }
   // помним раскрытую группу базовых программ между перерисовками

@@ -299,6 +299,24 @@ async function recipients() {
 }
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+// абонемент: за 4 дня и за 1 день до окончания (запускается вместе с утренней рассылкой)
+async function membershipReminders() {
+  let sent = 0;
+  const in4 = today(4), in1 = today(1);
+  const { data: list } = await admin.from("profile_details").select("user_id,membership_end").in("membership_end", [in4, in1]);
+  for (const m of list ?? []) {
+    const { data: p } = await admin.from("profiles").select("telegram_id").eq("id", m.user_id).maybeSingle();
+    if (!p?.telegram_id) continue;
+    const [y, mo, da] = m.membership_end.split("-");
+    const text = m.membership_end === in1
+      ? `🎫 Завтра (${da}.${mo}) последний день абонемента в зал. Не забудьте продлить!`
+      : `🎫 Абонемент в зал заканчивается через 4 дня — ${da}.${mo}.${y}. Самое время продлить 💪`;
+    await send(p.telegram_id, text, appKb("🎫 Обновить дату абонемента"));
+    sent++; await sleep(40);
+  }
+  return sent;
+}
+
 async function cron(kind: string) {
   let sent = 0;
   if (kind === "notify") {
@@ -320,6 +338,7 @@ async function cron(kind: string) {
     return sent;
   }
 
+  if (kind === "morning") sent += await membershipReminders(); // напоминания об абонементе — всем, даже с выключенными напоминаниями
   const users = await recipients();
   const d = today();
   for (const p of users) {
