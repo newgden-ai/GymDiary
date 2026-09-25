@@ -29,6 +29,8 @@
 *{box-sizing:border-box;}
 html,body{height:100%;}
 html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body::before{content:'';position:fixed;inset:0;z-index:-1;background:var(--bg-art,none);pointer-events:none;}
+.sidebar,.bottomnav,.modal{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);}
 body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.4;}
 button,input,select,textarea{font-family:inherit;font-size:14px;color:var(--text);}
 button{cursor:pointer;}
@@ -61,7 +63,7 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .grid2>*,.grid3>*{min-width:0;}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
 /* calendar */
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
 .cal-head{background:var(--surface2);padding:6px;text-align:center;font-size:12px;color:var(--text-dim);}
 .cal-cell{background:var(--surface);min-height:92px;padding:5px;cursor:pointer;display:flex;flex-direction:column;gap:3px;}
 .cal-cell:hover{background:var(--surface2);}
@@ -102,12 +104,16 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;}
 .theme-opt{display:flex;flex-direction:column;gap:6px;align-items:flex-start;background:var(--surface);border:2px solid var(--border);border-radius:10px;padding:8px;font-size:13px;text-align:left;}
 .theme-opt.on{border-color:var(--accent);}
-.theme-sw{display:flex;width:100%;height:18px;border-radius:5px;overflow:hidden;}
-.theme-sw i{flex:1;}
-.ico{width:22px;height:22px;flex:0 0 auto;}
+.theme-prev{position:relative;display:block;width:100%;height:54px;border-radius:7px;overflow:hidden;border:1px solid var(--border);}
+.theme-prev i{position:absolute;bottom:7px;width:22px;height:9px;border-radius:4px;}
+.theme-prev i:first-child{left:8px;}.theme-prev i:nth-child(2){left:34px;}
+.theme-prev b{position:absolute;right:8px;top:8px;width:44%;height:26px;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,.12);}
+.ico{width:24px;height:24px;flex:0 0 auto;}
+:root{--metal-hi:#8b9096;--metal-mid:#5a5f65;--metal-lo:#2c3035;--ico-red:#e3262e;}
+.bottomnav button.active .ico,.navitem.active .ico{filter:drop-shadow(0 0 3px rgba(227,38,46,.45));}
 .navitem .ico{width:20px;height:20px;}
-.ach-ico{display:inline-flex;width:28px;height:28px;border-radius:50%;align-items:center;justify-content:center;background:var(--surface2);color:var(--accent);}
-.ach-ico .ico{width:17px;height:17px;}
+.ach-ico{display:inline-flex;align-items:center;justify-content:center;}
+.ach-ico .ico{width:26px;height:26px;}
 .medals{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
 .medal{min-width:30px;height:30px;padding:0 5px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px dashed var(--border);color:var(--text-dim);}
 .medal.got{border:2px solid var(--accent2);background:var(--accent);color:var(--on-accent,#fff);}
@@ -119,6 +125,30 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .help-imgs.small{grid-template-columns:repeat(2,minmax(0,110px));}
 .link-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;}
 .link-card{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;}
+.help-imgs img{cursor:zoom-in;}
+.help-note p{margin:0 0 6px;line-height:1.5;}
+.zoom-box{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;display:flex;}
+.zoom-scroll{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;-webkit-overflow-scrolling:touch;}
+.zoom-box img{max-width:100%;max-height:100%;cursor:zoom-in;background:#fff;}
+.zoom-box.zoomed .zoom-scroll{display:block;}
+.zoom-box.zoomed img{max-width:none;max-height:none;width:250%;cursor:zoom-out;}
+.zoom-close{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:10px;z-index:2;width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:18px;}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:10px;max-height:420px;overflow:auto;padding-right:2px;}
+.ach-tile{background:radial-gradient(circle at 50% 30%,#2a2a2e 0,#121214 70%);border:1px solid #2c2c30;border-radius:12px;padding:10px 6px 8px;text-align:center;color:#e9e9ea;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.ach-tile .ico{width:44px;height:44px;opacity:.35;filter:grayscale(1);}
+.ach-tile.got{border-color:#5a1f22;box-shadow:0 0 0 1px rgba(227,38,46,.25) inset;}
+.ach-tile.got .ico{opacity:1;filter:drop-shadow(0 0 6px rgba(255,255,255,.25));}
+.ach-t{font-size:12px;font-weight:700;line-height:1.2;}
+.ach-d{font-size:10.5px;color:#9a9aa0;line-height:1.2;}
+.ach-ok{font-size:10px;color:#ff5a60;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.ach-bar{width:80%;height:4px;background:#2c2c30;border-radius:3px;overflow:hidden;margin-top:2px;}
+.ach-bar i{display:block;height:100%;background:var(--ico-red);}
+.chip.planned{opacity:.55;outline:1.5px dashed rgba(255,255,255,.8);outline-offset:-2px;}
+.agenda-item.planned{opacity:.7;border-style:dashed;}
+.btn.finish{background:#2e7d4f;color:#fff;border-color:#2e7d4f;}
+.st-done{background:#2e7d4f;color:#fff;border-color:#2e7d4f;}
+.st-plan{border-style:dashed;}
+.act-tag{font-size:10px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .set-ton{font-size:11px;color:var(--text-dim);margin:-2px 0 4px 34px;}
 .tonnage-line{font-size:12px;color:var(--text-dim);margin-top:4px;}
 .tot-box{background:var(--accent);color:var(--on-accent,#fff);border-radius:10px;padding:10px 12px;margin-top:10px;}
@@ -165,6 +195,10 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
 </div>
 <div class="bottomnav" id="bottomnav"></div>
 <div id="modalRoot"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="gm" gradientUnits="userSpaceOnUse" x1="0" y1="4" x2="0" y2="44"><stop offset="0" style="stop-color:var(--metal-hi)"/><stop offset=".55" style="stop-color:var(--metal-mid)"/><stop offset="1" style="stop-color:var(--metal-lo)"/></linearGradient>
+  <linearGradient id="gmS" gradientUnits="userSpaceOnUse" x1="0" y1="4" x2="0" y2="44"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#d6d6d6"/><stop offset="1" stop-color="#8d8d8d"/></linearGradient>
+</defs></svg>
 
 <script>
 // ===== ЗАПОЛНИТЕ ПЕРЕД ЗАГРУЗКОЙ НА ХОСТИНГ =====
@@ -242,7 +276,8 @@ const Auth = (function(){
     return { client, userId: data.user.id };
   }
   function getClient(){ return client; }
-  return { login, getClient };
+  function getToken(){ return session && session.access_token; }
+  return { login, getClient, getToken };
 })();
 
 /* ===================== STORAGE MODULE (Supabase, с diff-синхронизацией) ===================== */
@@ -270,13 +305,13 @@ const Storage = (function(){
       id:w.id, participant_id:w.participantId, created_by:w.createdBy||selfId, date:w.date,
       time:w.time||null, duration:w.duration?Number(w.duration):null, name:w.name||null,
       type:w.type, blocks:w.blocks||[], notes:w.notes||null, result:w.result||null,
-      recurring_group_id:w.recurringId||null, status:'done'
+      recurring_group_id:w.recurringId||null, status:w.status||'planned'
     };
   }
   function workoutFromDb(r){
     return { id:r.id, date:r.date, time:r.time||'', duration:r.duration||'', name:r.name||'',
       participantId:r.participant_id, createdBy:r.created_by, type:r.type, blocks:r.blocks||[], notes:r.notes||'',
-      result:r.result||'', recurringId:r.recurring_group_id||null };
+      result:r.result||'', recurringId:r.recurring_group_id||null, status:r.status||'planned' };
   }
   function templateToDb(t){ return { id:t.id, owner_id:(t.ownerId===undefined?selfId:t.ownerId), name:t.name, blocks:t.blocks||[], is_public:!!t.isPublic, author_name:t.authorName||null }; }
   function templateFromDb(r){ return { id:r.id, name:r.name, blocks:r.blocks||[], ownerId:r.owner_id, isPublic:!!r.is_public, authorName:r.author_name||'' }; }
@@ -305,6 +340,7 @@ const Storage = (function(){
     Object.assign(DB, {
       participants: social.participants,
       friends: social.friends, trainerLinks: social.links,
+      details: social.details, weights: social.weights, activity: social.activity,
       me: { role: profile?.role || 'user', inviteCode: profile?.invite_code || '' },
       exercises, templates, workouts,
       settings: {
@@ -325,9 +361,13 @@ const Storage = (function(){
 
   // участники: я + принятые друзья; тренировки: мои + подопечных (где я активный тренер)
   async function fetchSocial(client, profile){
-    const [{data:friends}, {data:links}] = await Promise.all([
+    const since = dstr(new Date(Date.now()-120*86400000));
+    const [{data:friends}, {data:links}, {data:details}, {data:weights}, {data:activity}] = await Promise.all([
       client.rpc('my_friends'),
-      client.from('trainer_links').select('*')
+      client.from('trainer_links').select('*'),
+      client.from('profile_details').select('*'),          // RLS: свои + тех, кто разрешил показывать
+      client.from('body_weights').select('*').order('date'),
+      client.from('daily_activity').select('*').gte('date', since)
     ]);
     const traineeIds = (links||[]).filter(l=>l.trainer_id===selfId && l.active).map(l=>l.trainee_id);
     const {data:wRows} = await client.from('workouts').select('*').in('participant_id', [selfId, ...traineeIds]);
@@ -340,7 +380,7 @@ const Storage = (function(){
       const tl = (links||[]).find(l=>l.trainer_id===selfId && l.trainee_id===f.other_id && l.active);
       return {id:f.other_id, name:f.name, color: tl ? (tl.color || autoColor()) : (f.color||'#888')};
     })];
-    return { friends: friends||[], links: links||[], wRows: wRows||[], participants };
+    return { friends: friends||[], links: links||[], wRows: wRows||[], participants, details: details||[], weights: weights||[], activity: activity||[] };
   }
   // перечитать участников/заявки/тренировки после действий в разделе «Участники»
   async function reloadSocial(){
@@ -348,6 +388,7 @@ const Storage = (function(){
     clearTimeout(saveTimer); await syncAll();
     const social = await fetchSocial(client, null);
     Object.assign(DB, { participants: social.participants, friends: social.friends, trainerLinks: social.links,
+      details: social.details, weights: social.weights, activity: social.activity,
       workouts: social.wRows.map(workoutFromDb) });
     snapshot.workouts = JSON.parse(JSON.stringify(social.wRows.map(r=>workoutToDb(workoutFromDb(r)))));
   }
@@ -411,7 +452,7 @@ const Storage = (function(){
     if(obj.exercises) DB.exercises = DB.exercises.concat(obj.exercises.filter(e=>!DB.exercises.some(x=>x.id===e.id)).map(e=>({...e, ownerId:selfId})));
     save();
   }
-  return { load, save, reloadSocial, exportJSON, importJSON, uid: ()=> (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2,10)) };
+  return { load, save, flush: ()=>{ clearTimeout(saveTimer); return syncAll(); }, reloadSocial, exportJSON, importJSON, uid: ()=> (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2,10)) };
 })();
 
 /* ===================== CALC MODULE (tonnage) ===================== */
@@ -495,6 +536,32 @@ function weeklyStreak(workouts){
   }
   return {current, longest};
 }
+// все ачивки: получено / в процессе (по тренировкам участника)
+function achievementsList(workouts){
+  const best = workouts.reduce((a,w)=>Math.max(a, Calc.workoutTonnage(w)), 0);
+  const hours = workouts.reduce((a,w)=>a+(Number(w.duration)||0),0)/60;
+  const streak = weeklyStreak(workouts).longest;
+  const cleanLabel = l => l.replace(/\s*[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]+/gu,'').replace(/\s+—.*$/,'').trim();
+  const out = [{icon:'star', title:'Первая тренировка', desc:'Начало пути', cur:workouts.length, target:1}];
+  WORKOUT_MILESTONES.forEach(n=>out.push({icon:'dumbbell', title:`${n} тренировок`, desc:'Проведено тренировок', cur:workouts.length, target:n}));
+  HOUR_MILESTONES.forEach(n=>out.push({icon:'stopwatch', title:`${n} часов`, desc:'Время в зале', cur:fmtNum(hours), target:n}));
+  STREAK_MILESTONES.forEach(n=>out.push({icon:'flame', title:`${n} нед. подряд`, desc:'Серия без пропуска недели', cur:streak, target:n}));
+  TONNAGE_COMPARISONS.forEach(([th,label])=>out.push({icon:'trophy', title:cleanLabel(label), desc:`${fmtNum(th)} кг за тренировку`, cur:Math.round(best), target:th}));
+  return out.map(a=>({...a, got: a.cur>=a.target, pct: Math.min(100, Math.round(a.cur/a.target*100))}));
+}
+function achievementsCard(workouts){
+  const list = achievementsList(workouts); const got = list.filter(a=>a.got);
+  const tile = a => `<div class="ach-tile ${a.got?'got':''}" title="${esc(a.desc)}">
+    ${icon(a.icon, true)}
+    <div class="ach-t">${esc(a.title)}</div>
+    <div class="ach-d">${esc(a.desc)}</div>
+    ${a.got?'<div class="ach-ok">получено</div>':`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${fmtNum(a.cur)} / ${fmtNum(a.target)}</div>`}
+  </div>`;
+  return `<div class="card" style="margin-bottom:10px">
+    <div class="row" style="justify-content:space-between"><h3 class="row" style="gap:6px;margin:0"><span class="ach-ico">${icon('trophy')}</span>Достижения</h3><span class="muted">${got.length} из ${list.length}</span></div>
+    <div class="ach-grid">${[...got, ...list.filter(a=>!a.got)].map(tile).join('')}</div>
+  </div>`;
+}
 function milestoneBlock(current, milestones, icon, label){
   const reached = milestones.filter(m=>current>=m);
   const next = milestones.find(m=>current>current-1 && current<m) ?? milestones.find(m=>current<m);
@@ -511,20 +578,48 @@ function milestoneBlock(current, milestones, icon, label){
   </div>`;
 }
 const WT = Object.fromEntries(WORKOUT_TYPES);
-const PALETTE = ['#3d5a45','#8a5a3d','#3d5a8a','#8a3d6e','#c08a2e','#5a3d8a','#3d8a7a','#b3503f'];
+const PALETTE = ['#3d5a45','#8a5a3d','#3d5a8a','#8a3d6e','#c08a2e','#5a3d8a','#3d8a7a','#b3503f',
+  '#2f7ec2','#d1495b','#6a994e','#e07a1f','#7b6ca8','#1f9e89','#9c6644'];
+// двойные цвета подопечных: «#основной/#второй» — в календаре показываются двумя половинками
+const DUAL_COLORS = ['#b3503f/#2f7ec2','#3d5a45/#e07a1f','#5a3d8a/#c08a2e','#1f9e89/#d1495b','#2c3035/#e3262e'];
+const TRAINEE_COLORS = [...PALETTE, ...DUAL_COLORS];
+function colorMain(c){ return String(c||'#888').split('/')[0]; }
+function colorBg(c){ const [a,b]=String(c||'#888').split('/'); return b ? `linear-gradient(135deg,${a} 50%,${b} 50%)` : a; }
+function colorStripe(c,w){ const [a,b]=String(c||'#888').split('/'); return `border-left:${w}px solid ${a};`+(b?`border-image:linear-gradient(${a} 50%,${b} 50%) 1;`:''); }
 const WEEKDAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-// темы по присланным палитрам: accent — кнопки/активное, accent2 — второй цвет,
-// bg/surface2/border — фон светлой темы, dark — акцент для тёмной темы (светлее, чтобы читался)
+// темы по присланным палитрам. accent — кнопки/активное, accent2 — второй цвет, dark — акцент в тёмном режиме.
+// L / D — фон светлого и тёмного режима: bg (основной цвет), art (рисунок фона поверх), surface/surface2/border — карточки.
+// Сдержанные темы: ровный фон или мягкий градиент. Стильные: цветовые пятна палитры по углам экрана.
+const blob = (x,y,c,r) => `radial-gradient(circle at ${x} ${y}, ${c} 0, transparent ${r})`;
+const glass = a => `rgba(255,255,255,${a})`, glassD = (c,a) => `rgba(${c},${a})`;
 const PRESET_THEMES = [
-  {id:'forest', name:'Классика',       accent:'#3d5a45', accent2:'#8a9a5b', dark:'#8fae7d'},
-  {id:'pine',   name:'Хвойный лес',    accent:'#4f5641', accent2:'#a0562a', dark:'#9aa37a', bg:'#eff2f1', surface2:'#e2e9e8', border:'#c3d3d3'},
-  {id:'powder', name:'Пудровая роза',  accent:'#3f5a55', accent2:'#e8826b', dark:'#8fb3ab', bg:'#fbf4f2', surface2:'#f4e4df', border:'#e9d3cc'},
-  {id:'lime',   name:'Весенний лайм',  accent:'#42554f', accent2:'#8fbf3a', dark:'#c0ea6a', bg:'#f8f6e7', surface2:'#efecda', border:'#dfdcc6'},
-  {id:'meadow', name:'Полевые цветы',  accent:'#2f3b35', accent2:'#d0754f', dark:'#b3c8e0', bg:'#f6f3f0', surface2:'#ece6e3', border:'#dcd3cc'},
-  {id:'dusk',   name:'Закат в горах',  accent:'#a46055', accent2:'#e8952f', dark:'#ffaf4c', bg:'#faf5f1', surface2:'#f1e4db', border:'#e0c1af'},
-  {id:'dried',  name:'Сухоцветы',      accent:'#1f5560', accent2:'#c97f86', dark:'#6aaeaa', bg:'#f7f4f3', surface2:'#eee6e5', border:'#e3d3d3'},
-  {id:'mist',   name:'Туманный лес',   accent:'#226a51', accent2:'#5e81a0', dark:'#5c9e84', bg:'#f1f4f4', surface2:'#e4eaea', border:'#cbd6dc'},
-  {id:'vintage',name:'Винтаж',         accent:'#591e1e', accent2:'#a68b03', dark:'#d991a4', bg:'#fbf5ef', surface2:'#f4e6d6', border:'#ead3bb'}
+  {id:'forest', name:'Классика', kind:'сдержанная', accent:'#3d5a45', accent2:'#8a9a5b', dark:'#8fae7d',
+    L:{bg:'#f6f5f2', surface:'#ffffff', surface2:'#f0eee8', border:'#e2ded4'},
+    D:{bg:'#181a17', surface:'#20221f', surface2:'#272a25', border:'#33362f'}},
+  {id:'pine', name:'Хвойный лес', kind:'сдержанная', accent:'#4f5641', accent2:'#a0562a', dark:'#b7a36a',
+    L:{bg:'#eef1ef', art:'linear-gradient(180deg,#e7ecea 0%,#eef1ef 40%,#e9e4dc 100%)', surface:'#fbfbf9', surface2:'#e8ecea', border:'#cfd9d8'},
+    D:{bg:'#141813', art:'linear-gradient(180deg,#1b2019 0%,#141813 50%,#1d1714 100%)', surface:'#1d221b', surface2:'#262c23', border:'#343b2f'}},
+  {id:'powder', name:'Пудровая роза', kind:'стильная', accent:'#3f5a55', accent2:'#e8826b', dark:'#ef9a86',
+    L:{bg:'#fbf4f2', art:[blob('0%','0%','#f6cfc4','45%'),blob('100%','35%','#cfdcd9','40%'),blob('20%','100%','#f3ddd6','45%')].join(','), surface:glass(.82), surface2:'rgba(244,228,223,.8)', border:'#ecd6cf'},
+    D:{bg:'#1b1a1a', art:[blob('0%','0%','rgba(239,143,120,.20)','45%'),blob('100%','60%','rgba(63,90,85,.45)','45%')].join(','), surface:glassD('38,34,34',.85), surface2:'rgba(52,46,46,.85)', border:'#3d3534'}},
+  {id:'lime', name:'Весенний лайм', kind:'стильная', accent:'#42554f', accent2:'#8fbf3a', dark:'#c0ea6a',
+    L:{bg:'#f8f6e7', art:[blob('100%','0%','rgba(192,234,106,.55)','40%'),blob('0%','100%','rgba(66,85,79,.14)','50%'),blob('0%','20%','#efecd8','30%')].join(','), surface:glass(.85), surface2:'rgba(239,236,218,.85)', border:'#dfdcc6'},
+    D:{bg:'#1c2522', art:[blob('100%','0%','rgba(192,234,106,.16)','40%'),blob('0%','100%','rgba(66,85,79,.6)','55%')].join(','), surface:glassD('35,46,42',.88), surface2:'rgba(46,59,54,.88)', border:'#3a4a44'}},
+  {id:'meadow', name:'Полевые цветы', kind:'стильная', accent:'#2f3b35', accent2:'#d0754f', dark:'#e8cf8f',
+    L:{bg:'#f6f3f0', art:[blob('0%','0%','rgba(179,200,224,.7)','40%'),blob('100%','25%','rgba(232,207,143,.6)','35%'),blob('90%','100%','rgba(208,117,79,.25)','40%'),blob('0%','75%','rgba(154,174,150,.35)','35%')].join(','), surface:glass(.84), surface2:'rgba(236,230,227,.85)', border:'#dcd3cc'},
+    D:{bg:'#181d1b', art:[blob('0%','0%','rgba(179,200,224,.14)','40%'),blob('100%','30%','rgba(232,207,143,.12)','35%'),blob('90%','100%','rgba(208,117,79,.16)','40%')].join(','), surface:glassD('33,40,37',.88), surface2:'rgba(44,52,48,.88)', border:'#37413c'}},
+  {id:'dusk', name:'Закат в горах', kind:'стильная', accent:'#a46055', accent2:'#e8952f', dark:'#ffaf4c',
+    L:{bg:'#faf5f1', art:'linear-gradient(180deg,#f6ddcb 0%,#faf1ea 38%,#f3e6e2 75%,#e9d6d0 100%)', surface:glass(.8), surface2:'rgba(241,228,219,.85)', border:'#e0c1af'},
+    D:{bg:'#1a1515', art:'linear-gradient(180deg,#3a2419 0%,#221a18 35%,#1a1515 70%,#241a1c 100%)', surface:glassD('40,30,28',.85), surface2:'rgba(54,40,37,.85)', border:'#45332f'}},
+  {id:'dried', name:'Сухоцветы', kind:'сдержанная', accent:'#1f5560', accent2:'#c97f86', dark:'#6aaeaa',
+    L:{bg:'#f3f3f4', surface:'#ffffff', surface2:'#eceaea', border:'#dcd8d8'},
+    D:{bg:'#141b1d', surface:'#1b2426', surface2:'#233033', border:'#2f3d40'}},
+  {id:'mist', name:'Туманный лес', kind:'сдержанная', accent:'#226a51', accent2:'#5e81a0', dark:'#5c9e84',
+    L:{bg:'#eef2f3', art:'linear-gradient(180deg,#e4ebee 0%,#f1f4f4 45%,#e2ebe6 100%)', surface:'#fbfcfc', surface2:'#e4eaea', border:'#cbd6dc'},
+    D:{bg:'#111816', art:'linear-gradient(180deg,#18221f 0%,#111816 50%,#0e1512 100%)', surface:'#18211e', surface2:'#1f2b27', border:'#2a3833'}},
+  {id:'vintage', name:'Винтаж', kind:'стильная', accent:'#591e1e', accent2:'#a68b03', dark:'#d991a4',
+    L:{bg:'#fbf5ef', art:[blob('0%','0%','rgba(217,145,164,.35)','40%'),blob('100%','40%','rgba(242,202,153,.55)','38%'),blob('30%','100%','rgba(166,106,122,.18)','45%')].join(','), surface:glass(.84), surface2:'rgba(244,230,214,.85)', border:'#ead3bb'},
+    D:{bg:'#1c1414', art:[blob('0%','0%','rgba(89,30,30,.7)','50%'),blob('100%','60%','rgba(166,139,3,.14)','40%')].join(','), surface:glassD('41,29,29',.86), surface2:'rgba(56,40,40,.86)', border:'#473232'}}
 ];
 
 /* ===================== UTIL ===================== */
@@ -555,20 +650,31 @@ const State = {
 function rerender(){ renderNav(); renderMain(); }
 
 /* ===================== NAV ===================== */
-// линейные иконки: цвет берут из текста (currentColor), поэтому следуют выбранной теме
-const svgI = d => `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
-const ICONS = {
-  calendar: svgI('<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.3" fill="currentColor"/>'),
-  history:  svgI('<path d="M6.5 8v8M17.5 8v8M3.5 10v4M20.5 10v4M6.5 12h11"/>'),
-  templates:svgI('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5V3h6v1.5M8.5 10h7M8.5 14h7M8.5 18h4"/>'),
-  participants: svgI('<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16 14.3c2.3.1 4 1.6 4.5 4.2"/>'),
-  stats:    svgI('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
-  help:     svgI('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M10.3 8.2a2 2 0 1 1 2.7 1.9c-.6.3-1 .8-1 1.4v.5M12 14.5h.01"/>'),
-  settings: svgI('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
-  medal:    svgI('<circle cx="12" cy="14" r="6"/><path d="M8.5 3h7l-2 5.5h-3zM12 11.5v5M10.5 12.5l1.5-1"/>'),
-  clock:    svgI('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
-  flame:    svgI('<path d="M12 22c4 0 7-2.7 7-6.8 0-4-3.2-6.5-4.6-10.2-.5 2.6-2 4-3.4 4.8C10 7.5 9.4 5 10 2.5 6.6 4.8 5 9 5 15.2 5 19.3 8 22 12 22z"/>')
+// иконки в стиле «металл + красный акцент». gmX подменяется на градиент:
+// gm — зависит от темы (тёмный металл на светлом фоне, серебро на тёмном), gmS — всегда серебро (для тёмных плиток ачивок)
+const ICON_PATHS = {
+  calendar: `<rect x="7" y="9" width="34" height="32" rx="5" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5v8M33 5v8" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 9h12" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="12.5" y="17.5" width="6" height="6" rx="1.4" fill="url(#gmX)"/><rect x="21" y="17.5" width="6" height="6" rx="1.4" fill="url(#gmX)"/><rect x="12.5" y="26.5" width="6" height="6" rx="1.4" fill="url(#gmX)"/><rect x="21" y="26.5" width="6" height="6" rx="1.4" fill="url(#gmX)"/><rect x="29.5" y="26.5" width="6" height="6" rx="1.4" fill="var(--ico-red)"/>`,
+  history: `<rect x="9" y="8" width="30" height="36" rx="4" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="18" y="3.5" width="12" height="7.5" rx="2" fill="url(#gmX)"/><path d="M20 22.5a4 4 0 0 1 8 0" fill="none" stroke="url(#gmX)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="29" r="6.5" fill="url(#gmX)"/><path d="M33 28h3M33 31.5h3" fill="none" stroke="var(--ico-red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 39h16" fill="none" stroke="var(--ico-red)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,
+  templates: `<path d="M40 15v25a4 4 0 0 1-4 4h-2" fill="none" stroke="var(--ico-red)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="7" y="8" width="29" height="36" rx="4" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="15.5" y="3.5" width="12" height="7.5" rx="2" fill="url(#gmX)"/><rect x="12" y="16" width="5.5" height="5.5" rx="1.2" fill="url(#gmX)"/><path d="M21 18.75h10" fill="none" stroke="var(--ico-red)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="24.5" width="5.5" height="5.5" rx="1.2" fill="url(#gmX)"/><path d="M21 27.25h10" fill="none" stroke="var(--ico-red)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="33" width="5.5" height="5.5" rx="1.2" fill="url(#gmX)"/><path d="M21 35.75h10" fill="none" stroke="var(--ico-red)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>`,
+  participants: `<circle cx="19" cy="16" r="7.5" fill="url(#gmX)"/><path d="M5 41c0-8.5 6.3-13.5 14-13.5S33 32.5 33 41z" fill="url(#gmX)"/><path d="M31 10.5a6.5 6.5 0 1 1 2.5 12" fill="none" stroke="var(--ico-red)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M36.5 27.5c4.5 1.8 6.5 6 6.5 11.5h-3.5" fill="none" stroke="var(--ico-red)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>`,
+  stats: `<rect x="8" y="33" width="5.5" height="10" rx="1" fill="url(#gmX)"/><rect x="16.5" y="29" width="5.5" height="14" rx="1" fill="url(#gmX)"/><rect x="25" y="31" width="5.5" height="12" rx="1" fill="url(#gmX)"/><rect x="33.5" y="23" width="5.5" height="20" rx="1" fill="url(#gmX)"/><path d="M5 27l10-9 7 6 16-15" fill="none" stroke="var(--ico-red)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M31 8.5h7.5V16" fill="none" stroke="var(--ico-red)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`,
+  settings: `<path fill-rule="evenodd" d="M39.3 21.7L44.0 25.0L43.4 28.9L38.0 30.6L36.4 33.2L37.4 38.8L34.3 41.2L29.2 38.6L26.3 39.3L23.0 44.0L19.1 43.4L17.4 38.0L14.8 36.4L9.2 37.4L6.8 34.3L9.4 29.2L8.7 26.3L4.0 23.0L4.6 19.1L10.0 17.4L11.6 14.8L10.6 9.2L13.7 6.8L18.8 9.4L21.7 8.7L25.0 4.0L28.9 4.6L30.6 10.0L33.2 11.6L38.8 10.6L41.2 13.7L38.6 18.8ZM35 24a11 11 0 1 0 -22 0a11 11 0 1 0 22 0Z" fill="url(#gmX)"/><path d="M24 16.5a7.5 7.5 0 1 1-6.5 3.8" fill="none" stroke="var(--ico-red)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,
+  help: `<path d="M11 9a3 3 0 0 1 3-3h20a3 3 0 0 1 3 3v33H14a3 3 0 0 1-3-3z" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 39a3 3 0 0 1 3-3h23" fill="none" stroke="url(#gmX)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="14" r="2.3" fill="var(--ico-red)"/><path d="M24 20v10" fill="none" stroke="var(--ico-red)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`,
+  trophy: `<path d="M14 7h20v10a10 10 0 0 1-20 0z" fill="url(#gmX)"/><path d="M14 11H8.5v2.5a6.5 6.5 0 0 0 6.5 6.5M34 11h5.5v2.5A6.5 6.5 0 0 1 33 20" fill="none" stroke="url(#gmX)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="21.5" y="26" width="5" height="8" fill="url(#gmX)"/><rect x="15" y="34" width="18" height="5.5" rx="2" fill="url(#gmX)"/><path d="M24.0 9.7L25.4 13.6L29.5 13.7L26.3 16.2L27.4 20.2L24.0 17.9L20.6 20.2L21.7 16.2L18.5 13.7L22.6 13.6Z" fill="var(--ico-red)" stroke="#1b1b1d" stroke-width=".8"/>`,
+  stopwatch: `<circle cx="24" cy="27" r="15" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="19.5" y="4.5" width="9" height="4.5" rx="1.2" fill="url(#gmX)"/><path d="M24 9v3M35.5 14.5l2.5-2.5" fill="none" stroke="url(#gmX)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 16v2.5M24 35.5V38M13 27h2.5M32.5 27H35" fill="none" stroke="url(#gmX)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 27l6.5-8" fill="none" stroke="var(--ico-red)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="27" r="2.4" fill="var(--ico-red)"/>`,
+  flame: `<path d="M24 45c-9 0-15-6-15-14 0-9 6-13 8-20 1 4 3 6 5 7 0-6 3-11 8-15-1 7 3 11 6 15 2 3 3 6 3 10 0 10-6 17-15 17z" fill="url(#gmX)"/><path d="M24 41c-4.5 0-7.5-3-7.5-7 0-4 3-6.5 4-10 1 2.5 2.5 3.5 4 4 0-3 1.5-5.5 4-7.5-.5 4 1.5 6 3 8 1 1.5 1.5 3 1.5 5 0 4.5-4 7.5-9 7.5z" fill="#1b1b1d" stroke="var(--ico-red)" stroke-width="2"/>`,
+  target: `<circle cx="24" cy="24" r="13" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 4v8M24 36v8M4 24h8M36 24h8" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="24" r="5" fill="var(--ico-red)"/>`,
+  bookmark: `<path d="M13 6h22v36l-11-8.5L13 42z" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5 6h9v11l-4.5-3-4.5 3z" fill="var(--ico-red)"/>`,
+  bell: `<path d="M24 5a3 3 0 0 1 3 3v1.3A11.5 11.5 0 0 1 35.5 20.5V30l4 5.5h-31l4-5.5v-9.5A11.5 11.5 0 0 1 21 9.3V8a3 3 0 0 1 3-3z" fill="url(#gmX)"/><path d="M19 38.5a5 5 0 0 0 10 0z" fill="var(--ico-red)"/>`,
+  dumbbell: `<rect x="3" y="21.5" width="3.5" height="5" rx="1" fill="url(#gmX)"/><rect x="41.5" y="21.5" width="3.5" height="5" rx="1" fill="url(#gmX)"/><rect x="6.5" y="16.5" width="4.5" height="15" rx="1.6" fill="url(#gmX)"/><rect x="12" y="12.5" width="5.5" height="23" rx="2" fill="url(#gmX)"/><rect x="30.5" y="12.5" width="5.5" height="23" rx="2" fill="url(#gmX)"/><rect x="37" y="16.5" width="4.5" height="15" rx="1.6" fill="url(#gmX)"/><rect x="17.5" y="21.5" width="13" height="5" fill="var(--ico-red)"/>`,
+  shaker: `<path d="M15.5 6.5h17l1.5 7h-20z" fill="var(--ico-red)"/><path d="M14 15h20l-2.2 26.5a3.5 3.5 0 0 1-3.5 3.2h-8.6a3.5 3.5 0 0 1-3.5-3.2z" fill="url(#gmX)"/><path d="M26 23h4.5M26 28.5h3M26 34h4.5" fill="none" stroke="#1b1b1d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+  bicep: `<path d="M8 42c-2.5-9 0-19 5-27 2.5-4 7.5-5.5 10-2.5 1.5 2 .5 4.5-1.5 5.5l-3.5 2c-1 4-.5 8 1.5 10.5 4.5-4.5 12.5-5.5 18-1.5 4.5 3.3 4.5 9.5 0 12.5-3.5 2.3-9 2.5-12.5.5z" fill="url(#gmX)"/><path d="M27 33.5c3-2 7.5-2 10 .5" fill="none" stroke="var(--ico-red)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`,
+  star: `<path d="M24.0 6.0L28.7 18.5L42.1 19.1L31.6 27.5L35.2 40.4L24.0 33.0L12.8 40.4L16.4 27.5L5.9 19.1L19.3 18.5Z" fill="none" stroke="url(#gmX)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M24.0 14.5L26.8 21.6L34.5 22.1L28.6 27.0L30.5 34.4L24.0 30.3L17.5 34.4L19.4 27.0L13.5 22.1L21.2 21.6Z" fill="none" stroke="var(--ico-red)" stroke-width="2.6" stroke-linejoin="round"/>`,
+  download: `<path d="M17 14h-3a4 4 0 0 0-4 4v20a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4V18a4 4 0 0 0-4-4h-3" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 6v22M17 21.5l7 7 7-7" fill="none" stroke="var(--ico-red)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`,
+  upload: `<path d="M17 14h-3a4 4 0 0 0-4 4v20a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4V18a4 4 0 0 0-4-4h-3" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 32V8M17 15l7-7 7 7" fill="none" stroke="var(--ico-red)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`
 };
+function icon(name, silver){ return `<svg class="ico" viewBox="0 0 48 48" aria-hidden="true">${ICON_PATHS[name].replace(/gmX/g, silver?'gmS':'gm')}</svg>`; }
+const ICONS = new Proxy({}, { get:(_, k)=>icon(k) });
 const NAV_ITEMS = [
   ['calendar',ICONS.calendar,'Календарь'],
   ['history',ICONS.history,'Тренировки'],
@@ -631,11 +737,12 @@ function viewCalendar(){
       const dayWorkouts = DB.workouts.filter(w=>w.date===ds).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
       const chips = dayWorkouts.slice(0,3).map(w=>{
         const p = DB.participants.find(x=>x.id===w.participantId);
-        return `<div class="chip" style="background:${p?p.color:'#888'}" data-open-workout="${w.id}">${w.time||''} ${esc(w.name||WT[w.type]||'')}</div>`;
+        return `<div class="chip ${w.status==='done'?'':'planned'}" style="background:${colorBg(p&&p.color)}" data-open-workout="${w.id}">${w.time||''} ${esc(w.name||WT[w.type]||'')}</div>`;
       }).join('');
       const more = dayWorkouts.length>3 ? `<div class="muted">+${dayWorkouts.length-3} ещё</div>` : '';
+      const act = !dayWorkouts.length && (DB.activity||[]).find(a=>a.date===ds && a.user_id===selfParticipantId() && a.kind!=='none');
       cells += `<div class="cal-cell ${isOther?'other':''} ${isToday?'today':''}" data-day="${ds}">
-        <div class="daynum">${cd.getDate()}</div>${chips}${more}</div>`;
+        <div class="daynum">${cd.getDate()}</div>${chips}${more}${act?`<div class="act-tag" title="Активность из бота">${ACTIVITY_LABELS[act.kind]||'активность'}${act.steps?' '+Math.round(act.steps/1000)+'к шагов':''}</div>`:''}</div>`;
     }
     body = `<div class="cal-grid">${WEEKDAYS.map(w=>`<div class="cal-head">${w}</div>`).join('')}${cells}</div>`;
   } else if(State.calMode==='week'){
@@ -651,7 +758,7 @@ function viewCalendar(){
       cols += `<div class="week-col ${sameDay(cd,today)?'today':''}" data-day="${ds}">
         <div class="week-colhead">${WEEKDAYS[i]} ${cd.getDate()}</div>
         ${items.map(w=>{const p=DB.participants.find(x=>x.id===w.participantId);
-          return `<div class="agenda-item" style="border-left:3px solid ${p?p.color:'#888'}" data-open-workout="${w.id}"><span class="t">${w.time||''}</span> ${esc(w.name||WT[w.type]||'')}<br><span class="muted">${p?esc(p.name):''}</span></div>`;}).join('')}
+          return `<div class="agenda-item ${w.status==='done'?'':'planned'}" style="${colorStripe(p&&p.color,3)}" data-open-workout="${w.id}"><span class="t">${w.time||''}</span> ${esc(w.name||WT[w.type]||'')}<br><span class="muted">${p?esc(p.name):''}</span></div>`;}).join('')}
         <button class="btn sm ghost" data-add-day="${ds}">+ добавить</button>
       </div>`;
     }
@@ -663,7 +770,7 @@ function viewCalendar(){
     body = `<div class="day-list card">${items.length? items.map(w=>{
       const p=DB.participants.find(x=>x.id===w.participantId);
       const t=Calc.workoutTonnage(w);
-      return `<div class="agenda-item" style="border-left:4px solid ${p?p.color:'#888'}" data-open-workout="${w.id}">
+      return `<div class="agenda-item ${w.status==='done'?'':'planned'}" style="${colorStripe(p&&p.color,4)}" data-open-workout="${w.id}">
         <div class="t">${w.time||'--:--'} · ${esc(w.name||WT[w.type]||'')} ${w.duration?('· '+w.duration+' мин'):''}</div>
         <div class="muted">${p?esc(p.name):''} · ${WT[w.type]||''} ${t>0?('· тоннаж '+fmtNum(t)+' кг'):''}</div>
       </div>`;
@@ -758,7 +865,9 @@ function renderWorkoutModal(){
   const total = Calc.workoutTonnage(w);
   const mg = Calc.muscleBreakdown(w, DB.exercises);
   return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop>
-    <h2>${isNew?'Новая тренировка':'Редактирование'}</h2>
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${isNew?'Новая тренировка':'Редактирование'}</h2>
+      <span class="pill ${w.status==='done'?'st-done':'st-plan'}">${w.status==='done'?'выполнена':(w.date>dstr(new Date())?'запланирована':'не завершена')}</span></div>
+    <div style="height:10px"></div>
     <div class="grid3">
       <div class="field"><label>Дата</label><input type="date" data-w="date" value="${w.date}"></div>
       <div class="field"><label>Время</label><input type="time" data-w="time" value="${w.time||''}"></div>
@@ -793,6 +902,7 @@ function renderWorkoutModal(){
     <div class="row" style="justify-content:space-between;margin-top:10px;flex-wrap:wrap">
       <div class="row">
         <button class="btn primary" data-save-workout="1">Сохранить</button>
+        <button class="btn finish" data-finish-workout="1">${w.status==='done'?'📨 Отправить итог в бот':'✅ Завершить тренировку'}</button>
         <button class="btn" data-save-as-template="1">Сохранить как шаблон</button>
       </div>
       <div class="row">
@@ -923,6 +1033,7 @@ function handleModalClick(e, ds){
   if(ds.closeOverlay!==undefined){ if(e.target===e.currentTarget||e.target.hasAttribute('data-close-overlay')) closeModal(); return true; }
   if(ds.closeModal!==undefined){ closeModal(); return true; }
   if(ds.help!==undefined){ openHelp(ds.help, modal); return true; }
+  if(ds.zoom!==undefined){ openZoom(ds.zoom); return true; }
 
   if(modal.kind==='workout'){
     const w = modal.w;
@@ -939,6 +1050,7 @@ function handleModalClick(e, ds){
     }
     if(ds.removeSet!==undefined){ const [bi,ei,si]=pathGet(ds.removeSet); w.blocks[bi].exercises[ei].sets.splice(si,1); renderModal(); return true; }
     if(ds.saveWorkout!==undefined){ saveWorkoutFromModal(); return true; }
+    if(ds.finishWorkout!==undefined){ finishWorkout(); return true; }
     if(ds.saveAsTemplate!==undefined){ State.modal={kind:'saveTemplate', suggestedName:w.name, sourceBlocks:w.blocks}; renderModal(); return true; }
     if(ds.deleteWorkout!==undefined){
       State.modal={kind:'confirmDelete', title:'Удалить тренировку?', text:'Это действие нельзя отменить.', onYes:()=>{
@@ -1057,8 +1169,28 @@ function handleRecurScope(scope){
   Storage.save(); closeModal(); rerender();
 }
 
+function hasFilledSets(w){ return (w.blocks||[]).some(b=>(b.exercises||[]).some(ex=>(ex.sets||[]).some(s=>Number(s.reps)>0||Number(s.time)>0||Number(s.distance)>0))); }
+// «Завершить»: отмечаем выполненной, сохраняем на сервер и просим бота прислать итог (участнику и его тренерам)
+async function finishWorkout(){
+  const w = State.modal.w;
+  if(!hasFilledSets(w)){ toast('Заполните хотя бы один подход'); return; }
+  if(!w.name) w.name = WT[w.type] || 'Тренировка';
+  w.status = 'done';
+  const idx = DB.workouts.findIndex(x=>x.id===w.id); if(idx<0) DB.workouts.push(w); else DB.workouts[idx]=w;
+  State.modal = null; renderModal(); rerender();
+  try{
+    await Storage.flush();
+    const r = await fetch(SUPABASE_URL + '/functions/v1/telegram-bot', { method:'POST',
+      headers:{'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+Auth.getToken()},
+      body: JSON.stringify({action:'workout_done', workout_id:w.id}) });
+    toast(r.ok ? '💪 Тренировка завершена — итог отправлен в бот' : 'Тренировка сохранена, но бот не ответил');
+  }catch(e){ toast('Тренировка сохранена, но бот недоступен'); }
+}
 function saveWorkoutFromModal(){
   const w = State.modal.w, isNew = State.modal.isNew, recur = State.modal.recurRule;
+  // прошедшая тренировка с заполненными подходами считается выполненной (для вечернего вопроса бота)
+  if(w.status!=='done' && w.date<=dstr(new Date()) && hasFilledSets(w)) w.status='done';
+  if(isNew && w.status!=='done') w.status='planned';
   if(!w.name) w.name = WT[w.type] || 'Тренировка';
   if(isNew){
     if(recur && recur.on){
@@ -1123,7 +1255,7 @@ function viewHistory(){
     return `<tr>
       <td>${fmtDateShort(w.date)}</td>
       <td><a href="#" data-open-workout="${w.id}">${esc(w.name)}</a></td>
-      <td><span class="color-dot" style="background:${p?p.color:'#888'}"></span> ${p?esc(p.name):''}</td>
+      <td><span class="color-dot" style="background:${colorBg(p&&p.color)}"></span> ${p?esc(p.name):''}</td>
       <td>${WT[w.type]||''}</td>
       <td>${t>0?fmtNum(convW(t,units))+' '+unitLabel(units):'—'}</td>
       <td class="muted">${Object.keys(mg).map(g=>MG[g]).join(', ')}</td>
@@ -1177,7 +1309,6 @@ function viewHelp(){
   <input type="search" data-help-search value="${esc(State.helpQuery||'')}" placeholder="Поиск упражнения…" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:10px">
   ${groups.map(g=>`<div class="card" style="margin-bottom:10px">
     <h3>${esc(g.group)}</h3>
-    ${g.images&&g.images.length?`<div class="help-imgs small">${g.images.map(src=>`<img src="${src}" loading="lazy" alt="">`).join('')}</div>`:''}
     ${g.items.map(it=>`<div class="help-row">${helpBtn(it.name)}<span data-help="${esc(it.name)}">${esc(it.name)}</span></div>`).join('')}
   </div>`).join('') || '<div class="muted">Ничего не найдено</div>'}`;
 }
@@ -1188,8 +1319,9 @@ function renderHelpModal(){
     <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h2 style="margin:0">${esc(it?it.name:State.modal.key)}</h2><button class="btn sm ghost" data-close-modal="1">✕</button></div>
     ${it?`<div class="muted" style="margin-bottom:8px">${esc(it.group)}</div>`:''}
     ${empty? '<p>Справка по упражнению пока отсутствует.</p>' : `
-      ${it.images.length?`<div class="help-imgs">${it.images.map(src=>`<img src="${src}" loading="lazy" alt="">`).join('')}</div>`:''}
-      ${it.note?`<p style="line-height:1.5">${esc(it.note)}</p>`:''}`}
+      ${it.images.length?`<div class="help-imgs">${it.images.map(src=>`<img src="${src}" loading="lazy" alt="" data-zoom="${src}">`).join('')}</div>
+      <div class="muted" style="margin:-4px 0 6px">Нажмите на картинку, чтобы увеличить</div>`:''}
+      ${it.note?`<div class="help-note">${it.note.split(/(?<=[.!?])\s+/).map(x=>`<p>${esc(x)}</p>`).join('')}</div>`:''}`}
   </div></div>`;
 }
 
@@ -1338,10 +1470,10 @@ function viewParticipants(){
     const wCount = DB.workouts.filter(w=>w.participantId===p.id).length;
     const canSee = p.id===me || (linkWith(p.id).asTrainer||{}).active;
     return `<div class="card" data-open-participant="${p.id}" style="cursor:pointer">
-      <div class="row"><span class="color-dot" style="background:${p.color}"></span><b>${esc(p.name)}</b></div>
+      <div class="row"><span class="color-dot" style="background:${colorBg(p.color)}"></span><b>${esc(p.name)}</b></div>
       <div class="muted">${canSee? wCount+' тренировок' : 'тренировки видны только тренеру'}</div>
       <div style="margin-top:4px">${roleBadges(p.id)}</div>
-      ${(linkWith(p.id).asTrainer||{}).active?`<div class="swatches" title="Цвет в вашем календаре">${PALETTE.map(c=>`<span class="swatch ${p.color===c?'on':''}" style="background:${c}" data-trainee-color="${linkWith(p.id).asTrainer.id}|${c}"></span>`).join('')}</div>`:''}
+      ${(linkWith(p.id).asTrainer||{}).active?`<div class="swatches" title="Цвет в вашем календаре">${TRAINEE_COLORS.map(c=>`<span class="swatch ${p.color===c?'on':''}" style="background:${colorBg(c)}" data-trainee-color="${linkWith(p.id).asTrainer.id}|${c}"></span>`).join('')}</div>`:''}
     </div>`;
   }).join('')}
   </div>`;
@@ -1350,7 +1482,7 @@ function viewFriendProfile(p){
   const {asTrainee, asTrainer} = linkWith(p.id);
   return `<div class="topbar"><button class="btn ghost" data-back-participants="1">← Назад</button><h2>${esc(p.name)}</h2></div>
   <div class="card" style="margin-bottom:10px">
-    <div class="row"><span class="color-dot" style="background:${p.color}"></span><b>${esc(p.name)}</b> ${roleBadges(p.id)}</div>
+    <div class="row"><span class="color-dot" style="background:${colorBg(p.color)}"></span><b>${esc(p.name)}</b> ${roleBadges(p.id)}</div>
     <div class="row" style="margin-top:10px">
       ${!asTrainer?`<button class="btn primary" data-offer-trainer="${p.id}">Предложить себя тренером</button>`:''}
       ${asTrainer?`<button class="btn" data-drop-link="${asTrainer.id}">${asTrainer.status==='accepted'?'Перестать тренировать':'Отозвать предложение'}</button>`:''}
@@ -1358,7 +1490,8 @@ function viewFriendProfile(p){
       <button class="btn sm ghost del-link" data-remove-friend="${p.id}">Удалить</button>
     </div>
     <p class="muted">Статистику и тренировки участника видит только его тренер.</p>
-  </div>`;
+  </div>
+  ${detailsCard(p.id)}`;
 }
 function weekKeyOf(ds){ const d=parseD(ds); const day=(d.getDay()+6)%7; const monday=new Date(d.getFullYear(),d.getMonth(),d.getDate()-day); return dstr(monday); }
 function monthKeyOf(ds){ return ds.slice(0,7); }
@@ -1387,7 +1520,7 @@ function viewParticipantProfile(pid){
   <div class="card grid3" style="margin-bottom:10px">
     <div><div class="muted">Тренировок</div><div class="big" style="font-size:20px;font-weight:700">${workouts.length}</div></div>
     <div><div class="muted">Общий тоннаж</div><div class="big" style="font-size:20px;font-weight:700">${fmtNum(convW(totalT,units))} ${unitLabel(units)}</div></div>
-    <div><div class="muted">Цвет</div><span class="color-dot" style="background:${p.color}"></span></div>
+    <div><div class="muted">Цвет</div><span class="color-dot" style="background:${colorBg(p.color)}"></span></div>
   </div>
   ${p.id===selfParticipantId() ? `<div class="row" style="margin-bottom:10px">
     <input type="text" id="editPname" value="${esc(p.name)}" style="padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text)">
@@ -1396,18 +1529,8 @@ function viewParticipantProfile(pid){
   </div>` : `<div class="row" style="margin-bottom:10px">${roleBadges(p.id)}
     <button class="btn sm" data-drop-link="${linkWith(p.id).asTrainer.id}">Перестать тренировать</button>
     <button class="btn sm ghost del-link" data-remove-friend="${p.id}">Удалить</button></div>`}
-  <div class="card" style="margin-bottom:10px">
-    <h3 class="row" style="gap:6px"><span class="ach-ico">${ICONS.medal}</span>Достижения</h3>
-    ${bestCmp?`<div class="tot-box" style="margin-bottom:10px">
-      <div>Лучшая тренировка — как поднять:</div>
-      <div class="big">${bestCmp[1]}</div>
-      <div style="margin-top:4px;font-size:12px">${fmtNum(convW(bestWorkoutT,units))} ${unitLabel(units)}</div>
-    </div>`:''}
-    ${milestoneBlock(workouts.length, WORKOUT_MILESTONES, ICONS.calendar, 'Проведено тренировок')}
-    ${milestoneBlock(fmtNum(totalHours), HOUR_MILESTONES, ICONS.clock, 'Часов в зале')}
-    ${milestoneBlock(streak.current, STREAK_MILESTONES, ICONS.flame, 'Недель подряд с тренировкой (сейчас)')}
-    <div class="muted">Рекордная серия: ${streak.longest} нед.</div>
-  </div>
+  ${detailsCard(p.id)}
+  ${achievementsCard(workouts)}
   <div class="card" style="margin-bottom:10px">
     <h3>Личная статистика</h3>
     <table><tbody>
@@ -1466,6 +1589,7 @@ function viewStats(){
       <select data-stats-period>${[['week','Неделя'],['month','Месяц'],['3m','3 месяца'],['6m','6 месяцев'],['year','Год'],['all','Всё время']].map(([id,l])=>`<option value="${id}" ${State.statsPeriod===id?'selected':''}>${l}</option>`).join('')}</select>
     </div></div>
 
+  ${achievementsCard(DB.workouts.filter(w=>w.participantId===(State.statsParticipant||selfParticipantId())))}
   <div class="grid3" style="margin-bottom:10px">
     <div class="card"><div class="muted">Тренировок</div><div style="font-size:22px;font-weight:700">${list.length}</div></div>
     <div class="card"><div class="muted">Общий тоннаж</div><div style="font-size:22px;font-weight:700">${fmtNum(convW(totalT,units))} ${unitLabel(units)}</div></div>
@@ -1502,7 +1626,7 @@ function viewSettings(){
     <div class="field"><label>Таймер отдыха по умолчанию, сек</label><input type="text" inputmode="numeric" data-setting="restDefault" value="${s.restDefault}"></div>
     <div class="field"><label>Цветовая палитра</label>
       <div class="theme-grid">${PRESET_THEMES.map(t=>`<button class="theme-opt ${s.themeColor===t.id?'on':''}" data-pick-theme="${t.id}">
-        <span class="theme-sw">${[t.accent,t.accent2,t.bg||'#f6f5f2',t.border||'#e2ded4'].map(c=>`<i style="background:${c}"></i>`).join('')}</span>${esc(t.name)}</button>`).join('')}</div>
+        <span class="theme-prev" style="background:${t.L.art?t.L.art+',':''}${t.L.bg}"><i style="background:${t.accent}"></i><i style="background:${t.accent2}"></i><b style="background:${t.L.surface}"></b></span>${esc(t.name)}<span class="muted" style="font-size:11px">${t.kind}</span></button>`).join('')}</div>
     </div>
   </div>
   <div class="card" style="margin-bottom:10px">
@@ -1557,6 +1681,65 @@ function linksSection(){
 let timerInterval=null, timerRunning=false, timerLeft = 90;
 function fmtTime(t){ const m=Math.floor(t/60), s=t%60; return pad(m)+':'+pad(s); }
 
+/* ===================== ЛИЧНЫЕ ДАННЫЕ И ВЕС ===================== */
+const ACTIVITY_LABELS = {work:'😮‍💨 работа', steps:'🚶', moving:'📦 переезд', house:'🧹 по дому', outdoor:'🚴 прогулка', sport:'⚽ спорт', kids:'👶 дети', sick:'🤒 болел', other:'✍️ актив.'};
+const GOAL_OPTIONS = ['Похудеть','Набрать мышечную массу','Стать сильнее','Выносливость','Здоровье и тонус','Восстановление после травмы'];
+function ageFrom(bd){ if(!bd) return ''; const b=parseD(bd), n=new Date(); let a=n.getFullYear()-b.getFullYear(); if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate())) a--; return a; }
+function weightChart(uid){
+  const pts = (DB.weights||[]).filter(x=>x.user_id===uid).sort((a,b)=>a.date.localeCompare(b.date));
+  if(pts.length<2) return `<div class="muted">${pts.length?`Вес ${fmtNum(pts[0].weight_kg)} кг (${fmtDateShort(pts[0].date)}). График появится после второго измерения.`:'Измерений веса пока нет.'}</div>`;
+  const W=560,H=120, vals=pts.map(p=>+p.weight_kg), mn=Math.min(...vals)-1, mx=Math.max(...vals)+1;
+  const X=i=>10+i*(W-20)/(pts.length-1), Y=v=>H-18-(v-mn)/(mx-mn)*(H-34);
+  const d=pts.map((p,i)=>`${X(i)},${Y(+p.weight_kg)}`).join(' ');
+  const diff=vals[vals.length-1]-vals[0];
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:120px"><polyline points="${d}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+    ${pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(+p.weight_kg)}" r="3.5" fill="var(--accent)"><title>${fmtDateShort(p.date)}: ${fmtNum(p.weight_kg)} кг</title></circle>`).join('')}
+    <text x="10" y="${H-3}" font-size="11" fill="currentColor" opacity=".6">${fmtDateShort(pts[0].date)} · ${fmtNum(vals[0])} кг</text>
+    <text x="${W-10}" y="${H-3}" font-size="11" fill="currentColor" opacity=".6" text-anchor="end">${fmtDateShort(pts[pts.length-1].date)} · ${fmtNum(vals[vals.length-1])} кг</text></svg>
+    <div class="muted">Изменение: <b>${diff>0?'+':''}${fmtNum(diff)} кг</b> за ${pts.length} измерений</div>`;
+}
+// своя карточка — форма; чужая — только просмотр (если человек разрешил показывать)
+function detailsCard(uid){
+  const mine = uid===selfParticipantId();
+  const d = (DB.details||[]).find(x=>x.user_id===uid);
+  if(!mine && !d) return '';
+  if(!mine) return `<div class="card" style="margin-bottom:10px"><h3>Данные участника</h3>
+    <table><tbody>${[['Возраст',ageFrom(d.birth_date)],['Пол',d.gender==='male'?'мужской':d.gender==='female'?'женский':''],['Вес',d.weight_kg?fmtNum(d.weight_kg)+' кг':''],['Рост',d.height_cm?fmtNum(d.height_cm)+' см':''],['Цель',d.goal]].filter(r=>r[1]!==''&&r[1]!=null).map(r=>`<tr><td>${r[0]}</td><td><b>${esc(r[1])}</b></td></tr>`).join('')}</tbody></table>
+    <h3 style="margin-top:10px">Вес</h3>${weightChart(uid)}</div>`;
+  const v = d || {};
+  return `<div class="card" style="margin-bottom:10px"><h3>Личные данные</h3>
+    <div class="muted" style="margin-bottom:8px">Видите только вы, пока не отметите галочки ниже.</div>
+    <div class="grid2">
+      <div class="field"><label>Возраст</label><input type="text" inputmode="numeric" id="pdAge" value="${ageFrom(v.birth_date)}"></div>
+      <div class="field"><label>Пол</label><select id="pdGender"><option value="">—</option><option value="male" ${v.gender==='male'?'selected':''}>Мужской</option><option value="female" ${v.gender==='female'?'selected':''}>Женский</option></select></div>
+      <div class="field"><label>Вес, кг (сегодня)</label><input type="text" inputmode="decimal" id="pdWeight" value="${v.weight_kg??''}"></div>
+      <div class="field"><label>Рост, см</label><input type="text" inputmode="numeric" id="pdHeight" value="${v.height_cm??''}"></div>
+    </div>
+    <div class="field"><label>Цель занятий</label><input type="text" id="pdGoal" list="pdGoals" value="${esc(v.goal||'')}"><datalist id="pdGoals">${GOAL_OPTIONS.map(g=>`<option value="${g}">`).join('')}</datalist></div>
+    <label class="row"><input type="checkbox" id="pdPublic" ${v.show_public?'checked':''}> Показывать всем моим участникам</label>
+    <label class="row" style="margin-top:4px"><input type="checkbox" id="pdTrainer" ${v.show_trainer||v.show_public?'checked':''}> Показывать тренеру</label>
+    <button class="btn primary" style="margin-top:10px" data-save-details="1">Сохранить</button>
+    <h3 style="margin-top:14px">Изменение веса</h3>${weightChart(uid)}
+  </div>`;
+}
+async function saveDetails(){
+  const uid = selfParticipantId(), c = Auth.getClient();
+  const num = id => { const x = parseFloat(String(document.getElementById(id).value).replace(',','.')); return isFinite(x)?x:null; };
+  const age = num('pdAge'), weight = num('pdWeight'), pub = document.getElementById('pdPublic').checked;
+  let birth = null; if(age){ const b=new Date(); b.setFullYear(b.getFullYear()-Math.floor(age)); birth = dstr(b); }
+  const row = { user_id:uid, birth_date:birth, gender:document.getElementById('pdGender').value||null, weight_kg:weight, height_cm:num('pdHeight'),
+    goal:document.getElementById('pdGoal').value.trim()||null, show_public:pub, show_trainer:pub||document.getElementById('pdTrainer').checked, updated_at:new Date().toISOString() };
+  const {error} = await c.from('profile_details').upsert(row);
+  if(error) return toast('Не сохранено: '+error.message);
+  DB.details = (DB.details||[]).filter(x=>x.user_id!==uid).concat([row]);
+  if(weight){
+    const wrow = {user_id:uid, date:dstr(new Date()), weight_kg:weight};
+    const {error:we} = await c.from('body_weights').upsert(wrow, {onConflict:'user_id,date'});
+    if(!we) DB.weights = (DB.weights||[]).filter(x=>!(x.user_id===uid && x.date===wrow.date)).concat([wrow]);
+  }
+  toast('Личные данные сохранены'); renderMain();
+}
+
 /* ===================== SOCIAL HELPERS ===================== */
 // подтверждение внутри приложения (window.confirm в Telegram работает ненадёжно)
 // справку можно открыть поверх тренировки — после закрытия возвращаемся в неё
@@ -1564,11 +1747,25 @@ function openHelp(key, back){
   State.modal = {kind:'help', key, back: back && back.kind!=='help' ? back : (back&&back.back)};
   renderModal();
 }
+// просмотр картинки на весь экран: нажатие — приблизить/отдалить, при приближении картинку можно двигать пальцем
+function openZoom(src){
+  const box=document.createElement('div'); box.className='zoom-box';
+  box.innerHTML=`<button class="zoom-close" aria-label="Закрыть">✕</button><div class="zoom-scroll"><img src="${esc(src)}" alt=""></div>`;
+  const img=box.querySelector('img'), sc=box.querySelector('.zoom-scroll');
+  img.onclick=e=>{ e.stopPropagation();
+    const r=img.getBoundingClientRect(), fx=(e.clientX-r.left)/r.width, fy=(e.clientY-r.top)/r.height;
+    box.classList.toggle('zoomed');
+    if(box.classList.contains('zoomed')){ sc.scrollLeft=img.offsetWidth*fx-sc.clientWidth/2; sc.scrollTop=img.offsetHeight*fy-sc.clientHeight/2; }
+  };
+  box.onclick=()=>box.remove();
+  document.body.appendChild(box);
+}
 function askConfirm(title, text, yesLabel, onYes){
   State.modal = {kind:'confirmDelete', title, text, yesLabel, onYes:()=>{ closeModal(); onYes(); }};
   renderModal();
 }
 function toast(msg){
+  document.querySelectorAll('.toast').forEach(x=>x.remove());
   const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t);
   setTimeout(()=>t.remove(), 3200);
 }
@@ -1594,12 +1791,19 @@ function applyTheme(){
   root.setAttribute('data-theme', DB.settings.theme==='auto' ? '' : DB.settings.theme);
   const t = PRESET_THEMES.find(x=>x.id===DB.settings.themeColor) || PRESET_THEMES[0];
   const isDark = DB.settings.theme==='dark' || (DB.settings.theme==='auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  const v = isDark ? t.D : t.L;
   root.style.setProperty('--accent', isDark ? t.dark : t.accent);
   root.style.setProperty('--accent2', t.accent2);
   root.style.setProperty('--on-accent', isDark ? '#16211d' : '#ffffff');
-  // фон светлой темы берём из палитры; в тёмной оставляем тёмные значения из CSS
-  ['bg','surface2','border'].forEach(k=>{ if(!isDark && t[k]) root.style.setProperty('--'+k, t[k]); else root.style.removeProperty('--'+k); });
+  ['bg','surface','surface2','border'].forEach(k=>root.style.setProperty('--'+k, v[k]));
+  root.style.setProperty('--bg-art', v.art || 'none');
+  // металл иконок: серебро на тёмном фоне, тёмная сталь на светлом
+  root.style.setProperty('--metal-hi', isDark ? '#ffffff' : '#8b9096');
+  root.style.setProperty('--metal-mid', isDark ? '#cfcfcf' : '#5a5f65');
+  root.style.setProperty('--metal-lo', isDark ? '#8a8a8a' : '#2c3035');
+  const meta = document.querySelector('meta[name=theme-color]'); if(meta) meta.content = v.bg;
 }
+if(window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', ()=>{ if(DB.settings.theme==='auto') applyTheme(); });
 
 function handleMainClick(e, ds){
   if(ds.nav!==undefined){ State.view=ds.nav; State.participantProfile=null; rerender(); return true; }
@@ -1670,6 +1874,7 @@ function handleMainClick(e, ds){
     socialAction('add_friend_by_code',{p_code:code}, r=>({requested:'Заявка отправлена — участник появится после подтверждения',accepted:'Готово, вы теперь участники друг у друга',already:'Этот участник уже добавлен',self:'Это ваш собственный код',not_found:'Код не найден — проверьте, что скопирован полностью'})[r]||'Готово');
     return true;
   }
+  if(ds.saveDetails!==undefined){ saveDetails(); return true; }
   if(ds.traineeColor!==undefined){
     const [linkId,color]=ds.traineeColor.split('|'); const l=DB.trainerLinks.find(x=>x.id===linkId);
     const p=DB.participants.find(x=>x.id===l.trainee_id); l.color=color; p.color=color; renderMain();
@@ -1753,11 +1958,11 @@ function handleMainChange(e, ds){
 /* ===================== GLOBAL DELEGATED LISTENERS (bound once) ===================== */
 function initEvents(){
   document.addEventListener('click', (e)=>{
-    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help]');
+    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-finish-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom]');
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){

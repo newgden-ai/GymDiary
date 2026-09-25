@@ -324,10 +324,7 @@ window.HELP_DATA = [
  },
  {
   "group": "Растяжка",
-  "images": [
-   "help/img/069.jpg",
-   "help/img/070.jpg"
-  ],
+  "images": [],
   "items": [
    {
     "name": "Наклон к ногам",
