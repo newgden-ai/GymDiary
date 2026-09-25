@@ -804,16 +804,20 @@ function achievementsList(workouts){
   HERO_ACH.forEach(a=>{ const r = a.check(hc); out.push({cat:'hero', icon:'', hero:a.h, style:a.style, rare:a.rare, title:a.title,
     desc:`${HERO_NAMES[a.h]}: ${a.desc}`, cur:r.cur, target:r.target, heroGot:r.got}); });
   // максимальный вес за одно повторение в каждом упражнении (без веса — собственный вес, как в тоннаже)
-  const maxByEx = {};
+  const maxByEx = {}, liftsByEx = {};
   workouts.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>(ex.sets||[]).forEach(s=>{
     if(!(Number(s.reps)>=1)) return;
     const wt = Number(s.weight)>0 ? Number(s.weight) : Calc.bwFor(w, ex);
     if(wt>0 && wt>(maxByEx[ex.exerciseId]||0)) maxByEx[ex.exerciseId] = wt;
+    if(wt>0) (liftsByEx[ex.exerciseId] = liftsByEx[ex.exerciseId] || []).push({wt, date:w.date});
   }))));
   const exIds = Object.keys(maxByEx).filter(id=>DB.exercises.some(e=>e.id===id));
   const topLift = Math.max(0, ...exIds.map(id=>maxByEx[id]));
   ACH_BEASTS.forEach(([kg,i,n])=>{
-    const holders = exIds.filter(id=>maxByEx[id]>=kg).map(id=>{ const e=DB.exercises.find(x=>x.id===id); return {name:e.name, group:MG[e.mainGroup]||'Другое', kg:maxByEx[id]}; });
+    // одна ачивка на упражнение: вес ачивки и дата, когда в этом упражнении его подняли впервые
+    const holders = exIds.filter(id=>maxByEx[id]>=kg).map(id=>{ const e=DB.exercises.find(x=>x.id===id);
+      const first = liftsByEx[id].filter(x=>x.wt>=kg).map(x=>x.date).sort()[0];
+      return {name:e.name, group:MG[e.mainGroup]||'Другое', kg, date:first}; });
     out.push({cat:'beast', icon:i, title:n, desc:`${fmtNum(kg)} кг в одном повторении`, cur:Math.round(topLift), target:kg, count:holders.length, holders});
   });
   return out.map(a=>({...a, got: a.cat==='hero' ? a.heroGot : a.cur>=a.target, pct: Math.min(100, Math.round(a.cur/a.target*100))}));
@@ -853,9 +857,9 @@ function renderBeastModal(){
   (a.holders||[]).forEach(h=>(byGroup[h.group]=byGroup[h.group]||[]).push(h));
   return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:420px">
     <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h2 style="margin:0">${a.icon} ${esc(a.title)} ×${a.count}</h2><button class="btn sm ghost" data-close-modal="1">✕</button></div>
-    <p class="muted">${esc(a.desc)}. Ачивка за каждое упражнение, где вы подняли столько за одно повторение:</p>
+    <p class="muted">${esc(a.desc)}. По одной ачивке за каждое упражнение, где вы впервые подняли ${fmtNum(a.target)} кг за одно повторение (дата — когда это случилось):</p>
     ${Object.keys(byGroup).map(g=>`<h3 style="margin-top:10px">${esc(g)} <span class="muted">×${byGroup[g].length}</span></h3>
-      ${byGroup[g].sort((x,y)=>y.kg-x.kg).map(h=>`<div class="help-row" style="cursor:default"><span class="grow">${esc(h.name)}</span><b>${fmtNum(h.kg)} кг</b></div>`).join('')}`).join('')}
+      ${byGroup[g].sort((x,y)=>(x.date||'').localeCompare(y.date||'')).map(h=>`<div class="help-row" style="cursor:default"><span class="grow">${esc(h.name)}</span><b>${fmtNum(h.kg)} кг</b><span class="muted">${h.date?fmtDateShort(h.date):''}</span></div>`).join('')}`).join('')}
   </div></div>`;
 }
 function milestoneBlock(current, milestones, icon, label){
