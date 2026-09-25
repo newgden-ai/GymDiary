@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ТренДневник</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root{
   --bg:#f6f5f2; --surface:#ffffff; --surface2:#f0eee8; --border:#e2ded4;
@@ -104,6 +106,11 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
 </style>
 </head>
 <body>
+<div id="authOverlay" style="position:fixed;inset:0;background:#181a17;color:#e9e8e2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:-apple-system,sans-serif;z-index:999;padding:20px;text-align:center">
+  <div style="font-size:32px">🏋</div>
+  <div id="authStatus">Входим через Telegram…</div>
+  <pre id="authLog" style="font-size:11px;color:#9a9d94;white-space:pre-wrap;max-width:420px;background:#20221f;padding:10px;border-radius:8px;display:none"></pre>
+</div>
 <div class="app">
   <div class="sidebar" id="sidebar"></div>
   <div class="main" id="main"></div>
@@ -112,72 +119,190 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
 <div id="modalRoot"></div>
 
 <script>
+// ===== ЗАПОЛНИТЕ ПЕРЕД ЗАГРУЗКОЙ НА ХОСТИНГ =====
+const SUPABASE_URL = "https://avobjimkmpdbntwxcldb.supabase.co/rest/v1/";
+const SUPABASE_ANON_KEY = "sb_publishable_N4j63GohZUT4goIim9Ch4g_62KeetyE";
+// =================================================
+</script>
+<script>
 /* ===================== STORAGE MODULE ===================== */
+/* ===================== AUTH MODULE (Telegram -> Supabase session) ===================== */
+const Auth = (function(){
+  let client = null, session = null;
+  function log(msg){
+    const el = document.getElementById('authLog');
+    if(el){ el.style.display='block'; el.textContent += msg + '\n'; }
+    console.log('[auth]', msg);
+  }
+  function setStatus(msg){ const el = document.getElementById('authStatus'); if(el) el.textContent = msg; }
+  async function login(){
+    if(!window.supabase){ setStatus('❌ Не удалось загрузить supabase-js (проверьте интернет).'); return null; }
+    client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if(!tg || !tg.initData){
+      setStatus('❌ Откройте приложение через кнопку меню в Telegram-боте, а не напрямую в браузере.');
+      return null;
+    }
+    tg.ready(); tg.expand && tg.expand();
+
+    setStatus('Проверяем вход…');
+    let res, payload;
+    try{
+      res = await fetch(SUPABASE_URL + '/functions/v1/telegram-auth', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({initData: tg.initData})
+      });
+      payload = await res.json();
+    }catch(e){ setStatus('❌ Нет связи с сервером входа'); log(String(e)); return null; }
+
+    if(!res.ok || payload.error){ setStatus('❌ Ошибка входа: '+(payload.error||res.status)); log(JSON.stringify(payload)); return null; }
+
+    const { data, error } = await client.auth.verifyOtp({ email: payload.email, token: payload.otp, type:'email' });
+    if(error){ setStatus('❌ Не удалось войти: '+error.message); return null; }
+
+    session = data.session;
+    setStatus('Загружаем данные…');
+    return { client, userId: data.user.id };
+  }
+  function getClient(){ return client; }
+  return { login, getClient };
+})();
+
+/* ===================== STORAGE MODULE (Supabase, с diff-синхронизацией) ===================== */
 const Storage = (function(){
-  const KEY = 'wt_db_v1';
-  function seed(){
-    const uid = () => Math.random().toString(36).slice(2,10);
-    const you = {id: uid(), name:'Я', color:'#3d5a45'};
-    const exercises = [
-      ['Жим лёжа','chest',[ 'triceps','shoulders'],'strength'],
-      ['Жим гантелей лёжа','chest',['triceps'],'strength'],
-      ['Разведение гантелей','chest',[],'strength'],
-      ['Присед со штангой','quads',['glutes'],'strength'],
-      ['Румынская тяга','hamstrings',['glutes','back'],'strength'],
-      ['Становая тяга','back',['hamstrings','glutes'],'strength'],
-      ['Подтягивания','back',['biceps'],'strength'],
-      ['Тяга штанги в наклоне','back',['biceps'],'strength'],
-      ['Жим штанги стоя','shoulders',['triceps'],'strength'],
-      ['Махи гантелями в стороны','shoulders',[],'strength'],
-      ['Подъём штанги на бицепс','biceps',['forearms'],'strength'],
-      ['Французский жим','triceps',[],'strength'],
-      ['Разгибание на трицепс блок','triceps',[],'strength'],
-      ['Скручивания','abs',[],'strength'],
-      ['Подъём ног в висе','abs',[],'strength'],
-      ['Икры стоя','calves',[],'strength'],
-      ['Выпады','quads',['glutes'],'strength'],
-      ['Бег','other',[],'cardio'],
-      ['Велотренажёр','other',[],'cardio'],
-      ['Гребля','back',['other'],'cardio'],
-      ['Растяжка общая','other',[],'stretch']
-    ].map(e=>({id:uid(),name:e[0],mainGroup:e[1],secondaryGroups:e[2],type:e[3]}));
+  let selfId = null;
+  // снимок последнего состояния, отправленного на сервер — по нему считаем, что изменилось
+  let snapshot = { workouts:[], templates:[], exercises:[], profile:null };
+
+  function rowsToDiff(current, previous, keyField){
+    const prevMap = new Map(previous.map(r=>[r[keyField], JSON.stringify(r)]));
+    const curMap = new Map(current.map(r=>[r[keyField], r]));
+    const upserts = [];
+    for(const [id,row] of curMap){
+      const prevJson = prevMap.get(id);
+      const curJson = JSON.stringify(row);
+      if(prevJson === undefined || prevJson !== curJson) upserts.push(row);
+    }
+    const deletes = [];
+    for(const [id] of prevMap){ if(!curMap.has(id)) deletes.push(id); }
+    return { upserts, deletes };
+  }
+
+  function workoutToDb(w){
     return {
-      participants:[you],
-      exercises,
-      workouts:[],
-      templates:[],
-      settings:{units:'kg', theme:'auto', restDefault:90, themeColor:'forest'}
+      id:w.id, participant_id:w.participantId, created_by:selfId, date:w.date,
+      time:w.time||null, duration:w.duration?Number(w.duration):null, name:w.name||null,
+      type:w.type, blocks:w.blocks||[], notes:w.notes||null, result:w.result||null,
+      recurring_group_id:w.recurringId||null, status:'done'
     };
   }
-  let db = null;
-  function load(){
-    if(db) return db;
-    try{
-      const raw = localStorage.getItem(KEY);
-      if(raw){ db = JSON.parse(raw); }
-      else { db = seed(); save(); }
-    }catch(e){ db = seed(); }
-    if(!db.settings) db.settings = {units:'kg',theme:'auto',restDefault:90,themeColor:'forest'};
-    if(!db.settings.themeColor) db.settings.themeColor = 'forest';
-    return db;
+  function workoutFromDb(r){
+    return { id:r.id, date:r.date, time:r.time||'', duration:r.duration||'', name:r.name||'',
+      participantId:r.participant_id, type:r.type, blocks:r.blocks||[], notes:r.notes||'',
+      result:r.result||'', recurringId:r.recurring_group_id||null };
   }
-  let saveTimer=null;
+  function templateToDb(t){ return { id:t.id, owner_id:selfId, name:t.name, blocks:t.blocks||[] }; }
+  function templateFromDb(r){ return { id:r.id, name:r.name, blocks:r.blocks||[] }; }
+  function exerciseToDb(e){ return { id:e.id, owner_id:selfId, name:e.name, main_group:e.mainGroup, secondary_groups:e.secondaryGroups||[], type:e.type, image_url:e.imageUrl||null }; }
+  function exerciseFromDb(r){ return { id:r.id, name:r.name, mainGroup:r.main_group, secondaryGroups:r.secondary_groups||[], type:r.type, imageUrl:r.image_url||null, ownerId:r.owner_id }; }
+
+  async function load(auth){
+    selfId = auth.userId;
+    const client = auth.client;
+
+    const [{data:profile}, {data:exRows}, {data:tplRows}, {data:wRows}] = await Promise.all([
+      client.from('profiles').select('*').eq('id', selfId).single(),
+      client.from('exercises').select('*').or(`owner_id.is.null,owner_id.eq.${selfId}`),
+      client.from('templates').select('*').eq('owner_id', selfId),
+      client.from('workouts').select('*').eq('participant_id', selfId)
+    ]);
+
+    const exercises = (exRows||[]).map(exerciseFromDb);
+    const templates = (tplRows||[]).map(templateFromDb);
+    const workouts = (wRows||[]).map(workoutFromDb);
+
+    // пишем сразу в глобальный DB (а не в приватную копию), чтобы Storage и приложение
+    // всегда смотрели на один и тот же объект — иначе DB.x = DB.x.filter(...) в коде
+    // приложения перестаёт быть видно модулю Storage
+    Object.assign(DB, {
+      participants: [{ id: selfId, name: profile?.name || 'Я', color: profile?.color || '#3d5a45' }],
+      exercises, templates, workouts,
+      settings: {
+        units: profile?.units || 'kg',
+        theme: profile?.theme || 'auto',
+        themeColor: profile?.theme_color || 'forest',
+        restDefault: profile?.rest_default ?? 90
+      }
+    });
+    snapshot = {
+      workouts: JSON.parse(JSON.stringify(wRows||[])),
+      templates: JSON.parse(JSON.stringify(tplRows||[])),
+      exercises: JSON.parse(JSON.stringify((exRows||[]).filter(r=>r.owner_id===selfId))),
+      profile: profile ? JSON.parse(JSON.stringify(profile)) : null
+    };
+    return DB;
+  }
+
+  let saveTimer = null;
   function save(){
     clearTimeout(saveTimer);
-    saveTimer=setTimeout(()=>{
-      try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch(e){ console.error('save failed',e); }
-    },150);
+    saveTimer = setTimeout(syncAll, 500);
   }
+
+  async function syncAll(){
+    const client = Auth.getClient();
+    if(!client) return;
+    try{
+      const wDb = DB.workouts.map(workoutToDb);
+      const wDiff = rowsToDiff(wDb, snapshot.workouts, 'id');
+      if(wDiff.upserts.length) await client.from('workouts').upsert(wDiff.upserts);
+      if(wDiff.deletes.length) await client.from('workouts').delete().in('id', wDiff.deletes);
+
+      const tDb = DB.templates.map(templateToDb);
+      const tDiff = rowsToDiff(tDb, snapshot.templates, 'id');
+      if(tDiff.upserts.length) await client.from('templates').upsert(tDiff.upserts);
+      if(tDiff.deletes.length) await client.from('templates').delete().in('id', tDiff.deletes);
+
+      // синхронизируем только свои кастомные упражнения (owner_id = self); общие — только на чтение
+      const ownExDb = DB.exercises.filter(e=>e.ownerId===selfId).map(exerciseToDb);
+      const eDiff = rowsToDiff(ownExDb, snapshot.exercises, 'id');
+      if(eDiff.upserts.length) await client.from('exercises').upsert(eDiff.upserts);
+      if(eDiff.deletes.length) await client.from('exercises').delete().in('id', eDiff.deletes);
+
+      const self = DB.participants[0];
+      const profileRow = { name:self.name, color:self.color, units:DB.settings.units, theme:DB.settings.theme, theme_color:DB.settings.themeColor, rest_default:Number(DB.settings.restDefault)||90 };
+      if(!snapshot.profile || JSON.stringify(profileRow) !== JSON.stringify({name:snapshot.profile.name,color:snapshot.profile.color,units:snapshot.profile.units,theme:snapshot.profile.theme,theme_color:snapshot.profile.theme_color,rest_default:snapshot.profile.rest_default})){
+        await client.from('profiles').update(profileRow).eq('id', selfId);
+      }
+
+      snapshot = {
+        workouts: JSON.parse(JSON.stringify(wDb)),
+        templates: JSON.parse(JSON.stringify(tDb)),
+        exercises: JSON.parse(JSON.stringify(ownExDb)),
+        profile: { id:selfId, ...profileRow }
+      };
+    }catch(e){ console.error('Ошибка синхронизации:', e); }
+  }
+  function isGlobalExercise(e){ return e.ownerId === null || e.ownerId === undefined; }
+
   function exportJSON(){
-    const blob = new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+    const blob = new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href=url; a.download='trendnevnik-backup-'+new Date().toISOString().slice(0,10)+'.json';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),2000);
   }
-  function importJSON(obj){ db = obj; save(); }
-  return {load, save, exportJSON, importJSON, uid: ()=>Math.random().toString(36).slice(2,10)};
+  function importJSON(obj){
+    // Импорт из старой локальной резервной копии: аккуратно переносим тренировки/шаблоны/кастомные упражнения,
+    // не трогая id профиля, и сразу шлём на сервер через обычный save()
+    if(obj.workouts) DB.workouts = obj.workouts.map(w=>({...w, participantId:selfId}));
+    if(obj.templates) DB.templates = obj.templates;
+    if(obj.exercises) DB.exercises = DB.exercises.concat(obj.exercises.filter(e=>!DB.exercises.some(x=>x.id===e.id)).map(e=>({...e, ownerId:selfId})));
+    save();
+  }
+  return { load, save, exportJSON, importJSON, uid: ()=> (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2,10)) };
 })();
 
 /* ===================== CALC MODULE (tonnage) ===================== */
@@ -302,7 +427,8 @@ function unitLabel(units){ return units==='lb' ? 'фунт' : 'кг'; }
 function toKg(v, units){ return units==='lb' ? (Number(v)||0)/2.20462 : (Number(v)||0); }
 
 /* ===================== APP STATE ===================== */
-const DB = Storage.load();
+const DB = { participants:[{id:'', name:'Я', color:'#3d5a45'}], exercises:[], workouts:[], templates:[], settings:{units:'kg', theme:'auto', restDefault:90, themeColor:'forest'} };
+function selfParticipantId(){ return DB.participants[0].id; }
 const State = {
   view:'calendar', calMode:'month', calDate:new Date(),
   modal:null, // {type, ...}
@@ -688,7 +814,7 @@ function handleModalClick(e, ds){
     }
     if(ds.createExercise!==undefined){
       const name = (modal.query||'').trim(); if(!name) return true;
-      const ex = {id:Storage.uid(), name, mainGroup:'other', secondaryGroups:[], type:'strength'};
+      const ex = {id:Storage.uid(), name, mainGroup:'other', secondaryGroups:[], type:'strength', ownerId:selfParticipantId()};
       DB.exercises.push(ex); Storage.save();
       const bi = modal.pendingBlock; const back=modal._back;
       back.w.blocks[bi].exercises.push(blankExercise(ex.id));
@@ -913,7 +1039,7 @@ function viewParticipantProfile(pid){
     <input type="text" id="editPname" value="${esc(p.name)}" style="padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text)">
     <select id="editPcolor">${PALETTE.map(c=>`<option value="${c}" ${p.color===c?'selected':''} style="background:${c}">цвет</option>`).join('')}</select>
     <button class="btn sm" data-save-participant="${p.id}">Сохранить</button>
-    <button class="btn sm danger" data-delete-participant="${p.id}">Удалить участника</button>
+    ${p.id!==selfParticipantId() ? `<button class="btn sm danger" data-delete-participant="${p.id}">Удалить участника</button>` : ''}
   </div>
   <div class="card" style="margin-bottom:10px">
     <h3>🏆 Достижения</h3>
@@ -1089,7 +1215,7 @@ function handleMainClick(e, ds){
     return true;
   }
   if(ds.addParticipant!==undefined){
-    const name = prompt('Имя участника'); if(name){ DB.participants.push({id:Storage.uid(), name, color:PALETTE[DB.participants.length%PALETTE.length]}); Storage.save(); renderMain(); }
+    alert('Пока можно добавлять только по приглашению — эта функция появится на следующем шаге вместе с друзьями/тренерами.');
     return true;
   }
   if(ds.openParticipant!==undefined){ State.participantProfile=ds.openParticipant; renderMain(); return true; }
@@ -1186,9 +1312,24 @@ function initEvents(){
 }
 
 /* ===================== INIT ===================== */
-applyTheme();
-initEvents();
-rerender();
+(async function init(){
+  const auth = await Auth.login();
+  if(!auth) return; // authOverlay уже показывает причину ошибки, дальше не идём
+  try{
+    await Storage.load(auth);
+  }catch(e){
+    document.getElementById('authStatus').textContent = '❌ Не удалось загрузить данные';
+    document.getElementById('authLog').style.display='block';
+    document.getElementById('authLog').textContent = String(e && e.stack || e);
+    return;
+  }
+  applyTheme();
+  initEvents();
+  rerender();
+  const overlay = document.getElementById('authOverlay');
+  if(overlay) overlay.remove();
+})();
+
 </script>
 </body>
 </html>
