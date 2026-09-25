@@ -6,6 +6,7 @@
 <title>ТренДневник</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="help/data.js" defer></script>
 <style>
 :root{
   --bg:#f6f5f2; --surface:#ffffff; --surface2:#f0eee8; --border:#e2ded4;
@@ -39,12 +40,12 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .brand{font-weight:700;font-size:17px;padding:6px 10px 18px;letter-spacing:.2px;}
 .navitem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);color:var(--text-dim);cursor:pointer;margin-bottom:2px;background:none;border:none;width:100%;text-align:left;}
 .navitem:hover{background:var(--surface2);}
-.navitem.active{background:var(--accent);color:#fff;}
+.navitem.active{background:var(--accent);color:var(--on-accent,#fff);}
 .main{flex:1;min-width:0;padding:18px 20px 90px;}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
 .btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 13px;font-weight:500;}
 .btn:hover{filter:brightness(0.97);}
-.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn.primary{background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent);}
 .btn.danger{background:var(--danger);color:#fff;border-color:var(--danger);}
 .btn.ghost{background:transparent;border-color:transparent;}
 .btn.sm{padding:5px 9px;font-size:12.5px;border-radius:6px;}
@@ -65,7 +66,7 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .cal-cell{background:var(--surface);min-height:92px;padding:5px;cursor:pointer;display:flex;flex-direction:column;gap:3px;}
 .cal-cell:hover{background:var(--surface2);}
 .cal-cell.other{opacity:.4;}
-.cal-cell.today .daynum{background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
+.cal-cell.today .daynum{background:var(--accent);color:var(--on-accent,#fff);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
 .daynum{font-size:12px;font-weight:600;}
 .chip{font-size:11px;border-radius:5px;padding:2px 5px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .week-cols{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
@@ -94,9 +95,33 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .invite-code{font-size:18px;letter-spacing:1px;background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:7px 10px;user-select:all;overflow-wrap:anywhere;}
 .req-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--border);}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);padding:9px 14px;border-radius:10px;z-index:100;font-size:14px;max-width:90vw;text-align:center;}
+.del-link{color:var(--danger);font-size:12px;padding:3px 6px;margin-left:auto;}
+.swatches{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+.swatch.on{border-color:var(--text);box-shadow:0 0 0 2px var(--surface) inset;}
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;}
+.theme-opt{display:flex;flex-direction:column;gap:6px;align-items:flex-start;background:var(--surface);border:2px solid var(--border);border-radius:10px;padding:8px;font-size:13px;text-align:left;}
+.theme-opt.on{border-color:var(--accent);}
+.theme-sw{display:flex;width:100%;height:18px;border-radius:5px;overflow:hidden;}
+.theme-sw i{flex:1;}
+.ico{width:22px;height:22px;flex:0 0 auto;}
+.navitem .ico{width:20px;height:20px;}
+.ach-ico{display:inline-flex;width:28px;height:28px;border-radius:50%;align-items:center;justify-content:center;background:var(--surface2);color:var(--accent);}
+.ach-ico .ico{width:17px;height:17px;}
+.medals{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.medal{min-width:30px;height:30px;padding:0 5px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px dashed var(--border);color:var(--text-dim);}
+.medal.got{border:2px solid var(--accent2);background:var(--accent);color:var(--on-accent,#fff);}
+.help-btn{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--accent);background:transparent;color:var(--accent);font:italic 700 13px Georgia,serif;display:inline-flex;align-items:center;justify-content:center;padding:0;flex:0 0 auto;}
+.help-row{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.help-row:last-child{border-bottom:none;}
+.help-imgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:8px 0;}
+.help-imgs img{width:100%;border-radius:8px;background:#fff;border:1px solid var(--border);}
+.help-imgs.small{grid-template-columns:repeat(2,minmax(0,110px));}
+.link-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;}
+.link-card{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;}
 .set-ton{font-size:11px;color:var(--text-dim);margin:-2px 0 4px 34px;}
 .tonnage-line{font-size:12px;color:var(--text-dim);margin-top:4px;}
-.tot-box{background:var(--accent);color:#fff;border-radius:10px;padding:10px 12px;margin-top:10px;}
+.tot-box{background:var(--accent);color:var(--on-accent,#fff);border-radius:10px;padding:10px 12px;margin-top:10px;}
 .tot-box .big{font-size:20px;font-weight:700;}
 .muted{color:var(--text-dim);font-size:12.5px;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
@@ -114,7 +139,8 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
   .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));justify-content:space-around;z-index:40;}
   .bottomnav button{background:none;border:none;color:var(--text-dim);font-size:10.5px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;flex:1;}
   .bottomnav button.active{color:var(--accent);font-weight:600;}
-  .bnicon{font-size:18px;}
+  .bnicon{display:flex;}
+  .bottomnav button{font-size:9.5px;padding:4px 0;min-width:0;}
   table{display:block;overflow-x:auto;white-space:nowrap;max-width:100%;}
   .main{overflow-x:hidden;}
   .bottomnav{z-index:60;}
@@ -144,6 +170,18 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
 // ===== ЗАПОЛНИТЕ ПЕРЕД ЗАГРУЗКОЙ НА ХОСТИНГ =====
 const SUPABASE_URL = "https://avobjimkmpdbntwxcldb.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_N4j63GohZUT4goIim9Ch4g_62KeetyE";
+// ===== ССЫЛКИ ВНИЗУ НАСТРОЕК — впишите свои адреса (пустые url не показываются) =====
+const AUTHOR_LINKS = [
+  { title:'YouTube-канал автора', url:'', note:'Видео о тренировках и приложении' },
+  { title:'Telegram-канал автора', url:'', note:'' }
+];
+const DONATE_LINKS = [
+  { title:'Boosty', url:'', note:'Поддержать разработку' },
+  { title:'DonationAlerts', url:'', note:'' }
+];
+const RECOMMENDED_TRAINERS = [
+  // { name:'Имя тренера', about:'чем интересен', links:[ {title:'Instagram', url:'https://instagram.com/...'}, {title:'YouTube', url:'https://youtube.com/@...'} ] },
+];
 // =================================================
 </script>
 <script>
@@ -240,8 +278,8 @@ const Storage = (function(){
       participantId:r.participant_id, createdBy:r.created_by, type:r.type, blocks:r.blocks||[], notes:r.notes||'',
       result:r.result||'', recurringId:r.recurring_group_id||null };
   }
-  function templateToDb(t){ return { id:t.id, owner_id:selfId, name:t.name, blocks:t.blocks||[] }; }
-  function templateFromDb(r){ return { id:r.id, name:r.name, blocks:r.blocks||[] }; }
+  function templateToDb(t){ return { id:t.id, owner_id:(t.ownerId===undefined?selfId:t.ownerId), name:t.name, blocks:t.blocks||[], is_public:!!t.isPublic, author_name:t.authorName||null }; }
+  function templateFromDb(r){ return { id:r.id, name:r.name, blocks:r.blocks||[], ownerId:r.owner_id, isPublic:!!r.is_public, authorName:r.author_name||'' }; }
   function exerciseToDb(e){ return { id:e.id, owner_id:(e.ownerId===undefined?selfId:e.ownerId), name:e.name, main_group:e.mainGroup, secondary_groups:e.secondaryGroups||[], type:e.type, image_url:e.imageUrl||null }; }
   function exerciseFromDb(r){ return { id:r.id, name:r.name, mainGroup:r.main_group, secondaryGroups:r.secondary_groups||[], type:r.type, imageUrl:r.image_url||null, ownerId:r.owner_id }; }
 
@@ -252,7 +290,7 @@ const Storage = (function(){
     const [{data:profile}, {data:exRows}, {data:tplRows}] = await Promise.all([
       client.from('profiles').select('*').eq('id', selfId).single(),
       client.from('exercises').select('*').or(`owner_id.is.null,owner_id.eq.${selfId}`),
-      client.from('templates').select('*').eq('owner_id', selfId)
+      client.from('templates').select('*').or(`owner_id.eq.${selfId},is_public.eq.true,owner_id.is.null`)
     ]);
     const social = await fetchSocial(client, profile);
     const wRows = social.wRows;
@@ -278,7 +316,7 @@ const Storage = (function(){
     });
     snapshot = {
       workouts: JSON.parse(JSON.stringify(wRows||[])),
-      templates: JSON.parse(JSON.stringify(tplRows||[])),
+      templates: JSON.parse(JSON.stringify((tplRows||[]).filter(r=>profile?.role==='admin' || r.owner_id===selfId).map(r=>templateToDb(templateFromDb(r))))),
       exercises: JSON.parse(JSON.stringify((exRows||[]).filter(r=>profile?.role==='admin' || r.owner_id===selfId))),
       profile: profile ? JSON.parse(JSON.stringify(profile)) : null
     };
@@ -295,7 +333,13 @@ const Storage = (function(){
     const {data:wRows} = await client.from('workouts').select('*').in('participant_id', [selfId, ...traineeIds]);
     const self = (DB.participants[0] && DB.participants[0].id===selfId) ? DB.participants[0]
       : { id: selfId, name: profile?.name || 'Я', color: profile?.color || '#3d5a45' };
-    const participants = [self, ...(friends||[]).filter(f=>f.status==='accepted').map(f=>({id:f.other_id, name:f.name, color:f.color||'#888'}))];
+    // подопечным тренер выбирает свой цвет; пока не выбран — берём незанятый из палитры
+    const used = new Set([self.color, ...(links||[]).map(l=>l.color).filter(Boolean)]);
+    const autoColor = () => PALETTE.find(c=>!used.has(c) && used.add(c)) || '#888';
+    const participants = [self, ...(friends||[]).filter(f=>f.status==='accepted').map(f=>{
+      const tl = (links||[]).find(l=>l.trainer_id===selfId && l.trainee_id===f.other_id && l.active);
+      return {id:f.other_id, name:f.name, color: tl ? (tl.color || autoColor()) : (f.color||'#888')};
+    })];
     return { friends: friends||[], links: links||[], wRows: wRows||[], participants };
   }
   // перечитать участников/заявки/тренировки после действий в разделе «Участники»
@@ -323,7 +367,8 @@ const Storage = (function(){
       if(wDiff.upserts.length) await client.from('workouts').upsert(wDiff.upserts);
       if(wDiff.deletes.length) await client.from('workouts').delete().in('id', wDiff.deletes);
 
-      const tDb = DB.templates.map(templateToDb);
+      // свои шаблоны синхронизируем; чужие общие — только чтение (админ может править все)
+      const tDb = DB.templates.filter(t=>isAdmin() || t.ownerId===undefined || t.ownerId===selfId).map(templateToDb);
       const tDiff = rowsToDiff(tDb, snapshot.templates, 'id');
       if(tDiff.upserts.length) await client.from('templates').upsert(tDiff.upserts);
       if(tDiff.deletes.length) await client.from('templates').delete().in('id', tDiff.deletes);
@@ -456,25 +501,30 @@ function milestoneBlock(current, milestones, icon, label){
   const pct = next ? Math.min(100, Math.round(current/next*100)) : 100;
   return `<div style="margin-bottom:10px">
     <div class="row" style="justify-content:space-between">
-      <span>${icon} ${esc(label)}</span>
+      <span class="row" style="gap:6px"><span class="ach-ico">${icon}</span>${esc(label)}</span>
       <span class="muted">${fmtNum(current)}${next?(' / '+next):' · максимум достигнут'}</span>
     </div>
     <div style="background:var(--surface2);border-radius:6px;height:6px;overflow:hidden;margin-top:4px">
       <div style="background:var(--accent);height:100%;width:${pct}%"></div>
     </div>
-    ${reached.length?`<div class="muted" style="margin-top:2px">Получено: ${reached.map(m=>'🏅'+m).join(' ')}</div>`:''}
+    <div class="medals">${milestones.map(m=>`<span class="medal ${current>=m?'got':''}" title="${current>=m?'получено':'ещё впереди'}">${m}</span>`).join('')}</div>
   </div>`;
 }
 const WT = Object.fromEntries(WORKOUT_TYPES);
 const PALETTE = ['#3d5a45','#8a5a3d','#3d5a8a','#8a3d6e','#c08a2e','#5a3d8a','#3d8a7a','#b3503f'];
 const WEEKDAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+// темы по присланным палитрам: accent — кнопки/активное, accent2 — второй цвет,
+// bg/surface2/border — фон светлой темы, dark — акцент для тёмной темы (светлее, чтобы читался)
 const PRESET_THEMES = [
-  {id:'forest', name:'Лес', accent:'#3d5a45', accent2:'#8a9a5b'},
-  {id:'ocean', name:'Океан', accent:'#2a5d78', accent2:'#5fa8c9'},
-  {id:'sunset', name:'Закат', accent:'#b3503f', accent2:'#e0894f'},
-  {id:'grape', name:'Виноград', accent:'#5a3d8a', accent2:'#9a7bc9'},
-  {id:'graphite', name:'Графит', accent:'#3a3f3d', accent2:'#7a8078'},
-  {id:'rose', name:'Роза', accent:'#a13d63', accent2:'#d97fa3'}
+  {id:'forest', name:'Классика',       accent:'#3d5a45', accent2:'#8a9a5b', dark:'#8fae7d'},
+  {id:'pine',   name:'Хвойный лес',    accent:'#4f5641', accent2:'#a0562a', dark:'#9aa37a', bg:'#eff2f1', surface2:'#e2e9e8', border:'#c3d3d3'},
+  {id:'powder', name:'Пудровая роза',  accent:'#3f5a55', accent2:'#e8826b', dark:'#8fb3ab', bg:'#fbf4f2', surface2:'#f4e4df', border:'#e9d3cc'},
+  {id:'lime',   name:'Весенний лайм',  accent:'#42554f', accent2:'#8fbf3a', dark:'#c0ea6a', bg:'#f8f6e7', surface2:'#efecda', border:'#dfdcc6'},
+  {id:'meadow', name:'Полевые цветы',  accent:'#2f3b35', accent2:'#d0754f', dark:'#b3c8e0', bg:'#f6f3f0', surface2:'#ece6e3', border:'#dcd3cc'},
+  {id:'dusk',   name:'Закат в горах',  accent:'#a46055', accent2:'#e8952f', dark:'#ffaf4c', bg:'#faf5f1', surface2:'#f1e4db', border:'#e0c1af'},
+  {id:'dried',  name:'Сухоцветы',      accent:'#1f5560', accent2:'#c97f86', dark:'#6aaeaa', bg:'#f7f4f3', surface2:'#eee6e5', border:'#e3d3d3'},
+  {id:'mist',   name:'Туманный лес',   accent:'#226a51', accent2:'#5e81a0', dark:'#5c9e84', bg:'#f1f4f4', surface2:'#e4eaea', border:'#cbd6dc'},
+  {id:'vintage',name:'Винтаж',         accent:'#591e1e', accent2:'#a68b03', dark:'#d991a4', bg:'#fbf5ef', surface2:'#f4e6d6', border:'#ead3bb'}
 ];
 
 /* ===================== UTIL ===================== */
@@ -505,17 +555,32 @@ const State = {
 function rerender(){ renderNav(); renderMain(); }
 
 /* ===================== NAV ===================== */
+// линейные иконки: цвет берут из текста (currentColor), поэтому следуют выбранной теме
+const svgI = d => `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICONS = {
+  calendar: svgI('<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.3" fill="currentColor"/>'),
+  history:  svgI('<path d="M6.5 8v8M17.5 8v8M3.5 10v4M20.5 10v4M6.5 12h11"/>'),
+  templates:svgI('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5V3h6v1.5M8.5 10h7M8.5 14h7M8.5 18h4"/>'),
+  participants: svgI('<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16 14.3c2.3.1 4 1.6 4.5 4.2"/>'),
+  stats:    svgI('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
+  help:     svgI('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M10.3 8.2a2 2 0 1 1 2.7 1.9c-.6.3-1 .8-1 1.4v.5M12 14.5h.01"/>'),
+  settings: svgI('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
+  medal:    svgI('<circle cx="12" cy="14" r="6"/><path d="M8.5 3h7l-2 5.5h-3zM12 11.5v5M10.5 12.5l1.5-1"/>'),
+  clock:    svgI('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+  flame:    svgI('<path d="M12 22c4 0 7-2.7 7-6.8 0-4-3.2-6.5-4.6-10.2-.5 2.6-2 4-3.4 4.8C10 7.5 9.4 5 10 2.5 6.6 4.8 5 9 5 15.2 5 19.3 8 22 12 22z"/>')
+};
 const NAV_ITEMS = [
-  ['calendar','📅','Календарь'],
-  ['history','🏋️','Тренировки'],
-  ['templates','🗂️','Шаблоны'],
-  ['participants','👥','Участники'],
-  ['stats','📊','Статистика'],
-  ['settings','⚙️','Настройки']
+  ['calendar',ICONS.calendar,'Календарь'],
+  ['history',ICONS.history,'Тренировки'],
+  ['templates',ICONS.templates,'Шаблоны'],
+  ['participants',ICONS.participants,'Участники'],
+  ['stats',ICONS.stats,'Статистика'],
+  ['help',ICONS.help,'Справка'],
+  ['settings',ICONS.settings,'Настройки']
 ];
 function renderNav(){
   const sb = document.getElementById('sidebar');
-  sb.innerHTML = '<div class="brand">🏋 ТренДневник</div>' + NAV_ITEMS.map(([id,icon,label])=>
+  sb.innerHTML = '<div class="brand">ТренДневник</div>' + NAV_ITEMS.map(([id,icon,label])=>
     `<button class="navitem ${State.view===id?'active':''}" data-nav="${id}">${icon} ${label}</button>`
   ).join('');
   sb.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{State.view=b.dataset.nav; State.participantProfile=null; rerender();});
@@ -536,6 +601,7 @@ function renderMain(){
   else if(State.view==='participants') m.innerHTML = State.participantProfile ? viewParticipantProfile(State.participantProfile) : viewParticipants();
   else if(State.view==='stats') m.innerHTML = viewStats();
   else if(State.view==='settings') m.innerHTML = viewSettings();
+  else if(State.view==='help') m.innerHTML = viewHelp();
   applyTheme();
 }
 
@@ -643,7 +709,7 @@ function openWorkoutModal(opts){
   State.modal = {kind:'workout', w, isNew: !opts.workoutId, recurRule:{on:false, freq:'weekly', days:[], until:''}};
   renderModal();
 }
-function closeModal(){ State.modal=null; renderModal(); }
+function closeModal(){ State.modal = (State.modal && State.modal.kind==='help' && State.modal.back) || null; renderModal(); }
 
 function lastResultFor(exerciseId, participantId, excludeWorkoutId){
   const past = DB.workouts.filter(w=>w.id!==excludeWorkoutId && w.participantId===participantId)
@@ -682,6 +748,8 @@ function renderModal(){
   else if(State.modal.kind==='recurEdit') root.innerHTML = renderRecurEditModal();
   else if(State.modal.kind==='saveTemplate') root.innerHTML = renderSaveTemplateModal();
   else if(State.modal.kind==='exercisePicker') root.innerHTML = renderExercisePicker();
+  else if(State.modal.kind==='importTemplates') root.innerHTML = renderImportModal();
+  else if(State.modal.kind==='help') root.innerHTML = renderHelpModal();
 }
 
 function renderWorkoutModal(){
@@ -776,7 +844,7 @@ function renderExerciseCard(ex,bi,ei,w,units){
   const isDrop = ex.isDropset && !isCardio;
   return `<div class="ex-card ${isDrop?'dropset':''}" data-ex="${bi}.${ei}">
     <div class="row" style="justify-content:space-between">
-      <div class="row"><b>${esc(info.name)}</b>${isDrop?'<span class="drop-badge">ДРОП-СЕТ</span>':''}</div>
+      <div class="row"><b>${esc(info.name)}</b>${helpBtn(info.name)}${isDrop?'<span class="drop-badge">ДРОП-СЕТ</span>':''}</div>
       <div class="row">
         ${!isCardio?`<label class="muted"><input type="checkbox" data-dropset="${bi}.${ei}" ${ex.isDropset?'checked':''}> дроп-сет</label>`:''}
         <button class="btn sm danger" data-remove-exercise="${bi}.${ei}">✕</button>
@@ -822,7 +890,7 @@ function renderConfirmModal(){
     <h2>${esc(c.title)}</h2><p>${esc(c.text)}</p>
     <div class="row" style="justify-content:flex-end">
       <button class="btn ghost" data-close-modal="1">Отмена</button>
-      <button class="btn danger" data-confirm-yes="1">Да, удалить</button>
+      <button class="btn danger" data-confirm-yes="1">${esc(c.yesLabel||'Да, удалить')}</button>
     </div></div></div>`;
 }
 
@@ -854,6 +922,7 @@ function handleModalClick(e, ds){
   const modal = State.modal; if(!modal) return false;
   if(ds.closeOverlay!==undefined){ if(e.target===e.currentTarget||e.target.hasAttribute('data-close-overlay')) closeModal(); return true; }
   if(ds.closeModal!==undefined){ closeModal(); return true; }
+  if(ds.help!==undefined){ openHelp(ds.help, modal); return true; }
 
   if(modal.kind==='workout'){
     const w = modal.w;
@@ -896,6 +965,20 @@ function handleModalClick(e, ds){
       State.modal = {kind:'workout', w:back.w, isNew:back.isNew, recurRule:back.recurRule};
       renderModal(); return true;
     }
+  } else if(modal.kind==='importTemplates'){
+    if(ds.importExample!==undefined){ modal.text = IMPORT_EXAMPLE; modal.error=''; renderModal(); return true; }
+    if(ds.importRun!==undefined){
+      modal.text = document.getElementById('importText').value;
+      const exBefore = DB.exercises.length;
+      try{
+        const list = parseTemplatesText(modal.text);
+        if(!list.length) throw new Error('не найдено ни одного шаблона');
+        list.forEach(t=>DB.templates.push({id:Storage.uid(), ownerId:selfParticipantId(), isPublic:false, name:t.name, blocks:t.blocks}));
+        Storage.save(); closeModal(); renderMain();
+        toast(`Импортировано шаблонов: ${list.length}`+(DB.exercises.length>exBefore?`, новых упражнений: ${DB.exercises.length-exBefore}`:''));
+      }catch(e){ DB.exercises.length = exBefore; modal.error = e.message; renderModal(); }
+      return true;
+    }
   } else if(modal.kind==='confirmDelete'){
     if(ds.confirmYes!==undefined){ modal.onYes(); return true; }
   } else if(modal.kind==='recurEdit'){
@@ -903,7 +986,7 @@ function handleModalClick(e, ds){
   } else if(modal.kind==='saveTemplate'){
     if(ds.confirmTemplate!==undefined){
       const name = document.getElementById('tplName').value.trim() || 'Без названия';
-      DB.templates.push({id:Storage.uid(), name, blocks: JSON.parse(JSON.stringify(modal.sourceBlocks))});
+      DB.templates.push({id:Storage.uid(), ownerId:selfParticipantId(), name, blocks: JSON.parse(JSON.stringify(modal.sourceBlocks))});
       Storage.save(); closeModal(); if(State.view==='templates') rerender();
       return true;
     }
@@ -1051,22 +1134,153 @@ function viewHistory(){
 }
 
 /* ===================== TEMPLATES VIEW ===================== */
-function viewTemplates(){
-  return `<div class="topbar"><h2>Шаблоны</h2></div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px">
-  ${DB.templates.map(t=>{
-    const exCount = t.blocks.reduce((a,b)=>a+b.exercises.length,0);
-    return `<div class="card">
-      <div class="row" style="justify-content:space-between"><b>${esc(t.name)}</b>
-        <button class="btn sm danger" data-delete-template="${t.id}">✕</button></div>
-      <div class="muted">${t.blocks.length} блок(ов), ${exCount} упражнений</div>
-      <div class="row" style="margin-top:8px">
-        <button class="btn sm primary" data-use-template="${t.id}">Создать тренировку</button>
-        <button class="btn sm" data-rename-template="${t.id}">Переименовать</button>
-      </div>
-    </div>`;
-  }).join('') || '<div class="muted">Пока нет шаблонов. Сохраните тренировку как шаблон, чтобы она появилась здесь.</div>'}
+function templateCard(t){
+  const exCount = t.blocks.reduce((a,b)=>a+b.exercises.length,0);
+  const mine = t.ownerId===selfParticipantId();
+  const canEdit = mine || isAdmin();
+  return `<div class="card">
+    <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b style="min-width:0;overflow-wrap:anywhere">${esc(t.name)}</b>
+      ${canEdit?`<button class="btn sm ghost del-link" data-delete-template="${t.id}">Удалить</button>`:''}</div>
+    <div class="muted">${t.blocks.length} блок(ов), ${exCount} упражнений${!mine?` · ${t.ownerId?('автор: '+esc(t.authorName||'участник')):'базовая программа'}`:''}</div>
+    <div class="row" style="margin-top:8px;flex-wrap:wrap">
+      <button class="btn sm primary" data-use-template="${t.id}">Создать тренировку</button>
+      ${canEdit?`<button class="btn sm" data-rename-template="${t.id}">Переименовать</button>`:''}
+      ${mine?`<button class="btn sm" data-toggle-public="${t.id}">${t.isPublic?'Сделать личным':'Сделать общим'}</button>`:''}
+      ${!mine?`<button class="btn sm" data-copy-template="${t.id}">В мои шаблоны</button>`:''}
+    </div>
+    ${mine&&t.isPublic?'<div class="muted" style="margin-top:4px">🌐 Виден всем пользователям</div>':''}
   </div>`;
+}
+function viewTemplates(){
+  const me = selfParticipantId();
+  const mine = DB.templates.filter(t=>t.ownerId===me);
+  const shared = DB.templates.filter(t=>t.ownerId!==me);
+  const grid = list => `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:14px">${list.map(templateCard).join('')}</div>`;
+  return `<div class="topbar"><h2>Шаблоны</h2><button class="btn" data-import-templates="1">Импорт</button></div>
+  <h3>Мои шаблоны</h3>
+  ${mine.length? grid(mine) : '<div class="muted" style="margin-bottom:14px">Пока нет шаблонов. Сохраните тренировку как шаблон или импортируйте.</div>'}
+  <h3>Общие шаблоны</h3>
+  ${shared.length? grid(shared) : '<div class="muted">Общих шаблонов пока нет.</div>'}`;
+}
+
+/* ===================== ЭКСПРЕСС-СПРАВКА (данные — help/data.js) ===================== */
+function helpItems(){ return (window.HELP_DATA||[]).flatMap(g=>g.items.map(it=>({...it, group:g.group}))); }
+function findHelp(name){
+  const n = normName(name);
+  return helpItems().find(it=>normName(it.name)===n || (it.aliases||[]).some(a=>normName(a)===n)) || null;
+}
+const helpBtn = key => `<button class="help-btn" data-help="${esc(key)}" title="Справка">i</button>`;
+function viewHelp(){
+  const q = normName(State.helpQuery||'');
+  const groups = (window.HELP_DATA||[]).map(g=>({...g, items:g.items.filter(it=>!q || normName(it.name).includes(q))})).filter(g=>g.items.length);
+  return `<div class="topbar"><h2>Экспресс-справка</h2></div>
+  <input type="search" data-help-search value="${esc(State.helpQuery||'')}" placeholder="Поиск упражнения…" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:10px">
+  ${groups.map(g=>`<div class="card" style="margin-bottom:10px">
+    <h3>${esc(g.group)}</h3>
+    ${g.images&&g.images.length?`<div class="help-imgs small">${g.images.map(src=>`<img src="${src}" loading="lazy" alt="">`).join('')}</div>`:''}
+    ${g.items.map(it=>`<div class="help-row">${helpBtn(it.name)}<span data-help="${esc(it.name)}">${esc(it.name)}</span></div>`).join('')}
+  </div>`).join('') || '<div class="muted">Ничего не найдено</div>'}`;
+}
+function renderHelpModal(){
+  const it = findHelp(State.modal.key);
+  const empty = !it || (!it.note && !(it.images||[]).length);
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:560px">
+    <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h2 style="margin:0">${esc(it?it.name:State.modal.key)}</h2><button class="btn sm ghost" data-close-modal="1">✕</button></div>
+    ${it?`<div class="muted" style="margin-bottom:8px">${esc(it.group)}</div>`:''}
+    ${empty? '<p>Справка по упражнению пока отсутствует.</p>' : `
+      ${it.images.length?`<div class="help-imgs">${it.images.map(src=>`<img src="${src}" loading="lazy" alt="">`).join('')}</div>`:''}
+      ${it.note?`<p style="line-height:1.5">${esc(it.note)}</p>`:''}`}
+  </div></div>`;
+}
+
+/* ===================== TEMPLATE IMPORT (текстовый формат + JSON) ===================== */
+const IMPORT_EXAMPLE = `# Грудь + трицепс
+Жим лёжа: 60x10, 80x8, 80x8
+Суперсет (отдых 60):
+- Жим гантелей лёжа: 20x12, 20x10
+- Разведение гантелей: 10x12, 10x12
+Дроп-сет: Жим лёжа: 100x8, 80x8, 60x10
+Французский жим: 3 по 10-12
+Отжимания: 15, 12, 10
+
+# Кардио
+Бег: 30 мин, 5 км`;
+function normName(n){ return String(n||'').toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ').trim(); }
+function findOrCreateExercise(name, isCardio){
+  const n = normName(name);
+  let ex = DB.exercises.find(e=>normName(e.name)===n);
+  if(!ex){ ex = {id:Storage.uid(), name:name.trim(), mainGroup:'other', secondaryGroups:[], type:isCardio?'cardio':'strength', ownerId:selfParticipantId()}; DB.exercises.push(ex); }
+  return ex.id;
+}
+// "80x8, 80x8" | "3 по 10-12" | "3 по 8 @ 60" | "15, 12" (свой вес) | "30 мин, 5 км"
+function parseSets(spec){
+  spec = spec.trim(); const sets = [];
+  const cardio = /мин|км/i.test(spec);
+  if(cardio){
+    const t = spec.match(/([\d.,]+)\s*мин/i), d = spec.match(/([\d.,]+)\s*км/i);
+    sets.push({...blankSet(), time: t?Number(t[1].replace(',','.')):'', distance: d?Number(d[1].replace(',','.')):''});
+    return {sets, cardio:true};
+  }
+  const m = spec.match(/^(\d+)\s*(?:по|x|х|×|\*)\s*(\d+)(?:\s*[-–]\s*(\d+))?(?:\s*@\s*([\d.,]+))?$/i);
+  if(m && /по|@/i.test(spec) || (m && m[3])){
+    for(let i=0;i<+m[1];i++) sets.push({...blankSet(), reps:+m[2], weight: m[4]?Number(m[4].replace(',','.')):'', note: m[3]?`${m[2]}–${m[3]} повт.`:''});
+    return {sets, cardio:false};
+  }
+  spec.split(/[,;]/).map(x=>x.trim()).filter(Boolean).forEach(part=>{
+    const wr = part.match(/^([\d.,]+)\s*(?:кг)?\s*[xх×*]\s*(\d+)$/i);
+    if(wr) sets.push({...blankSet(), weight:Number(wr[1].replace(',','.')), reps:+wr[2]});
+    else if(/^\d+$/.test(part)) sets.push({...blankSet(), reps:+part});
+    else throw new Error('не понял подход «'+part+'»');
+  });
+  return {sets, cardio:false};
+}
+function parseTemplatesText(text){
+  text = text.trim();
+  if(text.startsWith('[') || text.startsWith('{')){
+    // JSON: [{name, blocks:[{kind, restSeconds, exercises:[{name, isDropset, sets:[{weight,reps,time,distance,note}]}]}]}]
+    const arr = [].concat(JSON.parse(text));
+    return arr.map(t=>({name:t.name||'Без названия', blocks:(t.blocks||[]).map(b=>({id:Storage.uid(), kind:b.kind||'normal', restSeconds:+b.restSeconds||60,
+      exercises:(b.exercises||[]).map(e=>({exerciseId:findOrCreateExercise(e.name, (e.sets||[]).some(s=>s.distance||s.time)), isDropset:!!e.isDropset,
+        sets:(e.sets||[{}]).map(s=>({...blankSet(), ...s}))}))}))}));
+  }
+  const out = []; let cur = null, superset = null;
+  text.split(/\r?\n/).forEach((raw, i)=>{
+    const line = raw.trim(); if(!line) { superset=null; return; }
+    const err = msg => { throw new Error(`строка ${i+1}: ${msg}`); };
+    if(line.startsWith('#')){ cur = {name:line.replace(/^#+/,'').trim()||'Без названия', blocks:[]}; out.push(cur); superset=null; return; }
+    if(!cur){ cur = {name:'Импортированный шаблон', blocks:[]}; out.push(cur); }
+    const ss = line.match(/^суперсет\s*(?:\(\s*отдых\s*(\d+)\s*\))?\s*:?\s*$/i);
+    if(ss){ superset = {id:Storage.uid(), kind:'superset', restSeconds:+ss[1]||60, exercises:[]}; cur.blocks.push(superset); return; }
+    let body = line, inSuperset = false, drop = false;
+    if(/^[-–•]/.test(body)){ if(!superset) err('упражнение с «-» должно идти после строки «Суперсет:»'); inSuperset = true; body = body.replace(/^[-–•]\s*/,''); }
+    else superset = null;
+    const dm = body.match(/^дроп-?сет\s*:\s*(.+)$/i); if(dm){ drop = true; body = dm[1]; }
+    const idx = body.lastIndexOf(':'); if(idx<0) err('нет двоеточия между упражнением и подходами');
+    const name = body.slice(0,idx).trim(); if(!name) err('не указано упражнение');
+    let parsed; try{ parsed = parseSets(body.slice(idx+1)); }catch(e){ err(e.message); }
+    const ex = {exerciseId:findOrCreateExercise(name, parsed.cardio), isDropset:drop, sets:parsed.sets};
+    if(inSuperset) superset.exercises.push(ex);
+    else cur.blocks.push({id:Storage.uid(), kind:drop?'dropset':'normal', restSeconds:DB.settings.restDefault||90, exercises:[ex]});
+  });
+  return out;
+}
+function renderImportModal(){
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop>
+    <h2>Импорт шаблонов</h2>
+    <p class="muted">Вставьте текст или загрузите файл .txt / .json. Формат:
+      <b># Название</b> начинает шаблон; <b>Упражнение: 80x8, 80x8</b> — подходы (вес×повторы); <b>3 по 10-12</b> или <b>3 по 8 @ 60</b> — одинаковые подходы;
+      <b>15, 12</b> — только повторы (свой вес); <b>Суперсет (отдых 60):</b> и ниже строки с «-»; <b>Дроп-сет: Упражнение: 100x8, 80x8</b>; кардио — <b>Бег: 30 мин, 5 км</b>.
+      Незнакомые упражнения будут созданы автоматически.</p>
+    <textarea id="importText" style="width:100%;min-height:200px;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-family:monospace;font-size:13px">${esc(State.modal.text||'')}</textarea>
+    ${State.modal.error?`<div style="color:var(--danger);margin-top:6px">Ошибка: ${esc(State.modal.error)}</div>`:''}
+    <div class="row" style="margin-top:8px;flex-wrap:wrap">
+      <button class="btn sm" data-import-example="1">Вставить пример</button>
+      <label class="btn sm">Файл…<input type="file" id="importTplFile" accept=".txt,.json,text/plain,application/json" style="display:none"></label>
+      <span class="grow"></span>
+      <button class="btn ghost" data-close-modal="1">Отмена</button>
+      <button class="btn primary" data-import-run="1">Импортировать</button>
+    </div>
+  </div></div>`;
 }
 
 /* ===================== PARTICIPANTS VIEW ===================== */
@@ -1127,6 +1341,7 @@ function viewParticipants(){
       <div class="row"><span class="color-dot" style="background:${p.color}"></span><b>${esc(p.name)}</b></div>
       <div class="muted">${canSee? wCount+' тренировок' : 'тренировки видны только тренеру'}</div>
       <div style="margin-top:4px">${roleBadges(p.id)}</div>
+      ${(linkWith(p.id).asTrainer||{}).active?`<div class="swatches" title="Цвет в вашем календаре">${PALETTE.map(c=>`<span class="swatch ${p.color===c?'on':''}" style="background:${c}" data-trainee-color="${linkWith(p.id).asTrainer.id}|${c}"></span>`).join('')}</div>`:''}
     </div>`;
   }).join('')}
   </div>`;
@@ -1140,7 +1355,7 @@ function viewFriendProfile(p){
       ${!asTrainer?`<button class="btn primary" data-offer-trainer="${p.id}">Предложить себя тренером</button>`:''}
       ${asTrainer?`<button class="btn" data-drop-link="${asTrainer.id}">${asTrainer.status==='accepted'?'Перестать тренировать':'Отозвать предложение'}</button>`:''}
       ${asTrainee&&asTrainee.status==='accepted'?`<button class="btn" data-drop-link="${asTrainee.id}">Отказаться от тренера</button>`:''}
-      <button class="btn danger" data-remove-friend="${p.id}">Удалить из участников</button>
+      <button class="btn sm ghost del-link" data-remove-friend="${p.id}">Удалить</button>
     </div>
     <p class="muted">Статистику и тренировки участника видит только его тренер.</p>
   </div>`;
@@ -1180,17 +1395,17 @@ function viewParticipantProfile(pid){
     <button class="btn sm" data-save-participant="${p.id}">Сохранить</button>
   </div>` : `<div class="row" style="margin-bottom:10px">${roleBadges(p.id)}
     <button class="btn sm" data-drop-link="${linkWith(p.id).asTrainer.id}">Перестать тренировать</button>
-    <button class="btn sm danger" data-remove-friend="${p.id}">Удалить из участников</button></div>`}
+    <button class="btn sm ghost del-link" data-remove-friend="${p.id}">Удалить</button></div>`}
   <div class="card" style="margin-bottom:10px">
-    <h3>🏆 Достижения</h3>
+    <h3 class="row" style="gap:6px"><span class="ach-ico">${ICONS.medal}</span>Достижения</h3>
     ${bestCmp?`<div class="tot-box" style="margin-bottom:10px">
       <div>Лучшая тренировка — как поднять:</div>
       <div class="big">${bestCmp[1]}</div>
       <div style="margin-top:4px;font-size:12px">${fmtNum(convW(bestWorkoutT,units))} ${unitLabel(units)}</div>
     </div>`:''}
-    ${milestoneBlock(workouts.length, WORKOUT_MILESTONES, '📅', 'Проведено тренировок')}
-    ${milestoneBlock(fmtNum(totalHours), HOUR_MILESTONES, '⏱️', 'Часов в зале')}
-    ${milestoneBlock(streak.current, STREAK_MILESTONES, '🔥', 'Недель подряд с тренировкой (сейчас)')}
+    ${milestoneBlock(workouts.length, WORKOUT_MILESTONES, ICONS.calendar, 'Проведено тренировок')}
+    ${milestoneBlock(fmtNum(totalHours), HOUR_MILESTONES, ICONS.clock, 'Часов в зале')}
+    ${milestoneBlock(streak.current, STREAK_MILESTONES, ICONS.flame, 'Недель подряд с тренировкой (сейчас)')}
     <div class="muted">Рекордная серия: ${streak.longest} нед.</div>
   </div>
   <div class="card" style="margin-bottom:10px">
@@ -1286,7 +1501,8 @@ function viewSettings(){
     <div class="field"><label>Тема</label><select data-setting="theme"><option value="auto" ${s.theme==='auto'?'selected':''}>Системная</option><option value="light" ${s.theme==='light'?'selected':''}>Светлая</option><option value="dark" ${s.theme==='dark'?'selected':''}>Тёмная</option></select></div>
     <div class="field"><label>Таймер отдыха по умолчанию, сек</label><input type="text" inputmode="numeric" data-setting="restDefault" value="${s.restDefault}"></div>
     <div class="field"><label>Цветовая палитра</label>
-      <div class="chips-wrap">${PRESET_THEMES.map(t=>`<button class="pill" data-pick-theme="${t.id}" style="border:2px solid ${s.themeColor===t.id?'var(--text)':'var(--border)'};background:${t.accent};color:#fff">${esc(t.name)}</button>`).join('')}</div>
+      <div class="theme-grid">${PRESET_THEMES.map(t=>`<button class="theme-opt ${s.themeColor===t.id?'on':''}" data-pick-theme="${t.id}">
+        <span class="theme-sw">${[t.accent,t.accent2,t.bg||'#f6f5f2',t.border||'#e2ded4'].map(c=>`<i style="background:${c}"></i>`).join('')}</span>${esc(t.name)}</button>`).join('')}</div>
     </div>
   </div>
   <div class="card" style="margin-bottom:10px">
@@ -1315,12 +1531,43 @@ function viewSettings(){
       <button class="btn" data-timer="pause">Пауза</button>
       <button class="btn" data-timer="reset">Сброс</button>
     </div>
-  </div>`;
+  </div>
+  ${linksSection()}`;
+}
+function openExternal(url){
+  const tg = window.Telegram && window.Telegram.WebApp;
+  if(tg && /^https:\/\/t\.me\//.test(url) && tg.openTelegramLink) tg.openTelegramLink(url);
+  else if(tg && tg.openLink) tg.openLink(url);
+  else window.open(url, '_blank', 'noopener');
+}
+function linksSection(){
+  const link = l => `<button class="link-card" data-ext="${esc(l.url)}"><b>${esc(l.title)}</b>${l.note?`<span class="muted">${esc(l.note)}</span>`:''}</button>`;
+  const author = AUTHOR_LINKS.filter(l=>l.url), donate = DONATE_LINKS.filter(l=>l.url);
+  const trainers = RECOMMENDED_TRAINERS.filter(t=>(t.links||[]).some(l=>l.url));
+  const hint = isAdmin() && !author.length && !donate.length && !trainers.length
+    ? '<div class="card muted" style="margin-top:10px">Админу: ссылки на автора, донаты и рекомендованных тренеров заполняются в начале index.html (AUTHOR_LINKS, DONATE_LINKS, RECOMMENDED_TRAINERS).</div>' : '';
+  return `${author.length||donate.length?`<div class="card" style="margin-top:10px"><h3>Автор приложения</h3>
+      <div class="link-grid">${author.map(link).join('')}</div>
+      ${donate.length?`<h3 style="margin-top:12px">Поддержать проект</h3><div class="link-grid">${donate.map(link).join('')}</div>`:''}</div>`:''}
+    ${trainers.length?`<div class="card" style="margin-top:10px"><h3>Рекомендованные тренеры</h3>
+      ${trainers.map(t=>`<div class="help-row" style="cursor:default;flex-wrap:wrap"><div class="grow"><b>${esc(t.name)}</b>${t.about?`<div class="muted">${esc(t.about)}</div>`:''}</div>
+        <div class="row" style="flex-wrap:wrap">${t.links.filter(l=>l.url).map(l=>`<button class="btn sm" data-ext="${esc(l.url)}">${esc(l.title)}</button>`).join('')}</div></div>`).join('')}</div>`:''}
+    ${hint}`;
 }
 let timerInterval=null, timerRunning=false, timerLeft = 90;
 function fmtTime(t){ const m=Math.floor(t/60), s=t%60; return pad(m)+':'+pad(s); }
 
 /* ===================== SOCIAL HELPERS ===================== */
+// подтверждение внутри приложения (window.confirm в Telegram работает ненадёжно)
+// справку можно открыть поверх тренировки — после закрытия возвращаемся в неё
+function openHelp(key, back){
+  State.modal = {kind:'help', key, back: back && back.kind!=='help' ? back : (back&&back.back)};
+  renderModal();
+}
+function askConfirm(title, text, yesLabel, onYes){
+  State.modal = {kind:'confirmDelete', title, text, yesLabel, onYes:()=>{ closeModal(); onYes(); }};
+  renderModal();
+}
 function toast(msg){
   const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t);
   setTimeout(()=>t.remove(), 3200);
@@ -1343,10 +1590,15 @@ async function socialAction(fn, args, msgFn){
 
 /* ===================== MAIN VIEW EVENT HANDLERS (delegated) ===================== */
 function applyTheme(){
-  document.documentElement.setAttribute('data-theme', DB.settings.theme==='auto' ? '' : DB.settings.theme);
+  const root = document.documentElement;
+  root.setAttribute('data-theme', DB.settings.theme==='auto' ? '' : DB.settings.theme);
   const t = PRESET_THEMES.find(x=>x.id===DB.settings.themeColor) || PRESET_THEMES[0];
-  document.documentElement.style.setProperty('--accent', t.accent);
-  document.documentElement.style.setProperty('--accent2', t.accent2);
+  const isDark = DB.settings.theme==='dark' || (DB.settings.theme==='auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  root.style.setProperty('--accent', isDark ? t.dark : t.accent);
+  root.style.setProperty('--accent2', t.accent2);
+  root.style.setProperty('--on-accent', isDark ? '#16211d' : '#ffffff');
+  // фон светлой темы берём из палитры; в тёмной оставляем тёмные значения из CSS
+  ['bg','surface2','border'].forEach(k=>{ if(!isDark && t[k]) root.style.setProperty('--'+k, t[k]); else root.style.removeProperty('--'+k); });
 }
 
 function handleMainClick(e, ds){
@@ -1374,7 +1626,22 @@ function handleMainClick(e, ds){
     openWorkoutModal({workoutId:copy.id}); return true;
   }
   if(ds.useTemplate!==undefined){ openWorkoutModal({templateId:ds.useTemplate, date:dstr(new Date())}); return true; }
-  if(ds.deleteTemplate!==undefined){ DB.templates=DB.templates.filter(t=>t.id!==ds.deleteTemplate); Storage.save(); renderMain(); return true; }
+  if(ds.deleteTemplate!==undefined){
+    const id=ds.deleteTemplate, t=DB.templates.find(x=>x.id===id);
+    askConfirm('Удалить шаблон?','«'+t.name+'» будет удалён'+(t.isPublic?' у всех пользователей':'')+'. Созданные из него тренировки останутся.','Да, удалить', ()=>{
+      DB.templates=DB.templates.filter(x=>x.id!==id); Storage.save(); renderMain(); });
+    return true;
+  }
+  if(ds.togglePublic!==undefined){
+    const t=DB.templates.find(x=>x.id===ds.togglePublic); t.isPublic=!t.isPublic; t.authorName=DB.participants[0].name;
+    Storage.save(); renderMain(); toast(t.isPublic?'Шаблон стал общим — его видят все пользователи':'Шаблон снова личный'); return true;
+  }
+  if(ds.copyTemplate!==undefined){
+    const t=DB.templates.find(x=>x.id===ds.copyTemplate);
+    DB.templates.push({id:Storage.uid(), ownerId:selfParticipantId(), isPublic:false, name:t.name, blocks:JSON.parse(JSON.stringify(t.blocks))});
+    Storage.save(); renderMain(); toast('Шаблон скопирован в «Мои шаблоны»'); return true;
+  }
+  if(ds.importTemplates!==undefined){ State.modal={kind:'importTemplates', text:'', error:''}; renderModal(); return true; }
   if(ds.renameTemplate!==undefined){
     const t = DB.templates.find(x=>x.id===ds.renameTemplate);
     const nn = prompt('Новое название шаблона', t.name); if(nn){ t.name=nn; Storage.save(); renderMain(); }
@@ -1388,6 +1655,8 @@ function handleMainClick(e, ds){
     p.color = document.getElementById('editPcolor').value;
     Storage.save(); renderMain(); return true;
   }
+  if(ds.help!==undefined){ openHelp(ds.help, null); return true; }
+  if(ds.ext!==undefined){ openExternal(ds.ext); return true; }
   if(ds.copyCode!==undefined){ copyText(DB.me.inviteCode).then(ok=>toast(ok?'Код скопирован — отправьте его другу в Telegram':'Не удалось скопировать — выделите код и скопируйте вручную')); return true; }
   if(ds.pasteCode!==undefined){
     const inp=document.getElementById('friendCode');
@@ -1401,23 +1670,33 @@ function handleMainClick(e, ds){
     socialAction('add_friend_by_code',{p_code:code}, r=>({requested:'Заявка отправлена — участник появится после подтверждения',accepted:'Готово, вы теперь участники друг у друга',already:'Этот участник уже добавлен',self:'Это ваш собственный код',not_found:'Код не найден — проверьте, что скопирован полностью'})[r]||'Готово');
     return true;
   }
+  if(ds.traineeColor!==undefined){
+    const [linkId,color]=ds.traineeColor.split('|'); const l=DB.trainerLinks.find(x=>x.id===linkId);
+    const p=DB.participants.find(x=>x.id===l.trainee_id); l.color=color; p.color=color; renderMain();
+    Auth.getClient().rpc('set_trainee_color',{p_link:linkId,p_color:color}).then(({error})=>{ if(error) toast('Цвет не сохранён: '+error.message); });
+    return true;
+  }
   if(ds.friendRespond!==undefined){ const [id,acc]=ds.friendRespond.split('.'); socialAction('respond_friend',{p_id:id,p_accept:acc==='1'},()=>acc==='1'?'Участник добавлен':'Заявка отклонена'); return true; }
   if(ds.trainerRespond!==undefined){ const [id,acc]=ds.trainerRespond.split('.'); socialAction('respond_trainer',{p_link:id,p_accept:acc==='1'},()=>acc==='1'?'Тренер назначен':'Предложение отклонено'); return true; }
   if(ds.offerTrainer!==undefined){ socialAction('offer_trainer',{p_trainee:ds.offerTrainer},()=>'Предложение отправлено — ждём ответа'); return true; }
   if(ds.dropLink!==undefined){
-    if(!confirm('Разорвать связь тренер — подопечный?')) return true;
-    Auth.getClient().from('trainer_links').delete().eq('id',ds.dropLink).then(({error})=>{ if(error) return toast('Ошибка: '+error.message); Storage.reloadSocial().then(()=>{ toast('Готово'); renderMain(); }); });
+    const linkId=ds.dropLink;
+    askConfirm('Разорвать связь?','Тренер перестанет видеть тренировки подопечного.','Да, разорвать', ()=>
+    Auth.getClient().from('trainer_links').delete().eq('id',linkId).then(({error})=>{ if(error) return toast('Ошибка: '+error.message); Storage.reloadSocial().then(()=>{ toast('Готово'); renderMain(); }); }));
     return true;
   }
   if(ds.removeFriend!==undefined){
-    if(!confirm('Удалить участника? Связь тренер — подопечный тоже будет удалена.')) return true;
-    socialAction('remove_friend',{p_other:ds.removeFriend},()=>'Участник удалён'); State.participantProfile=null; return true;
+    const other=ds.removeFriend, nm=(DB.friends.find(f=>f.other_id===other)||{}).name||'Участник';
+    askConfirm('Удалить участника?',nm+' исчезнет из списка участников, связь тренер — подопечный тоже будет удалена.','Да, удалить', ()=>{
+      State.participantProfile=null; socialAction('remove_friend',{p_other:other},()=>'Участник удалён'); });
+    return true;
   }
   if(ds.deleteExercise!==undefined){
     if(!isAdmin()) return true;
-    if(!confirm('Удалить упражнение? В старых тренировках оно будет показано как «—».')) return true;
-    DB.exercises = DB.exercises.filter(x=>x.id!==ds.deleteExercise);
-    Storage.save(); renderMain(); return true;
+    const exId=ds.deleteExercise;
+    askConfirm('Удалить упражнение?','В старых тренировках оно будет показано как «—».','Да, удалить', ()=>{
+      DB.exercises = DB.exercises.filter(x=>x.id!==exId); Storage.save(); renderMain(); });
+    return true;
   }
   if(ds.export!==undefined){ Storage.exportJSON(); return true; }
   if(ds.pickTheme!==undefined){ DB.settings.themeColor = ds.pickTheme; Storage.save(); applyTheme(); renderMain(); return true; }
@@ -1454,6 +1733,10 @@ function handleMainChange(e, ds){
     if(key==='restDefault' && !timerRunning) timerLeft = Number(val)||90;
     preserveFocusAndRerender(renderMain); return true;
   }
+  if(e.target.id==='importTplFile'){
+    const file=e.target.files[0]; if(!file) return true;
+    const r=new FileReader(); r.onload=()=>{ State.modal.text=r.result; State.modal.error=''; renderModal(); }; r.readAsText(file); return true;
+  }
   if(e.target.id==='importFile'){
     const file = e.target.files[0]; if(!file) return true;
     const reader = new FileReader();
@@ -1470,14 +1753,20 @@ function handleMainChange(e, ds){
 /* ===================== GLOBAL DELEGATED LISTENERS (bound once) ===================== */
 function initEvents(){
   document.addEventListener('click', (e)=>{
-    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template]');
+    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help]');
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){
+    if(e.target.matches('[data-help-search]')){
+      if(e.type!=='input') return;
+      State.helpQuery = e.target.value; renderMain();
+      const el=document.querySelector('[data-help-search]'); if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+      return;
+    }
     if(e.target.matches('[data-exsearch]')){
       if(e.type!=='input') return;
       State.modal.query = e.target.value; renderModal();
@@ -1491,7 +1780,7 @@ function initEvents(){
     if(!isTextish && e.type!=='change') return;
     const modalEl = e.target.closest('#modalRoot [data-w],#modalRoot [data-block-rest],#modalRoot [data-dropset],#modalRoot [data-set],#modalRoot [data-recur-on],#modalRoot [data-recur-freq],#modalRoot [data-recur-until],#modalRoot [data-recur-day]');
     if(modalEl){ if(handleModalChange(e, modalEl.dataset)) return; }
-    const mainEl = e.target.closest('[data-hf],[data-ex-edit],[data-stats-participant],[data-stats-period],[data-setting],#importFile');
+    const mainEl = e.target.closest('#importTplFile,[data-hf],[data-ex-edit],[data-stats-participant],[data-stats-period],[data-setting],#importFile');
     if(mainEl){ handleMainChange(e, mainEl.dataset); }
   }
   document.addEventListener('change', onChangeOrInput);
