@@ -145,6 +145,12 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .ach-badge{width:100%;aspect-ratio:1;object-fit:contain;filter:grayscale(1) brightness(.55);opacity:.55;}
 .ach-tile.got .ach-badge{filter:drop-shadow(0 0 10px color-mix(in srgb,var(--ach) 60%,transparent));opacity:1;}
 .ach-tile.has-badge{padding:4px 4px 8px;}
+.tier-medal{position:relative;width:100%;aspect-ratio:1;filter:grayscale(1) brightness(.55);opacity:.6;}
+.ach-tile.got .tier-medal{filter:drop-shadow(0 0 10px color-mix(in srgb,var(--ach) 60%,transparent));opacity:1;}
+.tier-medal img{position:absolute;inset:0;width:100%;height:100%;}
+.tier-medal .tier-ico{left:15.5%;top:5.5%;width:69%;height:69%;}
+.tier-txt{position:absolute;left:12%;right:12%;top:72.5%;height:19%;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.05;
+  font-weight:800;text-transform:uppercase;color:#f3d9a4;text-shadow:0 1px 0 #000,0 0 4px #000;overflow:hidden;overflow-wrap:anywhere;letter-spacing:-.2px;}
 /* «Зоопарк» — рельефная однотонная медаль (как иллюстрированные значки): тон задаётся --ach / --hue */
 .ach-tile.ach-zoo:not(.has-badge){border-radius:50% 50% 16px 16px / 38% 38% 16px 16px;border:3px solid color-mix(in srgb,var(--ach) 70%,#000);
   background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--ach) 55%,#1a1a1a) 0,color-mix(in srgb,var(--ach) 22%,#0e0e0e) 75%);
@@ -707,6 +713,7 @@ const ACH_BADGES = {'Семья барсуков':'zoo_badgers','Семья кр
   'Грузовой лифт':'machine_lift', 'Автомобильный домкрат':'machine_jack', 'Ручная таль':'machine_hoist', 'Вилочный погрузчик':'machine_forklift',
   'Мини-экскаватор':'machine_miniexcavator', 'Грузовик':'machine_truck', 'Мотоцикл':'weight_motorcycle', 'Внедорожник':'weight_suv',
   'Автокран':'machine_mobilecrane', 'Карьерный самосвал БелАЗ':'machine_belaz',
+  'Кенгуру':'beast_kangaroo', 'Шимпанзе':'beast_chimp', 'Леопард':'beast_leopard', 'Большая панда':'beast_panda', 'Кабан':'beast_boar', 'Благородный олень':'beast_deer', 'Горилла':'beast_gorilla', 'Лев':'beast_lion', 'Тигр':'beast_tiger', 'Бурый медведь':'beast_brownbear', 'Зебра':'beast_zebra', 'Белый медведь':'beast_polarbear', 'Волк':'beast_wolf', 'Бегемот':'beast_hippo', 'Корабль «Восток» Гагарина':'rare_vostok', 'Командный модуль «Аполлона-11»':'rare_apollo', 'Статуя Давида':'rare_david', 'Телескоп «Хаббл»':'rare_hubble', 'Колокол Биг-Бена':'rare_bigben', 'Статуя моаи':'rare_moai', 'Лунный модуль':'rare_lunar', 'Камень Стоунхенджа':'rare_stonehenge', 'Метеорит Гоба':'rare_hoba', 'Царь-колокол':'rare_tsarbell', 'Статуя Свободы':'rare_liberty', 'Международная космическая станция':'rare_iss', 'Статуя Христа-Искупителя':'rare_christ', 'Гром-камень Медного всадника':'rare_thunderstone', 'Колесо «Лондонский глаз»':'rare_londoneye', 'Эйфелева башня':'rare_eiffel', '«Родина-мать зовёт!»':'rare_motherland', 'Большой Сфинкс':'rare_sphinx', 'Останкинская башня':'rare_ostankino', '«Титаник»':'rare_titanic', 'Бурдж-Халифа':'rare_burj', 'Мост «Золотые Ворота»':'rare_goldengate', 'Пирамида Хеопса':'rare_cheops', 'Новогодняя тренировка':'rare_newyear', 'Високосный атлет':'rare_leap', 'Пятница, 13-е':'rare_friday13', 'Ранняя пташка':'rare_earlybird', 'Ночная сова':'rare_nightowl', 'Ровно тонна':'rare_ton', 'Тоннаж-палиндром':'rare_palindrome', 'Тренировка в день рождения':'rare_birthday', 'Экскаватор':'machine_excavator', 'Трактор':'weight_tractor',
   'Буровая установка':'machine_drillrig', 'Каток':'machine_roller', 'Бетононасос':'machine_concretepump', 'Погрузчик':'machine_loader', 'Самосвал':'machine_dumptruck', 'Бульдозер':'machine_bulldozer', 'Кран-гидравлик':'machine_hydrocrane', 'Бетономешалка':'machine_mixer'};
 // «Зоопарк» — с юмором
 const ZOO_TAGS = {
@@ -925,6 +932,7 @@ const STREAK_STEPS = [2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,30,35,40,45,52,
 const plural = (n, one, few, many) => { const m10=n%10, m100=n%100; return m10===1&&m100!==11?one:(m10>=2&&m10<=4&&(m100<12||m100>14)?few:many); };
 function isPalindromeNum(n){ const s=String(Math.round(n)); return s.length>=4 && s===[...s].reverse().join(''); }
 // все ачивки участника: получено / прогресс
+const TIER_CATS = ['count','hours','streak','cali','run','bike','swim','cardio'];
 function achievementsList(workouts){
   const tons = workouts.map(w=>Calc.workoutTonnage(w));
   const best = Math.max(0, ...tons), total = tons.reduce((a,b)=>a+b,0);
@@ -940,8 +948,8 @@ function achievementsList(workouts){
   COUNT_STEPS.forEach(n=>add('count', n>=365?'🏅':n>=100?'💪':'🏋️', `${n} ${plural(n,'тренировка','тренировки','тренировок')}`, 'Проведено тренировок', workouts.length, n));
   HOUR_STEPS.forEach(n=>add('hours', n>=500?'⌛':'⏱️', `${n} ${plural(n,'час','часа','часов')}`, 'Время в зале', fmtNum(hours), n));
   STREAK_STEPS.forEach(n=>add('streak', n>=52?'☀️':'🔥', `${n} ${plural(n,'неделя','недели','недель')} подряд`, 'Каждую неделю хотя бы одна тренировка', streak, n));
-  ACH_RARE_THINGS.forEach(([t,i,n])=>add('rare', i, n, `Поднял в сумме больше, чем весит ${n} (${fmtNum(t/1000)} т)`, Math.round(total), t, true));
-  const ev = (icon, title, desc, ok) => add('rare', icon, title, desc, ok?1:0, 1, true);
+  ACH_RARE_THINGS.forEach(([t,i,n])=>{ add('rare', i, n, `Поднял в сумме больше, чем весит ${n} (${fmtNum(t/1000)} т)`, Math.round(total), t, true); out[out.length-1].badge = ACH_BADGES[n]; });
+  const ev = (icon, title, desc, ok) => { add('rare', icon, title, desc, ok?1:0, 1, true); out[out.length-1].badge = ACH_BADGES[title]; };
   ev('🎆','Новогодняя тренировка','Тренировка 1 января', workouts.some(w=>w.date.slice(5)==='01-01'));
   ev('🐸','Високосный атлет','Тренировка 29 февраля', workouts.some(w=>w.date.slice(5)==='02-29'));
   ev('🐈‍⬛','Пятница, 13-е','Тренировка в пятницу 13-го', workouts.some(w=>w.date.slice(8)==='13' && parseD(w.date).getDay()===5));
@@ -972,7 +980,7 @@ function achievementsList(workouts){
     const holders = exIds.filter(id=>maxByEx[id]>=kg).map(id=>{ const e=DB.exercises.find(x=>x.id===id);
       const first = liftsByEx[id].filter(x=>x.wt>=kg).map(x=>x.date).sort()[0];
       return {name:e.name, group:MG[e.mainGroup]||'Другое', kg, date:first}; });
-    out.push({cat:'beast', icon:i, title:n, desc:`${fmtNum(kg)} кг в одном повторении`, cur:Math.round(topLift), target:kg, count:holders.length, holders});
+    out.push({cat:'beast', icon:i, badge:ACH_BADGES[n], title:n, desc:`${fmtNum(kg)} кг в одном повторении`, cur:Math.round(topLift), target:kg, count:holders.length, holders});
   });
   // «Стаи»: лучший подход (вес × повторения)
   let bestSet = 0;
@@ -984,6 +992,11 @@ function achievementsList(workouts){
   for(let k=1;k<days.length;k++) gap = Math.max(gap, (parseD(days[k])-parseD(days[k-1]))/86400000);
   add('pack','🔥','1 феникс','Вернулся к тренировкам после перерыва 30 дней и больше — восстал из пепла', gap>=30?1:0, 1, true); out[out.length-1].badge = 'pack_phoenix';
   out.push(...sportAchievements(workouts));
+  // числовые серии: пустая медаль уровня 1–5 + иконка категории + число на ленте
+  const series = {};
+  out.forEach(a=>{ if(TIER_CATS.includes(a.cat) && !a.badge){ const k = ['count','hours','streak'].includes(a.cat) ? a.cat : a.cat+a.icon; (series[k]=series[k]||[]).push(a); } });
+  Object.values(series).forEach(g=>g.forEach((a,i)=>{ a.tier = g.length>1 ? Math.round(i/(g.length-1)*4)+1 : 3;
+    a.tierText = a.cat==='count' ? String(a.target) : a.cat==='hours' ? a.target+' ч' : a.cat==='streak' ? a.target+' нед.' : a.title; }));
   return out.map(a=>{ const got = a.cat==='hero' ? a.heroGot : a.ok!==undefined ? a.ok : a.cur>=a.target;
     return {...a, got, pct: got ? 100 : a.pctOver!==undefined ? a.pctOver : Math.min(100, Math.round(a.cur/a.target*100))}; });
 }
@@ -999,10 +1012,11 @@ function achievementsCard(workouts, pid){
 }
 // одна плитка ачивки (используется и в «Достижениях», и в итогах тренировки)
 function achTile(a, color){
-  return `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''} ach-${a.cat} ${a.badge?'has-badge':''}" style="--ach:${a.tone?a.tone[1]:color}${a.tone?`;--hue:${a.tone[0]}deg`:''}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
+  return `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''} ach-${a.cat} ${a.badge||a.tier?'has-badge':''}" style="--ach:${a.tone?a.tone[1]:color}${a.tone?`;--hue:${a.tone[0]}deg`:''}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
     ${a.count>1?`<span class="ach-x">×${a.count}</span>`:''}${a.more?`<span class="ach-x" title="ещё ступеней">+${a.more}</span>`:''}
     ${a.cat==='bw'?`<div class="bw-medal"><span>${a.icon}</span><b>×${a.reps}</b><i>${a.kg?'+'+a.kg+' кг':'свой вес'}</i></div><div class="ach-t">${esc(a.lname)}</div>`:''}
-    ${a.cat==='bw'?'':a.hero?`<div class="hero-medal ${a.style}"><img src="img/heroes/${a.hero}.webp" alt=""></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}">`:`<div class="ach-emo">${a.icon}</div>
+    ${a.tier?`<div class="tier-medal"><img src="img/badges/tier_${a.tier}.webp" alt=""><img class="tier-ico" src="img/badges/ico_${a.cat}.webp" alt=""><span class="tier-txt" style="font-size:${a.tierText.length<=5?15:a.tierText.length<=8?12:a.tierText.length<=12?8.5:8}px">${esc(a.tierText)}</span></div>`:''}
+    ${a.cat==='bw'||a.tier?'':a.hero?`<div class="hero-medal ${a.style}"><img src="img/heroes/${a.hero}.webp" alt=""></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}">`:`<div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>${a.tag?`<div class="ach-tag">${esc(a.tag)}</div>`:''}`}
     ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${a.cat==='hero'?a.cur+'%':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}</div>`}
   </div>`;
