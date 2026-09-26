@@ -15,6 +15,8 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
+const BOT_VERSION = "2026-09-26 · images-fallback";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -155,7 +157,8 @@ async function askPrivacy(chat: number, id: string) {
 async function onMessage(msg: any) {
   if (!msg.from || msg.chat?.type !== "private") return;
   const chat = msg.chat.id as number;
-  const text = String(msg.text ?? "").trim();
+  const text = String(msg.text ?? "").trim().replace(/^(\/\w+)@\w+/, "$1");  // /cmd@имя_бота → /cmd
+  console.log("BOT_MESSAGE", BOT_VERSION, text.slice(0, 40));
   const p = await ensureProfile(msg.from);
   const st = (p.bot_state ?? {}) as Record<string, any>;
 
@@ -168,6 +171,7 @@ async function onMessage(msg: any) {
     return send(chat, `С возвращением, ${esc(p.name)}! Записывайте тренировки в дневнике 👇\n\n/profile — заново заполнить анкету\n/reminders — вкл/выкл напоминания`, appKb());
   }
   if (text === "/profile") return askAge(chat, p.id);
+  if (text === "/version") return send(chat, `Версия бота: <b>${BOT_VERSION}</b>\nАдрес приложения (MINI_APP_URL): <code>${esc(APP_URL || "не задан")}</code>`);
   if (text === "/test_images") {
     if (!APP_URL) return send(chat, "⚠️ Секрет MINI_APP_URL не задан — боту неоткуда брать картинки.");
     await send(chat, `Проверяю картинки по адресу приложения:\n<code>${esc(APP_URL)}</code>`);
