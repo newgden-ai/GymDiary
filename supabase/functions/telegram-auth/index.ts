@@ -36,6 +36,27 @@ async function tg(method: string, body: Record<string, unknown>) {
 }
 const send = (chat_id: number, text: string, extra: Record<string, unknown> = {}) =>
   tg("sendMessage", { chat_id, text, parse_mode: "HTML", ...extra });
+// фото: сначала по ссылке; если Telegram не смог скачать — качаем сами и отправляем файлом;
+// если и так не вышло — отправляем текст с пометкой, какая ссылка не открылась (видно, что чинить)
+async function sendPhotoSafe(chat_id: number, url: string, caption: string, extra: Record<string, unknown> = {}) {
+  const r = await tg("sendPhoto", { chat_id, photo: url, caption, parse_mode: "HTML", ...extra });
+  if (r.ok) return { ok: true, how: "url" };
+  let status = 0;
+  try {
+    const img = await fetch(url); status = img.status;
+    if (img.ok) {
+      const fd = new FormData();
+      fd.append("chat_id", String(chat_id)); fd.append("caption", caption); fd.append("parse_mode", "HTML");
+      if (extra.reply_markup) fd.append("reply_markup", JSON.stringify(extra.reply_markup));
+      fd.append("photo", new Blob([await img.arrayBuffer()], { type: img.headers.get("content-type") ?? "image/jpeg" }), url.split("/").pop() ?? "photo.jpg");
+      const up = await (await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: "POST", body: fd })).json();
+      if (up.ok) return { ok: true, how: "upload" };
+      console.log("TG_UPLOAD_ERROR", JSON.stringify(up));
+    }
+  } catch (e) { console.log("IMG_FETCH_ERROR", url, String(e)); }
+  await send(chat_id, caption + `\n\n<i>(картинка не загрузилась: ${esc(url)} — ${status || "нет ответа"})</i>`, extra);
+  return { ok: false, status };
+}
 const kb = (rows: [string, string][][]) => ({ reply_markup: { inline_keyboard: rows.map((r) => r.map(([text, callback_data]) => ({ text, callback_data }))) } });
 const appKb = (text = "📒 Открыть дневник") => APP_URL ? { reply_markup: { inline_keyboard: [[{ text, web_app: { url: APP_URL } }]] } } : {};
 const esc = (s: unknown) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
@@ -147,6 +168,13 @@ async function onMessage(msg: any) {
     return send(chat, `С возвращением, ${esc(p.name)}! Записывайте тренировки в дневнике 👇\n\n/profile — заново заполнить анкету\n/reminders — вкл/выкл напоминания`, appKb());
   }
   if (text === "/profile") return askAge(chat, p.id);
+  if (text === "/test_images") {
+    if (!APP_URL) return send(chat, "⚠️ Секрет MINI_APP_URL не задан — боту неоткуда брать картинки.");
+    await send(chat, `Проверяю картинки по адресу приложения:\n<code>${esc(APP_URL)}</code>`);
+    const a = await sendPhotoSafe(chat, `${APP_URL}img/lightweight/01.jpg`, "Тест: постер Light weight");
+    const b = await sendPhotoSafe(chat, `${APP_URL}bot/morning/01.png`, "Тест: утренняя картинка");
+    return send(chat, a.ok && b.ok ? "✅ Картинки доступны." : "❌ Часть картинок недоступна — проверьте, что папки img/ и bot/ запушены и MINI_APP_URL указывает на адрес приложения.");
+  }
   if (text === "/reminders") {
     const on = !p.reminders;
     await admin.from("profiles").update({ reminders: on }).eq("id", p.id);
@@ -272,6 +300,29 @@ async function workoutSummary(w: any) {
   ].filter(Boolean).join("\n");
 }
 
+// ---------------- LIGHT WEIGHT: новые рекорды ----------------
+// постеры: img/lightweight/01.jpg … в папке приложения; добавили персонажа — увеличьте LW_COUNT
+const LW_COUNT = 15;
+async function findRecords(w: any) {
+  const { data: others } = await admin.from("workouts").select("id,blocks").eq("participant_id", w.participant_id).neq("id", w.id);
+  const prev: Record<string, number> = {};
+  for (const o of others ?? []) for (const b of o.blocks ?? []) for (const e of b.exercises ?? []) for (const s of e.sets ?? [])
+    if (Number(s.reps) >= 1) prev[e.exerciseId] = Math.max(prev[e.exerciseId] ?? 0, Number(s.weight) || 0);
+  const out: { exerciseId: string; weight: number; reps: number }[] = [];
+  for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) {
+    let best: { weight: number; reps: number } | null = null;
+    for (const s of e.sets ?? []) {
+      const wt = Number(s.weight) || 0, r = Number(s.reps) || 0;
+      if (wt > 0 && r >= 1 && (!best || wt > best.weight || (wt === best.weight && r > best.reps))) best = { weight: wt, reps: r };
+    }
+    if (best && (prev[e.exerciseId] ?? 0) > 0 && best.weight > prev[e.exerciseId] && !out.some((x) => x.exerciseId === e.exerciseId))
+      out.push({ exerciseId: e.exerciseId, ...best });
+  }
+  if (!out.length) return [];
+  const { data: exs } = await admin.from("exercises").select("id,name").in("id", out.map((x) => x.exerciseId));
+  return out.map((r) => ({ ...r, name: exs?.find((e: any) => e.id === r.exerciseId)?.name ?? "упражнение" }));
+}
+
 async function onWorkoutDone(req: Request, body: any) {
   const jwt = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
   const { data: u } = await admin.auth.getUser(jwt);
@@ -286,7 +337,18 @@ async function onWorkoutDone(req: Request, body: any) {
   const text = await workoutSummary(w);
   const { data: people } = await admin.from("profiles").select("id,name,telegram_id").in("id", [w.participant_id, ...(links ?? []).map((l: any) => l.trainer_id)]);
   const athlete = (people ?? []).find((x: any) => x.id === w.participant_id);
-  if (athlete?.telegram_id) await send(athlete.telegram_id, "✅ Тренировка завершена!\n\n" + text, appKb("📒 Открыть дневник"));
+  // ачивки, полученные за эту тренировку (считает приложение и присылает списком)
+  const achs = Array.isArray(body.achievements) ? body.achievements.filter((x: unknown) => typeof x === "string").slice(0, 30) : [];
+  const achText = achs.length ? `\n\n🏅 <b>Новые ачивки (${achs.length}):</b>\n` + achs.map((a: string) => "• " + esc(a.slice(0, 80))).join("\n") : "";
+  if (athlete?.telegram_id) await send(athlete.telegram_id, "✅ Тренировка завершена!\n\n" + text + achText, appKb("📒 Открыть дневник"));
+  // новый рекорд — постер «Light weight» с подписью
+  const records = await findRecords(w);
+  if (athlete?.telegram_id && records.length && APP_URL) {
+    const n = String(1 + Math.floor(Math.random() * LW_COUNT)).padStart(2, "0");
+    const caption = "🏆 LIGHT WEIGHT, BABY!\n\n" + records.map((r) =>
+      `Впервые достигнут вес ${fmt(r.weight)} кг в упражнении «${esc(r.name)}», количество повторений ${r.reps}.`).join("\n");
+    await sendPhotoSafe(athlete.telegram_id, `${APP_URL}img/lightweight/${n}.jpg`, caption);
+  }
   for (const t of (people ?? []).filter((x: any) => x.id !== w.participant_id && x.telegram_id))
     await send(t.telegram_id, `👀 Подопечный <b>${esc(athlete?.name)}</b> завершил тренировку:\n\n` + text);
   return json({ ok: true });
@@ -347,8 +409,7 @@ async function cron(kind: string) {
   for (const p of users) {
     try {
       if (kind === "morning") {
-        const r = await tg("sendPhoto", { chat_id: p.telegram_id, photo: pick(MORNING_IMAGES), caption: pick(MORNING) });
-        if (!r.ok) await send(p.telegram_id, pick(MORNING)); // картинка недоступна — шлём только текст
+        await sendPhotoSafe(p.telegram_id, pick(MORNING_IMAGES), pick(MORNING));
         sent++;
       } else if (kind === "evening") {
         if (p.last_evening_date === d) continue;

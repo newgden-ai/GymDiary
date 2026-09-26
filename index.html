@@ -249,11 +249,17 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
 </style>
 </head>
 <body>
-<div id="authOverlay" style="position:fixed;inset:0;background:#181a17;color:#e9e8e2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:-apple-system,sans-serif;z-index:999;padding:20px;text-align:center">
-  <div style="font-size:32px">🏋</div>
-  <div id="authStatus">Входим через Telegram…</div>
-  <pre id="authLog" style="font-size:11px;color:#9a9d94;white-space:pre-wrap;max-width:420px;background:#20221f;padding:10px;border-radius:8px;display:none"></pre>
+<div id="authOverlay" style="position:fixed;inset:0;background:#0b0c10 center top/contain no-repeat;color:#e9e8e2;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;font-family:-apple-system,sans-serif;z-index:999;padding:20px 20px calc(28px + env(safe-area-inset-bottom,0px));text-align:center">
+  <div style="position:absolute;inset:auto 0 0 0;height:32%;background:linear-gradient(transparent,rgba(0,0,0,.85));pointer-events:none"></div>
+  <div id="authStatus" style="position:relative;font-size:15px;text-shadow:0 1px 3px #000">Входим через Telegram…</div>
+  <pre id="authLog" style="position:relative;font-size:11px;color:#c9ccc4;white-space:pre-wrap;max-width:420px;background:rgba(20,22,20,.9);padding:10px;border-radius:8px;display:none;text-align:left"></pre>
 </div>
+<script>
+window.__splashStart = performance.now();
+// экран загрузки: своя картинка на каждый день недели (img/splash/1.jpg — понедельник … 7.jpg — воскресенье)
+(function(){ var n=((new Date().getDay()+6)%7)+1, el=document.getElementById('authOverlay');
+  el.style.backgroundImage='url(img/splash/'+n+'.jpg)'; })();
+</script>
 <div class="app">
   <div class="sidebar" id="sidebar"></div>
   <div class="main" id="main"></div>
@@ -2596,7 +2602,8 @@ function initEvents(){
   initEvents();
   rerender();
   const overlay = document.getElementById('authOverlay');
-  if(overlay) overlay.remove();
+  if(overlay){ const left = Math.max(0, 1200 - (performance.now() - (window.__splashStart||0)));
+    setTimeout(()=>{ overlay.style.transition='opacity .4s'; overlay.style.opacity='0'; setTimeout(()=>overlay.remove(), 400); }, left); }
 })();
 
 </script>
