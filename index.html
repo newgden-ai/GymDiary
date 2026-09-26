@@ -184,6 +184,18 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .food-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--border);}
 .food-item:first-of-type{border-top:none;}
 .food-pick{display:block;width:100%;text-align:left;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:6px;color:inherit;}
+.bw-medal{width:64px;height:64px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;
+  background:radial-gradient(circle at 35% 30%,#f1f3f5,#aeb6bf 45%,#6e7781 80%,#4c535b);box-shadow:inset 0 2px 3px rgba(255,255,255,.7),inset 0 -3px 5px rgba(0,0,0,.45),0 2px 5px rgba(0,0,0,.5);color:#23272c;text-shadow:0 1px 0 rgba(255,255,255,.55);}
+.ach-tile:not(.got) .bw-medal{filter:grayscale(1) brightness(.55);}
+.bw-medal span{font-size:15px;}.bw-medal b{font-size:17px;}.bw-medal i{font-style:normal;font-size:9.5px;font-weight:700;}
+.bw-lad{border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-bottom:8px;background:var(--surface2);}
+.bw-lad summary{display:flex;justify-content:space-between;cursor:pointer;list-style:none;}
+.bw-row{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:12px;}
+.bw-kg{width:58px;flex:0 0 58px;color:var(--text-dim);}
+.bw-cells{flex:1;display:flex;gap:2px;min-width:0;}
+.bw-cells i{flex:1;height:12px;border-radius:3px;background:var(--border);}
+.bw-cells i.on{background:#9fb4c7;box-shadow:inset 0 1px 0 rgba(255,255,255,.5);}
+.bw-best{width:28px;text-align:right;font-weight:700;}
 .year-card{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--surface2);}
 .year-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:8px;}
 .ach-chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none;}
@@ -770,6 +782,102 @@ function heroContext(workouts){
   };
   return c;
 }
+// ===== «Свой вес»: повторения в ОДНОМ подходе × доп. отягощение. Потолок — пока никто не дошёл до верха =====
+const BW_LADDERS = [
+  {id:'pullup', name:'Подтягивания', icon:'🧗', m:n=>/подтяг/.test(n) && !/одн|австрал|гравитрон|тренаж/.test(n), reps:50, kg:30},
+  {id:'pushup', name:'Отжимания от пола', icon:'🤸', m:n=>/^отжим/.test(n) && !/брус|стойк|колен|стен|скам/.test(n), reps:100, kg:30},
+  {id:'dips', name:'Отжимания на брусьях', icon:'💪', m:n=>/отжим/.test(n) && /брус/.test(n), reps:60, kg:40},
+  {id:'kip', name:'Подъём переворотом', icon:'🔄', m:n=>/переворот/.test(n), reps:30, kg:20},
+  {id:'mu2', name:'Выход силой на две руки', icon:'🦅', m:n=>/выход силой/.test(n) && !/одн/.test(n), reps:25, kg:20},
+  {id:'mu1', name:'Выход силой на одну руку', icon:'🦾', m:n=>/выход силой/.test(n) && /одн/.test(n), reps:10, kg:10},
+  {id:'hspu', name:'Отжимания в стойке на руках', icon:'🙃', m:n=>/отжим/.test(n) && /стойк/.test(n), reps:30, kg:20},
+  {id:'pistol', name:'Пистолетик', icon:'🦵', m:n=>/пистолет/.test(n), reps:50, kg:30},
+  {id:'oapu', name:'Подтягивания на одной руке', icon:'☝️', m:n=>/подтяг/.test(n) && /одн/.test(n), reps:10, kg:10}
+];
+// статика — секунды удержания в одном подходе (в подходе поле «сек»)
+const STATICS = [
+  ['🤸','Стойка на руках', n=>/стойк/.test(n) && /рук/.test(n) && !/отжим/.test(n), [10,30,60]],
+  ['📐','Уголок', n=>/уголок|l-sit/.test(n), [10,20,30,60]],
+  ['🦇','Передний вис', n=>/передн\S* вис/.test(n), [3,5,10,20]],
+  ['🦇','Задний вис', n=>/задн\S* вис/.test(n), [3,5,10,20]],
+  ['🚩','Флажок', n=>/флаж/.test(n), [3,5,10,20]],
+  ['✈️','Планш', n=>/планш/.test(n), [3,5,10,20]],
+  ['🧱','Планка', n=>/^планк/.test(n), [60,180,300,600]]
+];
+const isStaticEx = name => { const n = normName(name); return STATICS.some(s=>s[2](n)); };
+const SPORT = { run:n=>/бег|пробеж|кросс/.test(n), bike:n=>/велос|велотр|сайкл/.test(n), swim:n=>/плава|бассейн/.test(n),
+  row:n=>/гребл|гребн/.test(n), rope:n=>/скакалк/.test(n), burpee:n=>/берпи|burpee/.test(n) };
+const fmtHold = s => s>=60 ? `${fmtNum(s/60)} мин` : `${s} с`;
+const fmtMin = m => { const t = Math.round(m*60); return `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`; };
+// доп. вес: в подходе обычно пишут отягощение (+10); если записан общий вес (≈ свой вес и больше) — вычитаем свой вес
+function extraKg(w, s){ const wt = Number(s.weight)||0; if(wt<=0) return 0; const bw = bodyWeightOn(w.participantId, w.date); return bw>0 && wt>=bw*0.7 ? Math.max(0, wt-bw) : wt; }
+function sportSets(workouts){
+  const out = [];
+  workouts.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{ const info = DB.exercises.find(e=>e.id===ex.exerciseId) || {}, n = normName(info.name);
+    (ex.sets||[]).forEach(s=>out.push({w, n, type:info.type, s, reps:Number(s.reps)||0, time:Number(s.time)||0, dist:Number(s.distance)||0})); })));
+  return out;
+}
+function bwLadderData(sets){
+  return BW_LADDERS.map(L=>{ const kgs = [], steps = []; for(let k=0;k<=L.kg;k+=5) kgs.push(k); for(let r=10;r<=L.reps;r+=5) steps.push(r);
+    const best = kgs.map(()=>0);
+    sets.filter(x=>x.type!=='cardio' && x.reps>0 && L.m(x.n)).forEach(x=>{ const e = extraKg(x.w, x.s); kgs.forEach((k,i)=>{ if(e>=k-0.01 && x.reps>best[i]) best[i] = x.reps; }); });
+    return {...L, kgs, steps, best}; });
+}
+function sportAchievements(workouts){
+  const sets = sportSets(workouts), out = [];
+  const add = (cat, icon, title, desc, cur, target, extra) => out.push({cat, icon, title, desc, cur:Math.round((+cur||0)*100)/100, target, ...(extra||{})});
+  // быстрее = меньше; прогресс — насколько близко к цели
+  const faster = (cat, icon, title, desc, cur, target) => add(cat, icon, title, desc, cur, target, {ok: cur>0 && cur<=target+1e-9, show: cur ? 'лучшее '+fmtMin(cur) : 'нет данных', pctOver: cur ? Math.min(100, Math.round(target/cur*100)) : 0});
+  const lad = State.bwLadders = bwLadderData(sets);
+  lad.forEach(L=>L.kgs.forEach((k,i)=>L.steps.forEach(r=>add('bw', L.icon, `${L.name}${k?' +'+k+' кг':''} × ${r}`,
+    `${r} повторений в одном подходе ${k?`с дополнительным весом ${k} кг`:'с собственным весом'}`, L.best[i], r, {ladder:L.id, lname:L.name, kg:k, reps:r}))));
+  STATICS.forEach(([ic,name,m,steps])=>{ const best = Math.max(0, ...sets.filter(x=>x.type!=='cardio' && m(x.n)).map(x=>x.time));
+    steps.forEach(t=>add('cali', ic, `${name}: ${fmtHold(t)}`, `Удержание ${fmtHold(t)} в одном подходе (поле «сек»)`, best, t, {show:`${fmtHold(best)} / ${fmtHold(t)}`})); });
+  const burp = Math.max(0, ...workouts.map(w=>sets.filter(x=>x.w===w && SPORT.burpee(x.n)).reduce((a,x)=>a+x.reps,0)));
+  [50,100,200].forEach(n=>add('cali','🔥',`Бёрпи ×${n}`,`${n} бёрпи за одну тренировку`, burp, n));
+  const of = f => sets.filter(x=>f(x.n) && x.dist>0);
+  const maxDist = f => Math.max(0, ...of(f).map(x=>x.dist));
+  const total = f => of(f).reduce((a,x)=>a+x.dist,0);
+  const pace = (f, d) => { const v = of(f).filter(x=>x.dist>=d-1e-9 && x.time>0).map(x=>x.time/x.dist*d); return v.length ? Math.min(...v) : 0; };   // минут на дистанцию d
+  const month = f => { const m = {}; of(f).forEach(x=>{ const k = x.w.date.slice(0,7); m[k] = (m[k]||0)+x.dist; }); return Math.max(0, ...Object.values(m)); };
+  const once = 'за один раз (один подход: дистанция)';
+  // бег
+  [[1,'Первый километр'],[3,'3 км'],[5,'5 км'],[10,'10 км'],[21.1,'Полумарафон'],[42.2,'Марафон']].forEach(([d,t])=>add('run','🏃',t,`${fmtNum(d)} км ${once}`, maxDist(SPORT.run), d));
+  [[30,'5 км быстрее 30 минут'],[25,'5 км быстрее 25 минут'],[20,'5 км быстрее 20 минут']].forEach(([t,n])=>faster('run','⚡',n,`Темп на 5 км и больше: 5 км за ${t} минут или быстрее (в подходе дистанция и время)`, pace(SPORT.run,5), t));
+  [[60,'10 км быстрее часа'],[50,'10 км быстрее 50 минут'],[45,'10 км быстрее 45 минут']].forEach(([t,n])=>faster('run','⚡',n,`Темп на 10 км и больше: 10 км за ${t} минут или быстрее`, pace(SPORT.run,10), t));
+  faster('run','🚀','Километр быстрее 4 минут','1 км (или больше) в темпе быстрее 4:00 на километр', pace(SPORT.run,1), 4);
+  [50,100,200].forEach(d=>add('run','📅',`${d} км за месяц`,`Пробежать ${d} км за один календарный месяц`, month(SPORT.run), d));
+  [[300,'Ташкент → Самарканд'],[3000,'Ташкент → Москва'],[40075,'Вокруг экватора']].forEach(([d,t])=>add('run','🗺️',t,`Всего пробежать ${fmtNum(d)} км — как путь «${t}»`, total(SPORT.run), d, {rare:d>=3000}));
+  // велосипед
+  [[20,'20 км'],[50,'50 км'],[100,'«Сотка»'],[200,'«Двухсотка»']].forEach(([d,t])=>add('bike','🚴',t,`${d} км ${once}`, maxDist(SPORT.bike), d));
+  const speed = Math.max(0, ...of(SPORT.bike).filter(x=>x.dist>=20 && x.time>0).map(x=>x.dist/(x.time/60)));
+  [20,25,30,35].forEach(v=>add('bike','💨',`Средняя ${v} км/ч`,`Средняя скорость ${v} км/ч на дистанции от 20 км`, speed, v, {show:`${fmtNum(speed)} / ${v} км/ч`}));
+  [1000,5000,10000].forEach(d=>add('bike','🌍',`${fmtNum(d)} км на велосипеде`,`Всего проехать ${fmtNum(d)} км`, total(SPORT.bike), d, {rare:d>=10000}));
+  // плавание (дистанция в км: 100 м = 0,1)
+  const swimMax = maxDist(SPORT.swim);
+  [[0.5,'500 м'],[1,'1 км'],[2,'2 км'],[3.8,'Дистанция «Айронмена»']].forEach(([d,t])=>add('swim','🏊',t,`Проплыть ${fmtNum(d*1000)} м ${once}`, swimMax, d, {show:`${Math.round(swimMax*1000)} / ${fmtNum(d*1000)} м`}));
+  [[2,'100 м быстрее 2:00'],[1.75,'100 м быстрее 1:45'],[1.5,'100 м быстрее 1:30']].forEach(([t,n])=>faster('swim','⚡',n,`Темп на 100 м и больше быстрее ${fmtMin(t)} на 100 м`, pace(SPORT.swim,0.1), t));
+  [[25,'1 км быстрее 25 минут'],[20,'1 км быстрее 20 минут']].forEach(([t,n])=>faster('swim','⚡',n,`1 км (или больше) в темпе быстрее ${t} минут на километр`, pace(SPORT.swim,1), t));
+  [[34,'Переплыл Ла-Манш'],[100,'100 км в воде']].forEach(([d,t])=>add('swim','🌊',t,`Всего проплыть ${d} км${d===34?' — ширина Ла-Манша':''}`, total(SPORT.swim), d, {rare:d>=100}));
+  // общее кардио
+  const rope = Math.max(0, ...sets.filter(x=>SPORT.rope(x.n)).map(x=>x.reps));
+  [100,500,1000].forEach(n=>add('cardio','🪢',`Скакалка ×${n}`,`${n} прыжков на скакалке в одном подходе (поле «повт.»)`, rope, n));
+  [[10,'2 км гребли быстрее 10 минут'],[8,'2 км гребли быстрее 8 минут'],[7,'2 км гребли быстрее 7 минут']].forEach(([t,n])=>faster('cardio','🚣',n,`Гребля: 2 км (или больше) в темпе быстрее ${t} минут`, pace(SPORT.row,2), t));
+  return out;
+}
+// «Мои» и итоги тренировки: из лестницы показываем только верхнюю взятую ступень (остальные — числом)
+function compressBw(list){
+  const groups = {}; list.forEach(a=>{ if(a.cat==='bw'){ const k = a.ladder+'|'+a.kg; (groups[k]=groups[k]||[]).push(a); } });
+  const keep = new Set(Object.values(groups).map(g=>g.reduce((m,a)=>a.reps>m.reps?a:m)));
+  return list.filter(a=>a.cat!=='bw' || keep.has(a)).map(a=>a.cat==='bw' ? {...a, more: groups[a.ladder+'|'+a.kg].length-1} : a);
+}
+// вкладка «Свой вес»: лестница по каждому упражнению
+function bwLadderView(){
+  return (State.bwLadders||[]).map(L=>{ const got = L.kgs.reduce((a,k,i)=>a+L.steps.filter(r=>L.best[i]>=r).length,0);
+    return `<details class="bw-lad" ${got?'open':''}><summary><b>${L.icon} ${esc(L.name)}</b><span class="muted">${got} / ${L.kgs.length*L.steps.length}</span></summary>
+      ${L.kgs.map((k,i)=>`<div class="bw-row"><span class="bw-kg">${k?'+'+k+' кг':'свой вес'}</span><span class="bw-cells">${L.steps.map(r=>`<i class="${L.best[i]>=r?'on':''}" title="${r} повт."></i>`).join('')}</span><span class="bw-best">${L.best[i]||'—'}</span></div>`).join('')}
+      <div class="muted" style="font-size:11.5px;margin-top:4px">Клетки — ступени ${L.steps[0]}, ${L.steps[1]} … ${L.steps[L.steps.length-1]} повторений в одном подходе. Справа — лучший подход с этим весом.</div></details>`; }).join('');
+}
 const ACH_CATS = [
   {id:'weight', name:'Равный по весу', color:'#f5b82e', hint:'за одну тренировку'},
   {id:'machine', name:'Как техника', color:'#ff8a2b', hint:'весь поднятый вес'},
@@ -780,7 +888,13 @@ const ACH_CATS = [
   {id:'rare', name:'Редкие', color:'#b388ff', hint:'уникальное'},
   {id:'cert', name:'Соревнования', color:'#ffd166', hint:'подтверждённые сертификаты — добавить: Участники → вы → Сертификаты'},
   {id:'hero', name:'Герои', color:'#e0b04a', hint:'ачивки героев «Light weight» — выполните все условия'},
-  {id:'beast', name:'Звери', color:'#c7a36a', hint:'вес в одном повторении — отдельная ачивка за каждое упражнение'}
+  {id:'beast', name:'Звери', color:'#c7a36a', hint:'вес в одном повторении — отдельная ачивка за каждое упражнение'},
+  {id:'bw', name:'Свой вес', color:'#9fb4c7', hint:'повторения в одном подходе с собственным и дополнительным весом (в подходе пишите отягощение: 10 = +10 кг)'},
+  {id:'cali', name:'Калистеника', color:'#7fd6a2', hint:'статика — секунды удержания в одном подходе, бёрпи — за тренировку'},
+  {id:'run', name:'Бег', color:'#ff9f68', hint:'дистанция и время в подходе упражнения «Бег»'},
+  {id:'bike', name:'Велосипед', color:'#6cc0ff', hint:'дистанция и время в подходе упражнения «Велосипед»'},
+  {id:'swim', name:'Плавание', color:'#4fd1e0', hint:'дистанция в км (100 м = 0,1) и время в минутах'},
+  {id:'cardio', name:'Кардио', color:'#f27fb2', hint:'скакалка и гребля'}
 ];
 const COUNT_STEPS = [1,3,5,10,15,20,25,30,40,50,60,75,90,100,125,150,175,200,250,300,365,400,500,600,700,750,800,900,1000,1500];
 const HOUR_STEPS = [1,3,5,10,15,20,25,30,40,50,60,75,100,125,150,175,200,250,300,350,400,500,600,750,1000,1250,1500,2000,2500,3000];
@@ -837,25 +951,28 @@ function achievementsList(workouts){
       return {name:e.name, group:MG[e.mainGroup]||'Другое', kg, date:first}; });
     out.push({cat:'beast', icon:i, title:n, desc:`${fmtNum(kg)} кг в одном повторении`, cur:Math.round(topLift), target:kg, count:holders.length, holders});
   });
-  return out.map(a=>({...a, got: a.cat==='hero' ? a.heroGot : a.cur>=a.target, pct: Math.min(100, Math.round(a.cur/a.target*100))}));
+  out.push(...sportAchievements(workouts));
+  return out.map(a=>{ const got = a.cat==='hero' ? a.heroGot : a.ok!==undefined ? a.ok : a.cur>=a.target;
+    return {...a, got, pct: got ? 100 : a.pctOver!==undefined ? a.pctOver : Math.min(100, Math.round(a.cur/a.target*100))}; });
 }
 function achievementsCard(workouts, pid){
   State.achFor = pid || (workouts[0]||{}).participantId;
   // считаем только проведённые тренировки, запланированные на будущее — нет
   const all = achievementsList(workouts.filter(w=>w.status==='done' || (w.date<=dstr(new Date()) && hasFilledSets(w)))); const tab = State.achTab || 'weight';
   const cat = id => ACH_CATS.find(c=>c.id===id);
-  const list = all.filter(a=>tab==='got' ? a.got : a.cat===tab);
+  const list = tab==='got' ? compressBw(all.filter(a=>a.got)) : all.filter(a=>a.cat===tab);
   State.achBeasts = all.filter(a=>a.cat==='beast');
   const tile = a => achTile(a, cat(a.cat).color);
   return achCardHtml(all, list, tab, cat, tile);
 }
 // одна плитка ачивки (используется и в «Достижениях», и в итогах тренировки)
 function achTile(a, color){
-  return `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''} ach-${a.cat} ${a.badge?'has-badge':''}" style="--ach:${a.tone?a.tone[1]:color}${a.tone?`;--hue:${a.tone[0]}deg`:''}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
-    ${a.count>1?`<span class="ach-x">×${a.count}</span>`:''}
-    ${a.hero?`<div class="hero-medal ${a.style}"><img src="img/heroes/${a.hero}.webp" alt=""></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}">`:`<div class="ach-emo">${a.icon}</div>
+  return `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''} ach-${a.cat} ${a.badge?'has-badge':''}" style="--ach:${a.tone?a.tone[1]:color}${a.tone?`;--hue:${a.tone[0]}deg`:''}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
+    ${a.count>1?`<span class="ach-x">×${a.count}</span>`:''}${a.more?`<span class="ach-x" title="ещё ступеней">+${a.more}</span>`:''}
+    ${a.cat==='bw'?`<div class="bw-medal"><span>${a.icon}</span><b>×${a.reps}</b><i>${a.kg?'+'+a.kg+' кг':'свой вес'}</i></div><div class="ach-t">${esc(a.lname)}</div>`:''}
+    ${a.cat==='bw'?'':a.hero?`<div class="hero-medal ${a.style}"><img src="img/heroes/${a.hero}.webp" alt=""></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}">`:`<div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>${a.tag?`<div class="ach-tag">${esc(a.tag)}</div>`:''}`}
-    ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${a.cat==='hero'?a.cur+'%':fmtNum(a.cur)+' / '+fmtNum(a.target)}</div>`}
+    ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${a.cat==='hero'?a.cur+'%':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}</div>`}
   </div>`;
 }
 function achCardHtml(all, list, tab, cat, tile){
@@ -866,7 +983,7 @@ function achCardHtml(all, list, tab, cat, tile){
     <div class="row" style="justify-content:space-between"><h3 class="row" style="gap:6px;margin:0"><span class="ach-ico">${icon('trophy')}</span>Достижения</h3><span class="muted">${all.filter(a=>a.got).length} из ${all.length}</span></div>
     <div class="ach-chips">${chip('got','Мои','#e9e9ea')}${ACH_CATS.map(c=>chip(c.id,c.name,c.color)).join('')}</div>
     ${tab!=='got'?`<div class="muted" style="margin-top:6px">${cat(tab).hint}</div>`:''}
-    <div class="ach-grid">${[...list.filter(a=>a.got), ...list.filter(a=>!a.got)].map(tile).join('') || '<div class="muted">Пока нет полученных ачивок — всё впереди!</div>'}</div>
+    ${tab==='bw' ? `<div style="margin-top:10px">${bwLadderView()}</div>` : `<div class="ach-grid">${[...list.filter(a=>a.got), ...list.filter(a=>!a.got)].map(tile).join('') || '<div class="muted">Пока нет полученных ачивок — всё впереди!</div>'}</div>`}
   </div>`;
 }
 function renderBeastModal(){
@@ -1288,7 +1405,7 @@ function renderBlockCard(b,bi,w,units){
 
 function renderExerciseCard(ex,bi,ei,w,units){
   const info = DB.exercises.find(x=>x.id===ex.exerciseId) || {name:'—',type:'strength'};
-  const isCardio = info.type==='cardio';
+  const isCardio = info.type==='cardio', isStatic = !isCardio && isStaticEx(info.name);   // статика: секунды удержания
   const bw = Calc.bwFor(w, ex);
   const ton = Calc.exTonnage(ex, bw);
   const needBw = !isCardio && !bw && ex.sets.some(s=>!(Number(s.weight)>0) && Number(s.reps)>0);
@@ -1312,8 +1429,8 @@ function renderExerciseCard(ex,bi,ei,w,units){
         <input type="text" inputmode="decimal" placeholder="дистанция, км" data-set="${bi}.${ei}.${si}.distance" value="${s.distance}">
         <input type="text" placeholder="заметка" data-set="${bi}.${ei}.${si}.note" value="${esc(s.note)}">
       `:`
-        <input type="text" inputmode="decimal" placeholder="вес, ${unitLabel(units)}" data-set="${bi}.${ei}.${si}.weight" value="${s.weight!==''?convW(s.weight,units):''}">
-        <input type="text" inputmode="numeric" placeholder="повт." data-set="${bi}.${ei}.${si}.reps" value="${s.reps}">
+        <input type="text" inputmode="decimal" placeholder="${isStatic?'доп. вес':'вес, '+unitLabel(units)}" data-set="${bi}.${ei}.${si}.weight" value="${s.weight!==''?convW(s.weight,units):''}">
+        ${isStatic?`<input type="text" inputmode="numeric" placeholder="сек" data-set="${bi}.${ei}.${si}.time" value="${s.time||''}">`:`<input type="text" inputmode="numeric" placeholder="повт." data-set="${bi}.${ei}.${si}.reps" value="${s.reps}">`}
         <input type="text" class="set-note" placeholder="заметка" data-set="${bi}.${ei}.${si}.note" value="${esc(s.note)}">
       `}
       <button class="btn sm ghost" data-remove-set="${bi}.${ei}.${si}">✕</button>
@@ -1554,9 +1671,10 @@ function workoutAchievements(w){
   const others = DB.workouts.filter(o=>o.participantId===pid && o.id!==w.id && isDone(o));
   State.achFor = pid;
   const before = achievementsList(others), after = achievementsList([...others, w]);
-  return after.filter(a=>{ const b = before.find(x=>x.cat===a.cat && x.title===a.title) || {};
-    return a.got && (!b.got || (a.cat==='beast' && a.count>(b.count||0))); })
-    .map(a=>{ const b = before.find(x=>x.cat===a.cat && x.title===a.title) || {}; return a.cat==='beast' ? {...a, count:a.count-(b.count||0)} : a; });
+  const bMap = new Map(before.map(x=>[x.cat+'|'+x.title, x])), prevOf = a => bMap.get(a.cat+'|'+a.title) || {};
+  const fresh = after.filter(a=>{ const b = prevOf(a); return a.got && (!b.got || (a.cat==='beast' && a.count>(b.count||0))); })
+    .map(a=>a.cat==='beast' ? {...a, count:a.count-(prevOf(a).count||0)} : a);
+  return compressBw(fresh);   // из лестницы «Свой вес» — только верхняя новая ступень
 }
 function renderResultModal(){
   const {w, achs, recs} = State.modal, units = DB.settings.units, t = Calc.workoutTonnage(w), cmp = tonnageComparison(t);
