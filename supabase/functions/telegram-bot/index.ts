@@ -16,7 +16,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-09-26 · food-notify";
+const BOT_VERSION = "2026-09-26 · weak-poster";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -177,7 +177,8 @@ async function onMessage(msg: any) {
     await send(chat, `Проверяю картинки по адресу приложения:\n<code>${esc(APP_URL)}</code>`);
     const a = await sendPhotoSafe(chat, `${APP_URL}img/lightweight/01.jpg`, "Тест: постер Light weight");
     const b = await sendPhotoSafe(chat, `${APP_URL}bot/morning/01.png`, "Тест: утренняя картинка");
-    return send(chat, a.ok && b.ok ? "✅ Картинки доступны." : "❌ Часть картинок недоступна — проверьте, что папки img/ и bot/ запушены и MINI_APP_URL указывает на адрес приложения.");
+    const c = await sendPhotoSafe(chat, `${APP_URL}img/weak/01.jpg`, "Тест: «Ну давай, заплачь!!!»");
+    return send(chat, a.ok && b.ok && c.ok ? "✅ Картинки доступны." : "❌ Часть картинок недоступна — проверьте, что папки img/ и bot/ запушены и MINI_APP_URL указывает на адрес приложения.");
   }
   if (text === "/reminders") {
     const on = !p.reminders;
@@ -278,24 +279,32 @@ async function workoutSummary(w: any) {
   const info = new Map((exs ?? []).map((e: any) => [e.id, e]));
   // собственный вес на дату тренировки: подход без веса = повторения × вес спортсмена (как в приложении)
   const { data: bwRow } = await admin.from("body_weights").select("weight_kg").eq("user_id", w.participant_id).lte("date", w.date).order("date", { ascending: false }).limit(1);
-  let bw = Number(bwRow?.[0]?.weight_kg) || 0;
+  let bw = Number(w.body_weight) || Number(bwRow?.[0]?.weight_kg) || 0;   // вес тела, записанный в самой тренировке, — главный
   if (!bw) { const { data: d } = await admin.from("profile_details").select("weight_kg").eq("user_id", w.participant_id).maybeSingle(); bw = Number(d?.weight_kg) || 0; }
   let total = 0, sets = 0; const groups: Record<string, number> = {}; const lines: string[] = [];
   for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) {
     let t = 0, n = 0;
     const ex: any = info.get(e.exerciseId);
     const ownBw = ex && ["strength", "functional"].includes(ex.type) ? bw : 0;
-    for (const s of e.sets ?? []) { const wt = Number(s.weight) || 0; const v = (wt > 0 ? wt : ownBw) * (Number(s.reps) || 0); if (v > 0 || Number(s.reps) > 0 || s.time) n++; t += v; }
+    let km = 0, min = 0, incl = 0;
+    for (const s of e.sets ?? []) {
+      const wt = Number(s.weight) || 0; let v = (wt > 0 ? wt : ownBw) * (Number(s.reps) || 0);
+      // дроп-сет: к подходу прибавляются дропы (вес × повторения каждого)
+      if (e.isDropset) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; v += (dw > 0 ? dw : ownBw) * (Number(d.reps) || 0); }
+      if (v > 0 || Number(s.reps) > 0 || Number(s.time) > 0 || Number(s.distance) > 0) n++;
+      t += v; km += Number(s.distance) || 0; min += Number(s.time) || 0; incl = Math.max(incl, Number(s.incline) || 0);
+    }
     if (!n) continue;
     sets += n; total += t;
     if (ex && t > 0) groups[ex.main_group] = (groups[ex.main_group] ?? 0) + t;
-    lines.push(`• ${esc(ex?.name ?? "Упражнение")}${b.kind === "superset" ? " (суперсет)" : e.isDropset ? " (дроп-сет)" : ""}: ${n} подх.${t > 0 ? `, ${fmt(t)} кг` : ""}`);
+    const cardio = ex?.type === "cardio" ? [km ? `${Math.round(km * 100) / 100} км` : "", min ? `${Math.round(min)} мин` : "", incl ? `уклон ${incl}%` : ""].filter(Boolean).join(", ") : "";
+    lines.push(`• ${esc(ex?.name ?? "Упражнение")}${b.kind === "superset" ? " (суперсет)" : e.isDropset ? " (дроп-сет)" : ""}: ${cardio || `${n} подх.`}${t > 0 ? `, ${fmt(t)} кг` : ""}`);
   }
   const cmp = [...TONNAGE_CMP].reverse().find(([th]) => total >= th);
   const g = Object.entries(groups).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${MG[k] ?? k} ${fmt(v)}`).join(" · ");
   return [
     `🏋️ <b>${esc(w.name || "Тренировка")}</b>`,
-    `📅 ${w.date}${w.duration ? ` · ⏱ ${w.duration} мин` : ""}`,
+    `📅 ${w.date}${w.duration ? ` · ⏱ ${w.duration} мин` : ""}${Number(w.body_weight) ? ` · ⚖️ ${w.body_weight} кг` : ""}`,
     lines.length ? lines.join("\n") : "Подходы не заполнены",
     `\nПодходов: <b>${sets}</b>${total > 0 ? ` · Тоннаж: <b>${fmt(total)} кг</b>` : ""}`,
     cmp ? `Это как поднять: ${cmp[1]}` : "",
@@ -327,6 +336,42 @@ async function findRecords(w: any) {
   return out.map((r) => ({ ...r, name: exs?.find((e: any) => e.id === r.exerciseId)?.name ?? "упражнение" }));
 }
 
+// ---------------- «НУ ДАВАЙ, ЗАПЛАЧЬ!!!»: тренировка на 25%+ слабее обычного по группе мышц ----------------
+// сравниваем тоннаж каждой группы мышц с её средним за прошлые тренировки (последние 120 дней, нужно ≥ 3 тренировок этой группы)
+const WEAK_COUNT = 3;
+function groupTonnage(w: any, info: Map<string, any>, bw: number) {
+  const g: Record<string, number> = {};
+  for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) {
+    const ex = info.get(e.exerciseId); if (!ex || ex.type === "cardio") continue;
+    const own = ["strength", "functional"].includes(ex.type) ? bw : 0; let t = 0;
+    for (const s of e.sets ?? []) {
+      const wt = Number(s.weight) || 0; t += (wt > 0 ? wt : own) * (Number(s.reps) || 0);
+      if (e.isDropset) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; t += (dw > 0 ? dw : own) * (Number(d.reps) || 0); }
+    }
+    if (t > 0) g[ex.main_group] = (g[ex.main_group] ?? 0) + t;
+  }
+  return g;
+}
+async function weakWorkout(w: any) {
+  const since = new Date(Date.now() - 120 * 86400000).toISOString().slice(0, 10);
+  const { data: prev } = await admin.from("workouts").select("id,date,blocks,body_weight").eq("participant_id", w.participant_id)
+    .neq("id", w.id).gte("date", since).lte("date", w.date);
+  const all = [w, ...(prev ?? [])];
+  const ids = new Set<string>(); all.forEach((x: any) => (x.blocks ?? []).forEach((b: any) => (b.exercises ?? []).forEach((e: any) => ids.add(e.exerciseId))));
+  if (!ids.size) return null;
+  const { data: exs } = await admin.from("exercises").select("id,main_group,type").in("id", [...ids]);
+  const info = new Map((exs ?? []).map((e: any) => [e.id, e]));
+  const { data: d } = await admin.from("profile_details").select("weight_kg").eq("user_id", w.participant_id).maybeSingle();
+  const bwOf = (x: any) => Number(x.body_weight) || Number(w.body_weight) || Number(d?.weight_kg) || 0;
+  const cur = groupTonnage(w, info, bwOf(w));
+  const hist: Record<string, number[]> = {};
+  for (const x of prev ?? []) for (const [k, v] of Object.entries(groupTonnage(x, info, bwOf(x)))) (hist[k] ??= []).push(v);
+  const worse = Object.entries(cur).map(([k, v]) => { const h = hist[k] ?? []; if (h.length < 3) return null;
+    const avg = h.reduce((a, b) => a + b, 0) / h.length; const drop = 1 - v / avg; return drop >= 0.25 ? { k, v, avg, drop } : null; })
+    .filter(Boolean) as { k: string; v: number; avg: number; drop: number }[];
+  return worse.length ? worse.sort((a, b) => b.drop - a.drop) : null;
+}
+
 async function onWorkoutDone(req: Request, body: any) {
   const jwt = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
   const { data: u } = await admin.auth.getUser(jwt);
@@ -352,6 +397,17 @@ async function onWorkoutDone(req: Request, body: any) {
     const caption = "🏆 LIGHT WEIGHT, BABY!\n\n" + records.map((r) =>
       `Впервые достигнут вес ${fmt(r.weight)} кг в упражнении «${esc(r.name)}», количество повторений ${r.reps}.`).join("\n");
     await sendPhotoSafe(athlete.telegram_id, `${APP_URL}img/lightweight/${n}.jpg`, caption);
+  }
+  // слабая тренировка — постер «Ну давай, заплачь!!!» (не вместе с рекордом: рекорд важнее)
+  if (athlete?.telegram_id && !records.length && APP_URL) {
+    const weak = await weakWorkout(w).catch((e) => { console.log("WEAK_ERR", String(e)); return null; });
+    if (weak) {
+      const top = Math.round(weak[0].drop * 100);
+      const caption = `😤 НУ ДАВАЙ, ЗАПЛАЧЬ!!!\n\nТренировка на ${top}% хуже обычного:\n` + weak.map((x) =>
+        `• ${MG[x.k] ?? x.k}: ${fmt(x.v)} кг против обычных ${fmt(x.avg)} кг (−${Math.round(x.drop * 100)}%)`).join("\n") + "\n\nСледующая — злее. 💪";
+      const n = String(1 + Math.floor(Math.random() * WEAK_COUNT)).padStart(2, "0");
+      await sendPhotoSafe(athlete.telegram_id, `${APP_URL}img/weak/${n}.jpg`, caption);
+    }
   }
   for (const t of (people ?? []).filter((x: any) => x.id !== w.participant_id && x.telegram_id))
     await send(t.telegram_id, `👀 Подопечный <b>${esc(athlete?.name)}</b> завершил тренировку:\n\n` + text);

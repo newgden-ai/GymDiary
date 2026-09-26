@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ТренДневник</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Permanent+Marker&display=swap" media="print" onload="this.media='all'">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="help/data.js" defer></script>
@@ -89,6 +89,21 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .set-row{display:grid;grid-template-columns:28px minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr) 32px;gap:6px;align-items:center;margin-bottom:4px;}
 .set-row input{padding:6px;min-width:0;width:100%;border:1px solid var(--border);border-radius:6px;background:var(--surface);}
 .set-row .btn{padding:5px 0;width:32px;}
+.set-row.cardio{grid-template-columns:28px repeat(3,minmax(0,1fr)) minmax(0,1.2fr) 32px;}
+.drops{display:flex;flex-direction:column;gap:3px;margin:-1px 0 5px 34px;padding-left:8px;border-left:2px solid var(--warn);}
+.drop-row{display:grid;grid-template-columns:26px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center;font-size:12px;color:var(--warn);font-weight:700;}
+.drop-row input{padding:5px 6px;min-width:0;width:100%;border:1px solid var(--border);border-radius:6px;background:var(--surface);font-size:16px;}
+.set-rec{font-size:11px;color:var(--accent);margin:-2px 0 3px 34px;}
+.best-pill{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:color-mix(in srgb,#f5b82e 18%,transparent);color:#c98c00;border:1px solid color-mix(in srgb,#f5b82e 45%,transparent);white-space:nowrap;}
+.ss-tag{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:20px;padding:0 5px;border-radius:6px;background:var(--accent);color:var(--on-accent,#fff);font-size:11px;font-weight:800;}
+.ss-pair{font-size:12.5px;margin:6px 0 2px;padding:6px 8px;border-radius:8px;background:color-mix(in srgb,var(--accent) 10%,transparent);}
+.block-card.superset{border-left:4px solid var(--accent);}
+.btn.mv{padding:3px 7px;font-weight:700;}
+.btn.mv:disabled{opacity:.3;}
+.cardio-quick{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;}
+.autosave-note{font-size:11px;margin-left:8px;}
+.flash{animation:flashbg .7s ease;}
+@keyframes flashbg{0%{box-shadow:0 0 0 3px var(--accent);}100%{box-shadow:0 0 0 0 transparent;}}
 .ex-card .row,.block-card .row{flex-wrap:wrap;min-width:0;}
 .ex-card.dropset{border:1px solid var(--warn);border-left:4px solid var(--warn);}
 .drop-badge{background:var(--warn);color:#fff;border-radius:999px;font-size:11px;padding:1px 8px;font-weight:600;}
@@ -150,6 +165,13 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .lw-poster{width:100%;aspect-ratio:2/3;border-radius:8px;overflow:hidden;border:2px solid #555;filter:grayscale(1) brightness(.5);}
 .ach-tile.got .lw-poster{filter:none;border-color:#e3262e;box-shadow:0 0 10px rgba(227,38,46,.55);}
 .lw-poster img{width:100%;height:100%;object-fit:cover;display:block;}
+.wr-card{position:relative;width:100%;aspect-ratio:2/3;border-radius:8px;overflow:hidden;border:2px solid #444;filter:grayscale(1) brightness(.5);}
+.ach-tile.got .wr-card{filter:none;border-color:var(--wr);box-shadow:0 0 12px -2px var(--wr);}
+.wr-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;transform:scale(1.5);transform-origin:50% 0;filter:brightness(.45) saturate(.8);}
+.wr-lw{position:absolute;left:6%;right:4%;top:34%;font-family:'Permanent Marker','Brush Script MT',Impact,cursive;font-size:21px;line-height:.9;color:var(--wr);transform:rotate(-12deg);
+  text-transform:uppercase;text-shadow:0 2px 0 #000,0 0 10px color-mix(in srgb,var(--wr) 70%,transparent);}
+.wr-kg{position:absolute;left:0;right:0;bottom:22%;text-align:center;font:800 17px Impact,'Arial Black',sans-serif;color:#fff;text-shadow:0 2px 4px #000;}
+.wr-pct{position:absolute;left:4px;right:4px;bottom:8%;text-align:center;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:var(--wr);text-shadow:0 1px 2px #000;text-transform:uppercase;}
 .tier-medal{position:relative;width:100%;aspect-ratio:1;filter:grayscale(1) brightness(.55);opacity:.6;}
 .ach-tile.got .tier-medal{filter:drop-shadow(0 0 10px color-mix(in srgb,var(--ach) 60%,transparent));opacity:1;}
 .tier-medal img{position:absolute;inset:0;width:100%;height:100%;}
@@ -277,6 +299,9 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
   .modal{padding:14px 12px;margin:0 0 20px;}
   .set-row{grid-template-columns:28px minmax(0,1fr) minmax(0,1fr) 32px;}
   .set-row .set-note{grid-column:2/4;grid-row:2;}
+  .set-row.cardio{grid-template-columns:28px repeat(3,minmax(0,1fr)) 32px;}
+  .set-row.cardio .set-note{grid-column:2/5;grid-row:2;}
+  .set-row.cardio .btn{grid-column:5;grid-row:1;}
   .set-row .btn{grid-column:4;grid-row:1;}
   .set-row input{font-size:16px;}
 }
@@ -425,7 +450,9 @@ const Auth = (function(){
       return null;
     }
     tg.ready(); tg.expand && tg.expand();
-    try{ tg.disableVerticalSwipes && tg.disableVerticalSwipes(); }catch(e){} // свайп вниз не сворачивает приложение и не сдвигает меню
+    try{ tg.disableVerticalSwipes && tg.disableVerticalSwipes(); }catch(e){}
+    // кнопка «Назад» Telegram закрывает открытое окно (данные уже сохранены), а не всё приложение
+    try{ tg.BackButton && tg.BackButton.onClick(()=>{ if(State.modal) closeModal(); }); }catch(e){} // свайп вниз не сворачивает приложение и не сдвигает меню
 
     setStatus('Проверяем вход…');
     let res, payload;
@@ -463,7 +490,9 @@ const Auth = (function(){
   }
   function getClient(){ return client; }
   function getToken(){ return session && session.access_token; }
-  return { login, getClient, getToken };
+  // свежий токен: сессия живёт час, supabase-js продлевает её сам — берём актуальную
+  async function freshToken(){ try{ const {data} = await client.auth.getSession(); if(data && data.session) session = data.session; }catch(e){} return session && session.access_token; }
+  return { login, getClient, getToken, freshToken };
 })();
 
 /* ===================== STORAGE MODULE (Supabase, с diff-синхронизацией) ===================== */
@@ -491,13 +520,14 @@ const Storage = (function(){
       id:w.id, participant_id:w.participantId, created_by:w.createdBy||selfId, date:w.date,
       time:w.time||null, duration:w.duration?Number(w.duration):null, name:w.name||null,
       type:w.type, blocks:w.blocks||[], notes:w.notes||null, result:w.result||null,
-      recurring_group_id:w.recurringId||null, status:w.status||'planned'
+      recurring_group_id:w.recurringId||null, status:w.status||'planned',
+      ...(w.bodyWeight!==''&&w.bodyWeight!=null ? {body_weight:Number(w.bodyWeight)} : {})
     };
   }
   function workoutFromDb(r){
     return { id:r.id, date:r.date, time:r.time||'', duration:r.duration||'', name:r.name||'',
       participantId:r.participant_id, createdBy:r.created_by, type:r.type, blocks:r.blocks||[], notes:r.notes||'',
-      result:r.result||'', recurringId:r.recurring_group_id||null, status:r.status||'planned' };
+      result:r.result||'', recurringId:r.recurring_group_id||null, status:r.status||'planned', bodyWeight:r.body_weight??'' };
   }
   function templateToDb(t){ return { id:t.id, owner_id:(t.ownerId===undefined?selfId:t.ownerId), name:t.name, blocks:t.blocks||[], is_public:!!t.isPublic, author_name:t.authorName||null }; }
   function templateFromDb(r){ return { id:r.id, name:r.name, blocks:r.blocks||[], ownerId:r.owner_id, isPublic:!!r.is_public, authorName:r.author_name||'' }; }
@@ -596,8 +626,10 @@ const Storage = (function(){
     try{
       const wDb = DB.workouts.map(workoutToDb);
       const wDiff = rowsToDiff(wDb, snapshot.workouts, 'id');
-      if(wDiff.upserts.length) await client.from('workouts').upsert(wDiff.upserts);
-      if(wDiff.deletes.length) await client.from('workouts').delete().in('id', wDiff.deletes);
+      // ошибку не глотаем: снимок не обновится, и следующая попытка отправит изменения снова
+      const must = r => { if(r && r.error) throw r.error; };
+      if(wDiff.upserts.length) must(await client.from('workouts').upsert(wDiff.upserts));
+      if(wDiff.deletes.length) must(await client.from('workouts').delete().in('id', wDiff.deletes));
 
       // свои шаблоны синхронизируем; чужие общие — только чтение (админ может править все)
       const tDb = DB.templates.filter(t=>isAdmin() || t.ownerId===undefined || t.ownerId===selfId).map(templateToDb);
@@ -623,7 +655,9 @@ const Storage = (function(){
         exercises: JSON.parse(JSON.stringify(ownExDb)),
         profile: { id:selfId, ...profileRow }
       };
-    }catch(e){ console.error('Ошибка синхронизации:', e); }
+      Storage.lastSyncError = null;
+    }catch(e){ console.error('Ошибка синхронизации:', e); Storage.lastSyncError = e;
+      if(!syncAll.warned){ syncAll.warned = true; toast('Не удалось сохранить на сервер: '+(e.message||e)+'. Повторим автоматически.'); setTimeout(()=>{ syncAll.warned=false; save(); }, 8000); } }
   }
   function isGlobalExercise(e){ return e.ownerId === null || e.ownerId === undefined; }
 
@@ -649,8 +683,11 @@ const Storage = (function(){
 /* ===================== CALC MODULE (tonnage) ===================== */
 const Calc = (function(){
   // bw — вес спортсмена: подход без веса отягощения (подтягивания, отжимания…) = повторения × собственный вес
-  function setTonnage(s, bw){ const wt = Number(s.weight)||0, r = Number(s.reps)||0; return (wt>0 ? wt : (Number(bw)||0)) * r; }
-  function exTonnage(ex, bw){ return (ex.sets||[]).reduce((a,s)=>a+setTonnage(s, bw),0); }
+  // withDrops — у дроп-сета к подходу прибавляются 3 «дропа» (вес × повторения каждого)
+  function setTonnage(s, bw, withDrops){ const wt = Number(s.weight)||0, r = Number(s.reps)||0; let t = (wt>0 ? wt : (Number(bw)||0)) * r;
+    if(withDrops) (s.drops||[]).forEach(d=>{ const dw = Number(d.weight)||0, dr = Number(d.reps)||0; t += (dw>0 ? dw : (Number(bw)||0)) * dr; });
+    return t; }
+  function exTonnage(ex, bw){ return (ex.sets||[]).reduce((a,s)=>a+setTonnage(s, bw, !!ex.isDropset),0); }
   // bwFor(w, ex) задаёт приложение: какой собственный вес подставлять для упражнения этой тренировки (0 — не учитывать)
   let bwFor = () => 0;
   function setBodyWeightProvider(fn){ bwFor = fn; }
@@ -836,6 +873,18 @@ const MACHINE_TAGS = {
 const HERO_NAMES = {coleman:'Ронни Коулман', hall:'Эдди Холл', statham:'Джейсон Стэйтем', rock:'Дуэйн «Скала» Джонсон', willis:'Брюс Уиллис',
   vandamme:'Жан-Клод Ван Дамм', lundgren:'Дольф Лундгрен', cavill:'Генри Кавилл', bjornsson:'Хафтор Бьёрнссон', reacher:'Джек Ричер',
   hemsworth:'Крис Хемсворт', stallone:'Сильвестр Сталлоне', snipes:'Уэсли Снайпс'};
+// постер «Light weight» каждого героя (img/lightweight/NN.jpg)
+const HERO_POSTER = {coleman:'08', hall:'02', statham:'03', rock:'04', willis:'05', vandamme:'06', lundgren:'07', cavill:'09',
+  bjornsson:'10', reacher:'11', hemsworth:'12', stallone:'14', snipes:'15'};
+// мировые рекорды (вес в одном повторении, мужчины, без экипировки / абсолютные) — на сентябрь 2026
+const WORLD_RECORDS = [
+  {lift:'Становая тяга', rx:/станов|deadlift/i, kg:511, who:'Рауль Флорес, 2026', poster:'10'},
+  {lift:'Присед', rx:/присед|squat/i, kg:490, who:'Рэй Уильямс, 2019', poster:'08'},
+  {lift:'Жим лёжа', rx:/жим.*л[её]ж|bench/i, kg:355, who:'Джулиус Мэддокс, 2021', poster:'14'},
+  {lift:'Толчок штанги', rx:/толчок|clean/i, kg:267, who:'Лаша Талахадзе, 2021', poster:'02'},
+  {lift:'Рывок штанги', rx:/рывок|snatch/i, kg:225, who:'Лаша Талахадзе, 2021', poster:'04'}
+];
+const WR_TIERS = [[25,'#3ddc84'],[50,'#2ec5ff'],[75,'#ffd000'],[90,'#ff8a00'],[100,'#ff1a2e']];
 const HERO_ACH = [
   {h:'coleman', style:'relief', title:'Yeah buddy!', desc:'Присед ≥ 1,5 веса тела и становая ≥ 2 веса тела', check:c=>c.all([[c.maxW(RX.squat), 1.5*c.bw], [c.maxW(RX.dead), 2*c.bw]])},
   {h:'coleman', style:'mono', title:'8 × Мистер Олимпия', desc:'Ронни выиграл «Мистер Олимпия» 8 раз подряд (1998–2005): 8 недель подряд с тренировками и 8 тренировок с приседом', check:c=>c.all([[c.streak, 8], [c.workoutsWith(RX.squat), 8]])},
@@ -843,6 +892,8 @@ const HERO_ACH = [
   {h:'hall', style:'relief', title:'Зверь', desc:'Становая тяга ≥ 2,5 веса тела', check:c=>c.all([[c.maxW(RX.dead), 2.5*c.bw]])},
   {h:'hall', style:'mono', title:'Сильнейший человек планеты', desc:'Эдди — победитель World’s Strongest Man 2017: тренировка со становой и тоннажем ≥ 10 т', check:c=>c.all([[c.bestTonWith(RX.dead), 10000]])},
   {h:'hall', style:'relief', rare:true, title:'500 кг', desc:'Первым в истории потянул 500 кг в становой (2016). Повтори!', check:c=>c.all([[c.maxW(RX.dead), 500]])},
+  {h:'hall', style:'mono', title:'Сильнейший в Британии ×5', desc:'Эдди пять раз подряд выигрывал Britain’s Strongest Man (2012–2016): 5 тренировок со становой тягой', check:c=>c.all([[c.workoutsWith(RX.dead), 5]])},
+  {h:'hall', style:'relief', title:'Реванш', desc:'После боя с Хафтором (2022) Эдди вернулся в зал: 4 недели подряд по 3+ тренировки', check:c=>c.all([[c.weeksInRowWith(3), 4]])},
   {h:'statham', style:'mono', title:'Прыжок с вышки', desc:'Стэйтем 12 лет был в сборной Великобритании по прыжкам в воду: 3 кардио- или функциональные тренировки за одну неделю', check:c=>c.all([[c.maxWeekOf(w=>['cardio','functional'].includes(w.type)), 3]])},
   {h:'statham', style:'relief', title:'Перевозчик', desc:'10 подтягиваний в одном подходе и 30 отжиманий в одном подходе', check:c=>c.all([[c.maxReps(RX.pullup), 10], [c.maxReps(RX.pushup), 30]])},
   {h:'rock', style:'mono', title:'Подъём в 4 утра', desc:'Скала известен тренировками в 4 утра: тренировка, начатая раньше 5:00', check:c=>c.all([[c.count(w=>w.time && w.time<'05:00'), 1]])},
@@ -858,7 +909,10 @@ const HERO_ACH = [
   {h:'cavill', style:'relief', title:'Человек из стали', desc:'«Человек из стали» (2013): 12 недель подряд с тренировками', check:c=>c.all([[c.streak, 12]])},
   {h:'cavill', style:'mono', title:'Супер-подтягивания', desc:'15 подтягиваний в одном подходе', check:c=>c.all([[c.maxReps(RX.pullup), 15]])},
   {h:'bjornsson', style:'relief', title:'Гора', desc:'Рост ≥ 190 см, вес ≥ 100 кг и становая ≥ 200 кг', check:c=>c.all([[c.height, 190], [c.bw, 100], [c.maxW(RX.dead), 200]])},
-  {h:'bjornsson', style:'relief', rare:true, title:'501 кг', desc:'Мировой рекорд в становой тяге (2020). Кто следующий?', check:c=>c.all([[c.maxW(RX.dead), 501]])},
+  {h:'bjornsson', style:'relief', rare:true, title:'505 кг', desc:'Хафтор потянул 505 кг в становой (2025) — тогда это был мировой рекорд. Повтори!', check:c=>c.all([[c.maxW(RX.dead), 505]])},
+  {h:'bjornsson', style:'mono', title:'Сильнейший человек планеты 2018', desc:'Хафтор выиграл World’s Strongest Man 2018: тренировка с тоннажем ≥ 20 т', check:c=>c.all([[c.bestTonWith(/./), 20000]])},
+  {h:'bjornsson', style:'relief', title:'Арнольд ×3', desc:'Трижды подряд выиграл Arnold Strongman Classic (2018–2020): 3 тренировки с тоннажем ≥ 10 т', check:c=>c.all([[c.count(w=>Calc.workoutTonnage(w)>=10000), 3]])},
+  {h:'bjornsson', style:'mono', title:'Бой тяжеловесов', desc:'В 2022 году Хафтор победил Эдди Холла на ринге: 10 кардио- или функциональных тренировок', check:c=>c.all([[c.count(w=>c.hasType(w,'cardio')||c.hasType(w,'functional')), 10]])},
   {h:'reacher', style:'mono', title:'Шкаф', desc:'Ричер — 195 см и больше 100 кг: жим лёжа ≥ 100 кг и 10 подтягиваний в подходе', check:c=>c.all([[c.maxW(RX.bench), 100], [c.maxReps(RX.pullup), 10]])},
   {h:'reacher', style:'mono', title:'Военная полиция', desc:'4 недели подряд по 3+ тренировки в неделю', check:c=>c.all([[c.weeksInRowWith(3), 4]])},
   {h:'hemsworth', style:'relief', title:'Молот Тора', desc:'«Молотки» с гантелью ≥ 20 кг', check:c=>c.all([[c.maxW(RX.hammer), 20]])},
@@ -936,7 +990,7 @@ function sportSets(workouts){
   return out;
 }
 function bwLadderData(sets){
-  return BW_LADDERS.map(L=>{ const kgs = [], steps = []; for(let k=0;k<=L.kg;k+=5) kgs.push(k); for(let r=10;r<=L.reps;r+=5) steps.push(r);
+  return BW_LADDERS.map(L=>{ const kgs = [0,5,10,15,20,30,40,50].filter(k=>k<=L.kg), steps = [10,15,20,25,30,40,50,60,75,100].filter(r=>r<=L.reps);
     const best = kgs.map(()=>0);
     sets.filter(x=>x.type!=='cardio' && x.reps>0 && L.m(x.n)).forEach(x=>{ const e = extraKg(x.w, x.s); kgs.forEach((k,i)=>{ if(e>=k-0.01 && x.reps>best[i]) best[i] = x.reps; }); });
     return {...L, kgs, steps, best}; });
@@ -1005,9 +1059,10 @@ const ACH_CATS = [
   {id:'streak', name:'Серии', color:'#ff5a8a', hint:'недель подряд'},
   {id:'rare', name:'Редкие', color:'#b388ff', hint:'уникальное'},
   {id:'cert', name:'Соревнования', color:'#ffd166', hint:'подтверждённые сертификаты — добавить: Участники → вы → Сертификаты'},
-  {id:'hero', name:'Герои', color:'#e0b04a', hint:'ачивки героев «Light weight» — выполните все условия'},
   {id:'beast', name:'Звери', color:'#c7a36a', hint:'вес в одном повторении — отдельная ачивка за каждое упражнение'},
   {id:'lw', name:'Light weight', color:'#e3262e', hint:'личные рекорды: вес в упражнении выше, чем когда-либо раньше (как на экране «Light weight, baby!»)'},
+  {id:'hero', name:'Light weight: герои', color:'#e0b04a', hint:'ачивки героев постеров «Light weight» — выполните все условия'},
+  {id:'wr', name:'Мировые рекорды', color:'#ff1a2e', hint:'вес в одном повторении от мирового рекорда: зелёный 25% · синий 50% · золотой 75% · оранжевый 90% · красный — сам рекорд'},
   {id:'pack', name:'Стаи', color:'#d9713a', hint:'лучший подход: вес × повторения (упражнения со своим весом — с весом тела)'},
   {id:'bw', name:'Свой вес', color:'#9fb4c7', hint:'повторения в одном подходе с собственным и дополнительным весом (в подходе пишите отягощение: 10 = +10 кг)'},
   {id:'cali', name:'Калистеника', color:'#7fd6a2', hint:'статика — секунды удержания в одном подходе, бёрпи — за тренировку'},
@@ -1048,7 +1103,7 @@ function achievementsList(workouts){
   ev('🦉','Ночная сова','Тренировка после 23:00', workouts.some(w=>w.time && w.time>='23:00'));
   ev('🎯','Ровно тонна','Тоннаж тренировки ровно 1000 кг', tons.some(t=>Math.abs(t-1000)<0.01));
   ev('🔁','Тоннаж-палиндром','Тоннаж читается одинаково с обеих сторон, например 12 321 кг', tons.some(isPalindromeNum));
-  ev('🎂','Тренировка в день рождения','Тренировка в свой день рождения', (()=>{ const d=(DB.details||[]).find(x=>x.user_id===(workouts[0]||{}).participantId); return !!(d&&d.birth_date) && workouts.some(w=>w.date.slice(5)===d.birth_date.slice(5)); })());
+  ev('🎂','Тренировка в день рождения','Тренировка в свой день рождения (дата рождения — в личных данных)', (()=>{ const d=(DB.details||[]).find(x=>x.user_id===((workouts[0]||{}).participantId||State.achFor)); return !!(d&&d.birthday) && workouts.some(w=>w.date.slice(5)===d.birthday.slice(5)); })());
   const uid = (workouts[0]||{}).participantId || State.achFor;
   (DB.certs||[]).filter(c=>c.user_id===uid && c.status==='approved').forEach(c=>
     out.push({cat:'cert', icon:/1|золот|перв/i.test(c.result||'')?'🥇':/2|серебр|втор/i.test(c.result||'')?'🥈':/3|бронз|трет/i.test(c.result||'')?'🥉':'🏅',
@@ -1073,6 +1128,10 @@ function achievementsList(workouts){
       return {name:e.name, group:MG[e.mainGroup]||'Другое', kg, date:first}; });
     out.push({cat:'beast', icon:i, badge:ACH_BADGES[n], title:n, desc:`${fmtNum(kg)} кг в одном повторении`, cur:Math.round(topLift), target:kg, count:holders.length, holders});
   });
+  // «Мировые рекорды»: вес в одном повторении ≥ доли мирового рекорда
+  WORLD_RECORDS.forEach(r=>{ const best = hc.maxW(r.rx); WR_TIERS.forEach(([pct,color])=>{ const kg = Math.round(r.kg*pct/10)/10;
+    add('wr', '🏆', `${r.lift}: ${pct===100?'мировой рекорд':pct+'% рекорда'}`, `${fmtNum(kg)} кг в одном повторении — ${pct===100?'':pct+'% от '}мирового рекорда ${r.kg} кг (${r.who})`, Math.round(best), kg, pct>=90);
+    out[out.length-1].wr = {lift:r.lift, kg, pct, color, poster:r.poster}; }); });
   // «Light weight»: сколько раз побит личный рекорд веса в упражнении (каждая ступень — свой постер)
   let lwRecords = 0; const lwMax = {};
   workouts.slice().sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||''))).forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{
@@ -1126,7 +1185,8 @@ function achTile(a, color){
     ${a.cat==='bw'?`<div class="bw-medal"><span>${a.icon}</span><b>×${a.reps}</b><i>${a.kg?'+'+a.kg+' кг':'свой вес'}</i></div><div class="ach-t">${esc(a.lname)}</div>`:''}
     ${a.poster?`<div class="lw-poster"><img src="img/lightweight/thumb/${String(a.poster).padStart(2,'0')}.webp" alt="" loading="lazy"></div><div class="ach-t">${esc(a.title)}</div>`:''}
     ${a.tier?`<div class="tier-medal"><img src="img/badges/tier_${a.tier}.webp" alt="" decoding="async"><img class="tier-ico" src="img/badges/ico_${a.cat}.webp" alt="" loading="lazy" decoding="async"><span class="tier-txt" style="font-size:${a.tierText.length<=5?15:a.tierText.length<=8?12:a.tierText.length<=12?8.5:8}px">${esc(a.tierText)}</span></div>`:''}
-    ${a.cat==='bw'||a.tier||a.poster?'':a.hero?`<div class="hero-medal ${a.style}"><img src="img/heroes/${a.hero}.webp" alt="" loading="lazy" decoding="async"></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<div class="ach-emo">${a.icon}</div>
+    ${a.cat==='bw'||a.tier||a.poster?'':a.hero?`<div class="lw-poster"><img src="img/lightweight/thumb/${HERO_POSTER[a.hero]||'01'}.webp" alt="${esc(HERO_NAMES[a.hero])}" loading="lazy" decoding="async"></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`
+    :a.wr?`<div class="wr-card" style="--wr:${a.wr.color}"><img src="img/lightweight/thumb/${a.wr.poster}.webp" alt="" loading="lazy" decoding="async"><span class="wr-lw">Light<br>weight</span><span class="wr-kg">${fmtNum(a.wr.kg)} кг</span><span class="wr-pct">${a.wr.pct===100?'МИРОВОЙ РЕКОРД':a.wr.pct+'% рекорда'}</span></div><div class="ach-t">${esc(a.wr.lift)}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>${a.tag?`<div class="ach-tag">${esc(a.tag)}</div>`:''}`}
     ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${a.cat==='hero'?a.cur+'%':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}</div>`}
   </div>`;
@@ -1258,14 +1318,20 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;',
 function fmtNum(n){return Math.round(n*10)/10;}
 function convW(kg, units){ return units==='lb' ? fmtNum(kg*2.20462) : fmtNum(kg); }
 function unitLabel(units){ return units==='lb' ? 'фунт' : 'кг'; }
-function toKg(v, units){ return units==='lb' ? (Number(v)||0)/2.20462 : (Number(v)||0); }
+function toKg(v, units){ const x = parseFloat(String(v??'').replace(/\s/g,'').replace(',','.')) || 0; return units==='lb' ? x/2.20462 : x; }
 
 /* ===================== APP STATE ===================== */
 const DB = { participants:[{id:'', name:'Я', color:'#3d5a45'}], exercises:[], workouts:[], templates:[], settings:{units:'kg', theme:'auto', restDefault:90, themeColor:'forest'} };
 function selfParticipantId(){ return DB.participants[0].id; }
 // собственный вес участника на дату тренировки: последний замер не позже даты, иначе ближайший позже, иначе из анкеты
+function weightPoints(uid){
+  const pts = (DB.weights||[]).filter(x=>x.user_id===uid).map(x=>({date:x.date, weight_kg:+x.weight_kg}));
+  DB.workouts.forEach(w=>{ if(w.participantId===uid && Number(w.bodyWeight)>0){ const i = pts.findIndex(p=>p.date===w.date);
+    const p = {date:w.date, weight_kg:Number(w.bodyWeight)}; if(i<0) pts.push(p); else pts[i] = p; } });
+  return pts.sort((a,b)=>a.date.localeCompare(b.date));
+}
 function bodyWeightOn(uid, date){
-  const list = (DB.weights||[]).filter(x=>x.user_id===uid);
+  const list = weightPoints(uid);
   const before = list.filter(x=>x.date<=date).sort((a,b)=>b.date.localeCompare(a.date))[0];
   const after = list.filter(x=>x.date>date).sort((a,b)=>a.date.localeCompare(b.date))[0];
   const d = (DB.details||[]).find(x=>x.user_id===uid);
@@ -1343,6 +1409,10 @@ function renderNav(){
 /* ===================== MAIN ROUTER ===================== */
 function renderMain(){
   const m = document.getElementById('main');
+  // та же страница перерисовывается — остаёмся на месте прокрутки; перешли в другой раздел — наверх
+  const key = State.view+'|'+(State.participantProfile||''), y = window.scrollY, same = renderMain.lastKey===key;
+  renderMain.lastKey = key;
+  requestAnimationFrame(()=>window.scrollTo(0, same ? y : 0));
   if(State.view==='calendar') m.innerHTML = viewCalendar();
   else if(State.view==='history') m.innerHTML = viewHistory();
   else if(State.view==='templates') m.innerHTML = viewTemplates();
@@ -1440,7 +1510,7 @@ function viewCalendar(){
 }
 
 /* ===================== WORKOUT MODAL ===================== */
-function blankSet(){return {weight:'',reps:'',time:'',distance:'',note:''};}
+function blankSet(){return {weight:'',reps:'',time:'',distance:'',incline:'',note:''};}
 function blankExercise(exerciseId){return {exerciseId, isDropset:false, sets:[blankSet()]};}
 function blankBlock(kind){return {id:Storage.uid(), kind:kind||'normal', restSeconds:60, exercises:[]};}
 
@@ -1461,7 +1531,35 @@ function openWorkoutModal(opts){
   State.modal = {kind:'workout', w, isNew: !opts.workoutId, recurRule:{on:false, freq:'weekly', days:[], until:''}};
   renderModal();
 }
-function closeModal(){ State.modal = (State.modal && State.modal.kind==='help' && State.modal.back) || null; renderModal(); }
+function closeModal(){
+  const was = State.modal;
+  if(was && was.kind==='workout') autosaveWorkout(true);
+  State.modal = (was && was.kind==='help' && was.back) || null; renderModal();
+  if(was && was.kind==='workout') renderMain();
+}
+// автосохранение: всё, что записано в окне тренировки, сразу попадает в дневник (и через 0,5 с — на сервер)
+function autosaveWorkout(){
+  const m = State.modal; if(!m || m.kind!=='workout') return;
+  const w = m.w;
+  if(m.isNew && m.recurRule && m.recurRule.on) return;            // повторяющуюся создаём только кнопкой «Сохранить»
+  const has = (w.blocks||[]).length || w.name || w.notes || w.result || w.bodyWeight;
+  const idx = DB.workouts.findIndex(x=>x.id===w.id);
+  if(idx<0 && !has) return;
+  if(!w.status) w.status = 'planned';
+  if(idx<0) DB.workouts.push(w); else DB.workouts[idx] = w;
+  Storage.save();
+}
+function flashEl(sel){ requestAnimationFrame(()=>{ const el = document.querySelector('#modalRoot '+sel); if(!el) return;
+  el.classList.add('flash'); const r = el.getBoundingClientRect(); if(r.top<60 || r.bottom>innerHeight-60) el.scrollIntoView({block:'center', behavior:'smooth'});
+  setTimeout(()=>el.classList.remove('flash'), 700); }); }
+// кардио одной кнопкой: общее упражнение по названию (или своё, если общего ещё нет)
+function addCardioBlock(w, name){
+  let ex = DB.exercises.find(e=>normName(e.name)===normName(name) && e.type==='cardio') || DB.exercises.find(e=>normName(e.name)===normName(name));
+  if(!ex){ ex = {id:Storage.uid(), name, mainGroup:'other', secondaryGroups:[], type:'cardio', ownerId:selfParticipantId()}; DB.exercises.push(ex); }
+  const b = blankBlock('normal'); b.exercises.push(blankExercise(ex.id)); w.blocks.push(b);
+  if(w.type==='strength' && w.blocks.every(bl=>bl.exercises.every(e=>(DB.exercises.find(x=>x.id===e.exerciseId)||{}).type==='cardio'))) w.type='cardio';
+  setTimeout(()=>flashEl(`[data-block="${w.blocks.length-1}"]`), 0);
+}
 
 function lastResultFor(exerciseId, participantId, excludeWorkoutId){
   const past = DB.workouts.filter(w=>w.id!==excludeWorkoutId && w.participantId===participantId)
@@ -1494,7 +1592,22 @@ function bestSetFor(exerciseId, participantId, excludeWorkoutId, isCardio){
 
 function renderModal(){
   const root = document.getElementById('modalRoot');
-  if(!State.modal){ root.innerHTML=''; return; }
+  syncBackButton();
+  const ov = root.querySelector('.overlay'), prevKind = root.dataset.kind, prevScroll = ov ? ov.scrollTop : 0;
+  if(prevKind==='workout' && State.modal && State.modal.kind!=='workout') State.workoutScroll = prevScroll;   // ушли в выбор упражнения — запомним место
+  if(!State.modal){ root.innerHTML=''; root.dataset.kind=''; return; }
+  if(State.modal.kind==='workout') autosaveWorkout();
+  renderModalInner(root);
+  root.dataset.kind = State.modal.kind;
+  const nov = root.querySelector('.overlay');
+  if(nov){ if(prevKind===State.modal.kind) nov.scrollTop = prevScroll;
+    else if(State.modal.kind==='workout' && prevKind==='exercisePicker' && State.workoutScroll!=null) nov.scrollTop = State.workoutScroll; }
+}
+function syncBackButton(){
+  const tg = window.Telegram && window.Telegram.WebApp; if(!tg || !tg.BackButton) return;
+  try{ if(State.modal) tg.BackButton.show(); else tg.BackButton.hide(); }catch(e){}
+}
+function renderModalInner(root){
   if(State.modal.kind==='workout') root.innerHTML = renderWorkoutModal();
   else if(State.modal.kind==='confirmDelete') root.innerHTML = renderConfirmModal();
   else if(State.modal.kind==='recurEdit') root.innerHTML = renderRecurEditModal();
@@ -1514,7 +1627,7 @@ function renderWorkoutModal(){
   const total = Calc.workoutTonnage(w);
   const mg = Calc.muscleBreakdown(w, DB.exercises);
   return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop>
-    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${isNew?'Новая тренировка':'Редактирование'}</h2>
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${isNew?'Новая тренировка':'Редактирование'}</h2><span class="muted autosave-note">✓ сохраняется автоматически</span>
       <span class="pill ${w.status==='done'?'st-done':'st-plan'}">${w.status==='done'?'выполнена':(w.date>dstr(new Date())?'запланирована':'не завершена')}</span></div>
     <div style="height:10px"></div>
     <div class="grid3">
@@ -1526,7 +1639,10 @@ function renderWorkoutModal(){
       <div class="field"><label>Название</label><input type="text" data-w="name" value="${esc(w.name)}" placeholder="Грудь + трицепс"></div>
       <div class="field"><label>Участник</label><select data-w="participantId">${DB.participants.filter(p=>p.id===selfParticipantId()||(linkWith(p.id).asTrainer||{}).active).map(p=>`<option value="${p.id}" ${p.id===w.participantId?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>
     </div>
-    <div class="field"><label>Тип тренировки</label><select data-w="type">${WORKOUT_TYPES.map(([id,l])=>`<option value="${id}" ${id===w.type?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="grid2">
+      <div class="field"><label>Тип тренировки</label><select data-w="type">${WORKOUT_TYPES.map(([id,l])=>`<option value="${id}" ${id===w.type?'selected':''}>${l}</option>`).join('')}</select></div>
+      <div class="field"><label>Вес тела сегодня, кг</label><input type="text" inputmode="decimal" data-w="bodyWeight" value="${w.bodyWeight??''}" placeholder="${(()=>{ const b = bodyWeightOn(w.participantId, w.date); return b ? 'было '+fmtNum(b) : 'например 80,5'; })()}"></div>
+    </div>
 
     ${isNew ? renderRecurControls() : ''}
 
@@ -1537,6 +1653,7 @@ function renderWorkoutModal(){
       <button class="btn sm" data-add-block="superset">+ Суперсет</button>
       <button class="btn sm" data-add-block="dropset">+ Дроп-сет</button>
     </div>
+    <div class="cardio-quick"><span class="muted">Кардио:</span>${CARDIO_QUICK.map(n=>`<button class="btn sm" data-add-cardio="${n}">+ ${n}</button>`).join('')}</div>
 
     <div class="tot-box" data-live="tot">
       <div>Общий тоннаж</div>
@@ -1556,7 +1673,7 @@ function renderWorkoutModal(){
       </div>
       <div class="row">
         ${!isNew?'<button class="btn danger" data-delete-workout="1">Удалить</button>':''}
-        <button class="btn ghost" data-close-modal="1">Отмена</button>
+        <button class="btn ghost" data-close-modal="1">Закрыть</button>
       </div>
     </div>
   </div></div>`;
@@ -1578,17 +1695,47 @@ function renderRecurControls(){
   </div>`;
 }
 
+// число из поля ввода: запятая и точка равнозначны, пробелы игнорируются
+function numIn(v){ const x = parseFloat(String(v??'').replace(/\s/g,'').replace(',', '.')); return isFinite(x) ? x : 0; }
+const CARDIO_QUICK = ['Бег','Ходьба','Плавание','Велосипед','Велотренажёр','Эллипс','Гребля','Степпер','Скакалка'];
+// буквы суперсетов: A, B, C… по порядку суперсет-блоков
+function supersetLetter(w, bi){ let n = 0; for(let i=0;i<=bi;i++) if(w.blocks[i].kind==='superset') n++; return String.fromCharCode(64+n); }
+// история подходов упражнения: по номеру подхода — лучшие повторения для каждого веса
+function setHistory(exerciseId, participantId, excludeId){
+  const byIdx = {};
+  DB.workouts.forEach(o=>{ if(o.id===excludeId || o.participantId!==participantId) return;
+    (o.blocks||[]).forEach(b=>(b.exercises||[]).forEach(e=>{ if(e.exerciseId!==exerciseId) return;
+      (e.sets||[]).forEach((s,i)=>{ const wt = Number(s.weight)||0, r = Number(s.reps)||0; if(r<1) return;
+        const m = byIdx[i] = byIdx[i] || {}; const k = wt.toFixed(2); if(!m[k] || r>m[k].reps) m[k] = {reps:r, date:o.date}; }); })); });
+  return byIdx;
+}
+function setRecordText(hist, si, s, units){
+  const m = hist[si]; if(!m) return '';
+  const wt = Number(s.weight)||0;
+  if(wt>0){ const r = m[wt.toFixed(2)]; return r ? `рекорд ${si+1}-го подхода с ${convW(wt,units)} ${unitLabel(units)}: <b>${r.reps}</b> повт.` : `с ${convW(wt,units)} ${unitLabel(units)} в ${si+1}-м подходе ещё не работали`; }
+  const top = Object.entries(m).map(([k,v])=>({wt:+k, reps:v.reps})).sort((a,b)=>b.wt-a.wt || b.reps-a.reps)[0];
+  return top && top.wt>0 ? `рекорд ${si+1}-го подхода: <b>${convW(top.wt,units)}×${top.reps}</b>` : '';
+}
+function cardioPace(s){
+  const t = Number(s.time)||0, d = Number(s.distance)||0; if(!(t>0 && d>0)) return '';
+  const p = t/d, mm = Math.floor(p), ss = Math.round((p-mm)*60);
+  return `темп ${mm}:${String(ss).padStart(2,'0')} /км · ${fmtNum(d/(t/60))} км/ч${Number(s.incline)?` · уклон ${fmtNum(+s.incline)}%`:''}`;
+}
 function renderBlockCard(b,bi,w,units){
-  const bTon = Calc.blockTonnage(b, w);
-  return `<div class="block-card" data-block="${bi}">
+  const bTon = Calc.blockTonnage(b, w), L = b.kind==='superset' ? supersetLetter(w, bi) : '';
+  const names = b.exercises.map(ex=>(DB.exercises.find(x=>x.id===ex.exerciseId)||{}).name||'—');
+  return `<div class="block-card ${b.kind==='superset'?'superset':''}" data-block="${bi}">
     <div class="row" style="justify-content:space-between">
-      <div class="row"><b>${b.kind==='superset'?'Суперсет':b.kind==='dropset'?'Дроп-сет':'Блок'} ${bi+1}</b>
+      <div class="row"><b>${b.kind==='superset'?`Суперсет ${L}`:b.kind==='dropset'?'Дроп-сет':'Блок'} ${b.kind==='superset'?'':bi+1}</b>
         <span class="muted">отдых <input type="text" inputmode="numeric" style="width:52px" data-block-rest="${bi}" value="${b.restSeconds||0}"> сек</span></div>
       <div class="row">
         <span class="muted" data-live="bt${bi}">${fmtNum(convW(bTon,units))} ${unitLabel(units)}</span>
+        <button class="btn sm ghost mv" data-move-block="${bi}.-1" title="Выше" ${bi===0?'disabled':''}>↑</button>
+        <button class="btn sm ghost mv" data-move-block="${bi}.1" title="Ниже" ${bi===w.blocks.length-1?'disabled':''}>↓</button>
         <button class="btn sm danger" data-remove-block="${bi}">✕</button>
       </div>
     </div>
+    ${b.kind==='superset'?`<div class="ss-pair">${names.length?names.map((n,i)=>`<span class="ss-tag">${L}${i+1}</span> ${esc(n)}`).join(' <b>+</b> '):'Добавьте 2–3 упражнения — они выполняются подряд без отдыха'}</div>`:''}
     ${b.exercises.map((ex,ei)=>renderExerciseCard(ex,bi,ei,w,units)).join('')}
     <button class="btn sm ghost" data-add-exercise="${bi}">+ Упражнение</button>
   </div>`;
@@ -1603,32 +1750,44 @@ function renderExerciseCard(ex,bi,ei,w,units){
   const prev = lastResultFor(ex.exerciseId, w.participantId, w.id);
   const best = bestSetFor(ex.exerciseId, w.participantId, w.id, isCardio);
   const isDrop = ex.isDropset && !isCardio;
+  const hist = isCardio || isStatic ? {} : setHistory(ex.exerciseId, w.participantId, w.id);
+  const b = w.blocks[bi], L = b.kind==='superset' ? supersetLetter(w, bi)+(ei+1) : '';
+  const nEx = b.exercises.length, first = bi===0 && ei===0, last = bi===w.blocks.length-1 && ei===nEx-1;
+  const bestTxt = best ? (isCardio ? `${fmtNum(+best.set.distance||0)} км${best.set.time?` за ${best.set.time} мин`:''}` : `${convW(best.set.weight,units)}×${best.set.reps}`) : '';
   return `<div class="ex-card ${isDrop?'dropset':''}" data-ex="${bi}.${ei}">
     <div class="row" style="justify-content:space-between">
-      <div class="row">${exThumb(info,46)}<b>${esc(info.name)}</b>${helpBtn(info.name)}${isDrop?'<span class="drop-badge">ДРОП-СЕТ</span>':''}</div>
+      <div class="row">${L?`<span class="ss-tag">${L}</span>`:''}${exThumb(info,46)}<b>${esc(info.name)}</b>${helpBtn(info.name)}${bestTxt?`<span class="best-pill" title="Лучший подход — ${fmtDateShort(best.date)}">🏆 ${bestTxt}</span>`:''}${isDrop?'<span class="drop-badge">ДРОП-СЕТ</span>':''}</div>
       <div class="row">
         ${!isCardio?`<label class="muted"><input type="checkbox" data-dropset="${bi}.${ei}" ${ex.isDropset?'checked':''}> дроп-сет</label>`:''}
+        <button class="btn sm ghost mv" data-move-ex="${bi}.${ei}.-1" title="Выше" ${first?'disabled':''}>↑</button>
+        <button class="btn sm ghost mv" data-move-ex="${bi}.${ei}.1" title="Ниже" ${last?'disabled':''}>↓</button>
         <button class="btn sm danger" data-remove-exercise="${bi}.${ei}">✕</button>
       </div>
     </div>
     ${prev?`<div class="muted">Пред.: ${prev.sets.map(s=>isCardio?`${s.time||''}${s.distance?(' '+s.distance+'км'):''}`:`${convW(s.weight,units)}×${s.reps}`).join(', ')} (${fmtDateShort(prev.date)})</div>`:''}
-    ${best?`<div class="muted">🏆 Лучший подход: ${isCardio?`${best.set.distance||0} км за ${best.set.time||'?'} мин`:`${convW(best.set.weight,units)} ${unitLabel(units)} × ${best.set.reps}`} — ${fmtDateShort(best.date)}</div>`:''}
-    ${ex.sets.map((s,si)=>`<div class="set-row">
-      <span class="muted">${isDrop?(si?'↓'+(si+1):'э1'):(si+1)}</span>
+    ${ex.sets.map((s,si)=>`<div class="set-row ${isCardio?'cardio':''}">
+      <span class="muted">${si+1}</span>
       ${isCardio?`
-        <input type="text" inputmode="decimal" placeholder="время, мин" data-set="${bi}.${ei}.${si}.time" value="${s.time}">
-        <input type="text" inputmode="decimal" placeholder="дистанция, км" data-set="${bi}.${ei}.${si}.distance" value="${s.distance}">
-        <input type="text" placeholder="заметка" data-set="${bi}.${ei}.${si}.note" value="${esc(s.note)}">
+        <input type="text" inputmode="decimal" placeholder="мин" data-set="${bi}.${ei}.${si}.time" value="${s.time??''}">
+        <input type="text" inputmode="decimal" placeholder="км" data-set="${bi}.${ei}.${si}.distance" value="${s.distance??''}">
+        <input type="text" inputmode="decimal" placeholder="уклон %" data-set="${bi}.${ei}.${si}.incline" value="${s.incline??''}">
+        <input type="text" class="set-note" placeholder="заметка" data-set="${bi}.${ei}.${si}.note" value="${esc(s.note)}">
       `:`
-        <input type="text" inputmode="decimal" placeholder="${isStatic?'доп. вес':'вес, '+unitLabel(units)}" data-set="${bi}.${ei}.${si}.weight" value="${s.weight!==''?convW(s.weight,units):''}">
+        <input type="text" inputmode="decimal" placeholder="${isStatic?'доп. вес':'вес, '+unitLabel(units)}" data-set="${bi}.${ei}.${si}.weight" value="${s.weight!==''&&s.weight!=null?convW(s.weight,units):''}">
         ${isStatic?`<input type="text" inputmode="numeric" placeholder="сек" data-set="${bi}.${ei}.${si}.time" value="${s.time||''}">`:`<input type="text" inputmode="numeric" placeholder="повт." data-set="${bi}.${ei}.${si}.reps" value="${s.reps}">`}
         <input type="text" class="set-note" placeholder="заметка" data-set="${bi}.${ei}.${si}.note" value="${esc(s.note)}">
       `}
       <button class="btn sm ghost" data-remove-set="${bi}.${ei}.${si}">✕</button>
-    </div><div data-live="st${bi}.${ei}.${si}">${!isCardio && Number(s.reps)>0 && (isDrop || !(Number(s.weight)>0)) && Calc.setTonnage(s,bw)>0?`<div class="set-ton">${Number(s.weight)>0?convW(s.weight,units):'свой вес '+convW(bw,units)} × ${s.reps} = ${fmtNum(convW(Calc.setTonnage(s,bw),units))} ${unitLabel(units)}</div>`:''}</div>`).join('')}
-    <div data-live="nb${bi}.${ei}">${needBw?`<div class="muted" style="font-size:11.5px">Подходы без веса считаются как повторения × ваш вес — укажите вес в «Участники → вы → Личные данные».</div>`:''}</div>
-    <button class="btn sm ghost" data-add-set="${bi}.${ei}">+ ${isDrop?'этап':'подход'}</button>
-    <div data-live="et${bi}.${ei}">${!isCardio && ton>0?`<div class="tonnage-line">${isDrop?'Тоннаж дроп-сета':'Тоннаж упражнения'}: <b>${fmtNum(convW(ton,units))} ${unitLabel(units)}</b></div>`:''}</div>
+    </div>
+    ${isDrop?`<div class="drops">${[0,1,2].map(k=>{ const d = (s.drops||[])[k]||{}; const base = Number(s.weight)||0;
+      return `<div class="drop-row"><span>↓${k+1}</span>
+        <input type="text" inputmode="decimal" placeholder="${base?convW(Math.round(base*(0.8-0.2*k)/2.5)*2.5,units):'вес'}" data-set="${bi}.${ei}.${si}.drop.${k}.weight" value="${d.weight!==''&&d.weight!=null?convW(d.weight,units):''}">
+        <input type="text" inputmode="numeric" placeholder="повт." data-set="${bi}.${ei}.${si}.drop.${k}.reps" value="${d.reps??''}"></div>`; }).join('')}</div>`:''}
+    <div data-live="st${bi}.${ei}.${si}">${isCardio ? (cardioPace(s)?`<div class="set-ton">${cardioPace(s)}</div>`:'')
+      : `${(()=>{ const t = setRecordText(hist, si, s, units); return t?`<div class="set-rec">${t}</div>`:''; })()}${Number(s.reps)>0 && (isDrop || !(Number(s.weight)>0)) && Calc.setTonnage(s,bw,isDrop)>0?`<div class="set-ton">${Number(s.weight)>0?convW(s.weight,units):'свой вес '+convW(bw,units)} × ${s.reps}${isDrop&&(s.drops||[]).some(d=>Number(d.reps)>0)?' + дропы':''} = ${fmtNum(convW(Calc.setTonnage(s,bw,isDrop),units))} ${unitLabel(units)}</div>`:''}`}</div>`).join('')}
+    <div data-live="nb${bi}.${ei}">${needBw?`<div class="muted" style="font-size:11.5px">Подходы без веса считаются как повторения × ваш вес — укажите вес тела вверху тренировки.</div>`:''}</div>
+    <button class="btn sm ghost" data-add-set="${bi}.${ei}">+ подход</button>
+    <div data-live="et${bi}.${ei}">${!isCardio && ton>0?`<div class="tonnage-line">${isDrop?'Тоннаж с дропами':'Тоннаж упражнения'}: <b>${fmtNum(convW(ton,units))} ${unitLabel(units)}</b></div>`:''}</div>
   </div>`;
 }
 
@@ -1695,11 +1854,18 @@ function handleModalClick(e, ds){
     if(ds.removeExercise!==undefined){ const [bi,ei]=pathGet(ds.removeExercise); w.blocks[bi].exercises.splice(ei,1); renderModal(); return true; }
     if(ds.addSet!==undefined){
       const [bi,ei]=pathGet(ds.addSet); const ex=w.blocks[bi].exercises[ei]; const ns=blankSet();
-      const last=ex.sets[ex.sets.length-1];
-      // дроп-сет: следующий этап подставляем с весом −20% (кратно 2.5 кг)
-      if(ex.isDropset && last && Number(last.weight)>0) ns.weight = Math.max(0, Math.round(Number(last.weight)*0.8/2.5)*2.5);
+      if(ex.isDropset) ns.drops = [{weight:'',reps:''},{weight:'',reps:''},{weight:'',reps:''}];
       ex.sets.push(ns); renderModal(); return true;
     }
+    if(ds.moveBlock!==undefined){ const [bi,dir]=pathGet(ds.moveBlock); const to=bi+dir; if(to<0||to>=w.blocks.length) return true;
+      [w.blocks[bi], w.blocks[to]] = [w.blocks[to], w.blocks[bi]]; renderModal(); flashEl(`[data-block="${to}"]`); return true; }
+    if(ds.moveEx!==undefined){ const [bi,ei,dir]=pathGet(ds.moveEx); const list=w.blocks[bi].exercises; const ex=list[ei];
+      let nb=bi, ne=ei+dir;
+      if(ne<0 || ne>=list.length){ nb = bi+dir; if(nb<0||nb>=w.blocks.length) return true; list.splice(ei,1);
+        const dst = w.blocks[nb].exercises; if(dir<0){ dst.push(ex); ne = dst.length-1; } else { dst.unshift(ex); ne = 0; } }
+      else { [list[ei], list[ne]] = [list[ne], list[ei]]; }
+      renderModal(); flashEl(`[data-ex="${nb}.${ne}"]`); return true; }
+    if(ds.addCardio!==undefined){ addCardioBlock(w, ds.addCardio); renderModal(); return true; }
     if(ds.removeSet!==undefined){ const [bi,ei,si]=pathGet(ds.removeSet); w.blocks[bi].exercises[ei].sets.splice(si,1); renderModal(); return true; }
     if(ds.saveWorkout!==undefined){ saveWorkoutFromModal(); return true; }
     if(ds.finishWorkout!==undefined){ finishWorkout(); return true; }
@@ -1715,6 +1881,7 @@ function handleModalClick(e, ds){
     if(ds.pickExercise!==undefined){
       const bi = modal.pendingBlock; const back=modal._back;
       const nex=blankExercise(ds.pickExercise); nex.isDropset = back.w.blocks[bi].kind==='dropset';
+      if(nex.isDropset) nex.sets.forEach(st=>st.drops=[{weight:'',reps:''},{weight:'',reps:''},{weight:'',reps:''}]);
       back.w.blocks[bi].exercises.push(nex);
       State.modal = {kind:'workout', w:back.w, isNew:back.isNew, recurRule:back.recurRule};
       renderModal(); return true;
@@ -1725,6 +1892,7 @@ function handleModalClick(e, ds){
       DB.exercises.push(ex); Storage.save();
       const bi = modal.pendingBlock; const back=modal._back;
       const nex=blankExercise(ex.id); nex.isDropset = back.w.blocks[bi].kind==='dropset';
+      if(nex.isDropset) nex.sets.forEach(st=>st.drops=[{weight:'',reps:''},{weight:'',reps:''},{weight:'',reps:''}]);
       back.w.blocks[bi].exercises.push(nex);
       State.modal = {kind:'workout', w:back.w, isNew:back.isNew, recurRule:back.recurRule};
       renderModal(); return true;
@@ -1764,6 +1932,7 @@ function handleModalClick(e, ds){
 let liveRaf = 0;
 function liveUpdateModal(){
   cancelAnimationFrame(liveRaf);
+  autosaveWorkout();
   liveRaf = requestAnimationFrame(()=>{ if(!State.modal || State.modal.kind!=='workout') return;
     const tmp = document.createElement('div'); tmp.innerHTML = renderWorkoutModal();
     tmp.querySelectorAll('[data-live]').forEach(n=>{ const cur = document.querySelector(`#modalRoot [data-live="${n.dataset.live}"]`);
@@ -1788,15 +1957,22 @@ function handleModalChange(e, ds){
   const modal = State.modal; if(!modal) return false;
   if(modal.kind==='workout'){
     const w = modal.w;
-    if(ds.w!==undefined){ w[ds.w] = e.target.value; if(ds.w==='participantId') renderModal(); else Storage.save(); return true; }
-    if(ds.blockRest!==undefined){ w.blocks[+ds.blockRest].restSeconds = +e.target.value; return true; }
-    if(ds.dropset!==undefined){ const [bi,ei]=pathGet(ds.dropset); w.blocks[bi].exercises[ei].isDropset = e.target.checked; renderModal(); return true; }
+    if(ds.w!==undefined){ w[ds.w] = ds.w==='bodyWeight' ? (e.target.value.trim()==='' ? '' : numIn(e.target.value)) : e.target.value;
+      if(ds.w==='participantId') renderModal(); else { autosaveWorkout(); if(ds.w==='bodyWeight') liveUpdateModal(); } return true; }
+    if(ds.blockRest!==undefined){ w.blocks[+ds.blockRest].restSeconds = numIn(e.target.value); autosaveWorkout(); return true; }
+    if(ds.dropset!==undefined){ const [bi,ei]=pathGet(ds.dropset); const ex = w.blocks[bi].exercises[ei]; ex.isDropset = e.target.checked;
+      if(ex.isDropset) ex.sets.forEach(s=>{ s.drops = s.drops || [{weight:'',reps:''},{weight:'',reps:''},{weight:'',reps:''}]; });
+      renderModal(); return true; }
     if(ds.set!==undefined){
-      const parts = ds.set.split('.'); const bi=+parts[0],ei=+parts[1],si=+parts[2],field=parts[3];
-      let val = e.target.value;
-      if(field==='weight'){ w.blocks[bi].exercises[ei].sets[si].weight = val===''?'':toKg(val, DB.settings.units); }
-      else if(field==='reps'||field==='time'||field==='distance'){ w.blocks[bi].exercises[ei].sets[si][field]=val===''?'':Number(val); }
-      else { w.blocks[bi].exercises[ei].sets[si][field]=val; }
+      const parts = ds.set.split('.'); const bi=+parts[0],ei=+parts[1],si=+parts[2];
+      const set = w.blocks[bi].exercises[ei].sets[si];
+      let target = set, field = parts[3];
+      if(field==='drop'){ set.drops = set.drops || [{},{},{}]; target = set.drops[+parts[4]] = set.drops[+parts[4]] || {}; field = parts[5]; }
+      const val = e.target.value.trim();
+      // «70,» или «70.» — ещё набирают дробную часть: храним как есть в поле ввода, в данных — число
+      if(field==='weight') target.weight = val==='' ? '' : toKg(val, DB.settings.units);
+      else if(['reps','time','distance','incline'].includes(field)) target[field] = val==='' ? '' : numIn(val);
+      else target[field] = e.target.value;
       liveUpdateModal(); return true;
     }
     if(ds.recurOn!==undefined){ modal.recurRule.on = e.target.checked; renderModal(); return true; }
@@ -1905,13 +2081,23 @@ async function finishWorkout(){
   const idx = DB.workouts.findIndex(x=>x.id===w.id); if(idx<0) DB.workouts.push(w); else DB.workouts[idx]=w;
   rerender();
   const achs = showWorkoutResult(w);
-  try{
-    await Storage.flush();
-    const r = await fetch(SUPABASE_URL + '/functions/v1/telegram-bot', { method:'POST',
-      headers:{'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+Auth.getToken()},
-      body: JSON.stringify({action:'workout_done', workout_id:w.id, achievements: achs.slice(0,30).map(a=>`${a.icon} ${a.title}${a.cat==='beast'&&a.count>1?' ×'+a.count:''}`)}) });
-    toast(r.ok ? '💪 Тренировка завершена — итог отправлен в бот' : 'Тренировка сохранена, но бот не ответил');
-  }catch(e){ toast('Тренировка сохранена, но бот недоступен'); }
+  await notifyBotDone(w, achs);
+}
+// итог тренировки в бот: сначала сохраняем на сервер, затем шлём со свежим токеном; при неудаче — повтор
+async function notifyBotDone(w, achs){
+  const body = JSON.stringify({action:'workout_done', workout_id:w.id, achievements:(achs||[]).slice(0,30).map(a=>`${a.icon||'🏅'} ${a.title}${a.cat==='beast'&&a.count>1?' ×'+a.count:''}`)});
+  for(let attempt=1; attempt<=3; attempt++){
+    try{
+      await Storage.flush();
+      if(Storage.lastSyncError) throw Storage.lastSyncError;
+      const r = await fetch(SUPABASE_URL + '/functions/v1/telegram-bot', { method:'POST',
+        headers:{'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+(await Auth.freshToken())}, body });
+      if(r.ok){ toast('💪 Тренировка завершена — итог отправлен в бот'); return true; }
+      const j = await r.json().catch(()=>({}));
+      if(attempt===3){ toast('Тренировка сохранена, но бот ответил ошибкой: '+(j.error||r.status)); return false; }
+    }catch(e){ if(attempt===3){ toast('Тренировка сохранена, но бот недоступен: '+(e.message||e)); return false; } }
+    await new Promise(res=>setTimeout(res, 1500*attempt));
+  }
 }
 function saveWorkoutFromModal(){
   const w = State.modal.w, isNew = State.modal.isNew, recur = State.modal.recurRule;
@@ -1919,9 +2105,10 @@ function saveWorkoutFromModal(){
   // прошедшая тренировка с заполненными подходами считается выполненной (для вечернего вопроса бота)
   if(w.status!=='done' && w.date<=dstr(new Date()) && hasFilledSets(w)) w.status='done';
   if(isNew && w.status!=='done') w.status='planned';
-  if(w.status==='done' && !wasDone && !(recur && recur.on)) setTimeout(()=>showWorkoutResult(w), 50);
+  if(w.status==='done' && !wasDone && !(recur && recur.on)) setTimeout(()=>{ const achs = showWorkoutResult(w); notifyBotDone(w, achs); }, 50);
   if(!w.name) w.name = WT[w.type] || 'Тренировка';
   if(isNew){
+    DB.workouts = DB.workouts.filter(x=>x.id!==w.id);    // могла уже попасть в дневник автосохранением
     if(recur && recur.on){
       const groupId = Storage.uid();
       const start = parseD(w.date);
@@ -1947,7 +2134,7 @@ function saveWorkoutFromModal(){
       State.modal = {kind:'recurEdit', mode:'save', w};
       renderModal();
     } else {
-      const idx = DB.workouts.findIndex(x=>x.id===w.id); DB.workouts[idx]=w;
+      const idx = DB.workouts.findIndex(x=>x.id===w.id); if(idx<0) DB.workouts.push(w); else DB.workouts[idx]=w;
       Storage.save(); closeModal(); rerender();
     }
   }
@@ -2423,7 +2610,7 @@ function archiveCard(pid){
 // справочник на 100 г: [название, ккал, белки, жиры, углеводы, граммов в штуке, название штуки]
 const MEALS = [['breakfast','🌅 Завтрак'],['snack1','🍎 Перекус'],['lunch','🍲 Обед'],['snack2','🍎 Перекус'],['dinner','🌙 Ужин'],['snack3','🍎 Вечерний перекус']];
 // напитки считаем в мл (плотность ≈ 1)
-const LIQUIDS = new Set(['Молоко 2,5%','Молоко 3,2%','Кефир 1%','Кефир 2,5%','Катык','Сок апельсиновый','Кола','Чай с сахаром','Кофе с молоком','Пиво','Вино сухое']);
+const LIQUIDS = new Set(['Квас','Айран','Кисель','Молоко 2,5%','Молоко 3,2%','Кефир 1%','Кефир 2,5%','Катык','Сок апельсиновый','Кола','Чай с сахаром','Кофе с молоком','Пиво','Вино сухое']);
 const unitOf = x => (x && (x.unit==='ml' || LIQUIDS.has(x.name))) ? 'мл' : 'г';
 const FOOD_DB = [
   ['Гречка варёная',110,4.2,1.1,21.3],['Гречка сухая',313,12.6,3.3,62.1],['Рис варёный',116,2.2,0.5,24.9],['Рис сухой',344,6.7,0.7,78.9],
@@ -2459,7 +2646,30 @@ const FOOD_DB = [
   ['Протеин сывороточный',380,75,5,7,30,'порция'],['Гейнер',380,20,3,70,100,'порция'],['Протеиновый батончик',350,30,10,35,60,'шт'],
   ['Шоколад молочный',550,6.9,35.7,54.4],['Шоколад горький',540,7.8,35,46],['Печенье',437,7.5,14,68],['Мороженое пломбир',232,3.2,15,20.8,80,'шт'],
   ['Чипсы',520,6.6,30,53],['Кола',42,0,0,10.6,330,'банка'],['Сок апельсиновый',45,0.7,0.2,10.4,250,'стакан'],['Чай с сахаром',10,0,0,2.5,200,'чашка'],
-  ['Кофе с молоком',50,2.8,2,5,250,'чашка'],['Пиво',43,0.3,0,4.6,500,'бутылка'],['Вино сухое',68,0,0,0.3,150,'бокал']
+  ['Кофе с молоком',50,2.8,2,5,250,'чашка'],['Пиво',43,0.3,0,4.6,500,'бутылка'],['Вино сухое',68,0,0,0.3,150,'бокал'],
+  // ===== кухни мира (на 100 г, средние значения ресторанных порций) =====
+  ['Котлома (слоёная лепёшка)',340,7,16,43,150,'шт'],['Мастава',75,3.5,3,9],['Димлама',110,6,6.5,7],['Казан-кебаб',230,13,17,8],['Ханум',200,8,9,23],
+  ['Гумма',290,9,14,32,90,'шт'],['Бешбармак',185,12,9,15],['Шавля',170,7,7,20],['Тандыр-гушт',250,23,17,0],['Чак-чак',440,5,20,60],
+  ['Халва кунжутная',516,12.7,29.9,50.6],['Каймак',350,3,36,3],['Сузьма',180,10,14,3],['Самса с тыквой',260,5,13,31,100,'шт'],['Шашлык из говядины',230,24,14,1],
+  ['Щи',30,1.7,1.3,3],['Солянка мясная',70,5,4.5,2.5],['Окрошка на кефире',60,3,3,5],['Вареники с картошкой',150,4,3,26],['Блины',230,6,10,30,50,'шт'],
+  ['Сырники',220,15,10,17,60,'шт'],['Котлета по-киевски',290,17,21,10,150,'шт'],['Голубцы',110,6,6,8,150,'шт'],['Винегрет',90,1.6,6,7.5],['Селёдка под шубой',190,6,15,7],
+  ['Уха',45,5,1.5,2.5],['Гречка с мясом',160,10,6,17],['Кисель',55,0,0,14,200,'стакан'],['Квас',27,0.2,0,5.2,500,'бутылка'],
+  ['Вареники с вишней',190,5,2,38],['Галушки',180,6,4,30],['Сало',770,2.4,85,0,20,'ломтик'],['Деруны',220,4,13,22,70,'шт'],['Пампушки с чесноком',300,8,6,52,40,'шт'],['Кровянка',270,9,20,14],
+  ['Баварские сосиски',290,12,26,1.5,80,'шт'],['Шницель по-венски',250,18,13,15],['Квашеная капуста',20,1.8,0.1,3],['Картофельный салат',140,2,8,15],['Брецель',340,9,3,70,100,'шт'],
+  ['Штрудель яблочный',270,3,12,38],['Свиная рулька',290,18,24,0],['Айнтопф',85,5,3.5,8],
+  ['Круассан',406,8,21,46,60,'шт'],['Багет',270,9,1.5,55],['Киш лорен',290,10,20,18],['Рататуй',70,1.5,4.5,6.5],['Луковый суп',55,2,2.5,6],['Крем-брюле',290,4,23,17,120,'порция'],
+  ['Эклер',260,5,15,26,60,'шт'],['Утка конфи',300,20,24,0],['Буйабес',90,10,4,3],
+  ['Паста карбонара',280,11,13,29],['Паста болоньезе',160,8,5,20],['Лазанья',165,9,8,14],['Ризотто',150,4,5,22],['Пицца маргарита',250,10,9,33,110,'кусок'],
+  ['Минестроне',45,2,1.5,6],['Тирамису',300,5,20,25,120,'порция'],['Брускетта',200,6,8,26,40,'шт'],['Капрезе',180,11,14,3],
+  ['Ролл Калифорния',176,6,5,26,30,'шт'],['Нигири с лососем',170,8,4,26,30,'шт'],['Мисо-суп',40,3,1.5,4],['Рамен',90,5,3,12],['Темпура из креветок',250,10,15,20],
+  ['Онигири',170,4,1,36,110,'шт'],['Якитори',190,20,11,3],['Эдамаме',120,12,5,9],['Удон с курицей',110,7,2,16],
+  ['Курица гунбао',180,14,10,9],['Свинина в кисло-сладком соусе',230,11,12,20],['Жареный рис',170,5,6,25],['Лапша вок с курицей',150,8,5,19],['Пельмени цзяоцзы',210,9,8,25,25,'шт'],
+  ['Утка по-пекински',340,19,28,3],['Весенние роллы',250,6,12,30,50,'шт'],['Мапо тофу',130,8,9,4],
+  ['Паэлья',160,9,5,20],['Гаспачо',45,1,3,4],['Тортилья испанская',190,6,11,16],['Хамон',240,31,13,0],['Чуррос',450,5,25,50,30,'шт'],['Крокеты',250,8,14,22,30,'шт'],
+  ['Адана-кебаб',250,17,19,3],['Лахмаджун',200,9,6,28,150,'шт'],['Пиде с мясом',260,11,10,32],['Менемен',110,6,8,4],['Баклава',430,6,24,50,30,'шт'],
+  ['Чечевичный суп',60,3.5,1.5,9],['Искендер-кебаб',180,11,10,11],['Айран',30,1.7,1.5,2,250,'стакан'],['Симит',300,9,6,52,110,'шт'],
+  ['Кимчи',20,1.5,0.5,3],['Пибимпап',130,6,4,18],['Пулькоги',200,16,11,8],['Кимпап',150,5,4,24],['Ттокпокки',160,3.5,2.5,31],
+  ['Самгёпсаль',330,17,29,0],['Кимчи-чиге',60,5,3.5,3],['Чапчхэ',150,4,5,23],['Морковь по-корейски',140,1,12,8]
 ].map(([name,kcal,p,f,c,pc,pcName])=>({name,kcal,p,f,c,pc,pcName, unit: LIQUIDS.has(name)?'ml':'g'}));
 const ACTIVITY = [['1.2','Минимальная (сидячая работа)'],['1.375','Лёгкая (1–3 тренировки в неделю)'],['1.55','Средняя (3–5 тренировок)'],['1.725','Высокая (6–7 тренировок)'],['1.9','Очень высокая (спорт + физический труд)']];
 
@@ -2796,7 +3006,7 @@ function membershipStatus(end){
 const GOAL_OPTIONS = ['Похудеть','Набрать мышечную массу','Стать сильнее','Выносливость','Здоровье и тонус','Восстановление после травмы'];
 function ageFrom(bd){ if(!bd) return ''; const b=parseD(bd), n=new Date(); let a=n.getFullYear()-b.getFullYear(); if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate())) a--; return a; }
 function weightChart(uid){
-  const pts = (DB.weights||[]).filter(x=>x.user_id===uid).sort((a,b)=>a.date.localeCompare(b.date));
+  const pts = weightPoints(uid);   // замеры из личных данных и вес тела, записанный в тренировках
   if(pts.length<2) return `<div class="muted">${pts.length?`Вес ${fmtNum(pts[0].weight_kg)} кг (${fmtDateShort(pts[0].date)}). График появится после второго измерения.`:'Измерений веса пока нет.'}</div>`;
   const W=560,H=120, vals=pts.map(p=>+p.weight_kg), mn=Math.min(...vals)-1, mx=Math.max(...vals)+1;
   const X=i=>10+i*(W-20)/(pts.length-1), Y=v=>H-18-(v-mn)/(mx-mn)*(H-34);
@@ -2820,7 +3030,8 @@ function detailsCard(uid){
   return `<div class="card" style="margin-bottom:10px"><h3>Личные данные</h3>
     <div class="muted" style="margin-bottom:8px">Видите только вы, пока не отметите галочки ниже.</div>
     <div class="grid2">
-      <div class="field"><label>Возраст</label><input type="text" inputmode="numeric" id="pdAge" value="${ageFrom(v.birth_date)}"></div>
+      <div class="field"><label>День рождения</label><input type="date" id="pdBirthday" value="${v.birthday||''}"></div>
+      <div class="field"><label>Возраст${v.birthday?' (по дате рождения)':''}</label><input type="text" inputmode="numeric" id="pdAge" value="${ageFrom(v.birthday||v.birth_date)}" ${v.birthday?'disabled':''}></div>
       <div class="field"><label>Пол</label><select id="pdGender"><option value="">—</option><option value="male" ${v.gender==='male'?'selected':''}>Мужской</option><option value="female" ${v.gender==='female'?'selected':''}>Женский</option></select></div>
       <div class="field"><label>Вес, кг (сегодня)</label><input type="text" inputmode="decimal" id="pdWeight" value="${v.weight_kg??''}"></div>
       <div class="field"><label>Рост, см</label><input type="text" inputmode="numeric" id="pdHeight" value="${v.height_cm??''}"></div>
@@ -2846,8 +3057,9 @@ async function saveDetails(){
   const uid = selfParticipantId(), c = Auth.getClient();
   const num = id => { const x = parseFloat(String(document.getElementById(id).value).replace(',','.')); return isFinite(x)?x:null; };
   const age = num('pdAge'), weight = num('pdWeight'), pub = document.getElementById('pdPublic').checked;
-  let birth = null; if(age){ const b=new Date(); b.setFullYear(b.getFullYear()-Math.floor(age)); birth = dstr(b); }
-  const row = { user_id:uid, birth_date:birth, gender:document.getElementById('pdGender').value||null, weight_kg:weight, height_cm:num('pdHeight'),
+  const birthday = document.getElementById('pdBirthday').value || null;
+  let birth = birthday; if(!birth && age){ const b=new Date(); b.setFullYear(b.getFullYear()-Math.floor(age)); birth = dstr(b); }
+  const row = { user_id:uid, birth_date:birth, birthday, gender:document.getElementById('pdGender').value||null, weight_kg:weight, height_cm:num('pdHeight'),
     goal:document.getElementById('pdGoal').value.trim()||null, show_public:pub,
     membership_start:document.getElementById('pdMemStart').value||null, membership_term:document.getElementById('pdMemTerm').value||null,
     membership_end:(document.getElementById('pdMemTerm').value==='custom' ? document.getElementById('pdMemEnd').value : membershipEnd(document.getElementById('pdMemStart').value, document.getElementById('pdMemTerm').value))||null, show_trainer:pub||document.getElementById('pdTrainer').checked, updated_at:new Date().toISOString() };
@@ -3247,7 +3459,7 @@ function initEvents(){
   document.addEventListener('click', (e)=>{
     const foodEl = e.target.closest('#main [data-food],#modalRoot [data-food]');
     if(foodEl){ if(!foodEl.disabled) foodClick(foodEl.dataset); return; }
-    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-finish-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom],#modalRoot [data-send-cert]');
+    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-move-ex],#modalRoot [data-move-block],#modalRoot [data-add-cardio],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-finish-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom],#modalRoot [data-send-cert]');
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
@@ -3299,6 +3511,9 @@ function initEvents(){
   }
   applyTheme();
   initEvents();
+  // свернули или закрыли приложение — сразу отправляем несохранённое
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') Storage.flush(); });
+  window.addEventListener('pagehide', ()=>Storage.flush());
   rerender();
   // заранее и в фоне считаем свои ачивки, чтобы «Статистика» открывалась мгновенно
   const idle = window.requestIdleCallback || (fn=>setTimeout(fn, 1500));
