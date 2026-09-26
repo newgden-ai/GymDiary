@@ -145,6 +145,9 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .ach-badge{width:100%;aspect-ratio:1;object-fit:contain;filter:grayscale(1) brightness(.55);opacity:.55;}
 .ach-tile.got .ach-badge{filter:drop-shadow(0 0 10px color-mix(in srgb,var(--ach) 60%,transparent));opacity:1;}
 .ach-tile.has-badge{padding:4px 4px 8px;}
+.lw-poster{width:100%;aspect-ratio:2/3;border-radius:8px;overflow:hidden;border:2px solid #555;filter:grayscale(1) brightness(.5);}
+.ach-tile.got .lw-poster{filter:none;border-color:#e3262e;box-shadow:0 0 10px rgba(227,38,46,.55);}
+.lw-poster img{width:100%;height:100%;object-fit:cover;display:block;}
 .tier-medal{position:relative;width:100%;aspect-ratio:1;filter:grayscale(1) brightness(.55);opacity:.6;}
 .ach-tile.got .tier-medal{filter:drop-shadow(0 0 10px color-mix(in srgb,var(--ach) 60%,transparent));opacity:1;}
 .tier-medal img{position:absolute;inset:0;width:100%;height:100%;}
@@ -557,7 +560,7 @@ const Storage = (function(){
     if(obj.exercises) DB.exercises = DB.exercises.concat(obj.exercises.filter(e=>!DB.exercises.some(x=>x.id===e.id)).map(e=>({...e, ownerId:selfId})));
     save();
   }
-  return { load, save, flush: ()=>{ clearTimeout(saveTimer); return syncAll(); }, reloadSocial, exportJSON, importJSON, uid: ()=> (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2,10)) };
+  return { workoutFromDb, exerciseFromDb, load, save, flush: ()=>{ clearTimeout(saveTimer); return syncAll(); }, reloadSocial, exportJSON, importJSON, uid: ()=> (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2,10)) };
 })();
 
 /* ===================== CALC MODULE (tonnage) ===================== */
@@ -713,6 +716,7 @@ const ACH_BADGES = {'Семья барсуков':'zoo_badgers','Семья кр
   'Грузовой лифт':'machine_lift', 'Автомобильный домкрат':'machine_jack', 'Ручная таль':'machine_hoist', 'Вилочный погрузчик':'machine_forklift',
   'Мини-экскаватор':'machine_miniexcavator', 'Грузовик':'machine_truck', 'Мотоцикл':'weight_motorcycle', 'Внедорожник':'weight_suv',
   'Автокран':'machine_mobilecrane', 'Карьерный самосвал БелАЗ':'machine_belaz',
+  'Морская свинка':'beast_guineapig', 'Кролик':'beast_rabbit', 'Кот':'beast_cat', 'Лиса':'beast_fox', 'Енот':'beast_raccoon', 'Выдра':'beast_otter', 'Барсук':'beast_badger', 'Бобр':'beast_beaver', 'Лабрадор':'beast_labrador', 'Императорский пингвин':'beast_penguin', 'Горный козёл':'beast_ibex', 'Лошадь':'beast_horse', 'Корова':'beast_cow', 'Верблюд':'beast_camel', 'Бизон':'beast_bison', 'Жираф':'beast_giraffe', 'Вертолёт-кран Ми-26':'machine_m01', 'Фура':'machine_m02', 'Башенный кран':'machine_m03', 'Товарный вагон':'machine_m04', 'Портовый кран':'machine_m05', 'Ракета Saturn V':'machine_m06', 'Ан-124 «Руслан»':'machine_m07', 'Ан-225 «Мрия»':'machine_m08', 'Козловой кран':'machine_m09', 'Речная баржа':'machine_m10', 'Самый мощный башенный кран':'machine_m11', 'Плавучий кран':'machine_m12', 'Грузовой поезд':'machine_m13', 'Экскаватор Bagger 293 (за смену)':'machine_m14', 'Плавучий кран Sleipnir':'machine_m15', 'Сухогруз':'machine_m16', 'Контейнеровоз':'machine_m17', 'Круизный лайнер':'machine_m18', 'Нефтяной танкер':'machine_m19', 'Супертанкер':'machine_m20', 'Арбуз':'weight_watermelon', 'Велосипед':'weight_bicycle', 'Каноэ':'weight_canoe', 'Колесо грузовика':'weight_wheel', 'Лёгкий самолёт':'weight_lightplane', 'Гоночный болид':'weight_f1', 'Полицейская машина':'weight_police', 'Парусная яхта':'weight_sailyacht', 'Скорая помощь':'weight_ambulance', 'Городской автобус':'weight_bus', 'Пожарная машина':'weight_firetruck', 'Трамвай':'weight_tram', 'Локомотив':'weight_locomotive', 'Стойка на руках: 10 с':'cali_01', 'Стойка на руках: 30 с':'cali_02', 'Стойка на руках: 1 мин':'cali_03', 'Уголок: 10 с':'cali_04', 'Уголок: 20 с':'cali_05', 'Уголок: 30 с':'cali_06', 'Уголок: 1 мин':'cali_07', 'Передний вис: 3 с':'cali_08', 'Передний вис: 5 с':'cali_09', 'Передний вис: 10 с':'cali_10', 'Передний вис: 20 с':'cali_11', 'Задний вис: 3 с':'cali_12', 'Задний вис: 5 с':'cali_13', 'Задний вис: 10 с':'cali_14', 'Задний вис: 20 с':'cali_15', 'Флажок: 3 с':'cali_16', 'Флажок: 5 с':'cali_17', 'Флажок: 10 с':'cali_18', 'Флажок: 20 с':'cali_19', 'Планш: 3 с':'cali_20', 'Планш: 5 с':'cali_21', 'Планш: 10 с':'cali_22', 'Планш: 20 с':'cali_23', 'Планка: 1 мин':'cali_24', 'Планка: 3 мин':'cali_25', 'Планка: 5 мин':'cali_26', 'Планка: 10 мин':'cali_27', 'Бёрпи ×50':'cali_28', 'Бёрпи ×100':'cali_29', 'Бёрпи ×200':'cali_30',
   'Кенгуру':'beast_kangaroo', 'Шимпанзе':'beast_chimp', 'Леопард':'beast_leopard', 'Большая панда':'beast_panda', 'Кабан':'beast_boar', 'Благородный олень':'beast_deer', 'Горилла':'beast_gorilla', 'Лев':'beast_lion', 'Тигр':'beast_tiger', 'Бурый медведь':'beast_brownbear', 'Зебра':'beast_zebra', 'Белый медведь':'beast_polarbear', 'Волк':'beast_wolf', 'Бегемот':'beast_hippo', 'Корабль «Восток» Гагарина':'rare_vostok', 'Командный модуль «Аполлона-11»':'rare_apollo', 'Статуя Давида':'rare_david', 'Телескоп «Хаббл»':'rare_hubble', 'Колокол Биг-Бена':'rare_bigben', 'Статуя моаи':'rare_moai', 'Лунный модуль':'rare_lunar', 'Камень Стоунхенджа':'rare_stonehenge', 'Метеорит Гоба':'rare_hoba', 'Царь-колокол':'rare_tsarbell', 'Статуя Свободы':'rare_liberty', 'Международная космическая станция':'rare_iss', 'Статуя Христа-Искупителя':'rare_christ', 'Гром-камень Медного всадника':'rare_thunderstone', 'Колесо «Лондонский глаз»':'rare_londoneye', 'Эйфелева башня':'rare_eiffel', '«Родина-мать зовёт!»':'rare_motherland', 'Большой Сфинкс':'rare_sphinx', 'Останкинская башня':'rare_ostankino', '«Титаник»':'rare_titanic', 'Бурдж-Халифа':'rare_burj', 'Мост «Золотые Ворота»':'rare_goldengate', 'Пирамида Хеопса':'rare_cheops', 'Новогодняя тренировка':'rare_newyear', 'Високосный атлет':'rare_leap', 'Пятница, 13-е':'rare_friday13', 'Ранняя пташка':'rare_earlybird', 'Ночная сова':'rare_nightowl', 'Ровно тонна':'rare_ton', 'Тоннаж-палиндром':'rare_palindrome', 'Тренировка в день рождения':'rare_birthday', 'Экскаватор':'machine_excavator', 'Трактор':'weight_tractor',
   'Буровая установка':'machine_drillrig', 'Каток':'machine_roller', 'Бетононасос':'machine_concretepump', 'Погрузчик':'machine_loader', 'Самосвал':'machine_dumptruck', 'Бульдозер':'machine_bulldozer', 'Кран-гидравлик':'machine_hydrocrane', 'Бетономешалка':'machine_mixer'};
 // «Зоопарк» — с юмором
@@ -918,6 +922,7 @@ const ACH_CATS = [
   {id:'cert', name:'Соревнования', color:'#ffd166', hint:'подтверждённые сертификаты — добавить: Участники → вы → Сертификаты'},
   {id:'hero', name:'Герои', color:'#e0b04a', hint:'ачивки героев «Light weight» — выполните все условия'},
   {id:'beast', name:'Звери', color:'#c7a36a', hint:'вес в одном повторении — отдельная ачивка за каждое упражнение'},
+  {id:'lw', name:'Light weight', color:'#e3262e', hint:'личные рекорды: вес в упражнении выше, чем когда-либо раньше (как на экране «Light weight, baby!»)'},
   {id:'pack', name:'Стаи', color:'#d9713a', hint:'лучший подход: вес × повторения (упражнения со своим весом — с весом тела)'},
   {id:'bw', name:'Свой вес', color:'#9fb4c7', hint:'повторения в одном подходе с собственным и дополнительным весом (в подходе пишите отягощение: 10 = +10 кг)'},
   {id:'cali', name:'Калистеника', color:'#7fd6a2', hint:'статика — секунды удержания в одном подходе, бёрпи — за тренировку'},
@@ -932,6 +937,7 @@ const STREAK_STEPS = [2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,30,35,40,45,52,
 const plural = (n, one, few, many) => { const m10=n%10, m100=n%100; return m10===1&&m100!==11?one:(m10>=2&&m10<=4&&(m100<12||m100>14)?few:many); };
 function isPalindromeNum(n){ const s=String(Math.round(n)); return s.length>=4 && s===[...s].reverse().join(''); }
 // все ачивки участника: получено / прогресс
+const LW_STEPS = [1,3,5,10,15,20,25,30,40,50,60,75,100,150,200];
 const TIER_CATS = ['count','hours','streak','cali','run','bike','swim','cardio'];
 function achievementsList(workouts){
   const tons = workouts.map(w=>Calc.workoutTonnage(w));
@@ -982,6 +988,15 @@ function achievementsList(workouts){
       return {name:e.name, group:MG[e.mainGroup]||'Другое', kg, date:first}; });
     out.push({cat:'beast', icon:i, badge:ACH_BADGES[n], title:n, desc:`${fmtNum(kg)} кг в одном повторении`, cur:Math.round(topLift), target:kg, count:holders.length, holders});
   });
+  // «Light weight»: сколько раз побит личный рекорд веса в упражнении (каждая ступень — свой постер)
+  let lwRecords = 0; const lwMax = {};
+  workouts.slice().sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||''))).forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{
+    const top = Math.max(0, ...(ex.sets||[]).filter(st=>Number(st.reps)>=1).map(st=>Number(st.weight)||0));
+    if(top<=0) return; const prev = lwMax[ex.exerciseId]||0;
+    if(prev>0 && top>prev) lwRecords++;
+    lwMax[ex.exerciseId] = Math.max(prev, top); })));
+  LW_STEPS.forEach((n,i)=>{ add('lw', '💪', n===1 ? 'Light weight, baby!' : `${n} ${plural(n,'рекорд','рекорда','рекордов')}`,
+    n===1 ? 'Впервые побит личный рекорд веса в упражнении' : `Побить личный рекорд веса ${n} раз`, lwRecords, n, n>=100); out[out.length-1].poster = i+1; });
   // «Стаи»: лучший подход (вес × повторения)
   let bestSet = 0;
   workouts.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>(ex.sets||[]).forEach(s=>{ bestSet = Math.max(bestSet, Calc.setTonnage(s, Calc.bwFor(w, ex))); }))));
@@ -992,6 +1007,8 @@ function achievementsList(workouts){
   for(let k=1;k<days.length;k++) gap = Math.max(gap, (parseD(days[k])-parseD(days[k-1]))/86400000);
   add('pack','🔥','1 феникс','Вернулся к тренировкам после перерыва 30 дней и больше — восстал из пепла', gap>=30?1:0, 1, true); out[out.length-1].badge = 'pack_phoenix';
   out.push(...sportAchievements(workouts));
+  // спортивные ачивки с готовыми значками (калистеника и др.)
+  out.forEach(a=>{ if(!a.badge && ['cali','run','bike','swim','cardio'].includes(a.cat) && ACH_BADGES[a.title]) a.badge = ACH_BADGES[a.title]; });
   // числовые серии: пустая медаль уровня 1–5 + иконка категории + число на ленте
   const series = {};
   out.forEach(a=>{ if(TIER_CATS.includes(a.cat) && !a.badge){ const k = ['count','hours','streak'].includes(a.cat) ? a.cat : a.cat+a.icon; (series[k]=series[k]||[]).push(a); } });
@@ -1015,8 +1032,9 @@ function achTile(a, color){
   return `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''} ach-${a.cat} ${a.badge||a.tier?'has-badge':''}" style="--ach:${a.tone?a.tone[1]:color}${a.tone?`;--hue:${a.tone[0]}deg`:''}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
     ${a.count>1?`<span class="ach-x">×${a.count}</span>`:''}${a.more?`<span class="ach-x" title="ещё ступеней">+${a.more}</span>`:''}
     ${a.cat==='bw'?`<div class="bw-medal"><span>${a.icon}</span><b>×${a.reps}</b><i>${a.kg?'+'+a.kg+' кг':'свой вес'}</i></div><div class="ach-t">${esc(a.lname)}</div>`:''}
+    ${a.poster?`<div class="lw-poster"><img src="img/lightweight/thumb/${String(a.poster).padStart(2,'0')}.webp" alt="" loading="lazy"></div><div class="ach-t">${esc(a.title)}</div>`:''}
     ${a.tier?`<div class="tier-medal"><img src="img/badges/tier_${a.tier}.webp" alt=""><img class="tier-ico" src="img/badges/ico_${a.cat}.webp" alt=""><span class="tier-txt" style="font-size:${a.tierText.length<=5?15:a.tierText.length<=8?12:a.tierText.length<=12?8.5:8}px">${esc(a.tierText)}</span></div>`:''}
-    ${a.cat==='bw'||a.tier?'':a.hero?`<div class="hero-medal ${a.style}"><img src="img/heroes/${a.hero}.webp" alt=""></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}">`:`<div class="ach-emo">${a.icon}</div>
+    ${a.cat==='bw'||a.tier||a.poster?'':a.hero?`<div class="hero-medal ${a.style}"><img src="img/heroes/${a.hero}.webp" alt=""></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}">`:`<div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>${a.tag?`<div class="ach-tag">${esc(a.tag)}</div>`:''}`}
     ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${a.cat==='hero'?a.cur+'%':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}</div>`}
   </div>`;
@@ -2072,9 +2090,30 @@ function viewFriendProfile(p){
       ${asTrainee&&asTrainee.status==='accepted'?`<button class="btn" data-drop-link="${asTrainee.id}">Отказаться от тренера</button>`:''}
       <button class="btn sm ghost del-link" data-remove-friend="${p.id}">Удалить</button>
     </div>
-    <p class="muted">Статистику и тренировки участника видит только его тренер.</p>
+    <p class="muted">Статистику и тренировки участника видит только его тренер. Достижения видят все его участники.</p>
   </div>
-  ${detailsCard(p.id)}`;
+  ${detailsCard(p.id)}
+  ${friendAchCard(p.id)}`;
+}
+// ачивки друга / тренера: его проведённые тренировки приходят с сервера (friend_achievement_data), считаем как свои
+async function loadFriendAch(pid){
+  State.friendAch = State.friendAch || {}; State.friendAch[pid] = {loading:true};
+  const {data, error} = await Auth.getClient().rpc('friend_achievement_data', {p_user: pid});
+  State.friendAch[pid] = error ? {error: error.message} : { workouts:(data.workouts||[]).map(Storage.workoutFromDb),
+    exercises:(data.exercises||[]).map(Storage.exerciseFromDb), weights:data.weights||[] };
+  if(State.view==='participants' && State.participantProfile===pid) renderMain();
+}
+function friendAchCard(pid){
+  const f = (State.friendAch||{})[pid];
+  if(!f){ loadFriendAch(pid); return '<div class="card muted" style="margin-bottom:10px">Загружаем достижения…</div>'; }
+  if(f.loading) return '<div class="card muted" style="margin-bottom:10px">Загружаем достижения…</div>';
+  if(f.error) return `<div class="card muted" style="margin-bottom:10px">Достижения недоступны: ${esc(f.error)}</div>`;
+  // на время расчёта подмешиваем его упражнения и вес тела, чтобы ачивки видели названия и свой вес
+  const addEx = f.exercises.filter(e=>!DB.exercises.some(x=>x.id===e.id));
+  const addW = f.weights.filter(w=>!(DB.weights||[]).some(x=>x.user_id===w.user_id && x.date===w.date));
+  DB.exercises.push(...addEx); DB.weights = (DB.weights||[]).concat(addW);
+  try { return achievementsCard(f.workouts, pid); }
+  finally { DB.exercises = DB.exercises.filter(e=>!addEx.includes(e)); DB.weights = DB.weights.filter(w=>!addW.includes(w)); }
 }
 function weekKeyOf(ds){ const d=parseD(ds); const day=(d.getDay()+6)%7; const monday=new Date(d.getFullYear(),d.getMonth(),d.getDate()-day); return dstr(monday); }
 function monthKeyOf(ds){ return ds.slice(0,7); }
@@ -2940,7 +2979,7 @@ function handleMainClick(e, ds){
     const nn = prompt('Новое название шаблона', t.name); if(nn){ t.name=nn; Storage.save(); renderMain(); }
     return true;
   }
-  if(ds.openParticipant!==undefined){ State.participantProfile=ds.openParticipant; renderMain(); return true; }
+  if(ds.openParticipant!==undefined){ State.participantProfile=ds.openParticipant; if(State.friendAch) delete State.friendAch[ds.openParticipant]; renderMain(); return true; }
   if(ds.backParticipants!==undefined){ State.participantProfile=null; renderMain(); return true; }
   if(ds.saveParticipant!==undefined){
     const p = DB.participants.find(x=>x.id===ds.saveParticipant);
