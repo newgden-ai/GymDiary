@@ -2124,20 +2124,27 @@ const FOOD_DB = [
 const ACTIVITY = [['1.2','Минимальная (сидячая работа)'],['1.375','Лёгкая (1–3 тренировки в неделю)'],['1.55','Средняя (3–5 тренировок)'],['1.725','Высокая (6–7 тренировок)'],['1.9','Очень высокая (спорт + физический труд)']];
 
 const foodDate = () => State.foodDate || dstr(new Date());
-const foodRows = d => (State.foodRows||[]).filter(r=>r.date===d);
+// чей дневник открыт: свой или подопечного (тренер видит, только если подопечный отметил «Показывать тренеру»)
+const foodUid = () => State.foodUser || selfParticipantId();
+const foodRows = d => (State.foodRows||[]).filter(r=>r.date===d && r.user_id===foodUid());
+function foodTrainees(){
+  const me = selfParticipantId();
+  return (DB.trainerLinks||[]).filter(l=>l.trainer_id===me && l.active).map(l=>({ id:l.trainee_id,
+    name:(DB.participants.find(p=>p.id===l.trainee_id)||{}).name || 'Подопечный',
+    ok: !!((DB.details||[]).find(d=>d.user_id===l.trainee_id)||{}).show_trainer }));
+}
 const sumFood = rows => rows.reduce((a,r)=>({kcal:a.kcal+(+r.kcal||0), p:a.p+(+r.protein||0), f:a.f+(+r.fat||0), c:a.c+(+r.carbs||0)}), {kcal:0,p:0,f:0,c:0});
 
 // дневник: сразу последние 60 дней (для недельного графика и «недавних»), более ранние даты — по запросу
 async function loadFood(date){
-  const c = Auth.getClient(), me = selfParticipantId();
-  State.foodLoaded = State.foodLoaded || {};
-  let q = c.from('food_log').select('*').eq('user_id', me);
-  if(!State.foodRows){
-    State.foodRows = [];
-    const since = dstr(new Date(Date.now()-60*86400000));
-    for(let d=parseD(since); d<=new Date(); d.setDate(d.getDate()+1)) State.foodLoaded[dstr(d)] = 1;
+  const c = Auth.getClient(), uid = foodUid();
+  State.foodLoaded = State.foodLoaded || {}; State.foodRows = State.foodRows || [];
+  let q = c.from('food_log').select('*').eq('user_id', uid);
+  if(!State.foodLoaded[uid]){
+    const L = State.foodLoaded[uid] = {}, since = dstr(new Date(Date.now()-60*86400000));
+    for(let d=parseD(since); d<=new Date(); d.setDate(d.getDate()+1)) L[dstr(d)] = 1;
     q = q.gte('date', since);
-  } else { State.foodLoaded[date] = 1; q = q.eq('date', date); }
+  } else { State.foodLoaded[uid][date] = 1; q = q.eq('date', date); }
   const {data, error} = await q.order('created_at');
   if(error){ toast('Не загрузился дневник питания: '+error.message); return; }
   const ids = new Set(State.foodRows.map(r=>r.id));
@@ -2149,8 +2156,8 @@ async function loadFood(date){
 const KCAL_GOALS = [['lose','Снижение веса',0.85],['keep','Поддержание веса',1],['gain','Набор мышечной массы',1.1]];
 // цель питания: выбранная в разделе калорий, иначе — по цели занятий из личных данных
 const kcalGoalOf = d => d.kcal_goal || (/похуд/i.test(d.goal||'') ? 'lose' : /масс/i.test(d.goal||'') ? 'gain' : 'keep');
-function foodNorm(){
-  const me = selfParticipantId(), d = (DB.details||[]).find(x=>x.user_id===me) || {};
+function foodNorm(uid = foodUid()){
+  const d = (DB.details||[]).find(x=>x.user_id===uid) || {};
   const w = +d.weight_kg || 0, h = +d.height_cm || 0, age = +ageFrom(d.birth_date) || 0;
   const goal = kcalGoalOf(d), gk = KCAL_GOALS.find(g=>g[0]===goal)[2], act = +d.activity || 1.375;
   const bmr = (w && h && age && d.gender) ? Math.round(10*w + 6.25*h - 5*age + (d.gender==='male' ? 5 : -161)) : 0;
@@ -2183,15 +2190,19 @@ function normExplain(n){
 }
 // примерный расход на тренировках дня: силовая ≈ 5 МЕТ, кардио ≈ 7 МЕТ
 function workoutBurn(date, weight){
-  return Math.round(DB.workouts.filter(w=>w.participantId===selfParticipantId() && w.date===date && (w.status==='done' || hasFilledSets(w)))
+  return Math.round(DB.workouts.filter(w=>w.participantId===foodUid() && w.date===date && (w.status==='done' || hasFilledSets(w)))
     .reduce((a,w)=>a + (w.type==='cardio' ? 7 : 5) * (weight||70) * (Number(w.duration)||0)/60, 0));
 }
 
 function foodBar(val, max){ const pc = max ? Math.min(100, val/max*100) : 0; return `<div class="fbar ${max && val>max*1.05?'over':''}"><i style="width:${pc}%"></i></div>`; }
 
 function viewFood(){
-  const date = foodDate();
-  if(!State.foodRows || !State.foodLoaded[date]) loadFood(date);
+  const date = foodDate(), uid = foodUid(), own = uid===selfParticipantId(), trainees = foodTrainees();
+  const who = trainees.find(t=>t.id===uid);
+  const picker = trainees.length ? `<div class="field"><label>Чей дневник</label><select id="foodUser"><option value="">Мой</option>${trainees.map(t=>`<option value="${t.id}" ${t.id===uid?'selected':''}>${esc(t.name)}${t.ok?'':' (нет доступа)'}</option>`).join('')}</select></div>` : '';
+  if(!own && !(who && who.ok)) return `<div class="topbar"><h2>Подсчёт калорий</h2></div>${picker}
+    <div class="card"><b>${esc(who ? who.name : 'Подопечный')}</b> пока не разрешил(а) тренеру видеть личные данные.<div class="muted" style="margin-top:6px">Попросите подопечного отметить «Показывать тренеру» в своих личных данных (Участники → своя карточка).</div></div>`;
+  if(!State.foodLoaded || !State.foodLoaded[uid] || !State.foodLoaded[uid][date]) loadFood(date);
   const rows = foodRows(date), s = sumFood(rows), n = foodNorm(), burn = workoutBurn(date, n && n.weight);
   const today = dstr(new Date()), label = date===today ? 'Сегодня' : date===dstr(new Date(Date.now()-86400000)) ? 'Вчера' : fmtDate(date);
   const left = n ? n.kcal - s.kcal : 0;
@@ -2206,7 +2217,8 @@ function viewFood(){
       <text x="${10+i*bw+bw/2}" y="${H-6}" font-size="11" text-anchor="middle" fill="currentColor" opacity=".7">${wd(x.ds)}</text>
       ${x.kcal?`<text x="${10+i*bw+bw/2}" y="${Y(x.kcal)-4}" font-size="10" text-anchor="middle" fill="currentColor" opacity=".75">${Math.round(x.kcal)}</text>`:''}`).join('')}
     ${n?`<line x1="10" x2="${W-10}" y1="${Y(n.kcal)}" y2="${Y(n.kcal)}" stroke="currentColor" stroke-dasharray="5 4" opacity=".45"/>`:''}</svg>`;
-  return `<div class="topbar"><h2>Подсчёт калорий</h2></div>
+  return `<div class="topbar"><h2>Подсчёт калорий</h2></div>${picker}
+  ${own ? '' : `<div class="card" style="margin-bottom:10px;background:var(--surface2)">✍ Дневник подопечного <b>${esc(who.name)}</b>. Вы можете добавлять и менять записи и норму — подопечному придёт уведомление.</div>`}
   <div class="row" style="justify-content:space-between;margin-bottom:10px">
     <button class="btn" data-food="prev">‹</button><b>${label}</b><button class="btn" data-food="next" ${date>=today?'disabled':''}>›</button>
   </div>
@@ -2218,25 +2230,25 @@ function viewFood(){
       <div style="margin:8px 0 12px">${foodBar(s.kcal, n.kcal)}</div>
       <div style="display:grid;gap:8px">${macro('Белки', s.p, n.p)}${macro('Жиры', s.f, n.f)}${macro('Углеводы', s.c, n.c)}</div>`
     : `<div><b style="font-size:24px">${Math.round(s.kcal)}</b> ккал · Б ${Math.round(s.p)} · Ж ${Math.round(s.f)} · У ${Math.round(s.c)}</div>
-      <div class="muted" style="margin-top:6px">Чтобы рассчитать дневную норму, укажите возраст, пол, вес и рост в личных данных.</div>
-      <button class="btn sm" style="margin-top:8px" data-food="details">Заполнить личные данные</button>`}
+      <div class="muted" style="margin-top:6px">Чтобы рассчитать дневную норму, ${own?'укажите':'подопечному нужно указать'} возраст, пол, вес и рост в личных данных.</div>
+      ${own?'<button class="btn sm" style="margin-top:8px" data-food="details">Заполнить личные данные</button>':''}`}
     ${burn?`<div class="muted" style="margin-top:10px">🔥 На тренировке сожжено примерно ${burn} ккал (уже учтено в норме через уровень активности)</div>`:''}
   </div>
   ${MEALS.map(([m,l])=>{ const list = rows.filter(r=>r.meal===m), ms = sumFood(list);
     if(!list.length && m.startsWith('snack')) return `<button class="btn ghost sm" style="width:100%;margin-bottom:10px;border:1px dashed var(--border)" data-food="add" data-meal="${m}">+ ${l.replace('🍎 ','')}</button>`;
     return `<div class="card" style="margin-bottom:10px">
       <div class="row" style="justify-content:space-between"><b>${l}</b><span class="muted">${Math.round(ms.kcal)} ккал</span></div>
-      ${list.map(r=>`<div class="food-item"><div style="flex:1;min-width:0"><div style="overflow-wrap:anywhere">${esc(r.name)}</div>
+      ${list.map(r=>`<div class="food-item"><div style="flex:1;min-width:0;cursor:pointer" data-food="edit" data-id="${r.id}"><div style="overflow-wrap:anywhere">${esc(r.name)}${r.created_by && r.created_by!==r.user_id ? ' <span class="pill">✍ тренер</span>' : ''}</div>
         <div class="muted">${fmtNum(+r.grams)} ${unitOf(r)} · Б ${fmtNum(+r.protein)} · Ж ${fmtNum(+r.fat)} · У ${fmtNum(+r.carbs)}</div></div>
         <b>${Math.round(+r.kcal)}</b><button class="btn sm ghost del-link" data-food="del" data-id="${r.id}" title="Удалить">✕</button></div>`).join('')}
       <button class="btn sm" style="margin-top:8px" data-food="add" data-meal="${m}">+ Добавить</button>
     </div>`; }).join('')}
   <div class="card" style="margin-bottom:10px"><h3>Калории за неделю</h3>${chart}
-    ${n?'<div class="muted">Пунктир — ваша норма.</div>':''}</div>
+    ${n?'<div class="muted">Пунктир — дневная норма.</div>':''}</div>
   <div class="card" style="margin-bottom:10px"><h3>Рекомендуемая калорийность</h3>
-    ${n && n.bmr ? `<div class="muted" style="margin-bottom:8px">По вашим данным: ${n.gender==='male'?'мужчина':'женщина'}, ${n.age} ${plural(n.age,'год','года','лет')}, ${fmtNum(n.weight)} кг, ${fmtNum(n.h)} см. Нажмите на цель, чтобы выбрать её.</div>
+    ${n && n.bmr ? `<div class="muted" style="margin-bottom:8px">${own?'По вашим данным':'По данным подопечного'}: ${n.gender==='male'?'мужчина':'женщина'}, ${n.age} ${plural(n.age,'год','года','лет')}, ${fmtNum(n.weight)} кг, ${fmtNum(n.h)} см. Нажмите на цель, чтобы выбрать её.</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">${KCAL_GOALS.map(([id,l])=>`<button class="btn ${n.goal===id?'primary':''}" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;height:auto;white-space:normal;line-height:1.25" data-food="goal" data-g="${id}"><b style="font-size:17px">${n.byGoal[id]}</b><span style="font-size:11.5px">${l}</span></button>`).join('')}</div>`
-      : `<div class="muted" style="margin-bottom:8px">Укажите возраст, пол, вес и рост в личных данных — приложение рассчитает норму для вашей цели.</div>`}
+      : `<div class="muted" style="margin-bottom:8px">${own?'Укажите':'Подопечному нужно указать'} возраст, пол, вес и рост в личных данных — приложение рассчитает норму для цели.</div>`}
     <div class="field"><label>Уровень активности</label><select id="foodActivity">${ACTIVITY.map(([v,l])=>`<option value="${v}" ${(n?n.activity:'1.375')==v?'selected':''}>${l}</option>`).join('')}</select></div>
     <div class="field"><label>Своя норма, ккал (если хотите задать вручную)</label><input type="text" inputmode="numeric" id="foodTarget" value="${n&&n.manual?n.kcal:''}" placeholder="${n&&n.auto?'по расчёту '+n.auto:'например 2200'}"></div>
     <button class="btn primary" data-food="saveNorm">Сохранить</button>
@@ -2246,11 +2258,11 @@ function viewFood(){
 }
 
 async function saveFoodPatch(patch, msg){
-  const me = selfParticipantId(); patch = {user_id: me, ...patch};
-  const {error} = await Auth.getClient().from('profile_details').upsert(patch);
+  const uid = foodUid();
+  const {error} = await Auth.getClient().rpc('set_food_norm', {p_user: uid, p_patch: patch});
   if(error) return toast('Не сохранено: '+error.message);
-  const old = (DB.details||[]).find(x=>x.user_id===me);
-  DB.details = (DB.details||[]).filter(x=>x.user_id!==me).concat([{...(old||{}), ...patch}]);
+  const old = (DB.details||[]).find(x=>x.user_id===uid);
+  DB.details = (DB.details||[]).filter(x=>x.user_id!==uid).concat([{...(old||{user_id:uid}), ...patch}]);
   toast(msg); renderMain();
 }
 async function saveFoodNorm(){
@@ -2261,7 +2273,7 @@ async function saveFoodNorm(){
 // окно добавления: поиск по справочнику + недавние, граммы или штуки, либо свой продукт
 function foodMatches(q){
   const recent = []; const seen = new Set();
-  (State.foodRows||[]).slice().reverse().forEach(r=>{ const k = normName(r.name); if(!seen.has(k) && +r.grams>0){ seen.add(k);
+  (State.foodRows||[]).filter(r=>r.user_id===foodUid()).reverse().forEach(r=>{ const k = normName(r.name); if(!seen.has(k) && +r.grams>0){ seen.add(k);
     const g = +r.grams/100; const cat0 = FOOD_DB.find(x=>normName(x.name)===k);
     recent.push({name:r.name, kcal:+r.kcal/g, p:+r.protein/g, f:+r.fat/g, c:+r.carbs/g, lastGrams:+r.grams, recent:true, unit:r.unit, pc:cat0&&cat0.pc, pcName:cat0&&cat0.pcName}); } });
   const nq = normName(q||'');
@@ -2295,7 +2307,8 @@ function renderFoodModal(){
       <div class="field" style="margin-top:10px"><label>${unitOf(it)==='мл'?'Сколько выпили, мл':'Сколько съели, г'}</label><input type="text" inputmode="decimal" data-food-in="grams" value="${m.grams||''}" id="foodGrams"></div>
       ${it.pc?`<div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:8px">${[0.5,1,2,3].map(k=>`<button class="btn sm" data-food="pc" data-k="${k}">${esc(it.pcName)}${k===1?'':' ×'+(k===0.5?'½':k)} (${Math.round(it.pc*k)} ${unitOf(it)})</button>`).join('')}</div>`:''}
       <div id="foodCalc" class="card" style="background:var(--surface2)">${foodCalcText(r)}</div>
-      <div class="row" style="justify-content:space-between;margin-top:10px"><button class="btn ghost" data-food="back">‹ К поиску</button><button class="btn primary" data-food="save">Добавить</button></div>`;
+      ${m.editId ? `<div class="field" style="margin-top:10px"><label>Приём пищи</label><select data-food-in="meal">${MEALS.map(([k,l])=>`<option value="${k}" ${m.meal===k?'selected':''}>${l}</option>`).join('')}</select></div>` : ''}
+      <div class="row" style="justify-content:space-between;margin-top:10px">${m.editId ? '<span></span>' : '<button class="btn ghost" data-food="back">‹ К поиску</button>'}<button class="btn primary" data-food="save">${m.editId ? 'Сохранить' : 'Добавить'}</button></div>`;
   } else {
     const list = m.list = foodMatches(m.q);
     body = `<input type="search" data-food-in="q" value="${esc(m.q||'')}" placeholder="Поиск: гречка, плов, банан…" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:10px">
@@ -2304,7 +2317,7 @@ function renderFoodModal(){
       <button class="btn" style="margin-top:6px" data-food="custom">+ Свой продукт</button>`;
   }
   return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:480px">
-    <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">${meal}</h2><button class="btn ghost sm" data-close-modal="1">✕</button></div>
+    <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">${m.editId ? 'Изменить запись' : meal}</h2><button class="btn ghost sm" data-close-modal="1">✕</button></div>
     ${body}</div></div>`;
 }
 const foodCalcText = r => `<b style="font-size:20px">${Math.round(r.kcal)} ккал</b> <span class="muted">· Б ${fmtNum(r.p)} · Ж ${fmtNum(r.f)} · У ${fmtNum(r.c)}</span>`;
@@ -2318,10 +2331,11 @@ async function saveFoodEntry(){
     item = {name:cu.name.trim(), kcal:num(cu.kcal), p:num(cu.p), f:num(cu.f), c:num(cu.c), unit:cu.unit||'g'};
   } else { item = m.sel; grams = num(m.grams); if(grams<=0) return toast(unitOf(item)==='мл'?'Укажите объём':'Укажите вес порции'); }
   const r = foodCalc(item, grams), rd = v => Math.round(v*10)/10;
-  const row = { user_id: selfParticipantId(), date: m.date, meal: m.meal, name: item.name, unit: unitOf(item)==='мл' ? 'ml' : 'g', grams: rd(grams), kcal: rd(r.kcal), protein: rd(r.p), fat: rd(r.f), carbs: rd(r.c) };
-  const {data, error} = await Auth.getClient().from('food_log').insert(row).select().single();
+  const row = { user_id: m.uid, date: m.date, meal: m.meal, name: item.name, unit: unitOf(item)==='мл' ? 'ml' : 'g', grams: rd(grams), kcal: rd(r.kcal), protein: rd(r.p), fat: rd(r.f), carbs: rd(r.c) };
+  const c = Auth.getClient();
+  const {data, error} = m.editId ? await c.from('food_log').update(row).eq('id', m.editId).select().single() : await c.from('food_log').insert(row).select().single();
   if(error) return toast('Не сохранено: '+error.message);
-  State.foodRows.push(data); State.modal = null; renderModal(); renderMain();
+  State.foodRows = State.foodRows.filter(r=>r.id!==m.editId).concat([data]); State.modal = null; renderModal(); renderMain();
 }
 
 function foodClick(ds){
@@ -2334,7 +2348,11 @@ function foodClick(ds){
     Auth.getClient().from('food_log').delete().eq('id', id).then(({error})=>{ if(error) return toast('Ошибка: '+error.message);
       State.foodRows = State.foodRows.filter(r=>r.id!==id); renderMain(); });
     return; }
-  if(a==='add'){ State.modal = {kind:'food', meal: ds.meal, date: foodDate(), q:''}; renderModal(); return; }
+  if(a==='add'){ State.modal = {kind:'food', uid: foodUid(), meal: ds.meal, date: foodDate(), q:''}; renderModal(); return; }
+  if(a==='edit'){ const r = State.foodRows.find(x=>x.id===ds.id); if(!r) return; const g = +r.grams/100, cat0 = FOOD_DB.find(x=>normName(x.name)===normName(r.name));
+    State.modal = {kind:'food', uid: r.user_id, meal: r.meal, date: r.date, editId: r.id, grams: +r.grams,
+      sel: {name:r.name, kcal:+r.kcal/g, p:+r.protein/g, f:+r.fat/g, c:+r.carbs/g, unit:r.unit, pc:cat0&&cat0.pc, pcName:cat0&&cat0.pcName}};
+    renderModal(); return; }
   if(!m || m.kind!=='food') return;
   if(a==='pick'){ const it = m.list[+ds.i]; m.sel = it; m.grams = it.lastGrams || it.pc || 100; renderModal(); return; }
   if(a==='pc'){ m.grams = Math.round(m.sel.pc * +ds.k); renderModal(); return; }
@@ -2347,6 +2365,7 @@ function foodInput(e){
   const m = State.modal, key = e.target.dataset.foodIn; if(!m || m.kind!=='food') return;
   if(key==='q'){ m.q = e.target.value; renderModal(); const el = document.querySelector('[data-food-in="q"]'); if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); } return; }
   if(key==='grams'){ m.grams = e.target.value; const box = document.getElementById('foodCalc'); if(box) box.innerHTML = foodCalcText(foodCalc(m.sel, parseFloat(String(m.grams).replace(',','.'))||0)); return; }
+  if(key==='meal'){ m.meal = e.target.value; return; }
   if(key.startsWith('cu.')) m.cu[key.slice(3)] = e.target.value;
 }
 
@@ -2893,6 +2912,7 @@ function initEvents(){
   });
   function onChangeOrInput(e){
     if(e.target.matches('[data-food-in]')){ if(e.type==='input') foodInput(e); return; }
+    if(e.target.id==='foodUser'){ if(e.type==='change'){ State.foodUser = e.target.value || null; renderMain(); } return; }
     if(e.target.matches('[data-help-search]')){
       if(e.type!=='input') return;
       State.helpQuery = e.target.value; renderMain();

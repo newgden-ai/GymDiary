@@ -16,7 +16,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-09-26 · images-fallback";
+const BOT_VERSION = "2026-09-26 · food-notify";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -383,11 +383,39 @@ async function membershipReminders() {
   return sent;
 }
 
+// изменения в дневнике питания: всё от одного человека за 2 минуты — одним сообщением
+async function foodNotifications(list: any[]) {
+  let sent = 0;
+  const MEAL: Record<string, string> = { breakfast: "завтрак", snack1: "перекус", lunch: "обед", snack2: "перекус", dinner: "ужин", snack3: "вечерний перекус" };
+  const groups = new Map<string, any[]>();
+  for (const n of list) { const k = `${n.user_id}|${n.payload?.from}|${n.payload?.by}`; groups.set(k, [...(groups.get(k) ?? []), n]); }
+  for (const items of groups.values()) {
+    const n0 = items[0];
+    const { data: ps } = await admin.from("profiles").select("id,name,telegram_id").in("id", [n0.user_id, n0.payload?.from].filter(Boolean));
+    const to = ps?.find((x: any) => x.id === n0.user_id), from = ps?.find((x: any) => x.id === n0.payload?.from);
+    const who = `<b>${esc(from?.name ?? "Участник")}</b>`;
+    const lines = items.map((n: any) => {
+      const p = n.payload ?? {}, u = p.unit === "ml" ? "мл" : "г", when = `${MEAL[p.meal] ?? ""}, ${String(p.date ?? "").split("-").reverse().slice(0, 2).join(".")}`;
+      const verb = p.action === "insert" ? "добавлено" : p.action === "delete" ? "удалено" : "изменено";
+      const what = p.action === "update" && (p.old_grams != p.grams || p.old_name !== p.name)
+        ? `${esc(p.old_name ?? p.name)} ${Number(p.old_grams)} ${u} → ${esc(p.name)} ${Number(p.grams)} ${u}` : `${esc(p.name)} ${Number(p.grams)} ${u}`;
+      return `• ${verb}: ${what} (${when})`;
+    });
+    const head = n0.payload?.by === "trainer"
+      ? `🍽 Тренер ${who} изменил(а) ваш дневник питания:`
+      : `🍽 ${who} изменил(а) записи в своём дневнике питания, которые вносили вы:`;
+    if (to?.telegram_id) { await send(to.telegram_id, `${head}\n${lines.join("\n")}`, appKb()); sent++; await sleep(40); }
+    await admin.from("notifications").update({ telegram_sent: true }).in("id", items.map((n: any) => n.id));
+  }
+  return sent;
+}
+
 async function cron(kind: string) {
   let sent = 0;
   if (kind === "notify") {
     const { data: list } = await admin.from("notifications").select("*").eq("telegram_sent", false).order("created_at").limit(200);
-    for (const n of list ?? []) {
+    sent += await foodNotifications((list ?? []).filter((n: any) => n.type === "food_changed"));
+    for (const n of (list ?? []).filter((n: any) => n.type !== "food_changed")) {
       const ids = [n.user_id, n.payload?.from].filter(Boolean);
       const { data: ps } = await admin.from("profiles").select("id,name,telegram_id").in("id", ids);
       const to = ps?.find((x: any) => x.id === n.user_id), from = ps?.find((x: any) => x.id === n.payload?.from);
@@ -399,6 +427,7 @@ async function cron(kind: string) {
         trainer_assigned: `✅ ${who} принял(а) вас как тренера. Его (её) тренировки теперь в вашем календаре.`,
         achievement_pending: `🏅 Новый сертификат на проверке от ${who}: «${esc(n.payload?.name)}». Откройте Настройки → Админ-панель.`,
         achievement_approved: `🏅 Ваш сертификат «${esc(n.payload?.name)}» подтверждён! Он уже в «Достижениях → Соревнования».`,
+        food_norm: `🎯 Тренер ${who} изменил(а) вашу норму питания: цель — <b>${({ lose: "снижение веса", keep: "поддержание веса", gain: "набор мышечной массы" } as any)[n.payload?.goal] ?? "по расчёту"}</b>, норма — <b>${n.payload?.target ? n.payload.target + " ккал" : "по расчёту приложения"}</b>. Подробности в разделе «Калории».`,
         achievement_rejected: `Сертификат «${esc(n.payload?.name)}» отклонён.${n.payload?.comment ? " Причина: " + esc(n.payload.comment) + "." : ""} Можно загрузить заново.`,
       };
       if (to?.telegram_id && text[n.type]) { await send(to.telegram_id, text[n.type], appKb()); sent++; await sleep(40); }
