@@ -175,6 +175,17 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .hero-medal.mono img{filter:grayscale(1) contrast(1.6) brightness(1.05);mix-blend-mode:luminosity;opacity:.9;}
 .ach-tile.ach-hero:not(.got) .hero-medal{filter:grayscale(1) brightness(.5);}
 .ach-tile.ach-hero .ach-t{font-family:Impact,'Arial Black',sans-serif;font-weight:400;text-transform:uppercase;font-size:11px;letter-spacing:.2px;overflow-wrap:normal;word-break:normal;hyphens:auto;}
+.subtabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;}
+.subtabs button{flex:1;min-width:max-content;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-weight:600;}
+.subtabs button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.fbar{height:10px;border-radius:6px;background:var(--surface2);overflow:hidden;border:1px solid var(--border);}
+.fbar>i{display:block;height:100%;background:var(--accent);border-radius:6px;}
+.fbar.over>i{background:var(--danger);}
+.food-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--border);}
+.food-item:first-of-type{border-top:none;}
+.food-pick{display:block;width:100%;text-align:left;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:6px;color:inherit;}
+.year-card{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--surface2);}
+.year-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:8px;}
 .ach-chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none;}
 .ach-chip{flex:0 0 auto;border:1px solid var(--border);background:var(--surface2);border-radius:999px;padding:5px 10px;font-size:12.5px;white-space:nowrap;}
 .ach-chip b{color:var(--ach);filter:brightness(.8);}
@@ -990,29 +1001,33 @@ const ICON_PATHS = {
   bicep: `<path d="M8 42c-2.5-9 0-19 5-27 2.5-4 7.5-5.5 10-2.5 1.5 2 .5 4.5-1.5 5.5l-3.5 2c-1 4-.5 8 1.5 10.5 4.5-4.5 12.5-5.5 18-1.5 4.5 3.3 4.5 9.5 0 12.5-3.5 2.3-9 2.5-12.5.5z" fill="url(#gmX)"/><path d="M27 33.5c3-2 7.5-2 10 .5" fill="none" stroke="var(--ico-red)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`,
   flag: `<path d="M13 43V6" fill="none" stroke="url(#gmX)" stroke-width="3.4" stroke-linecap="round"/><path d="M14.5 8c6-3 10 3 16 0 2.5-1.2 4.5-1.5 6-1v17c-1.5-.5-3.5-.2-6 1-6 3-10-3-16 0z" fill="var(--ico-red)"/><path d="M8 43h11" stroke="url(#gmX)" stroke-width="3" stroke-linecap="round"/>`,
   download: `<path d="M17 14h-3a4 4 0 0 0-4 4v20a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4V18a4 4 0 0 0-4-4h-3" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 6v22M17 21.5l7 7 7-7" fill="none" stroke="var(--ico-red)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`,
-  upload: `<path d="M17 14h-3a4 4 0 0 0-4 4v20a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4V18a4 4 0 0 0-4-4h-3" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 32V8M17 15l7-7 7 7" fill="none" stroke="var(--ico-red)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`
+  upload: `<path d="M17 14h-3a4 4 0 0 0-4 4v20a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4V18a4 4 0 0 0-4-4h-3" fill="none" stroke="url(#gmX)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 32V8M17 15l7-7 7 7" fill="none" stroke="var(--ico-red)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`,
+  food: `<path d="M24 15.5c-3-2.6-8.2-3.2-11.6 0-4.6 4.2-4 12.2-1 18.2 2.5 5 6 8.8 9 8.8 1.5 0 2.2-.8 3.6-.8s2.1.8 3.6.8c3 0 6.5-3.8 9-8.8 3-6 3.6-14-1-18.2-3.4-3.2-8.6-2.6-11.6 0z" fill="url(#gmX)"/><path d="M24 15.5c0-3.2 1-6.2 3-8.5" fill="none" stroke="url(#gmX)" stroke-width="2.6" stroke-linecap="round"/><path d="M26.5 10.5c2-4.2 7-5.4 10.2-4.4-1 4.2-5.2 6.8-10.2 4.4z" fill="var(--ico-red)"/>`
 };
 function icon(name, silver){ return `<svg class="ico" viewBox="0 0 48 48" aria-hidden="true">${ICON_PATHS[name].replace(/gmX/g, silver?'gmS':'gm')}</svg>`; }
 const ICONS = new Proxy({}, { get:(_, k)=>icon(k) });
 const NAV_ITEMS = [
   ['calendar',ICONS.calendar,'Календарь'],
   ['history',ICONS.history,'Тренировки'],
-  ['templates',ICONS.templates,'Шаблоны'],
   ['participants',ICONS.participants,'Участники'],
+  ['food',ICONS.food,'Подсчёт калорий','Калории'],
   ['stats',ICONS.stats,'Статистика'],
-  ['help',ICONS.help,'Справка'],
   ['settings',ICONS.settings,'Настройки']
 ];
+// «Шаблоны» и «Справка» — вкладки внутри «Тренировок»
+const TRAIN_TABS = [['history','Журнал'],['templates','Шаблоны'],['help','Справка']];
+const navActive = id => State.view===id || (id==='history' && TRAIN_TABS.some(t=>t[0]===State.view));
+const trainTabs = () => `<div class="subtabs">${TRAIN_TABS.map(([id,l])=>`<button class="${State.view===id?'active':''}" data-nav="${id}">${l}</button>`).join('')}</div>`;
 function renderNav(){
   const sb = document.getElementById('sidebar');
   sb.innerHTML = '<div class="brand">ТренДневник</div>' + NAV_ITEMS.map(([id,icon,label])=>
-    `<button class="navitem ${State.view===id?'active':''}" data-nav="${id}">${icon} ${label}</button>`
+    `<button class="navitem ${navActive(id)?'active':''}" data-nav="${id}">${icon} ${label}</button>`
   ).join('');
   sb.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{State.view=b.dataset.nav; State.participantProfile=null; rerender();});
 
   const bn = document.getElementById('bottomnav');
-  bn.innerHTML = NAV_ITEMS.map(([id,icon,label])=>
-    `<button class="${State.view===id?'active':''}" data-nav="${id}"><span class="bnicon">${icon}</span>${label}</button>`
+  bn.innerHTML = NAV_ITEMS.map(([id,icon,label,short])=>
+    `<button class="${navActive(id)?'active':''}" data-nav="${id}"><span class="bnicon">${icon}</span>${short||label}</button>`
   ).join('');
   bn.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{State.view=b.dataset.nav; State.participantProfile=null; State.modal=null; renderModal(); rerender();});
 }
@@ -1028,6 +1043,7 @@ function renderMain(){
   else if(State.view==='settings') m.innerHTML = viewSettings();
   else if(State.view==='help') m.innerHTML = viewHelp();
   else if(State.view==='admin') m.innerHTML = viewAdmin();
+  else if(State.view==='food') m.innerHTML = viewFood();
   applyTheme();
   hydrateCertImages();
 }
@@ -1181,6 +1197,7 @@ function renderModal(){
   else if(State.modal.kind==='achBeast') root.innerHTML = renderBeastModal();
   else if(State.modal.kind==='cert') root.innerHTML = renderCertModal();
   else if(State.modal.kind==='result') root.innerHTML = renderResultModal();
+  else if(State.modal.kind==='food') root.innerHTML = renderFoodModal();
 }
 
 function renderWorkoutModal(){
@@ -1633,7 +1650,7 @@ function viewHistory(){
     list = list.filter(w=>parseD(w.date)>=from);
   }
   const units = DB.settings.units;
-  return `<div class="topbar"><h2>Тренировки</h2><button class="btn primary" data-add-day="${dstr(new Date())}">+ Тренировка</button></div>
+  return `${trainTabs()}<div class="topbar"><h2>Тренировки</h2><button class="btn primary" data-add-day="${dstr(new Date())}">+ Тренировка</button></div>
   <div class="card" style="margin-bottom:12px">
     <div class="grid3">
       <div class="field"><label>Участник</label><select data-hf="participant"><option value="">Все</option>${DB.participants.map(p=>`<option value="${p.id}" ${f.participant===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>
@@ -1685,7 +1702,7 @@ function viewTemplates(){
   // «Базовая · Бодибилдинг · Пн: грудь» → группа «Бодибилдинг»
   const groups = {}; base.forEach(t=>{ const g=(t.name.split(' · ')[1]||'Другое'); (groups[g]=groups[g]||[]).push(t); });
   const grid = list => `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:14px">${list.map(templateCard).join('')}</div>`;
-  return `<div class="topbar"><h2>Шаблоны</h2><button class="btn" data-import-templates="1">Импорт</button></div>
+  return `${trainTabs()}<div class="topbar"><h2>Шаблоны</h2><button class="btn" data-import-templates="1">Импорт</button></div>
   <h3>Мои шаблоны</h3>
   ${mine.length? grid(mine) : '<div class="muted" style="margin-bottom:14px">Пока нет шаблонов. Сохраните тренировку как шаблон или импортируйте.</div>'}
   <h3>Общие шаблоны</h3>
@@ -1707,7 +1724,7 @@ const helpBtn = key => `<button class="help-btn" data-help="${esc(key)}" title="
 function viewHelp(){
   const q = normName(State.helpQuery||'');
   const groups = (window.HELP_DATA||[]).map(g=>({...g, items:g.items.filter(it=>!q || normName(it.name).includes(q))})).filter(g=>g.items.length);
-  return `<div class="topbar"><h2>Экспресс-справка</h2></div>
+  return `${trainTabs()}<div class="topbar"><h2>Экспресс-справка</h2></div>
   <input type="search" data-help-search value="${esc(State.helpQuery||'')}" placeholder="Поиск упражнения…" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:10px">
   ${groups.map(g=>`<div class="card" style="margin-bottom:10px">
     <h3>${esc(g.group)}</h3>
@@ -2016,7 +2033,289 @@ function viewStats(){
     <table><thead><tr><th>Упражнение</th><th>Макс. вес</th><th>Макс. повт.</th><th>Тоннаж</th><th>Раз</th></tr></thead><tbody>
     ${Object.values(exTotals).sort((a,b)=>b.tonnage-a.tonnage).map(e=>`<tr><td>${esc(e.name)}</td><td>${fmtNum(convW(e.maxW,units))}</td><td>${e.maxR}</td><td>${fmtNum(convW(e.tonnage,units))}</td><td>${e.count}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Нет данных</td></tr>'}
     </tbody></table>
+  </div>
+  ${archiveCard(State.statsParticipant || selfParticipantId())}`;
+}
+
+/* ===================== ГОДОВОЙ АРХИВ ===================== */
+// итоги года: считаем из загруженных тренировок; если их нет (старые годы) — берём свод с сервера (yearly_archive)
+function yearSummary(ws, y){
+  const list = ws.filter(w=>w.date.startsWith(y+'-')).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!list.length) return null;
+  const tons = list.map(w=>Calc.workoutTonnage(w)); const bi = tons.indexOf(Math.max(...tons));
+  const weeks = new Set(list.map(w=>weekKeyOf(w.date))).size;
+  const weeksInYear = y===new Date().getFullYear() ? Math.max(1, Math.ceil((Date.now()-new Date(y,0,1))/(7*86400000))) : 52;
+  const durs = list.map(w=>Number(w.duration)||0).filter(Boolean);
+  return { year:y, first:{date:list[0].date, name:list[0].name, tonnage:tons[0]}, best:{date:list[bi].date, name:list[bi].name, tonnage:tons[bi]},
+    avgDur: durs.length ? durs.reduce((a,b)=>a+b,0)/durs.length : 0, stability: Math.min(100, weeks/weeksInYear*100),
+    total: list.length, tonnage: tons.reduce((a,b)=>a+b,0), current: y===new Date().getFullYear() };
+}
+async function loadArchive(pid){
+  State.archive = State.archive || {}; State.archive[pid] = [];   // помечаем «загружается», чтобы не запрашивать повторно
+  const {data} = await Auth.getClient().from('yearly_archive').select('*').eq('participant_id', pid);
+  State.archive[pid] = data || []; if(State.view==='stats') renderMain();
+}
+function archiveCard(pid){
+  if(!State.archive || !State.archive[pid]){ loadArchive(pid); }
+  const server = (State.archive && State.archive[pid]) || [];
+  const ws = DB.workouts.filter(w=>w.participantId===pid && (w.status==='done' || (w.date<=dstr(new Date()) && hasFilledSets(w))));
+  const years = [...new Set([...ws.map(w=>+w.date.slice(0,4)), ...server.map(r=>r.year)])].sort((a,b)=>b-a);
+  const units = DB.settings.units, kg = v => `${fmtNum(convW(v,units))} ${unitLabel(units)}`;
+  const rows = years.map(y=>{ const l = yearSummary(ws, y); if(l) return l; const r = server.find(x=>x.year===y);
+    return r && { year:y, first:r.first_workout||{}, best:r.best_workout||{}, avgDur:+r.avg_duration_min||0, stability:+r.stability_percent||0, total:r.total_workouts, tonnage:+r.total_tonnage||0 }; }).filter(Boolean);
+  return `<div class="card" style="margin-top:10px">
+    <h3>📚 Архив по годам</h3>
+    <div class="muted" style="margin-bottom:8px">Итоги каждого года. Прошлые годы сервер пересчитывает каждую ночь; тренировки при этом не удаляются.</div>
+    ${rows.map(r=>`<div class="year-card">
+      <div class="row" style="justify-content:space-between"><b style="font-size:18px">${r.year}${r.current?' <span class="pill">идёт сейчас</span>':''}</b><span class="muted">${r.total} ${plural(r.total,'тренировка','тренировки','тренировок')}</span></div>
+      <div class="year-grid">
+        <div><div class="muted">Тоннаж за год</div><b>${kg(r.tonnage)}</b></div>
+        <div><div class="muted">Стабильность</div><b>${fmtNum(r.stability)}%</b> <span class="muted">недель с тренировкой</span></div>
+        <div><div class="muted">Средняя длительность</div><b>${r.avgDur?fmtNum(r.avgDur)+' мин':'—'}</b></div>
+        <div><div class="muted">Лучшая тренировка</div><b>${kg(r.best.tonnage||0)}</b> <span class="muted">${r.best.date?fmtDateShort(r.best.date):''}</span></div>
+      </div>
+      <div class="muted" style="margin-top:6px">Первая тренировка года: ${r.first.date?fmtDate(r.first.date):'—'}${r.first.name?' · '+esc(r.first.name):''}</div>
+    </div>`).join('') || '<div class="muted">Пока нет завершённых тренировок.</div>'}
   </div>`;
+}
+
+/* ===================== ПОДСЧЁТ КАЛОРИЙ ===================== */
+// справочник на 100 г: [название, ккал, белки, жиры, углеводы, граммов в штуке, название штуки]
+const MEALS = [['breakfast','🌅 Завтрак'],['snack1','🍎 Перекус'],['lunch','🍲 Обед'],['snack2','🍎 Перекус'],['dinner','🌙 Ужин'],['snack3','🍎 Вечерний перекус']];
+// напитки считаем в мл (плотность ≈ 1)
+const LIQUIDS = new Set(['Молоко 2,5%','Молоко 3,2%','Кефир 1%','Кефир 2,5%','Катык','Сок апельсиновый','Кола','Чай с сахаром','Кофе с молоком','Пиво','Вино сухое']);
+const unitOf = x => (x && (x.unit==='ml' || LIQUIDS.has(x.name))) ? 'мл' : 'г';
+const FOOD_DB = [
+  ['Гречка варёная',110,4.2,1.1,21.3],['Гречка сухая',313,12.6,3.3,62.1],['Рис варёный',116,2.2,0.5,24.9],['Рис сухой',344,6.7,0.7,78.9],
+  ['Овсянка на воде',88,3,1.7,15],['Овсяные хлопья сухие',352,12.3,6.2,61.8],['Макароны варёные',112,3.5,0.4,23.2],['Макароны сухие',344,10.4,1.1,71.5],
+  ['Булгур варёный',83,3.1,0.2,18.6],['Картофель отварной',82,2,0.4,16.7],['Картофель жареный',192,2.8,9.5,23.4],['Картофельное пюре',106,2.5,4.2,14.7],
+  ['Картофель фри',312,3.4,15,41],['Хлеб белый',265,8,3.2,49,30,'кусок'],['Хлеб чёрный',201,6.6,1.2,40.7,30,'кусок'],['Лепёшка (нон)',275,8.5,2.5,55,250,'шт'],
+  ['Лаваш',236,7.9,1,47.6],
+  ['Куриная грудка отварная',137,29.8,1.8,0.5],['Куриная грудка сырая',113,23.6,1.9,0.4],['Курица жареная',210,24,12.6,0],['Индейка отварная',130,25,3,0],
+  ['Говядина отварная',254,25.8,16.8,0],['Говядина тушёная',232,16.8,18.3,0],['Баранина отварная',291,24.6,21.4,0],['Свинина отварная',375,22.6,31.6,0],
+  ['Фарш говяжий',254,17.2,20,0],['Котлета куриная',190,18,10,7,70,'шт'],['Печень говяжья жареная',199,22.9,10.2,3.9],['Сосиски',257,11,23.9,1.6,50,'шт'],
+  ['Колбаса варёная',257,12.8,22.2,1.5],['Шашлык из баранины',280,22,21,0],['Шашлык куриный',150,22,6,1],
+  ['Лосось',208,20,13.4,0],['Тунец консервированный',96,21,1,0],['Минтай',72,15.9,0.9,0],['Скумбрия',191,18,13.2,0],['Креветки варёные',95,18.9,2.2,0],
+  ['Яйцо куриное',157,12.7,11.5,0.7,55,'шт'],['Яичный белок',44,11.1,0,0,33,'шт'],['Омлет',184,9.6,15.4,1.9],
+  ['Творог 0%',71,16.5,0,1.3],['Творог 5%',121,17.2,5,1.8],['Творог 9%',159,16.7,9,2],['Молоко 2,5%',52,2.8,2.5,4.7,250,'стакан'],['Молоко 3,2%',59,2.9,3.2,4.7,250,'стакан'],
+  ['Кефир 1%',40,3,1,4,250,'стакан'],['Кефир 2,5%',53,2.8,2.5,4,250,'стакан'],['Катык',57,2.9,3.2,4.1,250,'стакан'],['Йогурт греческий 2%',73,10,2,3.9],
+  ['Йогурт натуральный 2,5%',60,4.3,2.5,5],['Сметана 15%',158,2.6,15,3,20,'ст. л.'],['Сметана 20%',204,2.8,20,3.2,20,'ст. л.'],['Сыр твёрдый',364,26,26.5,3.5,20,'ломтик'],
+  ['Моцарелла',280,22,22,2.2],['Брынза',260,17.9,20.1,0],['Масло сливочное',748,0.5,82.5,0.8,10,'кусочек'],
+  ['Огурец',15,0.8,0.1,2.8,100,'шт'],['Помидор',20,1.1,0.2,3.7,120,'шт'],['Капуста белокочанная',27,1.8,0.1,4.7],['Морковь',35,1.3,0.1,6.9,80,'шт'],
+  ['Брокколи',34,2.8,0.4,6.6],['Перец болгарский',26,1.3,0.1,5.3,150,'шт'],['Лук репчатый',41,1.4,0,10.4],['Салат листовой',12,1.2,0.3,1.3],
+  ['Кабачок',24,0.6,0.3,4.6],['Баклажан',24,1.2,0.1,4.5],['Свёкла отварная',48,1.5,0.1,10.8],['Горошек зелёный консервированный',55,3.6,0.1,9.8],
+  ['Фасоль красная варёная',123,7.8,0.5,21.5],['Нут варёный',164,8.9,2.6,27.4],['Чечевица варёная',116,9,0.4,20.1],['Шампиньоны',27,4.3,1,0.1],
+  ['Банан',96,1.5,0.2,21.8,120,'шт'],['Яблоко',47,0.4,0.4,9.8,180,'шт'],['Апельсин',43,0.9,0.2,8.1,180,'шт'],['Груша',47,0.4,0.3,10.3,170,'шт'],
+  ['Виноград',72,0.6,0.2,15.4],['Арбуз',27,0.6,0.1,5.8],['Дыня',35,0.6,0.3,7.4],['Персик',45,0.9,0.1,9.5,150,'шт'],['Абрикос',44,0.9,0.1,9,40,'шт'],
+  ['Гранат',72,0.7,0.6,14.5],['Хурма',67,0.5,0.4,15.3,200,'шт'],['Клубника',41,0.8,0.4,7.5],['Мандарин',38,0.8,0.2,7.5,80,'шт'],['Киви',47,0.8,0.4,8.1,75,'шт'],
+  ['Изюм',264,2.9,0.6,66],['Курага',215,5.2,0.3,51],['Финики',274,2.5,0.5,69.2,8,'шт'],
+  ['Грецкий орех',654,15.2,65.2,7],['Миндаль',609,18.6,53.7,13],['Арахис',551,26.3,45.2,9.9],['Фундук',651,15,61.5,9.4],['Семечки подсолнечника',601,20.7,52.9,10.5],
+  ['Арахисовая паста',588,25,50,20,15,'ст. л.'],['Масло растительное',899,0,99.9,0,17,'ст. л.'],['Масло оливковое',898,0,99.8,0,17,'ст. л.'],
+  ['Мёд',329,0.8,0,81.5,12,'ч. л.'],['Сахар',399,0,0,99.8,5,'ч. л.'],
+  ['Плов',210,7.5,10.5,21],['Лагман',120,6,4.5,14],['Самса с мясом',320,11,18,28,100,'шт'],['Манты',220,11,11,19,50,'шт'],['Шурпа',60,4,3.2,3.8],
+  ['Чучвара',215,10.5,9.5,22],['Нарын',210,13,11,15],['Долма',150,8.2,9.8,7.4],['Машхурда',90,4.5,3,11],['Ачик-чучук',45,0.9,3.2,3.5],
+  ['Пельмени',275,11.9,12.4,29],['Борщ',49,1.1,2.2,6.7],['Суп куриный',36,3,1.6,2.4],['Салат овощной с маслом',80,1,6.8,3.8],['Оливье',198,5.5,16.5,7.8],
+  ['Пицца',266,11,10,33,110,'кусок'],['Бургер',250,13,12,24,200,'шт'],['Шаурма',215,9,10,21,350,'шт'],
+  ['Протеин сывороточный',380,75,5,7,30,'порция'],['Гейнер',380,20,3,70,100,'порция'],['Протеиновый батончик',350,30,10,35,60,'шт'],
+  ['Шоколад молочный',550,6.9,35.7,54.4],['Шоколад горький',540,7.8,35,46],['Печенье',437,7.5,14,68],['Мороженое пломбир',232,3.2,15,20.8,80,'шт'],
+  ['Чипсы',520,6.6,30,53],['Кола',42,0,0,10.6,330,'банка'],['Сок апельсиновый',45,0.7,0.2,10.4,250,'стакан'],['Чай с сахаром',10,0,0,2.5,200,'чашка'],
+  ['Кофе с молоком',50,2.8,2,5,250,'чашка'],['Пиво',43,0.3,0,4.6,500,'бутылка'],['Вино сухое',68,0,0,0.3,150,'бокал']
+].map(([name,kcal,p,f,c,pc,pcName])=>({name,kcal,p,f,c,pc,pcName, unit: LIQUIDS.has(name)?'ml':'g'}));
+const ACTIVITY = [['1.2','Минимальная (сидячая работа)'],['1.375','Лёгкая (1–3 тренировки в неделю)'],['1.55','Средняя (3–5 тренировок)'],['1.725','Высокая (6–7 тренировок)'],['1.9','Очень высокая (спорт + физический труд)']];
+
+const foodDate = () => State.foodDate || dstr(new Date());
+const foodRows = d => (State.foodRows||[]).filter(r=>r.date===d);
+const sumFood = rows => rows.reduce((a,r)=>({kcal:a.kcal+(+r.kcal||0), p:a.p+(+r.protein||0), f:a.f+(+r.fat||0), c:a.c+(+r.carbs||0)}), {kcal:0,p:0,f:0,c:0});
+
+// дневник: сразу последние 60 дней (для недельного графика и «недавних»), более ранние даты — по запросу
+async function loadFood(date){
+  const c = Auth.getClient(), me = selfParticipantId();
+  State.foodLoaded = State.foodLoaded || {};
+  let q = c.from('food_log').select('*').eq('user_id', me);
+  if(!State.foodRows){
+    State.foodRows = [];
+    const since = dstr(new Date(Date.now()-60*86400000));
+    for(let d=parseD(since); d<=new Date(); d.setDate(d.getDate()+1)) State.foodLoaded[dstr(d)] = 1;
+    q = q.gte('date', since);
+  } else { State.foodLoaded[date] = 1; q = q.eq('date', date); }
+  const {data, error} = await q.order('created_at');
+  if(error){ toast('Не загрузился дневник питания: '+error.message); return; }
+  const ids = new Set(State.foodRows.map(r=>r.id));
+  State.foodRows.push(...(data||[]).filter(r=>!ids.has(r.id)));
+  if(State.view==='food') renderMain();
+}
+
+// норма по формуле Миффлина — Сан-Жеора × активность, с поправкой на цель
+function foodNorm(){
+  const me = selfParticipantId(), d = (DB.details||[]).find(x=>x.user_id===me) || {};
+  const w = +d.weight_kg || 0, h = +d.height_cm || 0, age = +ageFrom(d.birth_date) || 0;
+  const goal = d.goal || '', gk = /похуд/i.test(goal) ? 0.85 : /масс/i.test(goal) ? 1.1 : 1;
+  const bmr = (w && h && age && d.gender) ? 10*w + 6.25*h - 5*age + (d.gender==='male' ? 5 : -161) : 0;
+  const auto = bmr ? Math.round(bmr * (+d.activity || 1.375) * gk / 10) * 10 : 0;
+  const kcal = +d.kcal_target || auto;
+  if(!kcal) return null;
+  const p = w ? w * (gk===1 ? 1.6 : 2) : kcal*0.25/4, f = w ? w*0.9 : kcal*0.3/9;
+  return { kcal, auto, manual: !!+d.kcal_target, p: Math.round(p), f: Math.round(f), c: Math.max(0, Math.round((kcal - p*4 - f*9)/4)), weight: w, activity: d.activity || '1.375' };
+}
+// примерный расход на тренировках дня: силовая ≈ 5 МЕТ, кардио ≈ 7 МЕТ
+function workoutBurn(date, weight){
+  return Math.round(DB.workouts.filter(w=>w.participantId===selfParticipantId() && w.date===date && (w.status==='done' || hasFilledSets(w)))
+    .reduce((a,w)=>a + (w.type==='cardio' ? 7 : 5) * (weight||70) * (Number(w.duration)||0)/60, 0));
+}
+
+function foodBar(val, max){ const pc = max ? Math.min(100, val/max*100) : 0; return `<div class="fbar ${max && val>max*1.05?'over':''}"><i style="width:${pc}%"></i></div>`; }
+
+function viewFood(){
+  const date = foodDate();
+  if(!State.foodRows || !State.foodLoaded[date]) loadFood(date);
+  const rows = foodRows(date), s = sumFood(rows), n = foodNorm(), burn = workoutBurn(date, n && n.weight);
+  const today = dstr(new Date()), label = date===today ? 'Сегодня' : date===dstr(new Date(Date.now()-86400000)) ? 'Вчера' : fmtDate(date);
+  const left = n ? n.kcal - s.kcal : 0;
+  const macro = (name, v, max) => `<div><div class="row" style="justify-content:space-between"><span>${name}</span><span><b>${Math.round(v)}</b>${max?' / '+max:''} г</span></div>${foodBar(v, max)}</div>`;
+  // неделя до выбранного дня
+  const week = [...Array(7)].map((_,i)=>{ const d = parseD(date); d.setDate(d.getDate()-6+i); const ds = dstr(d); return {ds, kcal: sumFood(foodRows(ds)).kcal}; });
+  const wMax = Math.max(n ? n.kcal : 0, ...week.map(x=>x.kcal), 1) * 1.1, W = 340, H = 160;
+  const bw = (W-20)/7, Y = v => H-22-(v/wMax)*(H-34);
+  const wd = ds => { const d = parseD(ds); return ['вс','пн','вт','ср','чт','пт','сб'][d.getDay()]+' '+d.getDate(); };
+  const chart = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+    ${week.map((x,i)=>`<rect x="${10+i*bw+bw*0.2}" y="${Y(x.kcal)}" width="${bw*0.6}" height="${H-22-Y(x.kcal)}" rx="4" fill="${n && x.kcal>n.kcal*1.05 ? 'var(--danger)' : 'var(--accent)'}" opacity="${x.ds===date?1:.6}"><title>${fmtDateShort(x.ds)}: ${Math.round(x.kcal)} ккал</title></rect>
+      <text x="${10+i*bw+bw/2}" y="${H-6}" font-size="11" text-anchor="middle" fill="currentColor" opacity=".7">${wd(x.ds)}</text>
+      ${x.kcal?`<text x="${10+i*bw+bw/2}" y="${Y(x.kcal)-4}" font-size="10" text-anchor="middle" fill="currentColor" opacity=".75">${Math.round(x.kcal)}</text>`:''}`).join('')}
+    ${n?`<line x1="10" x2="${W-10}" y1="${Y(n.kcal)}" y2="${Y(n.kcal)}" stroke="currentColor" stroke-dasharray="5 4" opacity=".45"/>`:''}</svg>`;
+  return `<div class="topbar"><h2>Подсчёт калорий</h2></div>
+  <div class="row" style="justify-content:space-between;margin-bottom:10px">
+    <button class="btn" data-food="prev">‹</button><b>${label}</b><button class="btn" data-food="next" ${date>=today?'disabled':''}>›</button>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    ${n ? `<div class="row" style="justify-content:space-between;align-items:flex-end">
+        <div><div class="muted">Съедено</div><b style="font-size:26px">${Math.round(s.kcal)}</b> <span class="muted">из ${n.kcal} ккал</span></div>
+        <div style="text-align:right"><div class="muted">${left>=0?'Осталось':'Перебор'}</div><b style="font-size:20px;color:${left>=0?'inherit':'var(--danger)'}">${Math.abs(Math.round(left))}</b> ккал</div>
+      </div>
+      <div style="margin:8px 0 12px">${foodBar(s.kcal, n.kcal)}</div>
+      <div style="display:grid;gap:8px">${macro('Белки', s.p, n.p)}${macro('Жиры', s.f, n.f)}${macro('Углеводы', s.c, n.c)}</div>`
+    : `<div><b style="font-size:24px">${Math.round(s.kcal)}</b> ккал · Б ${Math.round(s.p)} · Ж ${Math.round(s.f)} · У ${Math.round(s.c)}</div>
+      <div class="muted" style="margin-top:6px">Чтобы рассчитать дневную норму, укажите возраст, пол, вес и рост в личных данных.</div>
+      <button class="btn sm" style="margin-top:8px" data-food="details">Заполнить личные данные</button>`}
+    ${burn?`<div class="muted" style="margin-top:10px">🔥 На тренировке сожжено примерно ${burn} ккал (уже учтено в норме через уровень активности)</div>`:''}
+  </div>
+  ${MEALS.map(([m,l])=>{ const list = rows.filter(r=>r.meal===m), ms = sumFood(list);
+    if(!list.length && m.startsWith('snack')) return `<button class="btn ghost sm" style="width:100%;margin-bottom:10px;border:1px dashed var(--border)" data-food="add" data-meal="${m}">+ ${l.replace('🍎 ','')}</button>`;
+    return `<div class="card" style="margin-bottom:10px">
+      <div class="row" style="justify-content:space-between"><b>${l}</b><span class="muted">${Math.round(ms.kcal)} ккал</span></div>
+      ${list.map(r=>`<div class="food-item"><div style="flex:1;min-width:0"><div style="overflow-wrap:anywhere">${esc(r.name)}</div>
+        <div class="muted">${fmtNum(+r.grams)} ${unitOf(r)} · Б ${fmtNum(+r.protein)} · Ж ${fmtNum(+r.fat)} · У ${fmtNum(+r.carbs)}</div></div>
+        <b>${Math.round(+r.kcal)}</b><button class="btn sm ghost del-link" data-food="del" data-id="${r.id}" title="Удалить">✕</button></div>`).join('')}
+      <button class="btn sm" style="margin-top:8px" data-food="add" data-meal="${m}">+ Добавить</button>
+    </div>`; }).join('')}
+  <div class="card" style="margin-bottom:10px"><h3>Калории за неделю</h3>${chart}
+    ${n?'<div class="muted">Пунктир — ваша норма.</div>':''}</div>
+  <div class="card" style="margin-bottom:10px"><h3>Норма</h3>
+    <div class="field"><label>Уровень активности</label><select id="foodActivity">${ACTIVITY.map(([v,l])=>`<option value="${v}" ${(n?n.activity:'1.375')==v?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="field"><label>Своя норма, ккал (необязательно)</label><input type="text" inputmode="numeric" id="foodTarget" value="${n&&n.manual?n.kcal:''}" placeholder="${n&&n.auto?'по расчёту '+n.auto:'например 2200'}"></div>
+    <div class="muted" style="margin-bottom:8px">Расчёт: формула Миффлина — Сан-Жеора × активность; цель «Похудеть» −15%, «Набрать мышечную массу» +10%. Белок 1,6–2 г на кг веса, жиры 0,9 г/кг, остальное — углеводы.</div>
+    <button class="btn primary" data-food="saveNorm">Сохранить</button>
+  </div>`;
+}
+
+async function saveFoodNorm(){
+  const me = selfParticipantId(), t = parseInt(document.getElementById('foodTarget').value, 10);
+  const patch = { user_id: me, activity: document.getElementById('foodActivity').value, kcal_target: t > 0 ? t : null };
+  const {error} = await Auth.getClient().from('profile_details').upsert(patch);
+  if(error) return toast('Не сохранено: '+error.message);
+  const old = (DB.details||[]).find(x=>x.user_id===me);
+  DB.details = (DB.details||[]).filter(x=>x.user_id!==me).concat([{...(old||{}), ...patch}]);
+  toast('Норма сохранена'); renderMain();
+}
+
+// окно добавления: поиск по справочнику + недавние, граммы или штуки, либо свой продукт
+function foodMatches(q){
+  const recent = []; const seen = new Set();
+  (State.foodRows||[]).slice().reverse().forEach(r=>{ const k = normName(r.name); if(!seen.has(k) && +r.grams>0){ seen.add(k);
+    const g = +r.grams/100; const cat0 = FOOD_DB.find(x=>normName(x.name)===k);
+    recent.push({name:r.name, kcal:+r.kcal/g, p:+r.protein/g, f:+r.fat/g, c:+r.carbs/g, lastGrams:+r.grams, recent:true, unit:r.unit, pc:cat0&&cat0.pc, pcName:cat0&&cat0.pcName}); } });
+  const nq = normName(q||'');
+  const cat = FOOD_DB.filter(x=>!seen.has(normName(x.name)));
+  if(!nq) return [...recent.slice(0,8), ...cat].slice(0,40);
+  const stem = w => w.length>=4 ? w.slice(0,-1) : w;
+  const words = nq.split(' ');
+  const hit = x => { const n = normName(x.name), nw = n.split(/[\s(),%]+/);
+    return words.every(w => n.includes(w) || nw.some(t => t.startsWith(stem(w)))); };
+  return [...recent, ...cat].filter(hit).sort((a,b)=>(normName(b.name).startsWith(nq)) - (normName(a.name).startsWith(nq))).slice(0,40);
+}
+function foodCalc(item, g){ const k = g/100; return {kcal:item.kcal*k, p:item.p*k, f:item.f*k, c:item.c*k}; }
+function renderFoodModal(){
+  const m = State.modal, meal = (MEALS.find(x=>x[0]===m.meal)||[])[1];
+  let body;
+  if(m.custom){
+    const cu = m.cu;
+    body = `<div class="field"><label>Название *</label><input type="text" data-food-in="cu.name" value="${esc(cu.name||'')}"></div>
+      <div class="row" style="gap:6px;margin-bottom:8px">${[['g','Граммы'],['ml','Миллилитры']].map(([u,l])=>`<button class="btn sm ${(cu.unit||'g')===u?'primary':''}" data-food="unit" data-u="${u}">${l}</button>`).join('')}</div>
+      <div class="grid2"><div class="field"><label>${cu.unit==='ml'?'Выпито, мл':'Съедено, г'} *</label><input type="text" inputmode="decimal" data-food-in="cu.grams" value="${cu.grams||''}"></div>
+        <div class="field"><label>Ккал на 100 ${cu.unit==='ml'?'мл':'г'} *</label><input type="text" inputmode="decimal" data-food-in="cu.kcal" value="${cu.kcal||''}"></div></div>
+      <div class="grid3"><div class="field"><label>Белки / 100 г</label><input type="text" inputmode="decimal" data-food-in="cu.p" value="${cu.p||''}"></div>
+        <div class="field"><label>Жиры / 100 г</label><input type="text" inputmode="decimal" data-food-in="cu.f" value="${cu.f||''}"></div>
+        <div class="field"><label>Углеводы / 100 г</label><input type="text" inputmode="decimal" data-food-in="cu.c" value="${cu.c||''}"></div></div>
+      <div class="muted">Значения на 100 г обычно указаны на упаковке.</div>
+      <div class="row" style="justify-content:space-between;margin-top:10px"><button class="btn ghost" data-food="back">‹ К поиску</button><button class="btn primary" data-food="save">Добавить</button></div>`;
+  } else if(m.sel){
+    const it = m.sel, r = foodCalc(it, +m.grams||0);
+    body = `<b style="font-size:17px">${esc(it.name)}</b>
+      <div class="muted">На 100 ${unitOf(it)}: ${Math.round(it.kcal)} ккал · Б ${fmtNum(it.p)} · Ж ${fmtNum(it.f)} · У ${fmtNum(it.c)}</div>
+      <div class="field" style="margin-top:10px"><label>${unitOf(it)==='мл'?'Сколько выпили, мл':'Сколько съели, г'}</label><input type="text" inputmode="decimal" data-food-in="grams" value="${m.grams||''}" id="foodGrams"></div>
+      ${it.pc?`<div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:8px">${[0.5,1,2,3].map(k=>`<button class="btn sm" data-food="pc" data-k="${k}">${esc(it.pcName)}${k===1?'':' ×'+(k===0.5?'½':k)} (${Math.round(it.pc*k)} ${unitOf(it)})</button>`).join('')}</div>`:''}
+      <div id="foodCalc" class="card" style="background:var(--surface2)">${foodCalcText(r)}</div>
+      <div class="row" style="justify-content:space-between;margin-top:10px"><button class="btn ghost" data-food="back">‹ К поиску</button><button class="btn primary" data-food="save">Добавить</button></div>`;
+  } else {
+    const list = m.list = foodMatches(m.q);
+    body = `<input type="search" data-food-in="q" value="${esc(m.q||'')}" placeholder="Поиск: гречка, плов, банан…" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:10px">
+      <div style="max-height:52vh;overflow:auto">${list.map((x,i)=>`<button class="food-pick" data-food="pick" data-i="${i}"><b>${esc(x.name)}</b>${x.recent?' <span class="pill">недавнее</span>':''}<div class="muted">${Math.round(x.kcal)} ккал / 100 ${unitOf(x)} · Б ${fmtNum(x.p)} · Ж ${fmtNum(x.f)} · У ${fmtNum(x.c)}</div></button>`).join('')
+        || '<div class="muted" style="margin-bottom:8px">Ничего не найдено — добавьте свой продукт.</div>'}</div>
+      <button class="btn" style="margin-top:6px" data-food="custom">+ Свой продукт</button>`;
+  }
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:480px">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">${meal}</h2><button class="btn ghost sm" data-close-modal="1">✕</button></div>
+    ${body}</div></div>`;
+}
+const foodCalcText = r => `<b style="font-size:20px">${Math.round(r.kcal)} ккал</b> <span class="muted">· Б ${fmtNum(r.p)} · Ж ${fmtNum(r.f)} · У ${fmtNum(r.c)}</span>`;
+
+async function saveFoodEntry(){
+  const m = State.modal, num = v => { const x = parseFloat(String(v??'').replace(',','.')); return isFinite(x) ? x : 0; };
+  let item, grams;
+  if(m.custom){
+    const cu = m.cu; grams = num(cu.grams);
+    if(!(cu.name||'').trim() || grams<=0 || num(cu.kcal)<=0) return toast('Заполните название, граммы и калории');
+    item = {name:cu.name.trim(), kcal:num(cu.kcal), p:num(cu.p), f:num(cu.f), c:num(cu.c), unit:cu.unit||'g'};
+  } else { item = m.sel; grams = num(m.grams); if(grams<=0) return toast(unitOf(item)==='мл'?'Укажите объём':'Укажите вес порции'); }
+  const r = foodCalc(item, grams), rd = v => Math.round(v*10)/10;
+  const row = { user_id: selfParticipantId(), date: m.date, meal: m.meal, name: item.name, unit: unitOf(item)==='мл' ? 'ml' : 'g', grams: rd(grams), kcal: rd(r.kcal), protein: rd(r.p), fat: rd(r.f), carbs: rd(r.c) };
+  const {data, error} = await Auth.getClient().from('food_log').insert(row).select().single();
+  if(error) return toast('Не сохранено: '+error.message);
+  State.foodRows.push(data); State.modal = null; renderModal(); renderMain();
+}
+
+function foodClick(ds){
+  const a = ds.food, m = State.modal;
+  if(a==='prev' || a==='next'){ const d = parseD(foodDate()); d.setDate(d.getDate() + (a==='next'?1:-1)); if(dstr(d)<=dstr(new Date())) State.foodDate = dstr(d); renderMain(); return; }
+  if(a==='details'){ State.view='participants'; State.participantProfile=selfParticipantId(); rerender(); return; }
+  if(a==='saveNorm') return saveFoodNorm();
+  if(a==='del'){ const id = ds.id;
+    Auth.getClient().from('food_log').delete().eq('id', id).then(({error})=>{ if(error) return toast('Ошибка: '+error.message);
+      State.foodRows = State.foodRows.filter(r=>r.id!==id); renderMain(); });
+    return; }
+  if(a==='add'){ State.modal = {kind:'food', meal: ds.meal, date: foodDate(), q:''}; renderModal(); return; }
+  if(!m || m.kind!=='food') return;
+  if(a==='pick'){ const it = m.list[+ds.i]; m.sel = it; m.grams = it.lastGrams || it.pc || 100; renderModal(); return; }
+  if(a==='pc'){ m.grams = Math.round(m.sel.pc * +ds.k); renderModal(); return; }
+  if(a==='back'){ m.sel = null; m.custom = false; renderModal(); return; }
+  if(a==='unit'){ m.cu.unit = ds.u; renderModal(); return; }
+  if(a==='custom'){ m.custom = true; m.cu = {name: m.q||''}; renderModal(); return; }
+  if(a==='save') return saveFoodEntry();
+}
+function foodInput(e){
+  const m = State.modal, key = e.target.dataset.foodIn; if(!m || m.kind!=='food') return;
+  if(key==='q'){ m.q = e.target.value; renderModal(); const el = document.querySelector('[data-food-in="q"]'); if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); } return; }
+  if(key==='grams'){ m.grams = e.target.value; const box = document.getElementById('foodCalc'); if(box) box.innerHTML = foodCalcText(foodCalc(m.sel, parseFloat(String(m.grams).replace(',','.'))||0)); return; }
+  if(key.startsWith('cu.')) m.cu[key.slice(3)] = e.target.value;
 }
 
 /* ===================== SETTINGS VIEW ===================== */
@@ -2162,7 +2461,8 @@ async function saveDetails(){
     membership_end:(document.getElementById('pdMemTerm').value==='custom' ? document.getElementById('pdMemEnd').value : membershipEnd(document.getElementById('pdMemStart').value, document.getElementById('pdMemTerm').value))||null, show_trainer:pub||document.getElementById('pdTrainer').checked, updated_at:new Date().toISOString() };
   const {error} = await c.from('profile_details').upsert(row);
   if(error) return toast('Не сохранено: '+error.message);
-  DB.details = (DB.details||[]).filter(x=>x.user_id!==uid).concat([row]);
+  const oldD = (DB.details||[]).find(x=>x.user_id===uid);
+  DB.details = (DB.details||[]).filter(x=>x.user_id!==uid).concat([{...(oldD||{}), ...row}]);
   if(weight){
     const wrow = {user_id:uid, date:dstr(new Date()), weight_kg:weight};
     const {error:we} = await c.from('body_weights').upsert(wrow, {onConflict:'user_id,date'});
@@ -2550,6 +2850,8 @@ function handleMainChange(e, ds){
 /* ===================== GLOBAL DELEGATED LISTENERS (bound once) ===================== */
 function initEvents(){
   document.addEventListener('click', (e)=>{
+    const foodEl = e.target.closest('#main [data-food],#modalRoot [data-food]');
+    if(foodEl){ if(!foodEl.disabled) foodClick(foodEl.dataset); return; }
     const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-finish-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom],#modalRoot [data-send-cert]');
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
@@ -2558,6 +2860,7 @@ function initEvents(){
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){
+    if(e.target.matches('[data-food-in]')){ if(e.type==='input') foodInput(e); return; }
     if(e.target.matches('[data-help-search]')){
       if(e.type!=='input') return;
       State.helpQuery = e.target.value; renderMain();
