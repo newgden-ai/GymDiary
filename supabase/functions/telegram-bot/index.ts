@@ -15,6 +15,8 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
+const BOT_VERSION = "2026-09-26 · images-fallback";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -36,6 +38,27 @@ async function tg(method: string, body: Record<string, unknown>) {
 }
 const send = (chat_id: number, text: string, extra: Record<string, unknown> = {}) =>
   tg("sendMessage", { chat_id, text, parse_mode: "HTML", ...extra });
+// фото: сначала по ссылке; если Telegram не смог скачать — качаем сами и отправляем файлом;
+// если и так не вышло — отправляем текст с пометкой, какая ссылка не открылась (видно, что чинить)
+async function sendPhotoSafe(chat_id: number, url: string, caption: string, extra: Record<string, unknown> = {}) {
+  const r = await tg("sendPhoto", { chat_id, photo: url, caption, parse_mode: "HTML", ...extra });
+  if (r.ok) return { ok: true, how: "url" };
+  let status = 0;
+  try {
+    const img = await fetch(url); status = img.status;
+    if (img.ok) {
+      const fd = new FormData();
+      fd.append("chat_id", String(chat_id)); fd.append("caption", caption); fd.append("parse_mode", "HTML");
+      if (extra.reply_markup) fd.append("reply_markup", JSON.stringify(extra.reply_markup));
+      fd.append("photo", new Blob([await img.arrayBuffer()], { type: img.headers.get("content-type") ?? "image/jpeg" }), url.split("/").pop() ?? "photo.jpg");
+      const up = await (await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: "POST", body: fd })).json();
+      if (up.ok) return { ok: true, how: "upload" };
+      console.log("TG_UPLOAD_ERROR", JSON.stringify(up));
+    }
+  } catch (e) { console.log("IMG_FETCH_ERROR", url, String(e)); }
+  await send(chat_id, caption + `\n\n<i>(картинка не загрузилась: ${esc(url)} — ${status || "нет ответа"})</i>`, extra);
+  return { ok: false, status };
+}
 const kb = (rows: [string, string][][]) => ({ reply_markup: { inline_keyboard: rows.map((r) => r.map(([text, callback_data]) => ({ text, callback_data }))) } });
 const appKb = (text = "📒 Открыть дневник") => APP_URL ? { reply_markup: { inline_keyboard: [[{ text, web_app: { url: APP_URL } }]] } } : {};
 const esc = (s: unknown) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
@@ -134,7 +157,8 @@ async function askPrivacy(chat: number, id: string) {
 async function onMessage(msg: any) {
   if (!msg.from || msg.chat?.type !== "private") return;
   const chat = msg.chat.id as number;
-  const text = String(msg.text ?? "").trim();
+  const text = String(msg.text ?? "").trim().replace(/^(\/\w+)@\w+/, "$1");  // /cmd@имя_бота → /cmd
+  console.log("BOT_MESSAGE", BOT_VERSION, text.slice(0, 40));
   const p = await ensureProfile(msg.from);
   const st = (p.bot_state ?? {}) as Record<string, any>;
 
@@ -147,6 +171,14 @@ async function onMessage(msg: any) {
     return send(chat, `С возвращением, ${esc(p.name)}! Записывайте тренировки в дневнике 👇\n\n/profile — заново заполнить анкету\n/reminders — вкл/выкл напоминания`, appKb());
   }
   if (text === "/profile") return askAge(chat, p.id);
+  if (text === "/version") return send(chat, `Версия бота: <b>${BOT_VERSION}</b>\nАдрес приложения (MINI_APP_URL): <code>${esc(APP_URL || "не задан")}</code>`);
+  if (text === "/test_images") {
+    if (!APP_URL) return send(chat, "⚠️ Секрет MINI_APP_URL не задан — боту неоткуда брать картинки.");
+    await send(chat, `Проверяю картинки по адресу приложения:\n<code>${esc(APP_URL)}</code>`);
+    const a = await sendPhotoSafe(chat, `${APP_URL}img/lightweight/01.jpg`, "Тест: постер Light weight");
+    const b = await sendPhotoSafe(chat, `${APP_URL}bot/morning/01.png`, "Тест: утренняя картинка");
+    return send(chat, a.ok && b.ok ? "✅ Картинки доступны." : "❌ Часть картинок недоступна — проверьте, что папки img/ и bot/ запушены и MINI_APP_URL указывает на адрес приложения.");
+  }
   if (text === "/reminders") {
     const on = !p.reminders;
     await admin.from("profiles").update({ reminders: on }).eq("id", p.id);
@@ -319,7 +351,7 @@ async function onWorkoutDone(req: Request, body: any) {
     const n = String(1 + Math.floor(Math.random() * LW_COUNT)).padStart(2, "0");
     const caption = "🏆 LIGHT WEIGHT, BABY!\n\n" + records.map((r) =>
       `Впервые достигнут вес ${fmt(r.weight)} кг в упражнении «${esc(r.name)}», количество повторений ${r.reps}.`).join("\n");
-    await tg("sendPhoto", { chat_id: athlete.telegram_id, photo: `${APP_URL}img/lightweight/${n}.jpg`, caption, parse_mode: "HTML" });
+    await sendPhotoSafe(athlete.telegram_id, `${APP_URL}img/lightweight/${n}.jpg`, caption);
   }
   for (const t of (people ?? []).filter((x: any) => x.id !== w.participant_id && x.telegram_id))
     await send(t.telegram_id, `👀 Подопечный <b>${esc(athlete?.name)}</b> завершил тренировку:\n\n` + text);
@@ -381,8 +413,7 @@ async function cron(kind: string) {
   for (const p of users) {
     try {
       if (kind === "morning") {
-        const r = await tg("sendPhoto", { chat_id: p.telegram_id, photo: pick(MORNING_IMAGES), caption: pick(MORNING) });
-        if (!r.ok) await send(p.telegram_id, pick(MORNING)); // картинка недоступна — шлём только текст
+        await sendPhotoSafe(p.telegram_id, pick(MORNING_IMAGES), pick(MORNING));
         sent++;
       } else if (kind === "evening") {
         if (p.last_evening_date === d) continue;
