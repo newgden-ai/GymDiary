@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ТренДневник</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&display=swap" media="print" onload="this.media='all'">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="help/data.js" defer></script>
@@ -30,7 +32,7 @@
 html,body{height:100%;}
 html{scroll-padding-top:env(safe-area-inset-top,0px);}
 body::before{content:'';position:fixed;inset:0;z-index:-1;background:var(--bg-art,none);pointer-events:none;}
-.sidebar,.bottomnav,.modal{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);}
+.bottomnav{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);}
 body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.4;}
 button,input,select,textarea{font-family:inherit;font-size:14px;color:var(--text);}
 button{cursor:pointer;}
@@ -277,6 +279,87 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
   .set-row .set-note{grid-column:2/4;grid-row:2;}
   .set-row .btn{grid-column:4;grid-row:1;}
   .set-row input{font-size:16px;}
+}
+/* =====================================================================
+   СТИЛИ ОФОРМЛЕНИЯ: «Обсидиан» (люкс) и «Карбон» (спорт-премиум).
+   Структура страниц общая, меняется только отделка. Цвета — из темы (--accent, --accent2, --bg-art).
+   ===================================================================== */
+:root{--grad:linear-gradient(120deg,var(--accent),var(--accent2));}
+[data-design] body{background:var(--bg);}
+[data-design] body::before{background:var(--bg-art,none),var(--bg);}
+[data-design] .main{padding-bottom:110px;}
+
+[data-design] .btn{white-space:nowrap;}
+[data-design] .topbar .row,[data-design] .topbar{flex-wrap:wrap;}
+[data-design="carbon"] .modal h2{font-size:21px;}
+[data-design="carbon"] .btn.primary{padding:8px 12px;letter-spacing:.02em;}
+[data-design="luxe"]:not(:where([data-theme="dark"])) h2{filter:saturate(1.3) brightness(.8);}
+[data-design] select,[data-design] input:not([type=checkbox]):not([type=radio]):not([type=file]){background:color-mix(in srgb,var(--text) 5%,var(--surface));color:var(--text);border:1px solid var(--border);border-radius:8px;}
+[data-design] .block-card input[data-block-rest]{padding:3px 6px;}
+/* ---------- «Обсидиан»: стекло, тонкие светящиеся кромки, градиентные акценты ---------- */
+[data-design="luxe"]{--radius:18px;}
+[data-design="luxe"] body{letter-spacing:-.1px;}
+[data-design="luxe"] h2{font-size:26px;font-weight:750;letter-spacing:-.6px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+[data-design="luxe"] h3{font-weight:700;letter-spacing:-.2px;}
+[data-design="luxe"] .card,[data-design="luxe"] .base-group,[data-design="luxe"] .week-col{border-radius:18px;border:1px solid color-mix(in srgb,var(--text) 9%,transparent);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--text) 5%,transparent),transparent 60%),var(--surface);
+  box-shadow:0 14px 34px -18px rgba(0,0,0,.55),inset 0 1px 0 color-mix(in srgb,#fff 10%,transparent);}
+[data-design="luxe"] .field label{text-transform:uppercase;letter-spacing:.09em;font-size:10.5px;font-weight:600;}
+[data-design="luxe"] .field input,[data-design="luxe"] .field select,[data-design="luxe"] .field textarea,[data-design="luxe"] .set-row input{border-radius:12px;background:color-mix(in srgb,var(--text) 4%,var(--surface));border-color:color-mix(in srgb,var(--text) 10%,transparent);}
+[data-design="luxe"] .field input:focus,[data-design="luxe"] .set-row input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent);}
+[data-design="luxe"] .btn{border-radius:12px;border-color:color-mix(in srgb,var(--text) 10%,transparent);background:color-mix(in srgb,var(--text) 5%,var(--surface));}
+[data-design="luxe"] .btn.primary,[data-design="luxe"] .navitem.active,[data-design="luxe"] .subtabs button.active{background:var(--grad);border-color:transparent;color:var(--on-accent,#fff);box-shadow:0 8px 20px -10px var(--accent);}
+[data-design="luxe"] .tot-box{background:var(--grad);border-radius:16px;box-shadow:0 12px 28px -14px var(--accent);}
+[data-design="luxe"] .fbar{border:none;height:8px;background:color-mix(in srgb,var(--text) 8%,transparent);}
+[data-design="luxe"] .fbar>i{background:var(--grad);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 60%,transparent);}
+[data-design="luxe"] .subtabs{background:color-mix(in srgb,var(--text) 6%,var(--surface));padding:4px;border-radius:14px;gap:4px;}
+[data-design="luxe"] .subtabs button{border:none;background:transparent;border-radius:10px;}
+[data-design="luxe"] .modal{border-radius:22px;border:1px solid color-mix(in srgb,var(--text) 10%,transparent);box-shadow:0 30px 60px -20px rgba(0,0,0,.7);}
+[data-design="luxe"] .block-card{border-radius:14px;}
+[data-design="luxe"] .ex-card{border-radius:12px;border-style:solid;border-color:color-mix(in srgb,var(--text) 8%,transparent);}
+[data-design="luxe"] .cal-grid{border-radius:18px;}
+[data-design="luxe"] .cal-cell.today .daynum{background:var(--grad);}
+[data-design="luxe"] .pill{border-color:color-mix(in srgb,var(--text) 12%,transparent);}
+@media (max-width:860px){
+  [data-design="luxe"] .bottomnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom,0px));padding:6px 4px;border-radius:24px;
+    border:1px solid color-mix(in srgb,var(--text) 10%,transparent);background:color-mix(in srgb,var(--surface) 78%,transparent);box-shadow:0 16px 40px -12px rgba(0,0,0,.6);}
+  [data-design="luxe"] .bottomnav button.active{color:var(--accent);}
+  [data-design="luxe"] .bottomnav button.active .bnicon{background:color-mix(in srgb,var(--accent) 16%,transparent);border-radius:12px;box-shadow:0 0 16px -4px var(--accent);}
+  [data-design="luxe"] .bnicon{padding:3px 10px;}
+}
+
+/* ---------- «Карбон»: плотный спортивный шрифт, срезанные углы, неоновые градиенты ---------- */
+[data-design="carbon"]{--radius:12px;}
+[data-design="carbon"] h2,[data-design="carbon"] h3,[data-design="carbon"] .brand,[data-design="carbon"] .btn.primary,[data-design="carbon"] .subtabs button,[data-design="carbon"] .tot-box .big,[data-design="carbon"] .bottomnav button{
+  font-family:'Oswald','Arial Narrow',Impact,sans-serif;text-transform:uppercase;letter-spacing:.04em;}
+[data-design="carbon"] h2{font-size:28px;font-weight:600;position:relative;padding-bottom:6px;}
+[data-design="carbon"] h2::after{content:'';position:absolute;left:0;bottom:0;width:46px;height:4px;background:var(--grad);transform:skewX(-24deg);border-radius:1px;box-shadow:0 0 12px var(--accent);}
+[data-design="carbon"] h3{font-weight:500;font-size:17px;}
+[data-design="carbon"] .card,[data-design="carbon"] .base-group,[data-design="carbon"] .week-col{border-radius:12px;border:1px solid var(--border);
+  background:linear-gradient(155deg,color-mix(in srgb,var(--text) 6%,var(--surface)),var(--surface) 45%);
+  box-shadow:inset 3px 0 0 -1px var(--accent),0 10px 24px -16px rgba(0,0,0,.7);}
+[data-design="carbon"] .field label{text-transform:uppercase;letter-spacing:.12em;font-size:10.5px;font-weight:700;color:color-mix(in srgb,var(--accent) 55%,var(--text-dim));}
+[data-design="carbon"] .field input,[data-design="carbon"] .field select,[data-design="carbon"] .field textarea,[data-design="carbon"] .set-row input{border-radius:8px;background:color-mix(in srgb,#000 22%,var(--surface));}
+[data-design="carbon"] .field input:focus,[data-design="carbon"] .set-row input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent),0 0 14px -4px var(--accent);}
+[data-design="carbon"] .btn{border-radius:8px;}
+[data-design="carbon"] .btn.primary,[data-design="carbon"] .subtabs button.active,[data-design="carbon"] .navitem.active{background:var(--grad);border:none;color:var(--on-accent,#fff);font-weight:600;
+  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);box-shadow:0 0 18px -6px var(--accent);}
+[data-design="carbon"] .btn.primary{padding:9px 16px;}
+[data-design="carbon"] .tot-box{background:var(--grad);border-radius:0;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+[data-design="carbon"] .tot-box .big{font-size:26px;font-weight:600;}
+[data-design="carbon"] .fbar{border:none;height:8px;border-radius:2px;background:color-mix(in srgb,var(--text) 10%,transparent);transform:skewX(-20deg);}
+[data-design="carbon"] .fbar>i{background:var(--grad);border-radius:0;box-shadow:0 0 14px var(--accent);}
+[data-design="carbon"] .subtabs button{border-radius:0;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);border:none;background:color-mix(in srgb,var(--text) 7%,var(--surface));}
+[data-design="carbon"] .modal{border-radius:14px;border:1px solid var(--border);border-top:3px solid var(--accent);}
+[data-design="carbon"] .ex-card{border-style:solid;border-left:3px solid color-mix(in srgb,var(--accent) 60%,transparent);}
+[data-design="carbon"] .cal-cell.today .daynum{background:var(--grad);border-radius:3px;box-shadow:0 0 12px -2px var(--accent);}
+[data-design="carbon"] .pill{border-radius:4px;text-transform:uppercase;font-size:10.5px;letter-spacing:.06em;}
+[data-design="carbon"] .ach-chip{border-radius:4px;}
+@media (max-width:860px){
+  [data-design="carbon"] .bottomnav{background:color-mix(in srgb,var(--bg) 88%,transparent);border-top:1px solid var(--border);}
+  [data-design="carbon"] .bottomnav button{font-size:9.5px;font-weight:500;letter-spacing:0;text-transform:none;font-family:inherit;position:relative;min-width:0;}
+  [data-design="carbon"] .bottomnav button.active{color:var(--text);}
+  [data-design="carbon"] .bottomnav button.active::before{content:'';position:absolute;top:-7px;left:22%;right:22%;height:3px;background:var(--grad);box-shadow:0 0 12px var(--accent);transform:skewX(-24deg);}
 }
 </style>
 </head>
@@ -716,6 +799,7 @@ const ACH_BADGES = {'Семья барсуков':'zoo_badgers','Семья кр
   'Грузовой лифт':'machine_lift', 'Автомобильный домкрат':'machine_jack', 'Ручная таль':'machine_hoist', 'Вилочный погрузчик':'machine_forklift',
   'Мини-экскаватор':'machine_miniexcavator', 'Грузовик':'machine_truck', 'Мотоцикл':'weight_motorcycle', 'Внедорожник':'weight_suv',
   'Автокран':'machine_mobilecrane', 'Карьерный самосвал БелАЗ':'machine_belaz',
+  'Катер':'weight_w07', 'Микроавтобус':'weight_w08', 'Вертолёт':'weight_w09', 'Троллейбус':'weight_w10', 'Гружёная фура':'weight_w11', 'Пассажирский самолёт':'weight_w12', 'Вагон поезда':'weight_w13', 'Деревянный дом':'weight_w14', 'Ракета «Союз»':'weight_w15', '5000 км на велосипеде':'bike_10', '10000 км на велосипеде':'bike_11', 'Скакалка ×100':'cardio_01', 'Скакалка ×500':'cardio_02', 'Скакалка ×1000':'cardio_03', '2 км гребли быстрее 10 минут':'cardio_04', '2 км гребли быстрее 8 минут':'cardio_05', '2 км гребли быстрее 7 минут':'cardio_06',
   '500 м':'swim_01', '1 км':'swim_02', '2 км':'swim_03', 'Дистанция «Айронмена»':'swim_04', '100 м быстрее 2:00':'swim_05', '100 м быстрее 1:45':'swim_06', '100 м быстрее 1:30':'swim_07', '1 км быстрее 25 минут':'swim_08', '1 км быстрее 20 минут':'swim_09', 'Переплыл Ла-Манш':'swim_10', '100 км в воде':'swim_11', '20 км':'bike_01', '50 км':'bike_02', '«Сотка»':'bike_03', '«Двухсотка»':'bike_04', 'Средняя 20 км/ч':'bike_05', 'Средняя 25 км/ч':'bike_06', 'Средняя 30 км/ч':'bike_07', 'Средняя 35 км/ч':'bike_08', '1000 км на велосипеде':'bike_09', 'Первый километр':'run_01', '3 км':'run_02', '5 км':'run_03', '10 км':'run_04', 'Полумарафон':'run_05', 'Марафон':'run_06', '5 км быстрее 30 минут':'run_07', '5 км быстрее 25 минут':'run_08', '5 км быстрее 20 минут':'run_09', '10 км быстрее часа':'run_10', '10 км быстрее 50 минут':'run_11', '10 км быстрее 45 минут':'run_12', 'Километр быстрее 4 минут':'run_13', '50 км за месяц':'run_14', '100 км за месяц':'run_15', '200 км за месяц':'run_16', 'Ташкент → Самарканд':'run_17', 'Ташкент → Москва':'run_18', 'Вокруг экватора':'run_19', 'Стиральная машина':'weight_w01', 'Холодильник':'weight_w02', 'Скутер':'weight_w03', 'Пианино':'weight_w04', 'Концертный рояль':'weight_w05', 'Легковой автомобиль':'weight_w06',
   'Морская свинка':'beast_guineapig', 'Кролик':'beast_rabbit', 'Кот':'beast_cat', 'Лиса':'beast_fox', 'Енот':'beast_raccoon', 'Выдра':'beast_otter', 'Барсук':'beast_badger', 'Бобр':'beast_beaver', 'Лабрадор':'beast_labrador', 'Императорский пингвин':'beast_penguin', 'Горный козёл':'beast_ibex', 'Лошадь':'beast_horse', 'Корова':'beast_cow', 'Верблюд':'beast_camel', 'Бизон':'beast_bison', 'Жираф':'beast_giraffe', 'Вертолёт-кран Ми-26':'machine_m01', 'Фура':'machine_m02', 'Башенный кран':'machine_m03', 'Товарный вагон':'machine_m04', 'Портовый кран':'machine_m05', 'Ракета Saturn V':'machine_m06', 'Ан-124 «Руслан»':'machine_m07', 'Ан-225 «Мрия»':'machine_m08', 'Козловой кран':'machine_m09', 'Речная баржа':'machine_m10', 'Самый мощный башенный кран':'machine_m11', 'Плавучий кран':'machine_m12', 'Грузовой поезд':'machine_m13', 'Экскаватор Bagger 293 (за смену)':'machine_m14', 'Плавучий кран Sleipnir':'machine_m15', 'Сухогруз':'machine_m16', 'Контейнеровоз':'machine_m17', 'Круизный лайнер':'machine_m18', 'Нефтяной танкер':'machine_m19', 'Супертанкер':'machine_m20', 'Арбуз':'weight_watermelon', 'Велосипед':'weight_bicycle', 'Каноэ':'weight_canoe', 'Колесо грузовика':'weight_wheel', 'Лёгкий самолёт':'weight_lightplane', 'Гоночный болид':'weight_f1', 'Полицейская машина':'weight_police', 'Парусная яхта':'weight_sailyacht', 'Скорая помощь':'weight_ambulance', 'Городской автобус':'weight_bus', 'Пожарная машина':'weight_firetruck', 'Трамвай':'weight_tram', 'Локомотив':'weight_locomotive', 'Стойка на руках: 10 с':'cali_01', 'Стойка на руках: 30 с':'cali_02', 'Стойка на руках: 1 мин':'cali_03', 'Уголок: 10 с':'cali_04', 'Уголок: 20 с':'cali_05', 'Уголок: 30 с':'cali_06', 'Уголок: 1 мин':'cali_07', 'Передний вис: 3 с':'cali_08', 'Передний вис: 5 с':'cali_09', 'Передний вис: 10 с':'cali_10', 'Передний вис: 20 с':'cali_11', 'Задний вис: 3 с':'cali_12', 'Задний вис: 5 с':'cali_13', 'Задний вис: 10 с':'cali_14', 'Задний вис: 20 с':'cali_15', 'Флажок: 3 с':'cali_16', 'Флажок: 5 с':'cali_17', 'Флажок: 10 с':'cali_18', 'Флажок: 20 с':'cali_19', 'Планш: 3 с':'cali_20', 'Планш: 5 с':'cali_21', 'Планш: 10 с':'cali_22', 'Планш: 20 с':'cali_23', 'Планка: 1 мин':'cali_24', 'Планка: 3 мин':'cali_25', 'Планка: 5 мин':'cali_26', 'Планка: 10 мин':'cali_27', 'Бёрпи ×50':'cali_28', 'Бёрпи ×100':'cali_29', 'Бёрпи ×200':'cali_30',
   'Кенгуру':'beast_kangaroo', 'Шимпанзе':'beast_chimp', 'Леопард':'beast_leopard', 'Большая панда':'beast_panda', 'Кабан':'beast_boar', 'Благородный олень':'beast_deer', 'Горилла':'beast_gorilla', 'Лев':'beast_lion', 'Тигр':'beast_tiger', 'Бурый медведь':'beast_brownbear', 'Зебра':'beast_zebra', 'Белый медведь':'beast_polarbear', 'Волк':'beast_wolf', 'Бегемот':'beast_hippo', 'Корабль «Восток» Гагарина':'rare_vostok', 'Командный модуль «Аполлона-11»':'rare_apollo', 'Статуя Давида':'rare_david', 'Телескоп «Хаббл»':'rare_hubble', 'Колокол Биг-Бена':'rare_bigben', 'Статуя моаи':'rare_moai', 'Лунный модуль':'rare_lunar', 'Камень Стоунхенджа':'rare_stonehenge', 'Метеорит Гоба':'rare_hoba', 'Царь-колокол':'rare_tsarbell', 'Статуя Свободы':'rare_liberty', 'Международная космическая станция':'rare_iss', 'Статуя Христа-Искупителя':'rare_christ', 'Гром-камень Медного всадника':'rare_thunderstone', 'Колесо «Лондонский глаз»':'rare_londoneye', 'Эйфелева башня':'rare_eiffel', '«Родина-мать зовёт!»':'rare_motherland', 'Большой Сфинкс':'rare_sphinx', 'Останкинская башня':'rare_ostankino', '«Титаник»':'rare_titanic', 'Бурдж-Халифа':'rare_burj', 'Мост «Золотые Ворота»':'rare_goldengate', 'Пирамида Хеопса':'rare_cheops', 'Новогодняя тренировка':'rare_newyear', 'Високосный атлет':'rare_leap', 'Пятница, 13-е':'rare_friday13', 'Ранняя пташка':'rare_earlybird', 'Ночная сова':'rare_nightowl', 'Ровно тонна':'rare_ton', 'Тоннаж-палиндром':'rare_palindrome', 'Тренировка в день рождения':'rare_birthday', 'Экскаватор':'machine_excavator', 'Трактор':'weight_tractor',
@@ -1021,7 +1105,14 @@ function achievementsList(workouts){
 function achievementsCard(workouts, pid){
   State.achFor = pid || (workouts[0]||{}).participantId;
   // считаем только проведённые тренировки, запланированные на будущее — нет
-  const all = achievementsList(workouts.filter(w=>w.status==='done' || (w.date<=dstr(new Date()) && hasFilledSets(w)))); const tab = State.achTab || 'weight';
+  const done = workouts.filter(w=>w.status==='done' || (w.date<=dstr(new Date()) && hasFilledSets(w)));
+  // пересчёт ~850 ачивок заметен на телефоне — повторяем только если тренировки или личные данные изменились
+  const key = State.achFor+'|'+dstr(new Date())+'|'+done.map(w=>w.id+w.date+(w.time||'')+(w.duration||'')+w.status+JSON.stringify(w.blocks)).join('~')
+    +'|'+(DB.exercises||[]).length+'|'+JSON.stringify((DB.details||[]).find(d=>d.user_id===State.achFor)||{})+'|'+(DB.weights||[]).length+'|'+(DB.certs||[]).length;
+  State.achCache = State.achCache || new Map();
+  let all = State.achCache.get(key);
+  if(!all){ all = achievementsList(done); if(State.achCache.size>8) State.achCache.clear(); State.achCache.set(key, all); }
+  const tab = State.achTab || 'weight';
   const cat = id => ACH_CATS.find(c=>c.id===id);
   const list = tab==='got' ? compressBw(all.filter(a=>a.got)) : all.filter(a=>a.cat===tab);
   State.achBeasts = all.filter(a=>a.cat==='beast');
@@ -1034,8 +1125,8 @@ function achTile(a, color){
     ${a.count>1?`<span class="ach-x">×${a.count}</span>`:''}${a.more?`<span class="ach-x" title="ещё ступеней">+${a.more}</span>`:''}
     ${a.cat==='bw'?`<div class="bw-medal"><span>${a.icon}</span><b>×${a.reps}</b><i>${a.kg?'+'+a.kg+' кг':'свой вес'}</i></div><div class="ach-t">${esc(a.lname)}</div>`:''}
     ${a.poster?`<div class="lw-poster"><img src="img/lightweight/thumb/${String(a.poster).padStart(2,'0')}.webp" alt="" loading="lazy"></div><div class="ach-t">${esc(a.title)}</div>`:''}
-    ${a.tier?`<div class="tier-medal"><img src="img/badges/tier_${a.tier}.webp" alt=""><img class="tier-ico" src="img/badges/ico_${a.cat}.webp" alt=""><span class="tier-txt" style="font-size:${a.tierText.length<=5?15:a.tierText.length<=8?12:a.tierText.length<=12?8.5:8}px">${esc(a.tierText)}</span></div>`:''}
-    ${a.cat==='bw'||a.tier||a.poster?'':a.hero?`<div class="hero-medal ${a.style}"><img src="img/heroes/${a.hero}.webp" alt=""></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}">`:`<div class="ach-emo">${a.icon}</div>
+    ${a.tier?`<div class="tier-medal"><img src="img/badges/tier_${a.tier}.webp" alt="" decoding="async"><img class="tier-ico" src="img/badges/ico_${a.cat}.webp" alt="" loading="lazy" decoding="async"><span class="tier-txt" style="font-size:${a.tierText.length<=5?15:a.tierText.length<=8?12:a.tierText.length<=12?8.5:8}px">${esc(a.tierText)}</span></div>`:''}
+    ${a.cat==='bw'||a.tier||a.poster?'':a.hero?`<div class="hero-medal ${a.style}"><img src="img/heroes/${a.hero}.webp" alt="" loading="lazy" decoding="async"></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>${a.tag?`<div class="ach-tag">${esc(a.tag)}</div>`:''}`}
     ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${a.cat==='hero'?a.cur+'%':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}</div>`}
   </div>`;
@@ -1118,7 +1209,42 @@ const PRESET_THEMES = [
     D:{bg:'#111816', art:'linear-gradient(180deg,#18221f 0%,#111816 50%,#0e1512 100%)', surface:'#18211e', surface2:'#1f2b27', border:'#2a3833'}},
   {id:'vintage', name:'Винтаж', kind:'стильная', accent:'#591e1e', accent2:'#a68b03', dark:'#d991a4',
     L:{bg:'#fbf5ef', art:[blob('0%','0%','rgba(217,145,164,.35)','40%'),blob('100%','40%','rgba(242,202,153,.55)','38%'),blob('30%','100%','rgba(166,106,122,.18)','45%')].join(','), surface:glass(.84), surface2:'rgba(244,230,214,.85)', border:'#ead3bb'},
-    D:{bg:'#1c1414', art:[blob('0%','0%','rgba(89,30,30,.7)','50%'),blob('100%','60%','rgba(166,139,3,.14)','40%')].join(','), surface:glassD('41,29,29',.86), surface2:'rgba(56,40,40,.86)', border:'#473232'}}
+    D:{bg:'#1c1414', art:[blob('0%','0%','rgba(89,30,30,.7)','50%'),blob('100%','60%','rgba(166,139,3,.14)','40%')].join(','), surface:glassD('41,29,29',.86), surface2:'rgba(56,40,40,.86)', border:'#473232'}},
+  // ===== «Обсидиан» — люкс: стекло, золото/драгоценные тона, градиентный фон (от спокойных к агрессивным)
+  {id:'lx-pearl', design:'luxe', name:'Жемчуг', kind:'обсидиан · спокойная', accent:'#a07b45', accent2:'#d8b98a', dark:'#e2c38f',
+    L:{bg:'#f6f3ee', art:[blob('0%','0%','rgba(226,195,143,.45)','45%'),blob('100%','30%','rgba(214,206,226,.55)','45%'),blob('40%','100%','rgba(240,226,214,.9)','55%')].join(','), surface:'rgba(255,255,255,.86)', surface2:'rgba(243,238,230,.9)', border:'#e6ddcf'},
+    D:{bg:'#111113', art:[blob('10%','0%','rgba(226,195,143,.16)','45%'),blob('100%','70%','rgba(120,110,140,.16)','45%')].join(','), surface:'rgba(30,29,32,.9)', surface2:'rgba(40,38,42,.9)', border:'#2e2c31'}},
+  {id:'lx-jade', design:'luxe', name:'Нефрит', kind:'обсидиан · спокойная', accent:'#1f6f5f', accent2:'#58b9a0', dark:'#63d2b6',
+    L:{bg:'#eff5f2', art:[blob('0%','0%','rgba(99,210,182,.35)','45%'),blob('100%','60%','rgba(31,111,95,.14)','50%')].join(','), surface:'rgba(255,255,255,.86)', surface2:'rgba(230,241,237,.9)', border:'#d3e3dd'},
+    D:{bg:'#0c1311', art:[blob('0%','0%','rgba(99,210,182,.18)','50%'),blob('100%','90%','rgba(20,80,90,.35)','55%')].join(','), surface:'rgba(19,30,27,.9)', surface2:'rgba(26,40,36,.9)', border:'#23352f'}},
+  {id:'lx-sapphire', design:'luxe', name:'Сапфир', kind:'обсидиан · глубокая', accent:'#2f4fcf', accent2:'#7fa3ff', dark:'#8aa6ff',
+    L:{bg:'#f0f3fb', art:[blob('100%','0%','rgba(127,163,255,.40)','45%'),blob('0%','100%','rgba(47,79,207,.14)','50%')].join(','), surface:'rgba(255,255,255,.86)', surface2:'rgba(232,237,250,.9)', border:'#d6def3'},
+    D:{bg:'#0a0d1a', art:[blob('100%','0%','rgba(90,120,255,.26)','50%'),blob('0%','100%','rgba(150,90,255,.16)','50%')].join(','), surface:'rgba(18,22,40,.9)', surface2:'rgba(26,31,54,.9)', border:'#252c4a'}},
+  {id:'lx-bordeaux', design:'luxe', name:'Бордо', kind:'обсидиан · яркая', accent:'#8a2438', accent2:'#e3a27a', dark:'#f08aa0',
+    L:{bg:'#faf2f2', art:[blob('0%','0%','rgba(227,162,122,.40)','45%'),blob('100%','70%','rgba(138,36,56,.16)','50%')].join(','), surface:'rgba(255,255,255,.86)', surface2:'rgba(246,232,232,.9)', border:'#ecd3d6'},
+    D:{bg:'#130a0d', art:[blob('0%','0%','rgba(200,50,80,.28)','50%'),blob('100%','100%','rgba(227,162,122,.14)','50%')].join(','), surface:'rgba(33,19,23,.9)', surface2:'rgba(46,26,31,.9)', border:'#3a2229'}},
+  {id:'lx-magma', design:'luxe', name:'Магма', kind:'обсидиан · агрессивная', accent:'#d9361a', accent2:'#ffa22e', dark:'#ff6a3d',
+    L:{bg:'#fbf1ec', art:[blob('0%','0%','rgba(255,162,46,.40)','45%'),blob('100%','60%','rgba(217,54,26,.22)','50%')].join(','), surface:'rgba(255,255,255,.86)', surface2:'rgba(248,232,224,.9)', border:'#efd2c6'},
+    D:{bg:'#0b0706', art:[blob('50%','-10%','rgba(255,90,30,.38)','55%'),blob('0%','100%','rgba(255,162,46,.14)','45%'),blob('100%','100%','rgba(160,20,20,.25)','50%')].join(','), surface:'rgba(28,17,14,.9)', surface2:'rgba(40,23,18,.9)', border:'#3a231c'}},
+  // ===== «Карбон» — спорт-премиум: карбон, неоновые градиенты, срезанные углы (от спокойных к агрессивным)
+  {id:'cb-graphite', design:'carbon', name:'Графит', kind:'карбон · спокойная', accent:'#56616d', accent2:'#9fb0c2', dark:'#c9d6e4',
+    L:{bg:'#eef0f2', art:'linear-gradient(160deg,#f7f8f9 0%,#e6e9ec 100%)', surface:'#fbfbfc', surface2:'#eceef1', border:'#d8dce1'},
+    D:{bg:'#0d0f11', art:'repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 6px),linear-gradient(170deg,#1a1e22 0%,#0d0f11 60%)', surface:'#15181b', surface2:'#1c2024', border:'#2a2f35'}},
+  {id:'cb-sage', design:'carbon', name:'Шалфей', kind:'карбон · спокойная', accent:'#4f7a5c', accent2:'#a9c98a', dark:'#9fd49a',
+    L:{bg:'#eff3ef', art:'linear-gradient(160deg,#f7faf6 0%,#e3ebe3 100%)', surface:'#fbfcfb', surface2:'#eaf0ea', border:'#d4dfd4'},
+    D:{bg:'#0c100d', art:'repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 6px),'+blob('100%','0%','rgba(159,212,154,.14)','50%')+',linear-gradient(170deg,#161d17 0%,#0c100d 60%)', surface:'#141a15', surface2:'#1b231c', border:'#28322a'}},
+  {id:'cb-cobalt', design:'carbon', name:'Кобальт', kind:'карбон · энергичная', accent:'#1f6bff', accent2:'#27d3ff', dark:'#3d8bff',
+    L:{bg:'#eef3fb', art:'linear-gradient(160deg,#f6f9ff 0%,#e1eafa 100%)', surface:'#fbfcff', surface2:'#e9eff9', border:'#d3def0'},
+    D:{bg:'#070b14', art:'repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0 2px,transparent 2px 6px),'+blob('100%','0%','rgba(31,107,255,.30)','55%')+','+blob('0%','100%','rgba(39,211,255,.12)','45%'), surface:'#0f1522', surface2:'#151d2e', border:'#22304a'}},
+  {id:'cb-violet', design:'carbon', name:'Ультрафиолет', kind:'карбон · яркая', accent:'#7c3aed', accent2:'#ff4fd8', dark:'#a78bfa',
+    L:{bg:'#f4f0fb', art:'linear-gradient(160deg,#fbf8ff 0%,#ebe2fa 100%)', surface:'#fdfcff', surface2:'#efe9fa', border:'#ddd2f1'},
+    D:{bg:'#0b0714', art:'repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0 2px,transparent 2px 6px),'+blob('0%','0%','rgba(124,58,237,.32)','55%')+','+blob('100%','100%','rgba(255,79,216,.18)','50%'), surface:'#150f22', surface2:'#1d1530', border:'#2f2346'}},
+  {id:'cb-toxic', design:'carbon', name:'Токсик', kind:'карбон · агрессивная', accent:'#4d8a00', accent2:'#c6ff1a', dark:'#b8ff2e',
+    L:{bg:'#f2f5ea', art:'linear-gradient(160deg,#fafcf3 0%,#e6edd5 100%)', surface:'#fcfdf8', surface2:'#edf2e0', border:'#d9e2c3'},
+    D:{bg:'#070905', art:'repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0 2px,transparent 2px 6px),'+blob('100%','0%','rgba(184,255,46,.20)','50%')+','+blob('0%','100%','rgba(60,120,0,.25)','50%'), surface:'#10140b', surface2:'#161c0f', border:'#26301a'}},
+  {id:'cb-inferno', design:'carbon', name:'Инферно', kind:'карбон · агрессивная', accent:'#e0141e', accent2:'#ff7a1a', dark:'#ff2a36',
+    L:{bg:'#f8efee', art:'linear-gradient(160deg,#fff7f6 0%,#f3dedc 100%)', surface:'#fffcfc', surface2:'#f6e9e8', border:'#ecd2d0'},
+    D:{bg:'#080505', art:'repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0 2px,transparent 2px 6px),'+blob('50%','-15%','rgba(255,20,30,.42)','60%')+','+blob('100%','100%','rgba(255,122,26,.16)','45%'), surface:'#170c0c', surface2:'#221111', border:'#3a1b1b'}}
 ];
 
 /* ===================== UTIL ===================== */
@@ -1412,7 +1538,7 @@ function renderWorkoutModal(){
       <button class="btn sm" data-add-block="dropset">+ Дроп-сет</button>
     </div>
 
-    <div class="tot-box">
+    <div class="tot-box" data-live="tot">
       <div>Общий тоннаж</div>
       <div class="big">${fmtNum(convW(total,units))} ${unitLabel(units)}</div>
       <div style="margin-top:6px;font-size:12.5px">${Object.keys(mg).map(g=>`${MG[g]||g}: ${fmtNum(convW(mg[g],units))}`).join(' · ') || 'Нет данных по группам мышц'}</div>
@@ -1459,7 +1585,7 @@ function renderBlockCard(b,bi,w,units){
       <div class="row"><b>${b.kind==='superset'?'Суперсет':b.kind==='dropset'?'Дроп-сет':'Блок'} ${bi+1}</b>
         <span class="muted">отдых <input type="text" inputmode="numeric" style="width:52px" data-block-rest="${bi}" value="${b.restSeconds||0}"> сек</span></div>
       <div class="row">
-        <span class="muted">${fmtNum(convW(bTon,units))} ${unitLabel(units)}</span>
+        <span class="muted" data-live="bt${bi}">${fmtNum(convW(bTon,units))} ${unitLabel(units)}</span>
         <button class="btn sm danger" data-remove-block="${bi}">✕</button>
       </div>
     </div>
@@ -1499,10 +1625,10 @@ function renderExerciseCard(ex,bi,ei,w,units){
         <input type="text" class="set-note" placeholder="заметка" data-set="${bi}.${ei}.${si}.note" value="${esc(s.note)}">
       `}
       <button class="btn sm ghost" data-remove-set="${bi}.${ei}.${si}">✕</button>
-    </div>${!isCardio && Number(s.reps)>0 && (isDrop || !(Number(s.weight)>0)) && Calc.setTonnage(s,bw)>0?`<div class="set-ton">${Number(s.weight)>0?convW(s.weight,units):'свой вес '+convW(bw,units)} × ${s.reps} = ${fmtNum(convW(Calc.setTonnage(s,bw),units))} ${unitLabel(units)}</div>`:''}`).join('')}
-    ${needBw?`<div class="muted" style="font-size:11.5px">Подходы без веса считаются как повторения × ваш вес — укажите вес в «Участники → вы → Личные данные».</div>`:''}
+    </div><div data-live="st${bi}.${ei}.${si}">${!isCardio && Number(s.reps)>0 && (isDrop || !(Number(s.weight)>0)) && Calc.setTonnage(s,bw)>0?`<div class="set-ton">${Number(s.weight)>0?convW(s.weight,units):'свой вес '+convW(bw,units)} × ${s.reps} = ${fmtNum(convW(Calc.setTonnage(s,bw),units))} ${unitLabel(units)}</div>`:''}</div>`).join('')}
+    <div data-live="nb${bi}.${ei}">${needBw?`<div class="muted" style="font-size:11.5px">Подходы без веса считаются как повторения × ваш вес — укажите вес в «Участники → вы → Личные данные».</div>`:''}</div>
     <button class="btn sm ghost" data-add-set="${bi}.${ei}">+ ${isDrop?'этап':'подход'}</button>
-    ${!isCardio && ton>0?`<div class="tonnage-line">${isDrop?'Тоннаж дроп-сета':'Тоннаж упражнения'}: <b>${fmtNum(convW(ton,units))} ${unitLabel(units)}</b></div>`:''}
+    <div data-live="et${bi}.${ei}">${!isCardio && ton>0?`<div class="tonnage-line">${isDrop?'Тоннаж дроп-сета':'Тоннаж упражнения'}: <b>${fmtNum(convW(ton,units))} ${unitLabel(units)}</b></div>`:''}</div>
   </div>`;
 }
 
@@ -1634,6 +1760,15 @@ function handleModalClick(e, ds){
   return false;
 }
 
+// при вводе подхода не перерисовываем всё окно (на iPhone это дёргает клавиатуру) — обновляем только цифры
+let liveRaf = 0;
+function liveUpdateModal(){
+  cancelAnimationFrame(liveRaf);
+  liveRaf = requestAnimationFrame(()=>{ if(!State.modal || State.modal.kind!=='workout') return;
+    const tmp = document.createElement('div'); tmp.innerHTML = renderWorkoutModal();
+    tmp.querySelectorAll('[data-live]').forEach(n=>{ const cur = document.querySelector(`#modalRoot [data-live="${n.dataset.live}"]`);
+      if(cur && cur.innerHTML !== n.innerHTML) cur.innerHTML = n.innerHTML; }); });
+}
 function preserveFocusAndRerender(renderFn){
   const ae = document.activeElement;
   let attr=null, val=null, start=null, end=null;
@@ -1662,7 +1797,7 @@ function handleModalChange(e, ds){
       if(field==='weight'){ w.blocks[bi].exercises[ei].sets[si].weight = val===''?'':toKg(val, DB.settings.units); }
       else if(field==='reps'||field==='time'||field==='distance'){ w.blocks[bi].exercises[ei].sets[si][field]=val===''?'':Number(val); }
       else { w.blocks[bi].exercises[ei].sets[si][field]=val; }
-      preserveFocusAndRerender(renderModal); return true;
+      liveUpdateModal(); return true;
     }
     if(ds.recurOn!==undefined){ modal.recurRule.on = e.target.checked; renderModal(); return true; }
     if(ds.recurFreq!==undefined){ modal.recurRule.freq = e.target.value; renderModal(); return true; }
@@ -1843,7 +1978,7 @@ function viewHistory(){
     <div class="field"><label>Группа мышц</label><select data-hf="group"><option value="">Все</option>${MUSCLE_GROUPS.map(([id,l])=>`<option value="${id}" ${f.group===id?'selected':''}>${l}</option>`).join('')}</select></div>
   </div>
   <table><thead><tr><th>Дата</th><th>Название</th><th>Участник</th><th>Тип</th><th>Тоннаж</th><th>Группы</th><th></th></tr></thead><tbody>
-  ${list.map(w=>{
+  ${list.slice(0, State.histLimit||50).map(w=>{
     const p=DB.participants.find(x=>x.id===w.participantId);
     const t=Calc.workoutTonnage(w); const mg=Calc.muscleBreakdown(w,DB.exercises);
     return `<tr>
@@ -1856,7 +1991,8 @@ function viewHistory(){
       <td><button class="btn sm" data-repeat-workout="${w.id}">Повторить</button></td>
     </tr>`;
   }).join('') || '<tr><td colspan="7" class="muted">Нет тренировок</td></tr>'}
-  </tbody></table>`;
+  </tbody></table>
+  ${list.length > (State.histLimit||50) ? `<button class="btn" style="width:100%;margin-top:10px" data-hist-more="1">Показать ещё (${list.length-(State.histLimit||50)})</button>` : ''}`;
 }
 
 /* ===================== TEMPLATES VIEW ===================== */
@@ -2582,8 +2718,9 @@ function viewSettings(){
     <div class="field"><label>Тема</label><select data-setting="theme"><option value="auto" ${s.theme==='auto'?'selected':''}>Системная</option><option value="light" ${s.theme==='light'?'selected':''}>Светлая</option><option value="dark" ${s.theme==='dark'?'selected':''}>Тёмная</option></select></div>
     <div class="field"><label>Таймер отдыха по умолчанию, сек</label><input type="text" inputmode="numeric" data-setting="restDefault" value="${s.restDefault}"></div>
     <div class="field"><label>Цветовая палитра</label>
-      <div class="theme-grid">${PRESET_THEMES.map(t=>`<button class="theme-opt ${s.themeColor===t.id?'on':''}" data-pick-theme="${t.id}">
-        <span class="theme-prev" style="background:${t.L.art?t.L.art+',':''}${t.L.bg}"><i style="background:${t.accent}"></i><i style="background:${t.accent2}"></i><b style="background:${t.L.surface}"></b></span>${esc(t.name)}<span class="muted" style="font-size:11px">${t.kind}</span></button>`).join('')}</div>
+      ${[['','Классика','мягкие природные тона'],['luxe','Обсидиан','люкс: стекло, золото, градиентный фон'],['carbon','Карбон','спорт-премиум: неон, срезанные углы']].map(([d,dn,dd])=>`<div style="margin:10px 0 6px"><b>${dn}</b> <span class="muted">— ${dd}</span></div>
+      <div class="theme-grid">${PRESET_THEMES.filter(t=>(t.design||'')===d).map(t=>`<button class="theme-opt ${s.themeColor===t.id?'on':''}" data-pick-theme="${t.id}">
+        ${(()=>{ const v = t.design ? t.D : t.L; return `<span class="theme-prev" style="background:${v.art?v.art+',':''}${v.bg}"><i style="background:${t.design?'linear-gradient(120deg,'+t.dark+','+t.accent2+')':t.accent}"></i><i style="background:${t.accent2}"></i><b style="background:${v.surface}"></b></span>`; })()}${esc(t.name)}<span class="muted" style="font-size:11px">${t.kind}</span></button>`).join('')}</div>`).join('')}
     </div>
   </div>
   <div class="card" style="margin-bottom:10px">
@@ -2926,6 +3063,8 @@ function applyTheme(){
   root.style.setProperty('--on-accent', isDark ? '#16211d' : '#ffffff');
   ['bg','surface','surface2','border'].forEach(k=>root.style.setProperty('--'+k, v[k]));
   root.style.setProperty('--bg-art', v.art || 'none');
+  if(t.design) root.setAttribute('data-design', t.design); else root.removeAttribute('data-design');
+  root.style.setProperty('--on-accent', !isDark ? '#ffffff' : t.design==='luxe' ? '#121114' : t.design==='carbon' ? (['cb-toxic','cb-graphite','cb-sage'].includes(t.id) ? '#0b0d08' : '#ffffff') : '#16211d');
   // металл иконок: серебро на тёмном фоне, тёмная сталь на светлом
   root.style.setProperty('--metal-hi', isDark ? '#ffffff' : '#8b9096');
   root.style.setProperty('--metal-mid', isDark ? '#cfcfcf' : '#5a5f65');
@@ -2947,6 +3086,7 @@ function handleMainClick(e, ds){
     }
     renderMain(); return true;
   }
+  if(ds.histMore!==undefined){ State.histLimit=(State.histLimit||50)+50; renderMain(); return true; }
   if(ds.calMode!==undefined){ State.calMode=ds.calMode; renderMain(); return true; }
   if(ds.openWorkout!==undefined){ e.preventDefault(); openWorkoutModal({workoutId:ds.openWorkout}); return true; }
   if(ds.addDay!==undefined){ openWorkoutModal({date:ds.addDay}); return true; }
@@ -3067,7 +3207,7 @@ function handleMainClick(e, ds){
 
 function handleMainChange(e, ds){
   if(ds.adminDays!==undefined){ State.adminDays=Number(e.target.value); State.admin=null; renderMain(); return true; }
-  if(ds.hf!==undefined){ State.historyFilters[ds.hf]=e.target.value; renderMain(); return true; }
+  if(ds.hf!==undefined){ State.historyFilters[ds.hf]=e.target.value; State.histLimit=50; renderMain(); return true; }
   if(ds.exEdit!==undefined){
     if(!isAdmin()) return true;
     const [id,field] = ds.exEdit.split('.'); const ex = DB.exercises.find(x=>x.id===id);
@@ -3111,7 +3251,7 @@ function initEvents(){
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme],[data-hist-more]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){
@@ -3160,6 +3300,9 @@ function initEvents(){
   applyTheme();
   initEvents();
   rerender();
+  // заранее и в фоне считаем свои ачивки, чтобы «Статистика» открывалась мгновенно
+  const idle = window.requestIdleCallback || (fn=>setTimeout(fn, 1500));
+  idle(()=>{ try{ const me = selfParticipantId(); achievementsCard(DB.workouts.filter(w=>w.participantId===me), me); }catch(e){} });
   const overlay = document.getElementById('authOverlay');
   if(overlay){ const left = Math.max(0, 1200 - (performance.now() - (window.__splashStart||0)));
     setTimeout(()=>{ overlay.style.transition='opacity .4s'; overlay.style.opacity='0'; setTimeout(()=>overlay.remove(), 400); }, left); }
