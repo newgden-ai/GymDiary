@@ -653,8 +653,8 @@ const ACH_WEIGHT = [
 // B «Как техника» — ВЕСЬ поднятый вес за всё время ≥ грузоподъёмности машины
 const ACH_MACHINE = [
   [1000,'🛻','Пикап'],[1500,'🛗','Грузовой лифт'],[2000,'🔧','Автомобильный домкрат'],[3000,'🪝','Ручная таль'],[5000,'🚜','Вилочный погрузчик'],
-  [8000,'⛏️','Мини-экскаватор'],[10000,'🚚','Грузовик'],[20000,'🚁','Вертолёт-кран Ми-26'],[25000,'🏗️','Автокран'],[40000,'🚛','Фура'],
-  [50000,'⛏️','Экскаватор'],[64000,'🏗️','Башенный кран'],[70000,'🚃','Товарный вагон'],[100000,'⚓','Портовый кран'],[140000,'🚀','Ракета Saturn V'],
+  [6000,'🚜','Погрузчик','поднимает ковшом'],[8000,'⛏️','Мини-экскаватор'],[10000,'🚚','Грузовик'],[12000,'🏗️','Кран-гидравлик'],[14000,'🛞','Каток','весит'],[16000,'🚛','Бетономешалка','везёт'],[20000,'🚁','Вертолёт-кран Ми-26'],[25000,'🏗️','Автокран'],[25000,'🚚','Самосвал','везёт'],[32000,'🏗️','Бетононасос','весит'],[40000,'🚛','Фура'],[45000,'🚜','Бульдозер','весит'],
+  [50000,'⛏️','Экскаватор'],[60000,'🛠️','Буровая установка','весит'],[64000,'🏗️','Башенный кран'],[70000,'🚃','Товарный вагон'],[100000,'⚓','Портовый кран'],[140000,'🚀','Ракета Saturn V'],
   [150000,'✈️','Ан-124 «Руслан»'],[250000,'✈️','Ан-225 «Мрия»'],[450000,'🚧','Карьерный самосвал БелАЗ'],[500000,'🏗️','Козловой кран'],[1000000,'🚢','Речная баржа'],
   [2000000,'🏗️','Самый мощный башенный кран'],[3000000,'⚓','Плавучий кран'],[5000000,'🚂','Грузовой поезд'],[13500000,'⛏️','Экскаватор Bagger 293 (за смену)'],[20000000,'🏗️','Плавучий кран Sleipnir'],
   [50000000,'🚢','Сухогруз'],[100000000,'🚢','Контейнеровоз'],[200000000,'🛳️','Круизный лайнер'],[300000000,'🛢️','Нефтяной танкер'],[500000000,'🚢','Супертанкер']
@@ -684,8 +684,30 @@ const ACH_BEASTS = [
   [200,'🦁','Лев'],[220,'🐅','Тигр'],[300,'🐻','Бурый медведь'],[350,'🦓','Зебра'],[450,'🐻‍❄️','Белый медведь'],[500,'🐎','Лошадь'],
   [600,'🐄','Корова'],[700,'🐫','Верблюд'],[900,'🦬','Бизон'],[1200,'🦒','Жираф'],[1500,'🦛','Бегемот']
 ];
+// F «Стаи» — лучший подход: вес × повторения (упражнения со своим весом — с весом тела). [кг, иконка, название, значок]
+const ACH_PACK = [
+  [1,'🦂','5 скорпионов','pack_scorpions'],[30,'🦩','10 фламинго','pack_flamingos'],[36,'🐍','6 кобр','pack_cobras'],[40,'🦚','8 павлинов','pack_peacocks'],
+  [75,'🦖','5 рапторов','pack_raptors'],[150,'🐆','3 снежных барса','pack_snowleopards'],[160,'🦎','2 комодских варана','pack_komodo'],[180,'🐺','3 полярных волка','pack_arcticwolves'],
+  [200,'🐆','4 гепарда','pack_cheetahs'],[210,'🐈‍⬛','3 чёрные пантеры','pack_panthers'],[275,'🦑','1 гигантский кальмар','pack_squid'],[280,'🐆','4 пумы','pack_pumas'],
+  [300,'🐺','6 волков','pack_wolves'],[300,'🐕','5 гиен','pack_hyenas'],[360,'🦍','2 гориллы','pack_gorillas'],[440,'🐅','2 тигра','pack_tigers'],
+  [500,'🐆','5 ягуаров','pack_jaguars'],[600,'🐻','2 бурых медведя','pack_brownbears'],[750,'🐢','3 гигантских черепахи','pack_tortoises'],[760,'🦁','4 льва','pack_lions'],
+  [900,'🐻‍❄️','2 белых медведя','pack_polarbears2'],[1050,'🐻','3 медведя гризли','pack_grizzlies'],[1800,'🐻‍❄️','4 белых медведя','pack_polarbears4'],[2000,'🐊','4 крокодила','pack_crocs4'],
+  [2500,'🐊','5 крокодилов','pack_crocs5'],[3000,'🦭','1 морской слон','pack_elephantseal'],[3300,'🦈','3 белые акулы','pack_sharks3'],[4400,'🦈','4 белые акулы','pack_sharks4'],
+  [6000,'🦭','5 моржей','pack_walruses'],[6000,'🦛','4 гиппопотама','pack_hippos'],[7000,'🦕','1 спинозавр','pack_spinosaurus'],[10000,'🐉','1 дракон','pack_dragon'],[16500,'🐋','3 косатки','pack_orcas']
+];
 // готовые иллюстрированные значки (img/badges/…) — показываются вместо эмодзи; можно добавлять новые
-const ACH_BADGES = {'Семья барсуков':'zoo_badgers','Семья крокодилов':'zoo_crocodiles','Семья волков':'zoo_wolves','Семья акул':'zoo_sharks','Семья львов':'zoo_lions','Семья енотов':'zoo_raccoons'};
+const ACH_BADGES = {'Семья барсуков':'zoo_badgers','Семья крокодилов':'zoo_crocodiles','Семья волков':'zoo_wolves','Семья акул':'zoo_sharks','Семья львов':'zoo_lions','Семья енотов':'zoo_raccoons',
+  'Стая из 12 опоссумов':'zoo_opossums', 'Отряд из 30 кроликов':'zoo_rabbits', '30 ленивцев':'zoo_sloths', 'Плотина из 10 бобров':'zoo_beavers',
+  '8 кенгуру':'zoo_kangaroos', '5 панд':'zoo_pandas', 'Колония из 20 пингвинов':'zoo_penguins', '10 страусов':'zoo_ostriches',
+  '8 горилл':'zoo_gorillas', 'Стадо из 12 оленей':'zoo_deer', '10 тигров':'zoo_tigers', '5 белых медведей':'zoo_polarbears',
+  '6 лосей':'zoo_moose', 'Табун из 10 зебр':'zoo_zebras', 'Стадо из 10 коров':'zoo_cows', 'Караван из 12 верблюдов':'zoo_camels',
+  '8 бизонов':'zoo_bisons', '6 жирафов':'zoo_giraffes', '5 бегемотов':'zoo_hippos', '4 носорога':'zoo_rhinos',
+  'Лежбище из 10 моржей':'zoo_walruses', '2 мамонта':'zoo_mammoths', '3 слона':'zoo_elephants', '3 тираннозавра':'zoo_trex',
+  'Кашалот':'zoo_spermwhale', 'Аргентинозавр':'zoo_argentinosaurus', 'Синий кит':'zoo_bluewhale', 'Пикап':'machine_pickup',
+  'Грузовой лифт':'machine_lift', 'Автомобильный домкрат':'machine_jack', 'Ручная таль':'machine_hoist', 'Вилочный погрузчик':'machine_forklift',
+  'Мини-экскаватор':'machine_miniexcavator', 'Грузовик':'machine_truck', 'Мотоцикл':'weight_motorcycle', 'Внедорожник':'weight_suv',
+  'Автокран':'machine_mobilecrane', 'Карьерный самосвал БелАЗ':'machine_belaz',
+  'Буровая установка':'machine_drillrig', 'Каток':'machine_roller', 'Бетононасос':'machine_concretepump', 'Погрузчик':'machine_loader', 'Самосвал':'machine_dumptruck', 'Бульдозер':'machine_bulldozer', 'Кран-гидравлик':'machine_hydrocrane', 'Бетономешалка':'machine_mixer'};
 // «Зоопарк» — с юмором
 const ZOO_TAGS = {
   'Семья барсуков':'Копаем глубже, чем твои отмазки.','Стая из 12 опоссумов':'Притворились мёртвыми. Встали. Подняли.','Семья енотов':'Маленькие вредители. Большие планы.',
@@ -784,7 +806,7 @@ function heroContext(workouts){
 }
 // ===== «Свой вес»: повторения в ОДНОМ подходе × доп. отягощение. Потолок — пока никто не дошёл до верха =====
 const BW_LADDERS = [
-  {id:'pullup', name:'Подтягивания', icon:'🧗', m:n=>/подтяг/.test(n) && !/одн|австрал|гравитрон|тренаж/.test(n), reps:50, kg:30},
+  {id:'pullup', name:'Подтягивания', icon:'🧗', m:n=>/подтяг/.test(n) && !/одн|австрал|гравитрон|тренаж|негатив/.test(n), reps:50, kg:30},
   {id:'pushup', name:'Отжимания от пола', icon:'🤸', m:n=>/^отжим/.test(n) && !/брус|стойк|колен|стен|скам/.test(n), reps:100, kg:30},
   {id:'dips', name:'Отжимания на брусьях', icon:'💪', m:n=>/отжим/.test(n) && /брус/.test(n), reps:60, kg:40},
   {id:'kip', name:'Подъём переворотом', icon:'🔄', m:n=>/переворот/.test(n), reps:30, kg:20},
@@ -889,6 +911,7 @@ const ACH_CATS = [
   {id:'cert', name:'Соревнования', color:'#ffd166', hint:'подтверждённые сертификаты — добавить: Участники → вы → Сертификаты'},
   {id:'hero', name:'Герои', color:'#e0b04a', hint:'ачивки героев «Light weight» — выполните все условия'},
   {id:'beast', name:'Звери', color:'#c7a36a', hint:'вес в одном повторении — отдельная ачивка за каждое упражнение'},
+  {id:'pack', name:'Стаи', color:'#d9713a', hint:'лучший подход: вес × повторения (упражнения со своим весом — с весом тела)'},
   {id:'bw', name:'Свой вес', color:'#9fb4c7', hint:'повторения в одном подходе с собственным и дополнительным весом (в подходе пишите отягощение: 10 = +10 кг)'},
   {id:'cali', name:'Калистеника', color:'#7fd6a2', hint:'статика — секунды удержания в одном подходе, бёрпи — за тренировку'},
   {id:'run', name:'Бег', color:'#ff9f68', hint:'дистанция и время в подходе упражнения «Бег»'},
@@ -910,8 +933,8 @@ function achievementsList(workouts){
   const streak = weeklyStreak(workouts).longest;
   const out = [];
   const add = (cat, icon, title, desc, cur, target, rare) => out.push({cat, icon, title, desc, cur, target, rare});
-  ACH_WEIGHT.forEach(([t,i,n])=>add('weight', i, n, `Поднял за тренировку вес, равный: ${n.toLowerCase()} (${fmtNum(t)} кг)`, Math.round(best), t));
-  ACH_MACHINE.forEach(([t,i,n])=>{ add('machine', i, n, `Поднял в сумме столько, сколько поднимает ${n.toLowerCase()} (${fmtNum(t/1000)} т)`, Math.round(total), t); out[out.length-1].tag = MACHINE_TAGS[n]; });
+  ACH_WEIGHT.forEach(([t,i,n])=>{ add('weight', i, n, `Поднял за тренировку вес, равный: ${n.toLowerCase()} (${fmtNum(t)} кг)`, Math.round(best), t); out[out.length-1].badge = ACH_BADGES[n]; });
+  ACH_MACHINE.forEach(([t,i,n,verb])=>{ add('machine', i, n, `Поднял в сумме столько, сколько ${verb||'поднимает'} ${n.toLowerCase()} (${fmtNum(t/1000)} т)`, Math.round(total), t); out[out.length-1].tag = MACHINE_TAGS[n]; out[out.length-1].badge = ACH_BADGES[n]; });
   const ZOO_TONES = [[36,'#a07a3c'],[95,'#6f7f55'],[0,'#7c7f86'],[22,'#a0633c'],[270,'#7a6a8c']];
   ACH_ZOO.forEach(([t,i,n],zi)=>{ add('zoo', i, n, `За неделю поднял столько, сколько весят ${n.toLowerCase()} (${fmtNum(t)} кг)`, Math.round(bestWeek), t); Object.assign(out[out.length-1], {tag:ZOO_TAGS[n], badge:ACH_BADGES[n], tone:ZOO_TONES[zi%5]}); });
   COUNT_STEPS.forEach(n=>add('count', n>=365?'🏅':n>=100?'💪':'🏋️', `${n} ${plural(n,'тренировка','тренировки','тренировок')}`, 'Проведено тренировок', workouts.length, n));
@@ -951,6 +974,15 @@ function achievementsList(workouts){
       return {name:e.name, group:MG[e.mainGroup]||'Другое', kg, date:first}; });
     out.push({cat:'beast', icon:i, title:n, desc:`${fmtNum(kg)} кг в одном повторении`, cur:Math.round(topLift), target:kg, count:holders.length, holders});
   });
+  // «Стаи»: лучший подход (вес × повторения)
+  let bestSet = 0;
+  workouts.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>(ex.sets||[]).forEach(s=>{ bestSet = Math.max(bestSet, Calc.setTonnage(s, Calc.bwFor(w, ex))); }))));
+  ACH_PACK.forEach(([kg,i,n,badge])=>{ add('pack', i, n, kg>=10000 && n.includes('дракон') ? `Легендарный подход: ${fmtNum(kg/1000)} т (вес × повторения в одном подходе)` : `Подход, в котором вес × повторения ≥ ${kg>=1000?fmtNum(kg/1000)+' т':kg+' кг'} — столько весят ${n.toLowerCase()}`, Math.round(bestSet), kg, kg>=3000);
+    out[out.length-1].badge = badge; });
+  // «Феникс»: вернулся к тренировкам после перерыва 30+ дней
+  const days = [...new Set(workouts.map(w=>w.date))].sort(); let gap = 0;
+  for(let k=1;k<days.length;k++) gap = Math.max(gap, (parseD(days[k])-parseD(days[k-1]))/86400000);
+  add('pack','🔥','1 феникс','Вернулся к тренировкам после перерыва 30 дней и больше — восстал из пепла', gap>=30?1:0, 1, true); out[out.length-1].badge = 'pack_phoenix';
   out.push(...sportAchievements(workouts));
   return out.map(a=>{ const got = a.cat==='hero' ? a.heroGot : a.ok!==undefined ? a.ok : a.cur>=a.target;
     return {...a, got, pct: got ? 100 : a.pctOver!==undefined ? a.pctOver : Math.min(100, Math.round(a.cur/a.target*100))}; });
