@@ -9,6 +9,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="help/data.js" defer></script>
+<script src="i18n.js"></script>
 <style>
 :root{
   --bg:#f6f5f2; --surface:#ffffff; --surface2:#f0eee8; --border:#e2ded4;
@@ -90,6 +91,13 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .set-row input{padding:6px;min-width:0;width:100%;border:1px solid var(--border);border-radius:6px;background:var(--surface);}
 .set-row .btn{padding:5px 0;width:32px;}
 .set-row.cardio{grid-template-columns:28px repeat(3,minmax(0,1fr)) minmax(0,1.2fr) 32px;}
+.w-actions{position:sticky;bottom:-18px;margin:12px -18px -18px;padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--border);border-radius:0 0 14px 14px;z-index:3;}
+.big-finish{width:100%;padding:12px;font-size:16px;font-weight:700;}
+.w-actions-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.w-actions-row .btn{flex:1 1 auto;}
+.bot-status{font-size:12.5px;margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--surface2);}
+.drop-add{display:block;margin:-2px 0 4px 34px;padding:0;border:none;background:none;color:var(--warn);font-size:11.5px;font-weight:600;}
+.drop-add.rm{margin:0 0 2px;color:var(--text-dim);}
 .drops{display:flex;flex-direction:column;gap:3px;margin:-1px 0 5px 34px;padding-left:8px;border-left:2px solid var(--warn);}
 .drop-row{display:grid;grid-template-columns:26px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center;font-size:12px;color:var(--warn);font-weight:700;}
 .drop-row input{padding:5px 6px;min-width:0;width:100%;border:1px solid var(--border);border-radius:6px;background:var(--surface);font-size:16px;}
@@ -166,12 +174,21 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .ach-tile.got .lw-poster{filter:none;border-color:#e3262e;box-shadow:0 0 10px rgba(227,38,46,.55);}
 .lw-poster img{width:100%;height:100%;object-fit:cover;display:block;}
 .wr-card{position:relative;width:100%;aspect-ratio:2/3;border-radius:8px;overflow:hidden;border:2px solid #444;filter:grayscale(1) brightness(.5);}
-.ach-tile.got .wr-card{filter:none;border-color:var(--wr);box-shadow:0 0 12px -2px var(--wr);}
+.ach-tile.got .wr-card{filter:none;border-color:#6a6a70;}
 .wr-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;transform:scale(1.5);transform-origin:50% 0;filter:brightness(.45) saturate(.8);}
-.wr-lw{position:absolute;left:6%;right:4%;top:34%;font-family:'Permanent Marker','Brush Script MT',Impact,cursive;font-size:21px;line-height:.9;color:var(--wr);transform:rotate(-12deg);
-  text-transform:uppercase;text-shadow:0 2px 0 #000,0 0 10px color-mix(in srgb,var(--wr) 70%,transparent);}
+.wr-card img.wr-lw{position:absolute;left:8%;top:22%;width:84%;height:auto;inset:auto;transform:none;object-fit:contain;filter:drop-shadow(0 2px 3px #000);}
 .wr-kg{position:absolute;left:0;right:0;bottom:22%;text-align:center;font:800 17px Impact,'Arial Black',sans-serif;color:#fff;text-shadow:0 2px 4px #000;}
 .wr-pct{position:absolute;left:4px;right:4px;bottom:8%;text-align:center;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:var(--wr);text-shadow:0 1px 2px #000;text-transform:uppercase;}
+.lw-show{margin:12px 0 4px;padding:10px 8px;border-radius:14px;background:radial-gradient(ellipse at 50% 0,rgba(227,38,46,.25),transparent 70%),#111114;text-align:center;}
+.lw-show-title{width:150px;display:block;margin:0 auto 6px;filter:drop-shadow(0 2px 4px #000);}
+.lw-show-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;}
+.lw-show-row .ach-tile{width:104px;flex:0 0 104px;}
+.lw-show.empty{padding:14px;}
+/* тоннаж по периодам: одна и та же картинка, разный металл */
+.ach-tile.got.ach-tday .ach-badge{filter:grayscale(1) sepia(.2) hue-rotate(170deg) saturate(.6) brightness(1.2) contrast(1.1) drop-shadow(0 0 8px rgba(220,235,255,.5));}
+.ach-tile.got.ach-tweek .ach-badge{filter:grayscale(1) sepia(1) saturate(2.6) hue-rotate(-6deg) brightness(1.05) contrast(1.1) drop-shadow(0 0 8px rgba(245,197,66,.55));}
+.ach-tile.got.ach-tmonth .ach-badge{filter:grayscale(1) brightness(1.12) contrast(1.15) drop-shadow(0 0 8px rgba(210,215,225,.45));}
+.ach-tile.got.ach-tquarter .ach-badge{filter:grayscale(1) sepia(1) saturate(1.4) hue-rotate(-20deg) brightness(.82) contrast(1.15) drop-shadow(0 0 8px rgba(192,133,72,.5));}
 .tier-medal{position:relative;width:100%;aspect-ratio:1;filter:grayscale(1) brightness(.55);opacity:.6;}
 .ach-tile.got .tier-medal{filter:drop-shadow(0 0 10px color-mix(in srgb,var(--ach) 60%,transparent));opacity:1;}
 .tier-medal img{position:absolute;inset:0;width:100%;height:100%;}
@@ -687,7 +704,7 @@ const Calc = (function(){
   function setTonnage(s, bw, withDrops){ const wt = Number(s.weight)||0, r = Number(s.reps)||0; let t = (wt>0 ? wt : (Number(bw)||0)) * r;
     if(withDrops) (s.drops||[]).forEach(d=>{ const dw = Number(d.weight)||0, dr = Number(d.reps)||0; t += (dw>0 ? dw : (Number(bw)||0)) * dr; });
     return t; }
-  function exTonnage(ex, bw){ return (ex.sets||[]).reduce((a,s)=>a+setTonnage(s, bw, !!ex.isDropset),0); }
+  function exTonnage(ex, bw){ return (ex.sets||[]).reduce((a,s)=>a+setTonnage(s, bw, !!(ex.isDropset || s.isDrop)),0); }
   // bwFor(w, ex) задаёт приложение: какой собственный вес подставлять для упражнения этой тренировки (0 — не учитывать)
   let bwFor = () => 0;
   function setBodyWeightProvider(fn){ bwFor = fn; }
@@ -1063,6 +1080,11 @@ const ACH_CATS = [
   {id:'lw', name:'Light weight', color:'#e3262e', hint:'личные рекорды: вес в упражнении выше, чем когда-либо раньше (как на экране «Light weight, baby!»)'},
   {id:'hero', name:'Light weight: герои', color:'#e0b04a', hint:'ачивки героев постеров «Light weight» — выполните все условия'},
   {id:'wr', name:'Мировые рекорды', color:'#ff1a2e', hint:'вес в одном повторении от мирового рекорда: зелёный 25% · синий 50% · золотой 75% · оранжевый 90% · красный — сам рекорд'},
+  {id:'tday', name:'Тоннаж за день', color:'#dfe7ee', hint:'платиновые медали: весь тоннаж за один день'},
+  {id:'tweek', name:'За неделю', color:'#f5c542', hint:'золотые медали: тоннаж за лучшую неделю'},
+  {id:'tmonth', name:'За месяц', color:'#c9ced6', hint:'серебряные медали: тоннаж за лучший месяц'},
+  {id:'tquarter', name:'За квартал', color:'#c08548', hint:'бронзовые медали: тоннаж за лучший квартал'},
+  {id:'tyear', name:'За год', color:'#ff8a2b', hint:'цветные медали: тоннаж за лучший календарный год'},
   {id:'pack', name:'Стаи', color:'#d9713a', hint:'лучший подход: вес × повторения (упражнения со своим весом — с весом тела)'},
   {id:'bw', name:'Свой вес', color:'#9fb4c7', hint:'повторения в одном подходе с собственным и дополнительным весом (в подходе пишите отягощение: 10 = +10 кг)'},
   {id:'cali', name:'Калистеника', color:'#7fd6a2', hint:'статика — секунды удержания в одном подходе, бёрпи — за тренировку'},
@@ -1077,6 +1099,8 @@ const STREAK_STEPS = [2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,30,35,40,45,52,
 const plural = (n, one, few, many) => { const m10=n%10, m100=n%100; return m10===1&&m100!==11?one:(m10>=2&&m10<=4&&(m100<12||m100>14)?few:many); };
 function isPalindromeNum(n){ const s=String(Math.round(n)); return s.length>=4 && s===[...s].reverse().join(''); }
 // все ачивки участника: получено / прогресс
+// [категория, период, подпись, предел порога] — день платиновый, неделя золотая, месяц серебряный, квартал бронзовый, год обычный
+const TON_PERIODS = [['tday','day','За день',100000],['tweek','week','За неделю',500000],['tmonth','month','За месяц',2000000],['tquarter','quarter','За квартал',6000000],['tyear','year','За год',20000000]];
 const LW_STEPS = [1,3,5,10,15,20,25,30,40,50,60,75,100,150,200];
 const TIER_CATS = ['count','hours','streak','cali','run','bike','swim','cardio'];
 function achievementsList(workouts){
@@ -1128,19 +1152,26 @@ function achievementsList(workouts){
       return {name:e.name, group:MG[e.mainGroup]||'Другое', kg, date:first}; });
     out.push({cat:'beast', icon:i, badge:ACH_BADGES[n], title:n, desc:`${fmtNum(kg)} кг в одном повторении`, cur:Math.round(topLift), target:kg, count:holders.length, holders});
   });
+  // тоннаж за лучший день / неделю / месяц / квартал / год — те же машины, но металл медали разный
+  const per = {day:{}, week:{}, month:{}, quarter:{}, year:{}};
+  workouts.forEach((w,i)=>{ const t = tons[i]; if(!(t>0)) return; const d = w.date, q = d.slice(0,4)+'-Q'+(Math.floor((+d.slice(5,7)-1)/3)+1);
+    [['day',d],['week',weekKeyOf(d)],['month',d.slice(0,7)],['quarter',q],['year',d.slice(0,4)]].forEach(([k,key])=>{ per[k][key] = (per[k][key]||0) + t; }); });
+  TON_PERIODS.forEach(([cat,k,label,limit])=>{ const bestP = Math.max(0, ...Object.values(per[k]));
+    ACH_MACHINE.filter(([t])=>t<=limit).forEach(([t,i,n,verb])=>{ add(cat, i, `${label}: ${n}`, `${label} поднято столько, сколько ${verb||'поднимает'} ${n.toLowerCase()} (${fmtNum(t/1000)} т)`, Math.round(bestP), t);
+      out[out.length-1].badge = ACH_BADGES[n]; out[out.length-1].tag = n; }); });
   // «Мировые рекорды»: вес в одном повторении ≥ доли мирового рекорда
   WORLD_RECORDS.forEach(r=>{ const best = hc.maxW(r.rx); WR_TIERS.forEach(([pct,color])=>{ const kg = Math.round(r.kg*pct/10)/10;
     add('wr', '🏆', `${r.lift}: ${pct===100?'мировой рекорд':pct+'% рекорда'}`, `${fmtNum(kg)} кг в одном повторении — ${pct===100?'':pct+'% от '}мирового рекорда ${r.kg} кг (${r.who})`, Math.round(best), kg, pct>=90);
     out[out.length-1].wr = {lift:r.lift, kg, pct, color, poster:r.poster}; }); });
   // «Light weight»: сколько раз побит личный рекорд веса в упражнении (каждая ступень — свой постер)
-  let lwRecords = 0; const lwMax = {};
+  let lwRecords = 0; const lwMax = {}, lwList = [];
   workouts.slice().sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||''))).forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{
     const top = Math.max(0, ...(ex.sets||[]).filter(st=>Number(st.reps)>=1).map(st=>Number(st.weight)||0));
     if(top<=0) return; const prev = lwMax[ex.exerciseId]||0;
-    if(prev>0 && top>prev) lwRecords++;
+    if(prev>0 && top>prev){ lwRecords++; lwList.push({date:w.date, ex:ex.exerciseId, prev, top}); }
     lwMax[ex.exerciseId] = Math.max(prev, top); })));
   LW_STEPS.forEach((n,i)=>{ add('lw', '💪', n===1 ? 'Light weight, baby!' : `${n} ${plural(n,'рекорд','рекорда','рекордов')}`,
-    n===1 ? 'Впервые побит личный рекорд веса в упражнении' : `Побить личный рекорд веса ${n} раз`, lwRecords, n, n>=100); out[out.length-1].poster = i+1; });
+    n===1 ? 'Впервые побит личный рекорд веса в упражнении' : `Побить личный рекорд веса ${n} раз`, lwRecords, n, n>=100); out[out.length-1].lwRecs = lwList.slice(0, n); out[out.length-1].poster = i+1; });
   // «Стаи»: лучший подход (вес × повторения)
   let bestSet = 0;
   workouts.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>(ex.sets||[]).forEach(s=>{ bestSet = Math.max(bestSet, Calc.setTonnage(s, Calc.bwFor(w, ex))); }))));
@@ -1174,7 +1205,7 @@ function achievementsCard(workouts, pid){
   const tab = State.achTab || 'weight';
   const cat = id => ACH_CATS.find(c=>c.id===id);
   const list = tab==='got' ? compressBw(all.filter(a=>a.got)) : all.filter(a=>a.cat===tab);
-  State.achBeasts = all.filter(a=>a.cat==='beast');
+  State.achBeasts = all.filter(a=>a.cat==='beast'); State.achAll = all;
   const tile = a => achTile(a, cat(a.cat).color);
   return achCardHtml(all, list, tab, cat, tile);
 }
@@ -1186,10 +1217,18 @@ function achTile(a, color){
     ${a.poster?`<div class="lw-poster"><img src="img/lightweight/thumb/${String(a.poster).padStart(2,'0')}.webp" alt="" loading="lazy"></div><div class="ach-t">${esc(a.title)}</div>`:''}
     ${a.tier?`<div class="tier-medal"><img src="img/badges/tier_${a.tier}.webp" alt="" decoding="async"><img class="tier-ico" src="img/badges/ico_${a.cat}.webp" alt="" loading="lazy" decoding="async"><span class="tier-txt" style="font-size:${a.tierText.length<=5?15:a.tierText.length<=8?12:a.tierText.length<=12?8.5:8}px">${esc(a.tierText)}</span></div>`:''}
     ${a.cat==='bw'||a.tier||a.poster?'':a.hero?`<div class="lw-poster"><img src="img/lightweight/thumb/${HERO_POSTER[a.hero]||'01'}.webp" alt="${esc(HERO_NAMES[a.hero])}" loading="lazy" decoding="async"></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`
-    :a.wr?`<div class="wr-card" style="--wr:${a.wr.color}"><img src="img/lightweight/thumb/${a.wr.poster}.webp" alt="" loading="lazy" decoding="async"><span class="wr-lw">Light<br>weight</span><span class="wr-kg">${fmtNum(a.wr.kg)} кг</span><span class="wr-pct">${a.wr.pct===100?'МИРОВОЙ РЕКОРД':a.wr.pct+'% рекорда'}</span></div><div class="ach-t">${esc(a.wr.lift)}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<div class="ach-emo">${a.icon}</div>
+    :a.wr?`<div class="wr-card" style="--wr:${a.wr.color}"><img src="img/lightweight/thumb/${a.wr.poster}.webp" alt="" loading="lazy" decoding="async"><img class="wr-lw" src="img/lwtext/${a.wr.pct}.webp" alt="Light weight"><span class="wr-kg">${fmtNum(a.wr.kg)} кг</span><span class="wr-pct">${a.wr.pct===100?'МИРОВОЙ РЕКОРД':a.wr.pct+'% рекорда'}</span></div><div class="ach-t">${esc(a.wr.lift)}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>${a.tag?`<div class="ach-tag">${esc(a.tag)}</div>`:''}`}
     ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${a.cat==='hero'?a.cur+'%':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}</div>`}
   </div>`;
+}
+// витрина: полученные ачивки Light weight (рекорды, герои, мировые рекорды) — по центру над всеми
+function lwShowcase(all){
+  const got = all.filter(a=>a.got && ['lw','hero','wr'].includes(a.cat));
+  const top = [...got.filter(a=>a.cat==='wr').sort((a,b)=>b.wr.pct-a.wr.pct), ...got.filter(a=>a.cat==='lw').reverse(), ...got.filter(a=>a.cat==='hero')].slice(0, 12);
+  if(!top.length) return `<div class="lw-show empty"><img src="img/lwtext/white.webp" alt="Light weight" style="width:120px;opacity:.5"><div class="muted">Побейте личный рекорд — здесь появится первый постер</div></div>`;
+  const col = id => (ACH_CATS.find(c=>c.id===id)||{}).color;
+  return `<div class="lw-show"><img src="img/lwtext/100.webp" alt="Light weight" class="lw-show-title"><div class="lw-show-row">${top.map(a=>achTile(a, col(a.cat))).join('')}</div></div>`;
 }
 function achCardHtml(all, list, tab, cat, tile){
   const chip = (id, name, color) => { const n = id==='got' ? all.filter(a=>a.got).length : all.filter(a=>a.cat===id&&a.got).length;
@@ -1197,10 +1236,26 @@ function achCardHtml(all, list, tab, cat, tile){
     return `<button class="ach-chip ${tab===id?'on':''}" style="--ach:${color}" data-ach-tab="${id}">${name} <b>${n}${t}</b></button>`; };
   return `<div class="card" style="margin-bottom:10px">
     <div class="row" style="justify-content:space-between"><h3 class="row" style="gap:6px;margin:0"><span class="ach-ico">${icon('trophy')}</span>Достижения</h3><span class="muted">${all.filter(a=>a.got).length} из ${all.length}</span></div>
+    ${lwShowcase(all)}
     <div class="ach-chips">${chip('got','Мои','#e9e9ea')}${ACH_CATS.map(c=>chip(c.id,c.name,c.color)).join('')}</div>
     ${tab!=='got'?`<div class="muted" style="margin-top:6px">${cat(tab).hint}</div>`:''}
     ${tab==='bw' ? `<div style="margin-top:10px">${bwLadderView()}</div>` : `<div class="ach-grid">${[...list.filter(a=>a.got), ...list.filter(a=>!a.got)].map(tile).join('') || '<div class="muted">Пока нет полученных ачивок — всё впереди!</div>'}</div>`}
   </div>`;
+}
+function renderAchInfoModal(){
+  const {a, status} = State.modal, units = DB.settings.units;
+  const exName = id => (DB.exercises.find(e=>e.id===id)||{}).name || 'упражнение';
+  const img = a.poster ? `img/lightweight/${String(a.poster).padStart(2,'0')}.jpg` : a.hero ? `img/lightweight/${HERO_POSTER[a.hero]||'01'}.jpg` : a.wr ? `img/lightweight/thumb/${a.wr.poster}.webp` : a.badge ? `img/badges/${a.badge}.webp` : '';
+  const recs = (a.lwRecs||[]).slice().reverse();
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:440px">
+    <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h2 style="margin:0">${esc(a.title)}</h2><button class="btn sm ghost" data-close-modal="1">✕</button></div>
+    ${img?`<div class="ach-info-img ${a.wr?'wr':''}">${a.wr?`<div class="wr-card" style="--wr:${a.wr.color};filter:none;max-width:220px;margin:0 auto"><img src="${img}" alt=""><img class="wr-lw" src="img/lwtext/${a.wr.pct}.webp" alt=""><span class="wr-kg">${fmtNum(a.wr.kg)} кг</span></div>`:`<img src="${img}" alt="" style="max-width:100%;max-height:48vh;border-radius:10px;display:block;margin:0 auto">`}</div>`:''}
+    <p style="margin:10px 0 4px"><b>За что:</b> ${esc(a.desc||'')}</p>
+    ${a.hero?`<p class="muted" style="margin:0 0 6px">Герой: ${esc(HERO_NAMES[a.hero])}</p>`:''}
+    <p class="muted" style="margin:0">${a.got?'✅ Получено':'Прогресс: '+esc(status||'')}</p>
+    ${recs.length?`<h3 style="margin-top:12px">Рекорды, которые засчитаны</h3>${recs.map(r=>`<div class="help-row" style="cursor:default"><span class="grow">${esc(exName(r.ex))}<br><span class="muted">${fmtDate(r.date)}</span></span><b>${convW(r.prev,units)} → ${convW(r.top,units)} ${unitLabel(units)}</b></div>`).join('')}`:''}
+    <button class="btn primary" style="width:100%;margin-top:12px" data-close-modal="1">Понятно</button>
+  </div></div>`;
 }
 function renderBeastModal(){
   const a = State.modal.beast; const byGroup = {};
@@ -1312,8 +1367,8 @@ function pad(n){return n<10?'0'+n:''+n;}
 function dstr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function parseD(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
 function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
-function fmtDate(s){const d=parseD(s);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});}
-function fmtDateShort(s){const d=parseD(s);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});}
+function fmtDate(s){const d=parseD(s);return d.toLocaleDateString(I18N.locale,{day:'numeric',month:'long',year:'numeric'});}
+function fmtDateShort(s){const d=parseD(s);return d.toLocaleDateString(I18N.locale,{day:'numeric',month:'short'});}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function fmtNum(n){return Math.round(n*10)/10;}
 function convW(kg, units){ return units==='lb' ? fmtNum(kg*2.20462) : fmtNum(kg); }
@@ -1441,7 +1496,7 @@ function viewCalendar(){
     const first = new Date(y,m,1);
     const startOffset = (first.getDay()+6)%7; // Monday-first
     const gridStart = new Date(y,m,1-startOffset);
-    header = d.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+    header = d.toLocaleDateString(I18N.locale,{month:'long',year:'numeric'});
     let cells='';
     const today=new Date();
     for(let i=0;i<42;i++){
@@ -1534,7 +1589,7 @@ function openWorkoutModal(opts){
 function closeModal(){
   const was = State.modal;
   if(was && was.kind==='workout') autosaveWorkout(true);
-  State.modal = (was && was.kind==='help' && was.back) || null; renderModal();
+  State.modal = (was && (was.kind==='help' || was.kind==='achInfo') && was.back) || null; renderModal();
   if(was && was.kind==='workout') renderMain();
 }
 // автосохранение: всё, что записано в окне тренировки, сразу попадает в дневник (и через 0,5 с — на сервер)
@@ -1619,6 +1674,7 @@ function renderModalInner(root){
   else if(State.modal.kind==='cert') root.innerHTML = renderCertModal();
   else if(State.modal.kind==='result') root.innerHTML = renderResultModal();
   else if(State.modal.kind==='food') root.innerHTML = renderFoodModal();
+  else if(State.modal.kind==='achInfo') root.innerHTML = renderAchInfoModal();
 }
 
 function renderWorkoutModal(){
@@ -1665,13 +1721,11 @@ function renderWorkoutModal(){
     <div class="field" style="margin-top:10px"><label>Заметки</label><textarea data-w="notes">${esc(w.notes||'')}</textarea></div>
     <div class="field"><label>Результат / самочувствие</label><input type="text" data-w="result" value="${esc(w.result||'')}"></div>
 
-    <div class="row" style="justify-content:space-between;margin-top:10px;flex-wrap:wrap">
-      <div class="row">
+    <div class="w-actions">
+      <button class="btn finish big-finish" data-finish-workout="1">${w.status==='done'?'📨 Отправить итог в бот ещё раз':'✅ Завершить тренировку'}</button>
+      <div class="w-actions-row">
         <button class="btn primary" data-save-workout="1">Сохранить</button>
-        <button class="btn finish" data-finish-workout="1">${w.status==='done'?'📨 Отправить итог в бот':'✅ Завершить тренировку'}</button>
-        <button class="btn" data-save-as-template="1">Сохранить как шаблон</button>
-      </div>
-      <div class="row">
+        <button class="btn" data-save-as-template="1">В шаблоны</button>
         ${!isNew?'<button class="btn danger" data-delete-workout="1">Удалить</button>':''}
         <button class="btn ghost" data-close-modal="1">Закрыть</button>
       </div>
@@ -1766,7 +1820,7 @@ function renderExerciseCard(ex,bi,ei,w,units){
     </div>
     ${prev?`<div class="muted">Пред.: ${prev.sets.map(s=>isCardio?`${s.time||''}${s.distance?(' '+s.distance+'км'):''}`:`${convW(s.weight,units)}×${s.reps}`).join(', ')} (${fmtDateShort(prev.date)})</div>`:''}
     ${ex.sets.map((s,si)=>`<div class="set-row ${isCardio?'cardio':''}">
-      <span class="muted">${si+1}</span>
+      <span class="muted" title="${L?'круг':'подход'} ${si+1}">${si+1}</span>
       ${isCardio?`
         <input type="text" inputmode="decimal" placeholder="мин" data-set="${bi}.${ei}.${si}.time" value="${s.time??''}">
         <input type="text" inputmode="decimal" placeholder="км" data-set="${bi}.${ei}.${si}.distance" value="${s.distance??''}">
@@ -1779,14 +1833,15 @@ function renderExerciseCard(ex,bi,ei,w,units){
       `}
       <button class="btn sm ghost" data-remove-set="${bi}.${ei}.${si}">✕</button>
     </div>
-    ${isDrop?`<div class="drops">${[0,1,2].map(k=>{ const d = (s.drops||[])[k]||{}; const base = Number(s.weight)||0;
+    ${!isCardio && !isStatic && !isDrop && !s.isDrop ? `<button class="drop-add" data-set-drop="${bi}.${ei}.${si}">+ дроп-сет в этом подходе</button>` : ''}
+    ${(isDrop || s.isDrop) && !isCardio?`<div class="drops">${!isDrop?`<button class="drop-add rm" data-set-drop="${bi}.${ei}.${si}">убрать дропы</button>`:''}${[0,1,2].map(k=>{ const d = (s.drops||[])[k]||{}; const base = Number(s.weight)||0;
       return `<div class="drop-row"><span>↓${k+1}</span>
         <input type="text" inputmode="decimal" placeholder="${base?convW(Math.round(base*(0.8-0.2*k)/2.5)*2.5,units):'вес'}" data-set="${bi}.${ei}.${si}.drop.${k}.weight" value="${d.weight!==''&&d.weight!=null?convW(d.weight,units):''}">
         <input type="text" inputmode="numeric" placeholder="повт." data-set="${bi}.${ei}.${si}.drop.${k}.reps" value="${d.reps??''}"></div>`; }).join('')}</div>`:''}
     <div data-live="st${bi}.${ei}.${si}">${isCardio ? (cardioPace(s)?`<div class="set-ton">${cardioPace(s)}</div>`:'')
-      : `${(()=>{ const t = setRecordText(hist, si, s, units); return t?`<div class="set-rec">${t}</div>`:''; })()}${Number(s.reps)>0 && (isDrop || !(Number(s.weight)>0)) && Calc.setTonnage(s,bw,isDrop)>0?`<div class="set-ton">${Number(s.weight)>0?convW(s.weight,units):'свой вес '+convW(bw,units)} × ${s.reps}${isDrop&&(s.drops||[]).some(d=>Number(d.reps)>0)?' + дропы':''} = ${fmtNum(convW(Calc.setTonnage(s,bw,isDrop),units))} ${unitLabel(units)}</div>`:''}`}</div>`).join('')}
+      : `${(()=>{ const t = setRecordText(hist, si, s, units); return t?`<div class="set-rec">${t}</div>`:''; })()}${(()=>{ const dd = isDrop || s.isDrop; return Number(s.reps)>0 && (dd || !(Number(s.weight)>0)) && Calc.setTonnage(s,bw,dd)>0?`<div class="set-ton">${Number(s.weight)>0?convW(s.weight,units):'свой вес '+convW(bw,units)} × ${s.reps}${dd&&(s.drops||[]).some(d=>Number(d.reps)>0)?' + дропы':''} = ${fmtNum(convW(Calc.setTonnage(s,bw,dd),units))} ${unitLabel(units)}</div>`:''; })()}`}</div>`).join('')}
     <div data-live="nb${bi}.${ei}">${needBw?`<div class="muted" style="font-size:11.5px">Подходы без веса считаются как повторения × ваш вес — укажите вес тела вверху тренировки.</div>`:''}</div>
-    <button class="btn sm ghost" data-add-set="${bi}.${ei}">+ подход</button>
+    <button class="btn sm ghost" data-add-set="${bi}.${ei}">${L?'+ круг (подход во всех упражнениях суперсета)':'+ подход'}</button>
     <div data-live="et${bi}.${ei}">${!isCardio && ton>0?`<div class="tonnage-line">${isDrop?'Тоннаж с дропами':'Тоннаж упражнения'}: <b>${fmtNum(convW(ton,units))} ${unitLabel(units)}</b></div>`:''}</div>
   </div>`;
 }
@@ -1845,6 +1900,8 @@ function handleModalClick(e, ds){
   if(ds.closeModal!==undefined){ closeModal(); return true; }
   if(ds.help!==undefined){ openHelp(ds.help, modal); return true; }
   if(ds.zoom!==undefined){ openZoom(ds.zoom); return true; }
+  if(ds.achInfo!==undefined){ const [t,,st]=ds.achInfo.split('|'); const a = [...(modal.achs||[]), ...(State.achAll||[])].find(x=>x.title===t) || {title:t};
+    State.modal = {kind:'achInfo', a, status:st, back:modal}; renderModal(); return true; }
 
   if(modal.kind==='workout'){
     const w = modal.w;
@@ -1853,9 +1910,15 @@ function handleModalClick(e, ds){
     if(ds.addExercise!==undefined){ modal.pendingBlock=+ds.addExercise; modal.kind='exercisePicker'; modal.query=''; modal._back={w,isNew:modal.isNew,recurRule:modal.recurRule}; renderModal(); return true; }
     if(ds.removeExercise!==undefined){ const [bi,ei]=pathGet(ds.removeExercise); w.blocks[bi].exercises.splice(ei,1); renderModal(); return true; }
     if(ds.addSet!==undefined){
-      const [bi,ei]=pathGet(ds.addSet); const ex=w.blocks[bi].exercises[ei]; const ns=blankSet();
-      if(ex.isDropset) ns.drops = [{weight:'',reps:''},{weight:'',reps:''},{weight:'',reps:''}];
-      ex.sets.push(ns); renderModal(); return true;
+      const [bi,ei]=pathGet(ds.addSet); const blk=w.blocks[bi];
+      // суперсет: новый круг — по подходу в каждое упражнение пары; вес подставляем из прошлого круга
+      const targets = blk.kind==='superset' ? blk.exercises : [blk.exercises[ei]];
+      const len = blk.kind==='superset' ? Math.max(...targets.map(x=>x.sets.length)) : null;
+      targets.forEach(ex=>{ if(len!==null && ex.sets.length>len) return; const ns=blankSet(); const last=ex.sets[ex.sets.length-1];
+        if(last && Number(last.weight)>0) ns.weight = last.weight;
+        if(ex.isDropset) ns.drops = [{weight:'',reps:''},{weight:'',reps:''},{weight:'',reps:''}];
+        ex.sets.push(ns); });
+      renderModal(); return true;
     }
     if(ds.moveBlock!==undefined){ const [bi,dir]=pathGet(ds.moveBlock); const to=bi+dir; if(to<0||to>=w.blocks.length) return true;
       [w.blocks[bi], w.blocks[to]] = [w.blocks[to], w.blocks[bi]]; renderModal(); flashEl(`[data-block="${to}"]`); return true; }
@@ -1866,7 +1929,12 @@ function handleModalClick(e, ds){
       else { [list[ei], list[ne]] = [list[ne], list[ei]]; }
       renderModal(); flashEl(`[data-ex="${nb}.${ne}"]`); return true; }
     if(ds.addCardio!==undefined){ addCardioBlock(w, ds.addCardio); renderModal(); return true; }
-    if(ds.removeSet!==undefined){ const [bi,ei,si]=pathGet(ds.removeSet); w.blocks[bi].exercises[ei].sets.splice(si,1); renderModal(); return true; }
+    if(ds.removeSet!==undefined){ const [bi,ei,si]=pathGet(ds.removeSet); const blk=w.blocks[bi];
+      (blk.kind==='superset' ? blk.exercises : [blk.exercises[ei]]).forEach(ex=>{ if(ex.sets.length>si) ex.sets.splice(si,1); });
+      renderModal(); return true; }
+    if(ds.setDrop!==undefined){ const [bi,ei,si]=pathGet(ds.setDrop); const st=w.blocks[bi].exercises[ei].sets[si];
+      st.isDrop = !st.isDrop; if(st.isDrop && !st.drops) st.drops = [{weight:'',reps:''},{weight:'',reps:''},{weight:'',reps:''}];
+      renderModal(); flashEl(`[data-ex="${bi}.${ei}"]`); return true; }
     if(ds.saveWorkout!==undefined){ saveWorkoutFromModal(); return true; }
     if(ds.finishWorkout!==undefined){ finishWorkout(); return true; }
     if(ds.saveAsTemplate!==undefined){ State.modal={kind:'saveTemplate', suggestedName:w.name, sourceBlocks:w.blocks}; renderModal(); return true; }
@@ -2062,10 +2130,12 @@ function renderResultModal(){
     ${recs.length?`<h3 style="margin-top:14px">🏆 Новые рекорды</h3>${recs.map(r=>`<div class="help-row" style="cursor:default"><span class="grow">${esc(r.name)}</span><b>${convW(r.weight,units)} ${unitLabel(units)} × ${r.reps}</b><span class="muted">было ${convW(r.prev,units)}</span></div>`).join('')}`:''}
     <h3 style="margin-top:14px">🏅 Получено за тренировку ${achs.length?`<span class="muted">${achs.length}</span>`:''}</h3>
     ${achs.length?`<div class="ach-grid" style="max-height:none">${achs.map(a=>achTile(a, col(a.cat))).join('')}</div>`:'<div class="muted">В этот раз без новых ачивок — но каждая тренировка приближает к следующей!</div>'}
+    <div class="bot-status" id="botStatus" style="${State.botStatus&&State.botStatus.err?'color:var(--danger)':''}">${esc((State.botStatus||{}).text||'⏳ Отправляем итог в бот…')}</div>
     <button class="btn primary" style="width:100%;margin-top:14px" data-close-modal="1">Отлично!</button>
   </div></div>`;
 }
 function showWorkoutResult(w){
+  State.botStatus = null;
   const achs = workoutAchievements(w), recs = findRecords(w);
   State.modal = {kind:'result', w, achs, recs}; renderModal();
   showLightWeight(w);   // постер поверх итогов, если есть рекорд
@@ -2084,18 +2154,22 @@ async function finishWorkout(){
   await notifyBotDone(w, achs);
 }
 // итог тренировки в бот: сначала сохраняем на сервер, затем шлём со свежим токеном; при неудаче — повтор
+function setBotStatus(text, err){ State.botStatus = {text, err}; const el = document.getElementById('botStatus'); if(el){ el.textContent = text; el.style.color = err ? 'var(--danger)' : ''; } }
 async function notifyBotDone(w, achs){
-  const body = JSON.stringify({action:'workout_done', workout_id:w.id, achievements:(achs||[]).slice(0,30).map(a=>`${a.icon||'🏅'} ${a.title}${a.cat==='beast'&&a.count>1?' ×'+a.count:''}`)});
+  setBotStatus('⏳ Отправляем итог в бот…');
+  const lw = (achs||[]).filter(a=>['lw','hero','wr'].includes(a.cat)).slice(0,5).map(a=>({title:a.title, desc:(a.hero?HERO_NAMES[a.hero]+': ':'')+(a.desc||''),
+    img: a.cat==='wr' ? `img/lightweight/${a.wr.poster}.jpg` : a.hero ? `img/lightweight/${HERO_POSTER[a.hero]||'01'}.jpg` : `img/lightweight/${String(a.poster||1).padStart(2,'0')}.jpg`}));
+  const body = JSON.stringify({action:'workout_done', workout_id:w.id, lw, achievements:(achs||[]).filter(a=>!['lw','hero','wr'].includes(a.cat)).slice(0,30).map(a=>`${a.icon||'🏅'} ${a.title}${a.cat==='beast'&&a.count>1?' ×'+a.count:''}`)});
   for(let attempt=1; attempt<=3; attempt++){
     try{
       await Storage.flush();
       if(Storage.lastSyncError) throw Storage.lastSyncError;
       const r = await fetch(SUPABASE_URL + '/functions/v1/telegram-bot', { method:'POST',
         headers:{'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+(await Auth.freshToken())}, body });
-      if(r.ok){ toast('💪 Тренировка завершена — итог отправлен в бот'); return true; }
+      if(r.ok){ setBotStatus('✅ Итог отправлен в Telegram-бот'); toast('💪 Тренировка завершена — итог отправлен в бот'); return true; }
       const j = await r.json().catch(()=>({}));
-      if(attempt===3){ toast('Тренировка сохранена, но бот ответил ошибкой: '+(j.error||r.status)); return false; }
-    }catch(e){ if(attempt===3){ toast('Тренировка сохранена, но бот недоступен: '+(e.message||e)); return false; } }
+      if(attempt===3){ setBotStatus('⚠️ Бот не принял итог: '+(j.error||r.status), true); toast('Тренировка сохранена, но бот ответил ошибкой: '+(j.error||r.status)); return false; }
+    }catch(e){ if(attempt===3){ setBotStatus('⚠️ Не удалось отправить итог: '+(e.message||e), true); toast('Тренировка сохранена, но бот недоступен: '+(e.message||e)); return false; } }
     await new Promise(res=>setTimeout(res, 1500*attempt));
   }
 }
@@ -2610,7 +2684,7 @@ function archiveCard(pid){
 // справочник на 100 г: [название, ккал, белки, жиры, углеводы, граммов в штуке, название штуки]
 const MEALS = [['breakfast','🌅 Завтрак'],['snack1','🍎 Перекус'],['lunch','🍲 Обед'],['snack2','🍎 Перекус'],['dinner','🌙 Ужин'],['snack3','🍎 Вечерний перекус']];
 // напитки считаем в мл (плотность ≈ 1)
-const LIQUIDS = new Set(['Квас','Айран','Кисель','Молоко 2,5%','Молоко 3,2%','Кефир 1%','Кефир 2,5%','Катык','Сок апельсиновый','Кола','Чай с сахаром','Кофе с молоком','Пиво','Вино сухое']);
+const LIQUIDS = new Set(['Квас','Айран','Кисель','Молочный коктейль','Ряженка','Молоко соевое','Молоко овсяное','Газировка сладкая','Энергетический напиток','Изотоник','Сок яблочный','Сок томатный','Морс','Какао с молоком','Минеральная вода','Кефир 3,2%','Молоко 2,5%','Молоко 3,2%','Кефир 1%','Кефир 2,5%','Катык','Сок апельсиновый','Кола','Чай с сахаром','Кофе с молоком','Пиво','Вино сухое','Молоко 1,5%','Молоко обезжиренное','Кефир 0%','Йогурт питьевой','Простокваша','Снежок','Кофе чёрный без сахара','Капучино','Латте','Чай без сахара','Сок мультифруктовый','Сок вишнёвый','Сок гранатовый','Нектар персиковый','Компот','Холодный чай','Лимонад','Кола без сахара','Смузи фруктовый','Протеиновый коктейль готовый','Кумыс','Вода кокосовая','Пиво безалкогольное','Вино красное полусладкое','Шампанское','Сидр','Водка','Коньяк']);
 const unitOf = x => (x && (x.unit==='ml' || LIQUIDS.has(x.name))) ? 'мл' : 'г';
 const FOOD_DB = [
   ['Гречка варёная',110,4.2,1.1,21.3],['Гречка сухая',313,12.6,3.3,62.1],['Рис варёный',116,2.2,0.5,24.9],['Рис сухой',344,6.7,0.7,78.9],
@@ -2669,7 +2743,97 @@ const FOOD_DB = [
   ['Адана-кебаб',250,17,19,3],['Лахмаджун',200,9,6,28,150,'шт'],['Пиде с мясом',260,11,10,32],['Менемен',110,6,8,4],['Баклава',430,6,24,50,30,'шт'],
   ['Чечевичный суп',60,3.5,1.5,9],['Искендер-кебаб',180,11,10,11],['Айран',30,1.7,1.5,2,250,'стакан'],['Симит',300,9,6,52,110,'шт'],
   ['Кимчи',20,1.5,0.5,3],['Пибимпап',130,6,4,18],['Пулькоги',200,16,11,8],['Кимпап',150,5,4,24],['Ттокпокки',160,3.5,2.5,31],
-  ['Самгёпсаль',330,17,29,0],['Кимчи-чиге',60,5,3.5,3],['Чапчхэ',150,4,5,23],['Морковь по-корейски',140,1,12,8]
+  ['Самгёпсаль',330,17,29,0],['Кимчи-чиге',60,5,3.5,3],['Чапчхэ',150,4,5,23],['Морковь по-корейски',140,1,12,8],
+  // ===== магазин: фрукты, ягоды, овощи, зелень =====
+  ['Кишмиш (виноград без косточек)',70,0.6,0.2,17.5],['Изюм кишмиш',299,3.1,0.5,79],['Черешня',52,1.1,0.4,10.6],['Вишня',52,0.8,0.2,10.6],['Слива',49,0.8,0.3,9.6,30,'шт'],
+  ['Малина',46,0.8,0.5,8.3],['Черника',44,1.1,0.4,7.6],['Смородина чёрная',44,1,0.4,7.3],['Ежевика',34,1.5,0.5,4.4],['Голубика',39,1,0.5,6.6],
+  ['Ананас',52,0.4,0.2,11.5],['Манго',67,0.5,0.3,11.5,300,'шт'],['Авокадо',160,2,14.7,1.8,150,'шт'],['Лимон',34,0.9,0.1,3],['Грейпфрут',35,0.7,0.2,6.5,350,'шт'],
+  ['Инжир свежий',74,0.7,0.2,13.7,50,'шт'],['Инжир сушёный',257,3.1,0.8,57.9],['Айва',57,0.4,0.2,13.3],['Фейхоа',61,1,0.2,15],['Кокос (мякоть)',354,3.3,33.5,6.2],
+  ['Помело',38,0.6,0.2,8.6],['Нектарин',44,1.1,0.3,10.6,140,'шт'],['Чернослив',256,2.3,0.7,57.5],['Кизил',44,1,0,9],['Тутовник (шелковица)',52,0.7,0,12.7],
+  ['Тыква',26,1,0.1,4.4],['Редис',20,1.2,0.1,3.4],['Чеснок',149,6.5,0.5,29.9,5,'зубчик'],['Шпинат',23,2.9,0.3,2],['Цветная капуста',30,2.5,0.3,4.2],
+  ['Спаржа',21,1.9,0.1,3.1],['Фасоль стручковая',24,2,0.2,3.6],['Кукуруза варёная',123,4.1,2.3,22.5],['Кукуруза консервированная',58,2.2,0.4,11.2],['Редька',36,1.9,0.2,6.7],
+  ['Сельдерей',13,0.9,0.1,2.1],['Батат',86,1.6,0.1,20.1],['Оливки',145,1,15,1.5],['Маслины',166,2.2,10.7,8.4],['Укроп',38,2.5,0.5,6.3],['Петрушка',47,3.7,0.4,7.6],
+  ['Кинза',23,2.1,0.5,1.9],['Зелёный лук',19,1.3,0.1,4.6],['Пекинская капуста',16,1.2,0.2,2],['Руккола',25,2.6,0.7,2.1],['Имбирь',80,1.8,0.8,15.8],
+  // ===== магазин: рыба, икра, морепродукты =====
+  ['Икра красная',250,24.6,17.2,0,15,'ч. л.'],['Икра чёрная (осетровая)',264,24.6,17.9,4,15,'ч. л.'],['Икра мойвы',180,11,12,6,15,'ч. л.'],['Горбуша',142,20.5,6.5,0],
+  ['Сельдь солёная',217,19.8,15.4,0],['Скумбрия копчёная',221,23.4,14.3,0],['Шпроты в масле',363,17.4,32.4,0.4],['Сардины в масле',221,17.9,16.5,0],['Кальмар',100,18,2.2,2],
+  ['Мидии',77,11.5,2,3.3],['Крабовые палочки',73,6,1,10],['Треска',78,17.7,0.7,0],['Тилапия',128,26,2.7,0],
+  // ===== магазин: мясные и молочные продукты =====
+  ['Колбаса сырокопчёная',473,24.8,41.5,0],['Колбаса полукопчёная',350,15,31,2],['Ветчина',270,14,23,1.5],['Бекон',500,23,45,0],['Сардельки',277,10,25,1.5,100,'шт'],
+  ['Яйцо перепелиное',168,11.9,13.1,0.6,10,'шт'],['Сыр плавленый',257,16.8,11.2,23.8,20,'ломтик'],['Творожный сырок глазированный',407,8.5,27.8,32,50,'шт'],
+  ['Йогурт фруктовый',85,3,2.5,13,125,'шт'],['Молочный коктейль',90,3,2.5,14,300,'бутылка'],['Сгущённое молоко',320,7.2,8.5,56],['Сливки 10%',118,3,10,4,15,'ст. л.'],
+  ['Ряженка',67,2.8,4,4.2,250,'стакан'],['Тофу',76,8,4.8,1.9],['Молоко соевое',54,3.3,1.8,6,250,'стакан'],['Молоко овсяное',48,1,1.5,7,250,'стакан'],
+  // ===== магазин: бакалея, снеки, соусы, напитки =====
+  ['Хлопья кукурузные',357,7.5,0.9,80],['Мюсли',352,10.5,6,65],['Гранола',470,10,20,60],['Хлебцы',300,11,2,60,10,'шт'],['Лапша быстрого приготовления',450,9,20,60,70,'пачка'],
+  ['Майонез',627,0.6,68,2.6,15,'ст. л.'],['Кетчуп',93,1.8,0,22.2,15,'ст. л.'],['Соевый соус',53,6,0,7,15,'ст. л.'],['Горчица',143,9.9,12.7,5.3,5,'ч. л.'],
+  ['Варенье',265,0.3,0.2,70,20,'ст. л.'],['Шоколадная паста',540,6,31,57,15,'ст. л.'],['Мармелад',321,0.1,0,79.4],['Зефир',326,0.8,0,79.8,30,'шт'],['Пастила',324,0.5,0,80],
+  ['Сухарики',400,11,12,64],['Попкорн',375,11,4,72],['Кешью',600,18,48.5,22.5],['Фисташки',556,20,50,7],['Семечки тыквенные',556,24.5,45.8,4.7],
+  ['Сушки',335,10.9,1.2,71.3,10,'шт'],['Пряник',364,5.8,6.5,71.6,35,'шт'],['Вафли',540,3,30,64,20,'шт'],['Торт «Наполеон»',400,6,25,38,100,'кусок'],
+  ['Мороженое эскимо',270,3.5,17,25,70,'шт'],['Шоколадный батончик с арахисом',490,8,24,60,50,'шт'],['Газировка сладкая',42,0,0,10.5,330,'банка'],
+  ['Энергетический напиток',45,0,0,11,450,'банка'],['Изотоник',25,0,0,6,500,'бутылка'],['Сок яблочный',46,0.5,0.1,11.4,250,'стакан'],['Сок томатный',20,1.1,0.2,3.8,250,'стакан'],
+  ['Морс',40,0.1,0,10,250,'стакан'],['Какао с молоком',67,3.2,3.8,5.1,250,'чашка'],['Кофе 3 в 1',390,4,12,67,18,'пакетик'],['Минеральная вода',0,0,0,0,500,'бутылка'],['Кефир 3,2%',59,2.9,3.2,4,250,'стакан'],
+  // супермаркет: крупы, выпечка, мясо и субпродукты, рыба, молочное, овощи и консервы, ягоды, орехи, сладости, соусы, готовая еда, напитки
+  ['Перловка варёная',109,3.1,0.4,22.2],['Пшено варёное',90,3,0.7,17],['Манная крупа сухая',333,10.3,1,70.6],['Кус-кус варёный',112,3.8,0.2,23.2],
+  ['Киноа варёная',120,4.4,1.9,21.3],['Рис бурый варёный',111,2.6,0.9,23],['Рис бурый сухой',337,7.4,1.8,72.9],['Ячневая каша на воде',76,2.3,0.3,15.7],
+  ['Горох варёный',60,6,0,9.8],['Горох колотый сухой',298,20.5,2,49.5],['Фасоль белая варёная',102,7,0.5,16.9],['Фасоль сухая',298,21,2,47],
+  ['Нут сухой',309,20.1,4.3,46.2],['Чечевица сухая',295,24,1.5,46.3],['Маш варёный',105,7,0.4,19],['Мука пшеничная',334,10,1.2,70],
+  ['Мука цельнозерновая',304,13,1.8,57.8],['Отруби овсяные',246,17.3,7,50.8],['Спагетти варёные',112,3.5,0.4,23.2],['Вермишель варёная',112,3.5,0.4,23.2],
+  ['Кукурузная каша на воде',86,2.1,0.4,18.6],['Батон нарезной',264,7.5,2.9,51.4,30,'кусок'],['Хлеб ржаной',174,6.6,1.2,33.4,30,'кусок'],['Хлеб цельнозерновой',245,9,3.5,43,30,'кусок'],
+  ['Хлеб тостовый',265,8.2,4,48,25,'ломтик'],['Булочка сдобная',339,7.9,9.4,55.5,60,'шт'],['Пирожок с картошкой (печёный)',230,5.5,6,38,70,'шт'],['Пирожок с мясом (жареный)',290,10,15,29,80,'шт'],
+  ['Чебурек',290,9,16,28,130,'шт'],['Беляш',315,12,18,27,120,'шт'],['Хачапури по-аджарски',300,11.5,14,32],['Пита',275,9,1.2,55.7,60,'шт'],
+  ['Тортилья пшеничная',306,8.3,8,50,40,'шт'],['Кекс',380,5.8,16,53,60,'шт'],['Маффин шоколадный',410,5.4,21,50,80,'шт'],['Пончик',410,5.8,22,47,60,'шт'],
+  ['Пирожное «Картошка»',360,6,16,48,50,'шт'],['Торт бисквитный с кремом',370,5,18,47],['Крекер',420,9,15,63],['Галеты',390,9.7,10,65],
+  ['Печенье овсяное',437,6.5,14.4,71.8,15,'шт'],['Круассан с шоколадом',420,7,23,46,70,'шт'],['Гренки из белого хлеба',350,9,12,52],['Куриное бедро с кожей',185,16.8,13,0,120,'шт'],
+  ['Куриное бедро без кожи',120,19.5,4.5,0],['Куриные крылья',186,19.2,12.2,0,40,'шт'],['Куриная голень',158,18.1,9.5,0,100,'шт'],['Курица гриль',210,20,14,0.5],
+  ['Куриное филе жареное',165,30,4.5,0.5],['Куриный фарш',143,17.4,8.1,0],['Печень куриная',137,20.4,5.9,0.7],['Сердечки куриные',159,15.8,10.3,0.8],
+  ['Желудки куриные',114,18.2,4.2,0.6],['Индейка филе сырая',114,23.6,1.5,0],['Говядина сырая (вырезка)',158,20.2,8.5,0],['Телятина отварная',131,30.7,0.9,0],
+  ['Стейк говяжий жареный',250,26,16,0],['Свинина жареная',290,22,22,0],['Свиная шея сырая',343,13.5,31.9,0],['Фарш свиной',263,17,21.5,0],
+  ['Фарш домашний (говядина+свинина)',263,17,22,0],['Язык говяжий отварной',231,23.9,15,0],['Котлета говяжья',220,14.6,11.8,13,90,'шт'],['Тефтели в соусе',155,9,9,9],
+  ['Буженина',225,16,18,0],['Грудинка копчёная',480,10,48,0],['Салями',446,15,42,1],['Паштет печёночный',300,12,26,3],
+  ['Тушёнка говяжья',220,15,17,0.5],['Казы (конская колбаса)',398,18,36,0],['Конина отварная',175,25.2,8.2,0],['Наггетсы куриные',296,14.8,18.8,16.2,18,'шт'],
+  ['Сосиски куриные',241,13,20,1.5,50,'шт'],['Сёмга слабосолёная',202,22.5,12.5,0],['Лосось копчёный',180,23,10,0],['Форель',119,19.9,4.2,0],
+  ['Кета',127,19,5.6,0],['Судак',84,18.4,1.1,0],['Хек',86,16.6,2.2,0],['Камбала',83,15.7,3,0],
+  ['Карп',112,16,5.3,0],['Тунец свежий',101,23,1,0],['Рыбные палочки',230,12,11,20,25,'шт'],['Печень трески',613,4.2,65.7,1.2],
+  ['Осьминог',82,18.2,0.9,0],['Морской коктейль',90,17,2,1.5],['Сельдь в масле',300,16,26,0],['Шпроты',363,17.4,32.4,0.4],
+  ['Молоко 1,5%',44,3,1.5,4.7,250,'стакан'],['Молоко обезжиренное',35,3,0.1,4.9,250,'стакан'],['Кефир 0%',30,3,0.1,3.8,250,'стакан'],['Творог 2%',103,18,2,3.3],
+  ['Творожная масса с изюмом',343,7.1,23,27.5],['Запеканка творожная',168,17.6,4.2,14.2],['Йогурт питьевой',72,2.8,2.5,10,250,'стакан'],['Скир',63,11,0.2,4],
+  ['Простокваша',58,2.9,3.2,4.1,250,'стакан'],['Снежок',90,2.8,2.5,13.5,250,'стакан'],['Сметана 10%',119,2.7,10,3.9],['Сливки 20%',205,2.8,20,3.7],
+  ['Сливки 33%',322,2.2,33,3],['Сыр фета',264,14.2,21.3,4.1],['Сыр адыгейский',240,18.5,16,1.5],['Сыр сулугуни',286,20,22,0.4],
+  ['Сыр пармезан',392,35.8,25.8,3.2],['Сыр гауда',356,25,27.4,2.2],['Сыр чеддер',403,24.9,33.1,1.3],['Сыр творожный (крем-чиз)',240,6,23,3],
+  ['Рикотта',174,11.3,13,3],['Маскарпоне',412,4.8,42,3.6],['Масло топлёное (гхи)',892,0.3,99,0],['Спред',640,0.5,72,0.5],
+  ['Маргарин',743,0.3,82,1],['Помидоры черри',18,0.9,0.2,3.9,15,'шт'],['Огурцы солёные',11,0.8,0.1,1.7],['Огурцы маринованные',16,0.5,0.1,3],
+  ['Томатная паста',82,4.3,0.5,16.7],['Томаты в собственном соку',20,1.1,0.1,3.5],['Капуста краснокочанная',31,1.4,0.2,5.3],['Брюссельская капуста',43,3.4,0.3,9],
+  ['Лук красный',40,1.1,0.1,9.3],['Лук-порей',36,2,0.2,8.2],['Перец чили',40,1.9,0.4,8.8],['Щавель',22,1.5,0.3,2.9],
+  ['Морская капуста',25,0.9,0.2,3],['Смесь овощная замороженная',65,3,0.4,12],['Горошек зелёный замороженный',77,5,0.3,13.8],['Грибы вешенки',33,3.3,0.4,3.8],
+  ['Грибы белые',34,3.7,1.7,1.1],['Опята маринованные',22,2.2,1.2,0],['Шампиньоны жареные',120,4,10,3],['Кабачковая икра',97,1.2,7,7.4],
+  ['Баклажанная икра',148,1.7,13.3,5.1],['Лечо',80,1.5,5,7],['Фасоль в томатном соусе',80,4.9,0.3,14],['Хумус',166,7.9,9.6,14.3],
+  ['Картофель запечённый',93,2.5,0.1,21],['Картофель по-деревенски',160,2.5,7,21],['Свёкла сырая',43,1.6,0.2,9.6],['Пастернак',75,1.2,0.3,18],
+  ['Салат айсберг',14,0.9,0.1,3],['Лайм',30,0.7,0.2,10.5],['Клюква',28,0.5,0,6.8],['Брусника',43,0.7,0.5,9.6],
+  ['Облепиха',82,1.2,5.4,5.7],['Крыжовник',44,0.7,0.2,9.1],['Смородина красная',43,0.6,0.2,7.7],['Маракуйя',97,2.2,0.7,23.4],
+  ['Папайя',43,0.5,0.3,10.8],['Питахайя',60,1.2,0,13],['Личи',66,0.8,0.4,16.5],['Вишня сушёная',292,1.5,0,73],
+  ['Клюква сушёная',308,0.1,1.4,82.4],['Банановые чипсы',519,2.3,33.6,58.4],['Яблоки сушёные',243,2.2,0.1,59.1],['Дыня сушёная',341,0.7,0.1,82.2],
+  ['Цукаты',300,0.5,0.2,75],['Кокосовая стружка',592,6.9,64.5,6.4],['Смесь орехов и сухофруктов',480,12,30,42],['Кедровые орехи',673,13.7,68.4,13.1],
+  ['Бразильский орех',659,14.3,67.1,11.7],['Макадамия',718,7.9,75.8,13.8],['Пекан',691,9.2,72,13.9],['Семена чиа',486,16.5,30.7,42.1],
+  ['Семена льна',534,18.3,42.2,28.9],['Кунжут',565,19.4,48.7,12.2],['Арахис солёный жареный',599,26,50,15],['Конфеты шоколадные',520,4.5,30,58,12,'шт'],
+  ['Карамель',375,0,0.1,97,6,'шт'],['Ирис',410,3.3,8,82,6,'шт'],['Козинак',550,15,35,45],['Халва подсолнечная',523,11.6,29.7,54],
+  ['Шоколад белый',541,4.2,30.4,63.5],['Батончик мюсли',390,6,12,65,25,'шт'],['Нуга',400,4,12,70],['Желе фруктовое',80,1.5,0,18],
+  ['Пудинг шоколадный',120,3,3.5,20],['Сорбет',130,0.5,0,32],['Мороженое крем-брюле',230,4,14,22],['Сироп',290,0,0,75],
+  ['Щербет',420,7,17,60],['Соус песто',450,5,45,6],['Соус барбекю',172,0.8,0.6,40.8],['Соус терияки',89,5.9,0,15.6],
+  ['Соус сырный',250,4,22,8],['Соус чесночный',300,1.5,30,6],['Соус томатный для пасты',60,1.5,2,9],['Аджика',59,1,3.7,5.8],
+  ['Ткемали',42,0.2,0,10],['Хрен',56,1.2,0.4,10.5],['Майонез лёгкий',260,0.5,27,4],['Масло кокосовое',899,0,99.9,0],
+  ['Масло кунжутное',884,0,100,0],['Уксус столовый',11,0,0,2.3],['Каша овсяная на молоке',102,3.2,4.1,14.2],['Каша манная на молоке',98,3,3.2,15.3],
+  ['Каша рисовая на молоке',97,2.9,3.3,14.4],['Каша пшённая на молоке',109,3.5,3.3,16.5],['Яичница из 2 яиц',196,12.8,15.4,0.9],['Оладьи',234,6.3,7.3,36.6,40,'шт'],
+  ['Блинчики с мясом',230,10,12,20,80,'шт'],['Бутерброд с сыром',290,11,13,32,60,'шт'],['Бутерброд с колбасой',300,10,16,29,60,'шт'],['Сэндвич с курицей',240,13,9,27,180,'шт'],
+  ['Хот-дог',290,10,17,24,130,'шт'],['Салат «Цезарь» с курицей',190,11,13,7],['Салат греческий',90,2.5,7.5,3.5],['Салат крабовый',200,5,15,10],
+  ['Салат с тунцом',150,12,9,4],['Суп гороховый',66,4.4,2.4,6.8],['Суп грибной',40,1.5,1.8,4.5],['Рассольник',50,1.5,2.5,5.5],
+  ['Харчо',75,5.5,4,4],['Гуляш',145,14,9,3],['Бефстроганов',200,16,14,3],['Жаркое с мясом и картошкой',150,8,8,11],
+  ['Макароны по-флотски',220,11,10,22],['Котлета с пюре',155,7.5,8,13],['Пельмени жареные',300,12,17,25],['Пицца замороженная',250,10,10,30],
+  ['Кофе чёрный без сахара',2,0.2,0,0.3,250,'чашка'],['Капучино',45,2.3,2.1,4.3,250,'чашка'],['Латте',55,2.9,2.6,4.8,250,'чашка'],['Чай без сахара',1,0,0,0.2,250,'чашка'],
+  ['Сок мультифруктовый',48,0.4,0,11.5,250,'стакан'],['Сок вишнёвый',52,0.7,0,12,250,'стакан'],['Сок гранатовый',55,0.3,0,14.2,250,'стакан'],['Нектар персиковый',56,0.3,0,13.5,250,'стакан'],
+  ['Компот',60,0.2,0,15,250,'стакан'],['Холодный чай',35,0,0,8.5,250,'стакан'],['Лимонад',45,0,0,11,250,'стакан'],['Кола без сахара',0,0,0,0,330,'банка'],
+  ['Смузи фруктовый',60,0.8,0.3,13.5,250,'стакан'],['Протеиновый коктейль готовый',60,8,1,5,250,'стакан'],['Кумыс',50,2.1,1.9,5,250,'стакан'],['Вода кокосовая',19,0.7,0.2,3.7,250,'стакан'],
+  ['Пиво безалкогольное',26,0.2,0,5.2,500,'бутылка'],['Вино красное полусладкое',78,0.2,0,2.3,150,'бокал'],['Шампанское',88,0.2,0,5,150,'бокал'],['Сидр',50,0,0,5,500,'бутылка'],
+  ['Водка',235,0,0,0.1,50,'рюмка'],['Коньяк',239,0,0,0.1,50,'рюмка'],
 ].map(([name,kcal,p,f,c,pc,pcName])=>({name,kcal,p,f,c,pc,pcName, unit: LIQUIDS.has(name)?'ml':'g'}));
 const ACTIVITY = [['1.2','Минимальная (сидячая работа)'],['1.375','Лёгкая (1–3 тренировки в неделю)'],['1.55','Средняя (3–5 тренировок)'],['1.725','Высокая (6–7 тренировок)'],['1.9','Очень высокая (спорт + физический труд)']];
 
@@ -2924,6 +3088,7 @@ function viewSettings(){
   const s = DB.settings;
   return `<div class="topbar"><h2>Настройки</h2></div>
   <div class="card" style="margin-bottom:10px">
+    <div class="field"><label>Язык</label>${I18N.select()}</div>
     <div class="field"><label>Единицы веса</label><select data-setting="units"><option value="kg" ${s.units==='kg'?'selected':''}>Килограммы</option><option value="lb" ${s.units==='lb'?'selected':''}>Фунты</option></select></div>
     <div class="field"><label>Тема</label><select data-setting="theme"><option value="auto" ${s.theme==='auto'?'selected':''}>Системная</option><option value="light" ${s.theme==='light'?'selected':''}>Светлая</option><option value="dark" ${s.theme==='dark'?'selected':''}>Тёмная</option></select></div>
     <div class="field"><label>Таймер отдыха по умолчанию, сек</label><input type="text" inputmode="numeric" data-setting="restDefault" value="${s.restDefault}"></div>
@@ -3371,7 +3536,8 @@ function handleMainClick(e, ds){
   if(ds.openAdmin!==undefined){ State.view='admin'; State.admin=null; rerender(); return true; }
   if(ds.zoom!==undefined){ openZoom(ds.zoom); return true; }
   if(ds.achBeast!==undefined){ State.modal={kind:'achBeast', beast:(State.achBeasts||[]).find(a=>a.title===ds.achBeast)}; renderModal(); return true; }
-  if(ds.achInfo!==undefined){ const [t,d,st]=ds.achInfo.split('|'); toast(`${t}: ${d} — ${st}`); return true; }
+  if(ds.achInfo!==undefined){ const [t,d,st]=ds.achInfo.split('|'); const a = (State.achAll||[]).find(x=>x.title===t) || {title:t, desc:d};
+    State.modal = {kind:'achInfo', a, status:st}; renderModal(); return true; }
   if(ds.traineeColor!==undefined){
     const [linkId,color]=ds.traineeColor.split('|'); const l=DB.trainerLinks.find(x=>x.id===linkId);
     const p=DB.participants.find(x=>x.id===l.trainee_id); l.color=color; p.color=color; renderMain();
@@ -3459,7 +3625,7 @@ function initEvents(){
   document.addEventListener('click', (e)=>{
     const foodEl = e.target.closest('#main [data-food],#modalRoot [data-food]');
     if(foodEl){ if(!foodEl.disabled) foodClick(foodEl.dataset); return; }
-    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-move-ex],#modalRoot [data-move-block],#modalRoot [data-add-cardio],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-finish-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom],#modalRoot [data-send-cert]');
+    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-ach-info],#modalRoot [data-set-drop],#modalRoot [data-move-ex],#modalRoot [data-move-block],#modalRoot [data-add-cardio],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-finish-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom],#modalRoot [data-send-cert]');
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }

@@ -16,7 +16,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-09-26 · weak-poster";
+const BOT_VERSION = "2026-09-27 · morning-set";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -94,7 +94,20 @@ const MOTIVATION = [
   "Прогресс любит регулярность. Два дня отдыха были, пора снова в бой 🏋️",
   "Light weight, baby! Штанга сама себя не поднимет 😉",
 ];
-const MORNING_IMAGES = Array.from({ length: 10 }, (_, i) => `${APP_URL}bot/morning/${String(i + 1).padStart(2, "0")}.png`);
+// утренняя картинка и подпись — парой (bot/morning/NN.jpg)
+const MORNING_SET: [string, string][] = [
+  ["01", "Доброе утро! ☀️ Потянись: руки вверх и 5 глубоких вдохов — тело просыпается."],
+  ["02", "Доброе утро! Вращения плечами и наклоны в стороны — по 10–15 повторений в каждую сторону 💪"],
+  ["03", "Подъём! 30 «джампинг-джеков» — и кровь побежала быстрее 🔥"],
+  ["04", "Доброе утро! Выпады — по 8 на каждую ногу. Спокойно, без рывков."],
+  ["05", "Доброе утро! Планка 30 секунд: живот подтянут, спина ровная ⏱"],
+  ["06", "Доброе утро! Наклон вперёд: тянемся к носкам 20 секунд, колени мягкие."],
+  ["07", "Кошка-корова 10–15 плавных повторов — спина будет благодарна весь день 🐱🐮"],
+  ["08", "Доброе утро! Шаг на месте 1 минуту, колени высоко — разгоняем пульс 👟"],
+  ["09", "Не залипай в телефон — вставай! Шаг на месте 1 минуту, колени высоко."],
+  ["10", "Утренний комплекс на 5 минут: потянись, плечи, наклоны, приседания, прыжки, выпады, планка, наклон вперёд, кошка-корова, шаг на месте ✅"],
+];
+const MORNING_IMAGES = MORNING_SET.map(([n]) => `${APP_URL}bot/morning/${n}.jpg`);
 
 const GOALS: [string, string][] = [
   ["lose", "Похудеть"], ["mass", "Набрать мышечную массу"], ["strength", "Стать сильнее"],
@@ -171,12 +184,16 @@ async function onMessage(msg: any) {
     return send(chat, `С возвращением, ${esc(p.name)}! Записывайте тренировки в дневнике 👇\n\n/profile — заново заполнить анкету\n/reminders — вкл/выкл напоминания`, appKb());
   }
   if (text === "/profile") return askAge(chat, p.id);
+  if (text === "/report") {   // проверить отчёт: итоги последних 7 дней
+    const d = today(); const cur = await periodStats(p.id, addDays(d, -6), d);
+    return send(chat, `📊 Последние 7 дней: тренировок <b>${cur.n}</b>, тоннаж <b>${fmt(cur.ton)} кг</b>${cur.km ? `, кардио ${Math.round(cur.km * 10) / 10} км` : ""}.\nПолные итоги придут в воскресенье, в конце месяца, квартала и года в 21:00.`);
+  }
   if (text === "/version") return send(chat, `Версия бота: <b>${BOT_VERSION}</b>\nАдрес приложения (MINI_APP_URL): <code>${esc(APP_URL || "не задан")}</code>`);
   if (text === "/test_images") {
     if (!APP_URL) return send(chat, "⚠️ Секрет MINI_APP_URL не задан — боту неоткуда брать картинки.");
     await send(chat, `Проверяю картинки по адресу приложения:\n<code>${esc(APP_URL)}</code>`);
     const a = await sendPhotoSafe(chat, `${APP_URL}img/lightweight/01.jpg`, "Тест: постер Light weight");
-    const b = await sendPhotoSafe(chat, `${APP_URL}bot/morning/01.png`, "Тест: утренняя картинка");
+    const b = await sendPhotoSafe(chat, `${APP_URL}bot/morning/01.jpg`, "Тест: утренняя картинка");
     const c = await sendPhotoSafe(chat, `${APP_URL}img/weak/01.jpg`, "Тест: «Ну давай, заплачь!!!»");
     return send(chat, a.ok && b.ok && c.ok ? "✅ Картинки доступны." : "❌ Часть картинок недоступна — проверьте, что папки img/ и bot/ запушены и MINI_APP_URL указывает на адрес приложения.");
   }
@@ -286,11 +303,13 @@ async function workoutSummary(w: any) {
     let t = 0, n = 0;
     const ex: any = info.get(e.exerciseId);
     const ownBw = ex && ["strength", "functional"].includes(ex.type) ? bw : 0;
-    let km = 0, min = 0, incl = 0;
+    let km = 0, min = 0, incl = 0, best: { wt: number; r: number } | null = null;
     for (const s of e.sets ?? []) {
+      const bw0 = Number(s.weight) || 0, br = Number(s.reps) || 0;
+      if (br > 0 && (!best || bw0 > best.wt || (bw0 === best.wt && br > best.r))) best = { wt: bw0, r: br };
       const wt = Number(s.weight) || 0; let v = (wt > 0 ? wt : ownBw) * (Number(s.reps) || 0);
       // дроп-сет: к подходу прибавляются дропы (вес × повторения каждого)
-      if (e.isDropset) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; v += (dw > 0 ? dw : ownBw) * (Number(d.reps) || 0); }
+      if (e.isDropset || s.isDrop) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; v += (dw > 0 ? dw : ownBw) * (Number(d.reps) || 0); }
       if (v > 0 || Number(s.reps) > 0 || Number(s.time) > 0 || Number(s.distance) > 0) n++;
       t += v; km += Number(s.distance) || 0; min += Number(s.time) || 0; incl = Math.max(incl, Number(s.incline) || 0);
     }
@@ -298,7 +317,8 @@ async function workoutSummary(w: any) {
     sets += n; total += t;
     if (ex && t > 0) groups[ex.main_group] = (groups[ex.main_group] ?? 0) + t;
     const cardio = ex?.type === "cardio" ? [km ? `${Math.round(km * 100) / 100} км` : "", min ? `${Math.round(min)} мин` : "", incl ? `уклон ${incl}%` : ""].filter(Boolean).join(", ") : "";
-    lines.push(`• ${esc(ex?.name ?? "Упражнение")}${b.kind === "superset" ? " (суперсет)" : e.isDropset ? " (дроп-сет)" : ""}: ${cardio || `${n} подх.`}${t > 0 ? `, ${fmt(t)} кг` : ""}`);
+    const bestTxt = ex?.type === "cardio" ? "" : best ? ` · лучший: <b>${best.wt > 0 ? `${Math.round(best.wt * 10) / 10}×${best.r}` : `${best.r} повт.`}</b>` : "";
+    lines.push(`• ${esc(ex?.name ?? "Упражнение")}${b.kind === "superset" ? " (суперсет)" : e.isDropset ? " (дроп-сет)" : ""}: ${cardio || `${n} подх.`}${t > 0 ? `, ${fmt(t)} кг` : ""}${bestTxt}`);
   }
   const cmp = [...TONNAGE_CMP].reverse().find(([th]) => total >= th);
   const g = Object.entries(groups).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${MG[k] ?? k} ${fmt(v)}`).join(" · ");
@@ -346,7 +366,7 @@ function groupTonnage(w: any, info: Map<string, any>, bw: number) {
     const own = ["strength", "functional"].includes(ex.type) ? bw : 0; let t = 0;
     for (const s of e.sets ?? []) {
       const wt = Number(s.weight) || 0; t += (wt > 0 ? wt : own) * (Number(s.reps) || 0);
-      if (e.isDropset) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; t += (dw > 0 ? dw : own) * (Number(d.reps) || 0); }
+      if (e.isDropset || s.isDrop) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; t += (dw > 0 ? dw : own) * (Number(d.reps) || 0); }
     }
     if (t > 0) g[ex.main_group] = (g[ex.main_group] ?? 0) + t;
   }
@@ -390,6 +410,14 @@ async function onWorkoutDone(req: Request, body: any) {
   const achs = Array.isArray(body.achievements) ? body.achievements.filter((x: unknown) => typeof x === "string").slice(0, 30) : [];
   const achText = achs.length ? `\n\n🏅 <b>Новые ачивки (${achs.length}):</b>\n` + achs.map((a: string) => "• " + esc(a.slice(0, 80))).join("\n") : "";
   if (athlete?.telegram_id) await send(athlete.telegram_id, "✅ Тренировка завершена!\n\n" + text + achText, appKb("📒 Открыть дневник"));
+  // ачивки серии «Light weight» (рекорды, герои, мировые рекорды): постер + за что дали
+  const lwAch = Array.isArray(body.lw) ? body.lw.slice(0, 5) : [];
+  if (athlete?.telegram_id && APP_URL) for (const a of lwAch) {
+    const img = String(a?.img ?? "").replace(/^\/+/, "");
+    if (!/^img\/lightweight\/[\w./-]+\.(jpg|webp)$/.test(img)) continue;
+    await sendPhotoSafe(athlete.telegram_id, APP_URL + img, `🏆 <b>LIGHT WEIGHT — ${esc(String(a.title ?? "").slice(0, 80))}</b>\n\nЗа что: ${esc(String(a.desc ?? "").slice(0, 300))}`);
+    await sleep(40);
+  }
   // новый рекорд — постер «Light weight» с подписью
   const records = await findRecords(w);
   if (athlete?.telegram_id && records.length && APP_URL) {
@@ -412,6 +440,55 @@ async function onWorkoutDone(req: Request, body: any) {
   for (const t of (people ?? []).filter((x: any) => x.id !== w.participant_id && x.telegram_id))
     await send(t.telegram_id, `👀 Подопечный <b>${esc(athlete?.name)}</b> завершил тренировку:\n\n` + text);
   return json({ ok: true });
+}
+
+// ---------------- итоги недели / месяца / квартала / года ----------------
+function addDays(ds: string, n: number) { const d = new Date(ds + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function periodsEndingToday(d: string) {
+  const dt = new Date(d + "T12:00:00Z"), tomorrow = addDays(d, 1), out: { key: string; title: string; from: string; prevFrom: string; prevTo: string }[] = [];
+  const y = +d.slice(0, 4), m = +d.slice(5, 7);
+  if (tomorrow.slice(0, 4) !== d.slice(0, 4)) out.push({ key: "year", title: `Итоги ${y} года`, from: `${y}-01-01`, prevFrom: `${y - 1}-01-01`, prevTo: `${y - 1}-12-31` });
+  if (tomorrow.slice(5, 7) !== d.slice(5, 7) && m % 3 === 0) { const q = m / 3, qs = `${y}-${String(m - 2).padStart(2, "0")}-01`;
+    out.push({ key: "quarter", title: `Итоги ${q}-го квартала`, from: qs, prevFrom: new Date(Date.UTC(y, m - 6, 1)).toISOString().slice(0, 10), prevTo: addDays(qs, -1) }); }
+  if (tomorrow.slice(5, 7) !== d.slice(5, 7)) { const ms = d.slice(0, 8) + "01";
+    out.push({ key: "month", title: "Итоги месяца", from: ms, prevFrom: new Date(Date.UTC(y, m - 2, 1)).toISOString().slice(0, 10), prevTo: addDays(ms, -1) }); }
+  if (dt.getUTCDay() === 0) out.push({ key: "week", title: "Итоги недели", from: addDays(d, -6), prevFrom: addDays(d, -13), prevTo: addDays(d, -7) });
+  return out;
+}
+async function periodStats(uid: string, from: string, to: string) {
+  const { data: ws } = await admin.from("workouts").select("id,date,duration,blocks,body_weight,name").eq("participant_id", uid).gte("date", from).lte("date", to);
+  const list = (ws ?? []).filter((w: any) => (w.blocks ?? []).some((b: any) => (b.exercises ?? []).some((e: any) => (e.sets ?? []).some((s: any) => Number(s.reps) > 0 || Number(s.time) > 0 || Number(s.distance) > 0))));
+  const ids = new Set<string>(); list.forEach((w: any) => (w.blocks ?? []).forEach((b: any) => (b.exercises ?? []).forEach((e: any) => ids.add(e.exerciseId))));
+  const { data: exs } = ids.size ? await admin.from("exercises").select("id,name,main_group,type").in("id", [...ids]) : { data: [] };
+  const info = new Map((exs ?? []).map((e: any) => [e.id, e]));
+  const { data: d } = await admin.from("profile_details").select("weight_kg").eq("user_id", uid).maybeSingle();
+  let ton = 0, min = 0, km = 0, best: any = null; const groups: Record<string, number> = {};
+  for (const w of list) {
+    const g = groupTonnage(w, info, Number(w.body_weight) || Number(d?.weight_kg) || 0); const t = Object.values(g).reduce((a, b) => a + b, 0);
+    ton += t; min += Number(w.duration) || 0; for (const [k, v] of Object.entries(g)) groups[k] = (groups[k] ?? 0) + v;
+    if (!best || t > best.t) best = { t, date: w.date, name: w.name };
+    for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) for (const s of e.sets ?? []) km += info.get(e.exerciseId)?.type === "cardio" ? Number(s.distance) || 0 : 0;
+  }
+  return { n: list.length, ton, min, km, best, groups };
+}
+async function periodReports(p: any, d: string) {
+  let sent = 0;
+  for (const per of periodsEndingToday(d)) {
+    const cur = await periodStats(p.id, per.from, d), prev = await periodStats(p.id, per.prevFrom, per.prevTo);
+    if (!cur.n && !prev.n) continue;
+    const diff = prev.ton > 0 ? Math.round((cur.ton / prev.ton - 1) * 100) : null;
+    const top = Object.entries(cur.groups).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${MG[k] ?? k} ${fmt(v)} кг`).join(" · ");
+    const text = [`📊 <b>${per.title}</b> (${per.from.split("-").reverse().join(".")} — ${d.split("-").reverse().join(".")})`, "",
+      `Тренировок: <b>${cur.n}</b>${prev.n ? ` (было ${prev.n})` : ""}`,
+      `Тоннаж: <b>${fmt(cur.ton)} кг</b>${diff !== null ? ` (${diff >= 0 ? "+" : ""}${diff}% к прошлому периоду)` : ""}`,
+      cur.min ? `Время в зале: <b>${Math.round(cur.min / 60 * 10) / 10} ч</b>` : "",
+      cur.km ? `Кардио: <b>${Math.round(cur.km * 10) / 10} км</b>` : "",
+      top ? `Больше всего: ${top}` : "",
+      cur.best ? `Лучшая тренировка: ${esc(cur.best.name || "тренировка")} ${cur.best.date.split("-").reverse().join(".")} — ${fmt(cur.best.t)} кг` : "",
+      "", cur.n === 0 ? "За период ни одной тренировки. Самое время вернуться 💪" : diff !== null && diff >= 0 ? "Прогресс есть — так держать! 🔥" : "Следующий период — сильнее. 💪"].filter((x, i, a) => x || (i > 0 && a[i - 1])).join("\n");
+    await send(p.telegram_id, text, appKb("📊 Открыть статистику")); sent++; await sleep(40);
+  }
+  return sent;
 }
 
 // ---------------- расписание ----------------
@@ -497,8 +574,9 @@ async function cron(kind: string) {
   const d = today();
   for (const p of users) {
     try {
+      if (kind === "evening") sent += await periodReports(p, d).catch((e) => { console.log("REPORT_ERR", String(e)); return 0; });
       if (kind === "morning") {
-        await sendPhotoSafe(p.telegram_id, pick(MORNING_IMAGES), pick(MORNING));
+        { const [n, t] = pick(MORNING_SET); await sendPhotoSafe(p.telegram_id, `${APP_URL}bot/morning/${n}.jpg`, t); }
         sent++;
       } else if (kind === "evening") {
         if (p.last_evening_date === d) continue;
