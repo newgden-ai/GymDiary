@@ -447,18 +447,7 @@ window.__splashStart = performance.now();
 // ===== ЗАПОЛНИТЕ ПЕРЕД ЗАГРУЗКОЙ НА ХОСТИНГ =====
 const SUPABASE_URL = "https://avobjimkmpdbntwxcldb.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_N4j63GohZUT4goIim9Ch4g_62KeetyE";
-// ===== ССЫЛКИ ВНИЗУ НАСТРОЕК — впишите свои адреса (пустые url не показываются) =====
-const AUTHOR_LINKS = [
-  { title:'YouTube-канал автора', url:'', note:'Видео о тренировках и приложении' },
-  { title:'Telegram-канал автора', url:'', note:'' }
-];
-const DONATE_LINKS = [
-  { title:'Boosty', url:'', note:'Поддержать разработку' },
-  { title:'DonationAlerts', url:'', note:'' }
-];
-const RECOMMENDED_TRAINERS = [
-  // { name:'Имя тренера', about:'чем интересен', links:[ {title:'Instagram', url:'https://instagram.com/...'}, {title:'YouTube', url:'https://youtube.com/@...'} ] },
-];
+// ===== Ссылки автора и блогеров внизу страниц настраиваются в приложении: Настройки → Админ-панель =====
 // =================================================
 </script>
 <script>
@@ -1501,6 +1490,7 @@ function renderMain(){
   else if(State.view==='help') m.innerHTML = viewHelp();
   else if(State.view==='admin') m.innerHTML = viewAdmin();
   else if(State.view==='food') m.innerHTML = viewFood();
+  if(LINK_PAGES.includes(State.view)) m.insertAdjacentHTML('beforeend', linksFooter());   // ссылки автора/блогеров — в самом низу
   applyTheme();
   hydrateCertImages();
 }
@@ -3506,7 +3496,7 @@ function viewSettings(){
       <button class="btn" data-timer="reset">Сброс</button>
     </div>
   </div>
-  ${linksSection()}`;
+`;
 }
 function openExternal(url){
   const tg = window.Telegram && window.Telegram.WebApp;
@@ -3514,19 +3504,70 @@ function openExternal(url){
   else if(tg && tg.openLink) tg.openLink(url);
   else window.open(url, '_blank', 'noopener');
 }
-function linksSection(){
-  const link = l => `<button class="link-card" data-ext="${esc(l.url)}"><b>${esc(l.title)}</b>${l.note?`<span class="muted">${esc(l.note)}</span>`:''}</button>`;
-  const author = AUTHOR_LINKS.filter(l=>l.url), donate = DONATE_LINKS.filter(l=>l.url);
-  const trainers = RECOMMENDED_TRAINERS.filter(t=>(t.links||[]).some(l=>l.url));
-  const hint = isAdmin() && !author.length && !donate.length && !trainers.length
-    ? '<div class="card muted" style="margin-top:10px">Админу: ссылки на автора, донаты и рекомендованных тренеров заполняются в начале index.html (AUTHOR_LINKS, DONATE_LINKS, RECOMMENDED_TRAINERS).</div>' : '';
-  return `${author.length||donate.length?`<div class="card" style="margin-top:10px"><h3>Автор приложения</h3>
-      <div class="link-grid">${author.map(link).join('')}</div>
-      ${donate.length?`<h3 style="margin-top:12px">Поддержать проект</h3><div class="link-grid">${donate.map(link).join('')}</div>`:''}</div>`:''}
-    ${trainers.length?`<div class="card" style="margin-top:10px"><h3>Рекомендованные тренеры</h3>
-      ${trainers.map(t=>`<div class="help-row" style="cursor:default;flex-wrap:wrap"><div class="grow"><b>${esc(t.name)}</b>${t.about?`<div class="muted">${esc(t.about)}</div>`:''}</div>
-        <div class="row" style="flex-wrap:wrap">${t.links.filter(l=>l.url).map(l=>`<button class="btn sm" data-ext="${esc(l.url)}">${esc(l.title)}</button>`).join('')}</div></div>`).join('')}</div>`:''}
-    ${hint}`;
+// ===== ссылки внизу страниц: «Поддержать автора» и рекомендованные блогеры. Настраиваются в админ-панели (таблицы app_links, app_texts) =====
+const LINK_KINDS = [['boosty','💛','Boosty'],['youtube','▶️','YouTube'],['instagram','📸','Instagram'],['telegram','✈️','Telegram'],['tiktok','🎵','TikTok'],['vk','🟦','VK'],['site','🌐','Сайт'],['other','🔗','Другое']];
+const LINK_TEXT_DEF = { support_title:'Поддержать автора', support_intro:'Если вы хотите помочь автору приложения, можете воспользоваться:', bloggers_title:'Блогеры, рекомендованные автором', bloggers_intro:'' };
+const LINK_PAGES = ['calendar','history','templates','help','participants','stats','settings','food'];
+async function loadLinks(){
+  try{
+    const c = Auth.getClient(); if(!c) return;
+    const [{data:l, error:e1}, {data:t}] = await Promise.all([c.from('app_links').select('*').order('sort'), c.from('app_texts').select('*')]);
+    if(e1) return;   // таблиц ещё нет (не запущен stage18) — блок просто не показывается
+    DB.links = l||[]; DB.linkTexts = Object.fromEntries((t||[]).map(x=>[x.key, x.value]));
+    if(State.linkDraft && !State.linkDraft.dirty) State.linkDraft = null;   // черновик без правок — пересобрать из свежих данных
+    if(LINK_PAGES.includes(State.view) || State.view==='admin') renderMain();
+  }catch(e){}
+}
+const linkText = k => (DB.linkTexts && DB.linkTexts[k]!==undefined) ? DB.linkTexts[k] : LINK_TEXT_DEF[k];
+function linksFooter(){
+  const L = DB.links||[]; if(!L.length) return '';
+  const icon = k => (LINK_KINDS.find(x=>x[0]===k)||LINK_KINDS[7])[1];
+  const block = sec => { const list = L.filter(x=>x.section===sec).sort((a,b)=>a.sort-b.sort); if(!list.length) return '';
+    const title = linkText(sec+'_title'), intro = linkText(sec+'_intro');
+    return `<div class="card links-foot" style="margin-top:10px">${title?`<h3>${esc(title)}</h3>`:''}${intro?`<div class="muted" style="margin-bottom:8px">${esc(intro)}</div>`:''}
+      <div class="link-grid">${list.map(x=>`<button class="link-card" data-ext="${esc(x.url)}" data-no-tr><b>${icon(x.kind)} ${esc(x.title)}</b>${x.note?`<span class="muted">${esc(x.note)}</span>`:''}</button>`).join('')}</div></div>`; };
+  return block('support') + block('bloggers');
+}
+// редактор в админ-панели: черновик правится на месте, «Сохранить» пишет всё разом
+function adminLinksEditor(){
+  const D = State.linkDraft || (State.linkDraft = { links:(DB.links||[]).map(x=>({...x})), texts:{...LINK_TEXT_DEF, ...(DB.linkTexts||{})}, removed:[] });
+  const inp = (key, val, ph, wide) => `<input type="text" data-lk="${key}" value="${esc(val||'')}" placeholder="${ph}" style="${wide?'width:100%;':'flex:1;min-width:120px;'}padding:7px;border:1px solid var(--border);border-radius:6px;background:var(--surface)">`;
+  const sec = (id, name, hint) => { const rows = D.links.map((x,i)=>[x,i]).filter(([x])=>x.section===id);
+    return `<div style="margin-top:12px"><h3 style="margin-bottom:4px">${name}</h3><div class="muted" style="font-size:12px;margin-bottom:6px">${hint}</div>
+      <div class="field"><label>Заголовок блока</label>${inp('t.'+id+'_title', D.texts[id+'_title'], 'например: Поддержать автора', true)}</div>
+      <div class="field"><label>Текст над кнопками (необязательно)</label>${inp('t.'+id+'_intro', D.texts[id+'_intro'], 'пусто — без текста', true)}</div>
+      ${rows.map(([x,i],k)=>`<div class="lk-row" style="border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px">
+        <div class="row" style="flex-wrap:wrap;gap:6px"><select data-lk="${i}.kind">${LINK_KINDS.map(([v,ic,n])=>`<option value="${v}" ${x.kind===v?'selected':''}>${ic} ${n}</option>`).join('')}</select>
+          ${inp(i+'.title', x.title, 'Название кнопки')}</div>
+        <div style="margin-top:6px">${inp(i+'.url', x.url, 'https://…', true)}</div>
+        <div style="margin-top:6px">${inp(i+'.note', x.note, 'Комментарий под кнопкой: ник, имя, что там (необязательно)', true)}</div>
+        <div class="row" style="margin-top:6px;gap:6px"><button class="btn sm" data-lk-move="${i}.-1" ${k===0?'disabled':''}>↑</button><button class="btn sm" data-lk-move="${i}.1" ${k===rows.length-1?'disabled':''}>↓</button>
+          <span class="grow"></span><button class="btn sm danger" data-lk-del="${i}">Удалить</button></div></div>`).join('') || '<div class="muted" style="margin-bottom:6px">Ссылок пока нет.</div>'}
+      <button class="btn sm" data-lk-add="${id}">+ Добавить ссылку</button></div>`; };
+  return `<div class="card" style="margin-bottom:10px"><h3>🔗 Ссылки внизу страниц</h3>
+    <div class="muted">Показываются внизу страниц: календарь, тренировки, участники, статистика, калории, настройки. Кнопка — название ссылки, под ней ваш комментарий.</div>
+    ${sec('support','Поддержать автора','Boosty, YouTube («просто посмотрите, оставьте комментарий, послушайте музыку») и т. п.')}
+    ${sec('bloggers','Рекомендованные блогеры','Instagram, YouTube, Telegram-каналы; в комментарии — ник или имя блогера.')}
+    <div class="row" style="margin-top:12px;gap:8px"><button class="btn primary" data-lk-save="1">Сохранить ссылки</button><button class="btn" data-lk-reset="1">Отменить правки</button></div>
+    ${State.linkError?`<div style="color:var(--danger);margin-top:6px">${esc(State.linkError)}</div>`:''}
+    <div class="muted" style="margin-top:12px">Предпросмотр (после сохранения):</div>${linksFooter() || '<div class="muted">— пусто —</div>'}</div>`;
+}
+async function saveLinks(){
+  const D = State.linkDraft; if(!D) return;
+  const bad = D.links.find(x=>!String(x.title||'').trim() || !/^https:\/\/\S+$/.test(String(x.url||'').trim()));
+  if(bad){ State.linkError = 'У каждой ссылки нужно название и адрес, начинающийся с https://'; renderMain(); return; }
+  const c = Auth.getClient(); State.linkError = '';
+  const sorted = ['support','bloggers'].flatMap(sec=>D.links.filter(x=>x.section===sec).map((x,k)=>({...x, sort:k})));
+  const rows = sorted.map(x=>({ ...(x.id?{id:x.id}:{}), section:x.section, kind:x.kind||'other', title:x.title.trim().slice(0,80), url:x.url.trim(), note:(x.note||'').trim().slice(0,200)||null, sort:x.sort }));
+  const texts = Object.entries(D.texts).map(([key,value])=>({key, value:String(value||'').slice(0,500)}));
+  const res = await Promise.all([
+    D.removed.length ? c.from('app_links').delete().in('id', D.removed) : {error:null},
+    rows.filter(r=>r.id).length ? c.from('app_links').upsert(rows.filter(r=>r.id)) : {error:null},
+    rows.filter(r=>!r.id).length ? c.from('app_links').insert(rows.filter(r=>!r.id)) : {error:null},
+    c.from('app_texts').upsert(texts) ]);
+  const err = res.find(x=>x && x.error);
+  if(err){ State.linkError = 'Не сохранено: '+err.error.message+(/app_links|app_texts|relation/.test(err.error.message)?' — запустите в Supabase файл stage18_links.sql':''); renderMain(); return; }
+  State.linkDraft = null; await loadLinks(); toast('Ссылки сохранены'); renderMain();
 }
 let timerInterval=null, timerRunning=false, timerLeft = 90;
 function fmtTime(t){ const m=Math.floor(t/60), s=t%60; return pad(m)+':'+pad(s); }
@@ -3724,6 +3765,7 @@ function viewAdmin(){
   const bar = (n,max,color) => `<div class="adm-bar"><i style="width:${Math.round(n/max*100)}%;background:${color}"></i></div>`;
   const nameOf = id => { const p=A.names.find(x=>x.id===id); return p ? p.name+(p.telegram_username?' (@'+p.telegram_username+')':'') : 'Пользователь'; };
   return `<div class="topbar"><button class="btn ghost" data-nav="settings">← Настройки</button><h2>Админ-панель</h2></div>
+  ${adminLinksEditor()}
   <div class="card" style="margin-bottom:10px">
     <h3>Модерация сертификатов <span class="muted">${A.pending.length}</span></h3>
     ${A.pending.map(c=>`<div class="cert-row">
@@ -3887,6 +3929,14 @@ function handleMainClick(e, ds){
   }
   if(ds.help!==undefined){ openHelp(ds.help, null); return true; }
   if(ds.ext!==undefined){ openExternal(ds.ext); return true; }
+  if(ds.lkAdd!==undefined||ds.lkDel!==undefined||ds.lkMove!==undefined) State.linkDraft.dirty = true;
+  if(ds.lkAdd!==undefined){ State.linkDraft.links.push({section:ds.lkAdd, kind:ds.lkAdd==='support'?'boosty':'instagram', title:'', url:'https://', note:''}); renderMain(); return true; }
+  if(ds.lkDel!==undefined){ const D=State.linkDraft, x=D.links[+ds.lkDel]; if(x&&x.id) D.removed.push(x.id); D.links.splice(+ds.lkDel,1); renderMain(); return true; }
+  if(ds.lkMove!==undefined){ const [i,d]=ds.lkMove.split('.').map(Number), L=State.linkDraft.links, sec=L[i].section;
+    let j=i+d; while(j>=0 && j<L.length && L[j].section!==sec) j+=d;
+    if(j>=0 && j<L.length){ [L[i],L[j]]=[L[j],L[i]]; renderMain(); } return true; }
+  if(ds.lkSave!==undefined){ saveLinks(); return true; }
+  if(ds.lkReset!==undefined){ State.linkDraft=null; State.linkError=''; renderMain(); return true; }
   if(ds.copyCode!==undefined){ copyText(DB.me.inviteCode).then(ok=>toast(ok?'Код скопирован — отправьте его другу в Telegram':'Не удалось скопировать — выделите код и скопируйте вручную')); return true; }
   if(ds.pasteCode!==undefined){
     const inp=document.getElementById('friendCode');
@@ -4009,7 +4059,7 @@ function initEvents(){
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme],[data-hist-more]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme],[data-hist-more],[data-lk-add],[data-lk-del],[data-lk-move],[data-lk-save],[data-lk-reset]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){
@@ -4034,6 +4084,8 @@ function initEvents(){
     if(!isTextish && e.type!=='change') return;
     const modalEl = e.target.closest('#modalRoot [data-w],#modalRoot [data-block-rest],#modalRoot [data-dropset],#modalRoot [data-set],#modalRoot [data-recur-on],#modalRoot [data-recur-freq],#modalRoot [data-recur-until],#modalRoot [data-recur-day]');
     if(modalEl){ if(handleModalChange(e, modalEl.dataset)) return; }
+    const lk = e.target.closest('#main [data-lk]');
+    if(lk && State.linkDraft){ State.linkDraft.dirty = true; const [a,b]=lk.dataset.lk.split('.'); if(a==='t') State.linkDraft.texts[b]=e.target.value; else if(State.linkDraft.links[+a]) State.linkDraft.links[+a][b]=e.target.value; return; }
     const mainEl = e.target.closest('[data-admin-days],#pdMemTerm,#importTplFile,[data-hf],[data-ex-edit],[data-stats-participant],[data-stats-period],[data-setting],#importFile');
     if(mainEl){ handleMainChange(e, mainEl.dataset); }
   }
@@ -4064,6 +4116,7 @@ function initEvents(){
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') Storage.flush(); });
   window.addEventListener('pagehide', ()=>Storage.flush());
   rerender();
+  loadLinks();
   // заранее и в фоне считаем свои ачивки, чтобы «Статистика» открывалась мгновенно
   const idle = window.requestIdleCallback || (fn=>setTimeout(fn, 1500));
   idle(()=>{ try{ const me = selfParticipantId(); achievementsCard(DB.workouts.filter(w=>w.participantId===me), me); }catch(e){} });
