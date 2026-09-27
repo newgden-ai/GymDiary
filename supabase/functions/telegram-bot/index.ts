@@ -17,12 +17,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-09-27 · i18n+food";
+const BOT_VERSION = "2026-09-27 · badges";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
 const APP_URL = (Deno.env.get("MINI_APP_URL") ?? "").replace(/\/?$/, "/").replace(/index\.html\/$/, "");
 const TZ = Deno.env.get("APP_TZ") ?? "Asia/Tashkent";
+const SUPABASE_URL = (Deno.env.get("SUPABASE_URL") ?? "").replace(/\/$/, "");
 const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "content-type, apikey, authorization" };
@@ -674,9 +675,15 @@ async function cron(kind: string) {
         achievement_approved: L(lang, "🏅 Ваш сертификат «{name}» подтверждён! Он уже в «Достижениях → Соревнования».", { name }),
         food_norm: L(lang, "🎯 Тренер {who} изменил(а) вашу норму питания: цель — <b>{goal}</b>, норма — <b>{target}</b>. Подробности в разделе «Калории».", { who,
           goal: L(lang, GOAL[n.payload?.goal] ?? "по расчёту"), target: n.payload?.target ? n.payload.target + " " + L(lang, "ккал") : L(lang, "по расчёту приложения") }),
+        achievement_badge: L(lang, "🏅 За сертификат «{name}» вам выдана ачивка!", { name }),
         achievement_rejected: L(lang, "Сертификат «{name}» отклонён.", { name }) + (n.payload?.comment ? " " + L(lang, "Причина: {v}.", { v: esc(n.payload.comment) }) : "") + " " + L(lang, "Можно загрузить заново."),
       };
-      if (to?.telegram_id && text[n.type]) { await send(to.telegram_id, text[n.type], appKb(undefined, lang)); sent++; await sleep(40); }
+      // своя ачивка за сертификат (картинка из хранилища badges этого проекта) — присылаем картинкой
+      const badgeImg = String(n.payload?.badge_img ?? ""), okImg = badgeImg.startsWith(`${SUPABASE_URL}/storage/v1/object/public/badges/`);
+      if (to?.telegram_id && text[n.type] && okImg && ["achievement_approved", "achievement_badge"].includes(n.type)) {
+        const cap = text[n.type] + `\n\n🏆 <b>${esc(String(n.payload?.badge_title ?? "").slice(0, 80))}</b>` + (n.payload?.badge_desc ? `\n${esc(String(n.payload.badge_desc).slice(0, 300))}` : "");
+        await sendPhotoSafe(to.telegram_id, badgeImg, cap, appKb(undefined, lang)); sent++; await sleep(40);
+      } else if (to?.telegram_id && text[n.type]) { await send(to.telegram_id, text[n.type], appKb(undefined, lang)); sent++; await sleep(40); }
       await admin.from("notifications").update({ telegram_sent: true }).eq("id", n.id);
     }
     return sent;

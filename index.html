@@ -270,6 +270,14 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .base-group summary{padding:11px 0;cursor:pointer;font-weight:600;}
 .base-group[open] summary{border-bottom:1px solid var(--border);margin-bottom:10px;}
 .cert-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.cb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;}
+.cb-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px;border:2px solid var(--border);border-radius:8px;background:var(--surface);font-size:11px;line-height:1.2;color:inherit;cursor:pointer;}
+.cb-item img{width:56px;height:56px;object-fit:contain;}
+.cb-item.on{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent);}
+.cb-add b{font-size:28px;line-height:56px;height:56px;}
+.cb-form{margin-top:8px;padding:8px;border:1px dashed var(--border);border-radius:8px;}
+.cb-thumb{width:48px;height:48px;object-fit:contain;flex:none;border-radius:6px;}
+.cb-none{display:flex;align-items:center;justify-content:center;background:var(--surface);color:var(--muted);}
 .cert-row:last-child{border-bottom:none;}
 .cert-img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:var(--surface2);border:1px solid var(--border);flex:0 0 auto;cursor:zoom-in;}
 .st-rej{background:var(--danger);color:#fff;border-color:var(--danger);}
@@ -1140,7 +1148,9 @@ function achievementsList(workouts){
   const uid = (workouts[0]||{}).participantId || State.achFor;
   (DB.certs||[]).filter(c=>c.user_id===uid && c.status==='approved').forEach(c=>
     out.push({cat:'cert', icon:/1|золот|перв/i.test(c.result||'')?'🥇':/2|серебр|втор/i.test(c.result||'')?'🥈':/3|бронз|трет/i.test(c.result||'')?'🥉':'🏅',
-      title:c.competition_name, desc:[c.result, c.competition_date?fmtDate(c.competition_date):'', c.competition_place].filter(Boolean).join(' · '), cur:1, target:1}));
+      title:c.competition_name, desc:[c.result, c.competition_date?fmtDate(c.competition_date):'', c.competition_place].filter(Boolean).join(' · '), cur:1, target:1,
+      ...(()=>{ const b = c.badge_id && (DB.customBadges||[]).find(x=>x.id===c.badge_id);   // ачивка, которую админ выдал за этот сертификат
+        return b ? {badgeUrl:b.image_url, tag:c.competition_name, title:b.title, desc:[b.description, c.competition_name, c.result, c.competition_date?fmtDate(c.competition_date):''].filter(Boolean).join(' · ')} : {}; })()}));
   const hc = heroContext(workouts);
   HERO_ACH.forEach(a=>{ const r = a.check(hc); out.push({cat:'hero', icon:'', hero:a.h, style:a.style, rare:a.rare, title:a.title,
     desc:`${HERO_NAMES[a.h]}: ${a.desc}`, cur:r.cur, target:r.target, heroGot:r.got}); });
@@ -1207,7 +1217,7 @@ function achievementsCard(workouts, pid){
   const done = workouts.filter(w=>w.status==='done' || (w.date<=dstr(new Date()) && hasFilledSets(w)));
   // пересчёт ~850 ачивок заметен на телефоне — повторяем только если тренировки или личные данные изменились
   const key = State.achFor+'|'+dstr(new Date())+'|'+done.map(w=>w.id+w.date+(w.time||'')+(w.duration||'')+w.status+JSON.stringify(w.blocks)).join('~')
-    +'|'+(DB.exercises||[]).length+'|'+JSON.stringify((DB.details||[]).find(d=>d.user_id===State.achFor)||{})+'|'+(DB.weights||[]).length+'|'+(DB.certs||[]).length;
+    +'|'+(DB.exercises||[]).length+'|'+JSON.stringify((DB.details||[]).find(d=>d.user_id===State.achFor)||{})+'|'+(DB.weights||[]).length+'|'+JSON.stringify((DB.certs||[]).map(c=>c.id+(c.badge_id||'')))+'|'+(DB.customBadges||[]).length;
   State.achCache = State.achCache || new Map();
   let all = State.achCache.get(key);
   if(!all){ all = achievementsList(done); if(State.achCache.size>8) State.achCache.clear(); State.achCache.set(key, all); }
@@ -1220,13 +1230,13 @@ function achievementsCard(workouts, pid){
 }
 // одна плитка ачивки (используется и в «Достижениях», и в итогах тренировки)
 function achTile(a, color){
-  return `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''} ach-${a.cat} ${a.badge||a.tier?'has-badge':''}" style="--ach:${a.tone?a.tone[1]:color}${a.tone?`;--hue:${a.tone[0]}deg`:''}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
+  return `<div class="ach-tile ${a.got?'got':''} ${a.rare?'rare':''} ach-${a.cat} ${a.badge||a.badgeUrl||a.tier?'has-badge':''}" style="--ach:${a.tone?a.tone[1]:color}${a.tone?`;--hue:${a.tone[0]}deg`:''}" ${a.cat==='beast'&&a.got?`data-ach-beast="${esc(a.title)}"`:`data-ach-info="${esc(a.title)}|${esc(a.desc)}|${a.got?'получено':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}"`}>
     ${a.count>1?`<span class="ach-x">×${a.count}</span>`:''}${a.more?`<span class="ach-x" title="ещё ступеней">+${a.more}</span>`:''}
     ${a.cat==='bw'?`<div class="bw-medal"><span>${a.icon}</span><b>×${a.reps}</b><i>${a.kg?'+'+a.kg+' кг':'свой вес'}</i></div><div class="ach-t">${esc(a.lname)}</div>`:''}
     ${a.poster?`<div class="lw-poster"><img src="img/lightweight/thumb/${String(a.poster).padStart(2,'0')}.webp" alt="" loading="lazy"></div><div class="ach-t">${esc(a.title)}</div>`:''}
     ${a.tier?`<div class="tier-medal"><img src="img/badges/tier_${a.tier}.webp" alt="" decoding="async"><img class="tier-ico" src="img/badges/ico_${a.cat}.webp" alt="" loading="lazy" decoding="async"><span class="tier-txt" style="font-size:${a.tierText.length<=5?15:a.tierText.length<=8?12:a.tierText.length<=12?8.5:8}px">${esc(a.tierText)}</span></div>`:''}
     ${a.cat==='bw'||a.tier||a.poster?'':a.hero?`<div class="lw-poster"><img src="img/lightweight/thumb/${HERO_POSTER[a.hero]||'01'}.webp" alt="${esc(HERO_NAMES[a.hero])}" loading="lazy" decoding="async"></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`
-    :a.wr?`<div class="wr-card" style="--wr:${a.wr.color}"><img src="img/lightweight/thumb/${a.wr.poster}.webp" alt="" loading="lazy" decoding="async"><img class="wr-lw" src="img/lwtext/${a.wr.pct}.webp" alt="Light weight"><span class="wr-kg">${fmtNum(a.wr.kg)} кг</span><span class="wr-pct">${a.wr.pct===100?'МИРОВОЙ РЕКОРД':a.wr.pct+'% рекорда'}</span></div><div class="ach-t">${esc(a.wr.lift)}</div>`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<div class="ach-emo">${a.icon}</div>
+    :a.wr?`<div class="wr-card" style="--wr:${a.wr.color}"><img src="img/lightweight/thumb/${a.wr.poster}.webp" alt="" loading="lazy" decoding="async"><img class="wr-lw" src="img/lwtext/${a.wr.pct}.webp" alt="Light weight"><span class="wr-kg">${fmtNum(a.wr.kg)} кг</span><span class="wr-pct">${a.wr.pct===100?'МИРОВОЙ РЕКОРД':a.wr.pct+'% рекорда'}</span></div><div class="ach-t">${esc(a.wr.lift)}</div>`:a.badgeUrl?`<img class="ach-badge" src="${esc(a.badgeUrl)}" alt="${esc(a.title)}" loading="lazy" decoding="async"><div class="ach-t" data-no-tr>${esc(a.title)}</div>${a.tag?`<div class="ach-tag" data-no-tr>${esc(a.tag)}</div>`:''}`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>${a.tag?`<div class="ach-tag">${esc(a.tag)}</div>`:''}`}
     ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${a.cat==='hero'?a.cur+'%':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}</div>`}
   </div>`;
@@ -1254,7 +1264,7 @@ function achCardHtml(all, list, tab, cat, tile){
 function renderAchInfoModal(){
   const {a, status} = State.modal, units = DB.settings.units;
   const exName = id => (DB.exercises.find(e=>e.id===id)||{}).name || 'упражнение';
-  const img = a.poster ? `img/lightweight/${String(a.poster).padStart(2,'0')}.jpg` : a.hero ? `img/lightweight/${HERO_POSTER[a.hero]||'01'}.jpg` : a.wr ? `img/lightweight/thumb/${a.wr.poster}.webp` : a.badge ? `img/badges/${a.badge}.webp` : '';
+  const img = a.poster ? `img/lightweight/${String(a.poster).padStart(2,'0')}.jpg` : a.hero ? `img/lightweight/${HERO_POSTER[a.hero]||'01'}.jpg` : a.wr ? `img/lightweight/thumb/${a.wr.poster}.webp` : a.badgeUrl ? a.badgeUrl : a.badge ? `img/badges/${a.badge}.webp` : '';
   const recs = (a.lwRecs||[]).slice().reverse();
   return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:440px">
     <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h2 style="margin:0">${esc(a.title)}</h2><button class="btn sm ghost" data-close-modal="1">✕</button></div>
@@ -3514,6 +3524,8 @@ async function loadLinks(){
     const [{data:l, error:e1}, {data:t}] = await Promise.all([c.from('app_links').select('*').order('sort'), c.from('app_texts').select('*')]);
     if(e1) return;   // таблиц ещё нет (не запущен stage18) — блок просто не показывается
     DB.links = l||[]; DB.linkTexts = Object.fromEntries((t||[]).map(x=>[x.key, x.value]));
+    const {data:cb} = await c.from('custom_badges').select('*').order('created_at');   // свои ачивки за соревнования
+    DB.customBadges = cb||[];
     if(State.linkDraft && !State.linkDraft.dirty) State.linkDraft = null;   // черновик без правок — пересобрать из свежих данных
     if(LINK_PAGES.includes(State.view) || State.view==='admin') renderMain();
   }catch(e){}
@@ -3745,13 +3757,14 @@ const GENDER_RU = {male:'Мужчины', female:'Женщины', unknown:'По
 const AGE_ORDER = ['до 18','18–24','25–34','35–44','45–54','55+','не указан'];
 async function loadAdmin(){
   const c = Auth.getClient(), days = State.adminDays ?? 30;
-  const [st, pend] = await Promise.all([
+  const [st, pend, appr] = await Promise.all([
     c.rpc('admin_stats', {p_days: days}),
-    c.from('user_achievements').select('*').eq('status','pending').not('competition_name','is',null).order('created_at')
+    c.from('user_achievements').select('*').eq('status','pending').not('competition_name','is',null).order('created_at'),
+    c.from('user_achievements').select('*').eq('status','approved').not('competition_name','is',null).order('reviewed_at',{ascending:false}).limit(60)
   ]);
-  const ids = [...new Set((pend.data||[]).map(x=>x.user_id))];
+  const ids = [...new Set([...(pend.data||[]), ...(appr.data||[])].map(x=>x.user_id))];
   const {data:names} = ids.length ? await c.from('profiles').select('id,name,telegram_username').in('id', ids) : {data:[]};
-  State.admin = { stats: st.data||[], error: st.error&&st.error.message, pending: pend.data||[], names: names||[] };
+  State.admin = { stats: st.data||[], error: st.error&&st.error.message, pending: pend.data||[], approved: appr.data||[], names: names||[] };
   if(State.view==='admin') renderMain();
 }
 function viewAdmin(){
@@ -3774,9 +3787,12 @@ function viewAdmin(){
         <div class="muted">${esc(nameOf(c.user_id))}</div>
         <div class="muted">${[c.result, c.competition_date?fmtDate(c.competition_date):'', c.competition_place].filter(Boolean).map(esc).join(' · ')}</div>
         <input type="text" id="rej_${c.id}" placeholder="Причина отказа (если отклоняете)" style="width:100%;margin-top:6px;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface)">
-        <div class="row" style="margin-top:6px"><button class="btn sm primary" data-review-cert="${c.id}.1">Подтвердить</button><button class="btn sm" data-review-cert="${c.id}.0">Отклонить</button></div>
+        ${certBadgePicker(c)}
+        <div class="row" style="margin-top:6px"><button class="btn sm primary" data-review-cert="${c.id}.1">Подтвердить${State.certPick&&State.certPick[c.id]?' с ачивкой':''}</button><button class="btn sm" data-review-cert="${c.id}.0">Отклонить</button></div>
       </div></div>`).join('') || '<div class="muted">Новых сертификатов нет.</div>'}
   </div>
+  ${adminApprovedCerts(A, nameOf)}
+  ${adminBadgeLibrary()}
   <div class="card">
     <div class="row" style="justify-content:space-between"><h3 style="margin:0">Пользователи по полу и возрасту</h3>
       <select data-admin-days>${[[7,'7 дней'],[30,'30 дней'],[90,'3 месяца'],[365,'год'],[0,'всё время']].map(([d,l])=>`<option value="${d}" ${(State.adminDays??30)==d?'selected':''}>${l}</option>`).join('')}</select></div>
@@ -3798,11 +3814,87 @@ function viewAdmin(){
 }
 async function reviewCert(id, approve){
   const comment = approve ? null : ((document.getElementById('rej_'+id)||{}).value||'').trim() || null;
-  const {error} = await Auth.getClient().from('user_achievements').update({status: approve?'approved':'rejected', review_comment: comment,
+  const badge = approve && State.certPick ? State.certPick[id] || null : null;
+  const {error} = await Auth.getClient().from('user_achievements').update({status: approve?'approved':'rejected', review_comment: comment, ...(badge?{badge_id:badge}:{}),
     reviewed_at: new Date().toISOString(), reviewed_by: selfParticipantId()}).eq('id', id);
   if(error) return toast('Ошибка: '+error.message);
   toast(approve ? 'Сертификат подтверждён — пользователю придёт сообщение' : 'Сертификат отклонён');
-  State.admin.pending = State.admin.pending.filter(x=>x.id!==id); renderMain();
+  const done = State.admin.pending.find(x=>x.id===id);
+  State.admin.pending = State.admin.pending.filter(x=>x.id!==id);
+  if(approve && done) State.admin.approved = [{...done, status:'approved', badge_id:badge}, ...(State.admin.approved||[])];
+  renderMain();
+}
+// ===== свои ачивки за соревнования: библиотека картинок (таблица custom_badges, хранилище badges) =====
+function certBadgePicker(c){
+  const P = (State.certPick = State.certPick || {}), pick = c.id in P ? P[c.id] : (c.badge_id || null), list = DB.customBadges || [];
+  const isNew = State.cbNew === c.id;
+  return `<div class="cb-pick" style="margin-top:8px"><div class="muted" style="font-size:12px;margin-bottom:4px">Ачивка за этот сертификат (необязательно): нажмите, чтобы выбрать</div>
+    <div class="cb-grid">${list.map(b=>`<button class="cb-item ${pick===b.id?'on':''}" data-cb-pick="${c.id}|${b.id}" title="${esc(b.description||'')}"><img src="${esc(b.image_url)}" alt="" loading="lazy"><span>${esc(b.title)}</span></button>`).join('')}
+      <button class="cb-item cb-add" data-cb-new="${c.id}"><b>+</b><span>Новая ачивка</span></button></div>
+    ${isNew?`<div class="cb-form">
+      <div class="field"><label>Картинка ачивки (PNG/JPG/WebP, лучше квадратная, прозрачный фон — PNG)</label><input type="file" id="cbFile" accept="image/*"></div>
+      <div class="field"><label>Название ачивки</label><input type="text" id="cbTitle" maxlength="80" value="${esc(c.competition_name||'')}"></div>
+      <div class="field"><label>Описание (за что)</label><input type="text" id="cbDesc" maxlength="300" value="${esc([c.result, c.competition_date?fmtDate(c.competition_date):''].filter(Boolean).join(' · '))}"></div>
+      <div class="row" style="gap:6px"><button class="btn sm primary" data-cb-create="${c.id}">Загрузить и выбрать</button><button class="btn sm" data-cb-new="">Отмена</button></div></div>`:''}
+  </div>`;
+}
+function adminApprovedCerts(A, nameOf){
+  const list = A.approved || []; if(!list.length) return '';
+  const badgeOf = id => (DB.customBadges||[]).find(b=>b.id===id);
+  return `<div class="card" style="margin-bottom:10px"><h3>Подтверждённые сертификаты <span class="muted">${list.length}</span></h3>
+    <div class="muted" style="margin-bottom:6px">Ачивку можно выдать или поменять и после подтверждения — пользователю придёт сообщение в бот.</div>
+    ${list.map(c=>{ const b = badgeOf(c.badge_id), open = State.cbOpen===c.id;
+      return `<div class="cert-row" style="flex-wrap:wrap">${b?`<img class="cb-thumb" src="${esc(b.image_url)}" alt="">`:'<div class="cb-thumb cb-none">—</div>'}
+        <div class="grow" style="min-width:0"><b>${esc(c.competition_name)}</b><div class="muted">${esc(nameOf(c.user_id))}${c.result?' · '+esc(c.result):''}</div>
+          <div class="muted">${b?'Ачивка: '+esc(b.title):'Без своей ачивки'}</div>
+          ${open?certBadgePicker(c)+`<div class="row" style="margin-top:6px;gap:6px"><button class="btn sm primary" data-cb-save="${c.id}">Сохранить ачивку</button><button class="btn sm" data-cb-open="">Закрыть</button></div>`
+            :`<button class="btn sm" style="margin-top:6px" data-cb-open="${c.id}">${b?'Изменить ачивку':'Выдать ачивку'}</button>`}</div></div>`; }).join('')}
+  </div>`;
+}
+function adminBadgeLibrary(){
+  const list = DB.customBadges || []; if(!list.length) return '';
+  return `<div class="card" style="margin-bottom:10px"><h3>Библиотека ачивок за соревнования <span class="muted">${list.length}</span></h3>
+    <div class="muted" style="margin-bottom:6px">Одну ачивку можно выдавать многим (например, всем участникам турнира). Удаление убирает её у всех.</div>
+    ${list.map(b=>`<div class="cert-row"><img class="cb-thumb" src="${esc(b.image_url)}" alt=""><div class="grow"><b>${esc(b.title)}</b>${b.description?`<div class="muted">${esc(b.description)}</div>`:''}</div>
+      <button class="btn sm danger" data-cb-del="${b.id}">Удалить</button></div>`).join('')}</div>`;
+}
+// картинка → квадрат до 512 px (PNG, прозрачность сохраняется) → хранилище → запись в библиотеку
+async function createCustomBadge(certId){
+  const f = (document.getElementById('cbFile')||{}).files?.[0], title = (document.getElementById('cbTitle')||{}).value?.trim(), desc = (document.getElementById('cbDesc')||{}).value?.trim();
+  if(!f) return toast('Выберите картинку ачивки'); if(!title) return toast('Впишите название ачивки');
+  try{
+    const img = await new Promise((res, rej)=>{ const i = new Image(); i.onload=()=>res(i); i.onerror=rej; i.src = URL.createObjectURL(f); });
+    const k = Math.min(1, 512/Math.max(img.width, img.height)), cv = document.createElement('canvas');
+    cv.width = Math.round(img.width*k); cv.height = Math.round(img.height*k); cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    const blob = await new Promise(res=>cv.toBlob(res, 'image/png'));
+    const c = Auth.getClient(), path = `${crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2)}.png`;
+    const up = await c.storage.from('badges').upload(path, blob, {contentType:'image/png', upsert:false});
+    if(up.error) throw up.error;
+    const url = c.storage.from('badges').getPublicUrl(path).data.publicUrl;
+    const {data, error} = await c.from('custom_badges').insert({title:title.slice(0,80), description:desc?desc.slice(0,300):null, image_url:url}).select().single();
+    if(error) throw error;
+    DB.customBadges = [...(DB.customBadges||[]), data]; (State.certPick = State.certPick||{})[certId] = data.id; State.cbNew = null;
+    toast('Ачивка загружена'); renderMain();
+  }catch(e){ toast('Не загрузилось: '+(e.message||e)+(/badges|custom_badges|relation|bucket/i.test(String(e.message||e))?' — запустите stage19_cert_badges.sql':'')); }
+}
+async function saveCertBadge(certId){
+  const P = State.certPick||{}, c0 = (State.admin.approved||[]).find(x=>x.id===certId)||{};
+  const badge = certId in P ? P[certId] : (c0.badge_id || null);
+  const {error} = await Auth.getClient().from('user_achievements').update({badge_id: badge}).eq('id', certId);
+  if(error) return toast('Ошибка: '+error.message);
+  const c = (State.admin.approved||[]).find(x=>x.id===certId); if(c) c.badge_id = badge;
+  const mine = (DB.certs||[]).find(x=>x.id===certId); if(mine) mine.badge_id = badge;
+  delete P[certId]; State.cbOpen = null; toast(badge ? 'Ачивка выдана — пользователю придёт сообщение' : 'Ачивка снята'); renderMain();
+}
+async function deleteCustomBadge(id){
+  const b = (DB.customBadges||[]).find(x=>x.id===id); if(!b) return;
+  askConfirm('Удалить ачивку?', `«${b.title}» пропадёт у всех, кому она выдана.`, 'Удалить', async ()=>{
+    const c = Auth.getClient(); const {error} = await c.from('custom_badges').delete().eq('id', id);
+    if(error) return toast('Ошибка: '+error.message);
+    const path = b.image_url.split('/badges/')[1]; if(path) c.storage.from('badges').remove([decodeURIComponent(path)]);
+    DB.customBadges = DB.customBadges.filter(x=>x.id!==id);
+    (State.admin.approved||[]).forEach(x=>{ if(x.badge_id===id) x.badge_id = null; });
+    toast('Ачивка удалена'); renderMain(); });
 }
 
 /* ===================== SOCIAL HELPERS ===================== */
@@ -3936,6 +4028,13 @@ function handleMainClick(e, ds){
     let j=i+d; while(j>=0 && j<L.length && L[j].section!==sec) j+=d;
     if(j>=0 && j<L.length){ [L[i],L[j]]=[L[j],L[i]]; renderMain(); } return true; }
   if(ds.lkSave!==undefined){ saveLinks(); return true; }
+  if(ds.cbPick!==undefined){ const [cid,bid]=ds.cbPick.split('|'), P=(State.certPick=State.certPick||{}), cur = cid in P ? P[cid] : (([...(State.admin.pending||[]),...(State.admin.approved||[])].find(x=>x.id===cid)||{}).badge_id || null);
+    P[cid] = cur===bid ? null : bid; renderMain(); return true; }
+  if(ds.cbNew!==undefined){ State.cbNew = ds.cbNew || null; renderMain(); return true; }
+  if(ds.cbCreate!==undefined){ createCustomBadge(ds.cbCreate); return true; }
+  if(ds.cbOpen!==undefined){ State.cbOpen = ds.cbOpen || null; State.cbNew = null; renderMain(); return true; }
+  if(ds.cbSave!==undefined){ saveCertBadge(ds.cbSave); return true; }
+  if(ds.cbDel!==undefined){ deleteCustomBadge(ds.cbDel); return true; }
   if(ds.lkReset!==undefined){ State.linkDraft=null; State.linkError=''; renderMain(); return true; }
   if(ds.copyCode!==undefined){ copyText(DB.me.inviteCode).then(ok=>toast(ok?'Код скопирован — отправьте его другу в Telegram':'Не удалось скопировать — выделите код и скопируйте вручную')); return true; }
   if(ds.pasteCode!==undefined){
@@ -4059,7 +4158,7 @@ function initEvents(){
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme],[data-hist-more],[data-lk-add],[data-lk-del],[data-lk-move],[data-lk-save],[data-lk-reset]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme],[data-hist-more],[data-lk-add],[data-lk-del],[data-lk-move],[data-lk-save],[data-lk-reset],[data-cb-pick],[data-cb-new],[data-cb-create],[data-cb-open],[data-cb-save],[data-cb-del]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){

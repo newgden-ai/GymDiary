@@ -313,7 +313,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🚶 Много шагов за день": "🚶 Багато кроків за день",
   "🤒 Болею / восстанавливаюсь": "🤒 Хворію / відновлююся",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} підтвердив(ла) заявку — тепер ви учасники одне в одного.",
-  "🧹 Уборка, дача, работа по дому": "🧹 Прибирання, дача, хатні справи"
+  "🧹 Уборка, дача, работа по дому": "🧹 Прибирання, дача, хатні справи",
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 За сертифікат «{name}» вам видано ачівку!"
  },
  "en": {
   " ({d}% к прошлому периоду)": " ({d}% vs. the previous period)",
@@ -628,7 +629,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🚶 Много шагов за день": "🚶 A lot of steps today",
   "🤒 Болею / восстанавливаюсь": "🤒 Sick / recovering",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} confirmed the request — you're now members of each other.",
-  "🧹 Уборка, дача, работа по дому": "🧹 Cleaning, garden, housework"
+  "🧹 Уборка, дача, работа по дому": "🧹 Cleaning, garden, housework",
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 You've earned an achievement for your certificate “{name}”!"
  },
  "fr": {
   " ({d}% к прошлому периоду)": " ({d} % par rapport à la période précédente)",
@@ -943,7 +945,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🚶 Много шагов за день": "🚶 Beaucoup de pas dans la journée",
   "🤒 Болею / восстанавливаюсь": "🤒 Malade / en convalescence",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} a validé la demande — vous êtes maintenant participants l'un chez l'autre.",
-  "🧹 Уборка, дача, работа по дому": "🧹 Ménage, jardinage, travaux à la maison"
+  "🧹 Уборка, дача, работа по дому": "🧹 Ménage, jardinage, travaux à la maison",
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 Vous avez reçu un succès pour votre certificat « {name} » !"
  },
  "es": {
   " ({d}% к прошлому периоду)": " ({d}% respecto al periodo anterior)",
@@ -1258,7 +1261,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🚶 Много шагов за день": "🚶 Muchos pasos en el día",
   "🤒 Болею / восстанавливаюсь": "🤒 Enfermo / recuperándome",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} confirmó la solicitud — ahora son participantes mutuos.",
-  "🧹 Уборка, дача, работа по дому": "🧹 Limpieza, jardín, tareas del hogar"
+  "🧹 Уборка, дача, работа по дому": "🧹 Limpieza, jardín, tareas del hogar",
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 ¡Has recibido un logro por tu certificado «{name}»!"
  },
  "it": {
   " ({d}% к прошлому периоду)": " ({d}% rispetto al periodo precedente)",
@@ -1573,7 +1577,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🚶 Много шагов за день": "🚶 Molti passi durante il giorno",
   "🤒 Болею / восстанавливаюсь": "🤒 Sono malato/a / mi sto riprendendo",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} ha confermato la richiesta — ora siete partecipanti l'uno dell'altro.",
-  "🧹 Уборка, дача, работа по дому": "🧹 Pulizie, giardino, lavori domestici"
+  "🧹 Уборка, дача, работа по дому": "🧹 Pulizie, giardino, lavori domestici",
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 Hai ricevuto un obiettivo per il certificato «{name}»!"
  },
  "uz": {
   " ({d}% к прошлому периоду)": " (oldingi davrga nisbatan {d}%)",
@@ -1888,7 +1893,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🚶 Много шагов за день": "🚶 Kun davomida koʻp qadam",
   "🤒 Болею / восстанавливаюсь": "🤒 Kasalman / tiklanyapman",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} soʻrovni tasdiqladi — endi siz bir-biringizning ishtirokchilarisiz.",
-  "🧹 Уборка, дача, работа по дому": "🧹 Tozalash, dala hovli, uy ishlari"
+  "🧹 Уборка, дача, работа по дому": "🧹 Tozalash, dala hovli, uy ishlari",
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 «{name}» sertifikati uchun sizga yutuq berildi!"
  },
  "tr": {
   " ({d}% к прошлому периоду)": " (önceki döneme göre %{d})",
@@ -2203,7 +2209,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🚶 Много шагов за день": "🚶 Gün boyunca çok adım attım",
   "🤒 Болею / восстанавливаюсь": "🤒 Hastayım / iyileşiyorum",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} isteği onayladı — artık birbirinizin katılımcısısınız.",
-  "🧹 Уборка, дача, работа по дому": "🧹 Temizlik, bahçe işi, ev işleri"
+  "🧹 Уборка, дача, работа по дому": "🧹 Temizlik, bahçe işi, ev işleri",
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 «{name}» sertifikanız için bir başarı kazandınız!"
  },
  "zh": {
   " ({d}% к прошлому периоду)": "（较上一周期 {d}%）",
@@ -2518,7 +2525,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🚶 Много шагов за день": "🚶 今天走了很多步",
   "🤒 Болею / восстанавливаюсь": "🤒 生病 / 恢复中",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} 已确认申请——现在你们互为成员。",
-  "🧹 Уборка, дача, работа по дому": "🧹 打扫、打理菜园、做家务"
+  "🧹 Уборка, дача, работа по дому": "🧹 打扫、打理菜园、做家务",
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 你因证书“{name}”获得了一项成就！"
  },
  "ja": {
   " ({d}% к прошлому периоду)": "（前期間比 {d}%）",
@@ -2833,7 +2841,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🚶 Много шагов за день": "🚶 今日はたくさん歩いた",
   "🤒 Болею / восстанавливаюсь": "🤒 体調不良・回復中",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who}さんがリクエストを承認しました — これでお互いにメンバーです。",
-  "🧹 Уборка, дача, работа по дому": "🧹 掃除、庭仕事、家事"
+  "🧹 Уборка, дача, работа по дому": "🧹 掃除、庭仕事、家事",
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 証明書「{name}」で実績を獲得しました！"
  },
  "ko": {
   " ({d}% к прошлому периоду)": " ({d}% 지난 기간 대비)",
@@ -3148,6 +3157,7 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🚶 Много шагов за день": "🚶 오늘 많이 걸었어요",
   "🤒 Болею / восстанавливаюсь": "🤒 아파요 / 회복 중이에요",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who}님이 요청을 수락했어요 — 이제 서로 참가자가 되었어요.",
-  "🧹 Уборка, дача, работа по дому": "🧹 청소, 텃밭, 집안일"
+  "🧹 Уборка, дача, работа по дому": "🧹 청소, 텃밭, 집안일",
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 인증서 «{name}»으로 업적을 받았습니다!"
  }
 };
