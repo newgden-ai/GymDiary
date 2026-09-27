@@ -17,7 +17,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-09-27 · cert-notify";
+const BOT_VERSION = "2026-09-27 · user-badges";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -677,7 +677,8 @@ async function cron(kind: string) {
         achievement_approved: L(lang, "🏅 Ваш сертификат «{name}» подтверждён! Он уже в «Достижениях → Соревнования».", { name }),
         food_norm: L(lang, "🎯 Тренер {who} изменил(а) вашу норму питания: цель — <b>{goal}</b>, норма — <b>{target}</b>. Подробности в разделе «Калории».", { who,
           goal: L(lang, GOAL[n.payload?.goal] ?? "по расчёту"), target: n.payload?.target ? n.payload.target + " " + L(lang, "ккал") : L(lang, "по расчёту приложения") }),
-        achievement_badge: L(lang, "🏅 За сертификат «{name}» вам выдана ачивка!", { name }),
+        achievement_badge: n.payload?.name ? L(lang, "🏅 За сертификат «{name}» вам выдана ачивка!", { name })
+          : L(lang, "🎖️ Вам выдана персональная ачивка!") + (n.payload?.note ? "\n" + L(lang, "За что:") + " " + esc(String(n.payload.note).slice(0, 300)) : ""),
         achievement_rejected: L(lang, "Сертификат «{name}» отклонён.", { name }) + (n.payload?.comment ? " " + L(lang, "Причина: {v}.", { v: esc(n.payload.comment) }) : "") + " " + L(lang, "Можно загрузить заново."),
       };
       // своя ачивка за сертификат (картинка из хранилища badges этого проекта) — присылаем картинкой

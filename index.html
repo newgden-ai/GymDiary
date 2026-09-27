@@ -269,12 +269,20 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .base-group{margin-bottom:8px;border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:0 10px;}
 .base-group summary{padding:11px 0;cursor:pointer;font-weight:600;}
 .base-group[open] summary{border-bottom:1px solid var(--border);margin-bottom:10px;}
+details.ex-list>summary{cursor:pointer;list-style:none;}
+details.ex-list>summary::before{content:'▸ ';color:var(--muted);}
+details.ex-list[open]>summary::before{content:'▾ ';}
+.mg-table th,.mg-table td{white-space:nowrap;}
 .cert-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
 .cb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;}
 .cb-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px;border:2px solid var(--border);border-radius:8px;background:var(--surface);font-size:11px;line-height:1.2;color:inherit;cursor:pointer;}
 .cb-item img{width:56px;height:56px;object-fit:contain;}
 .cb-item.on{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent);}
 .cb-add b{font-size:28px;line-height:56px;height:56px;}
+.cb-item{position:relative;}
+.cb-check{position:absolute;top:3px;right:5px;font-style:normal;font-weight:800;color:var(--accent);}
+.cb-thumbs{display:flex;flex-wrap:wrap;gap:4px;max-width:104px;}
+.cb-users{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .cb-form{margin-top:8px;padding:8px;border:1px dashed var(--border);border-radius:8px;}
 .cb-thumb{width:48px;height:48px;object-fit:contain;flex:none;border-radius:6px;}
 .cb-none{display:flex;align-items:center;justify-content:center;background:var(--surface);color:var(--muted);}
@@ -411,6 +419,11 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
   [data-design="carbon"] .bottomnav button.active{color:var(--text);}
   [data-design="carbon"] .bottomnav button.active::before{content:'';position:absolute;top:-7px;left:22%;right:22%;height:3px;background:var(--grad);box-shadow:0 0 12px var(--accent);transform:skewX(-24deg);}
 }
+/* медали (круглые значки) — прямо в сетке, без фона и рамки плитки; постеры Light weight (lw, герои, мировые рекорды) — как были */
+.ach-tile:is(.has-badge,.ach-bw):not(.ach-lw):not(.ach-hero):not(.ach-wr){background:none!important;border-color:transparent!important;box-shadow:none!important;color:var(--text);}
+.ach-tile:is(.has-badge,.ach-bw):not(.ach-lw):not(.ach-hero):not(.ach-wr) .ach-t{color:var(--text)!important;}
+.ach-tile:is(.has-badge,.ach-bw):not(.ach-lw):not(.ach-hero):not(.ach-wr) :is(.ach-d,.ach-tag){color:var(--muted)!important;}
+.ach-tile:is(.has-badge,.ach-bw):not(.ach-lw):not(.ach-hero):not(.ach-wr) .ach-bar{background:color-mix(in srgb,var(--muted) 30%,transparent);}
 </style>
 </head>
 <body>
@@ -1092,6 +1105,7 @@ const ACH_CATS = [
   {id:'hours', name:'Часы', color:'#2ed3c6', hint:'время в зале'},
   {id:'streak', name:'Серии', color:'#ff5a8a', hint:'недель подряд'},
   {id:'rare', name:'Редкие', color:'#b388ff', hint:'уникальное'},
+  {id:'personal', name:'Персональные', color:'#ff7ac6', hint:'ачивки, выданные администратором лично вам'},
   {id:'cert', name:'Соревнования', color:'#ffd166', hint:'подтверждённые сертификаты — добавить: Участники → вы → Сертификаты'},
   {id:'beast', name:'Звери', color:'#c7a36a', hint:'вес в одном повторении — отдельная ачивка за каждое упражнение'},
   {id:'lw', name:'Light weight', color:'#e3262e', hint:'личные рекорды: вес в упражнении выше, чем когда-либо раньше (как на экране «Light weight, baby!»)'},
@@ -1146,11 +1160,20 @@ function achievementsList(workouts){
   ev('🔁','Тоннаж-палиндром','Тоннаж читается одинаково с обеих сторон, например 12 321 кг', tons.some(isPalindromeNum));
   ev('🎂','Тренировка в день рождения','Тренировка в свой день рождения (дата рождения — в личных данных)', (()=>{ const d=(DB.details||[]).find(x=>x.user_id===((workouts[0]||{}).participantId||State.achFor)); return !!(d&&d.birthday) && workouts.some(w=>w.date.slice(5)===d.birthday.slice(5)); })());
   const uid = (workouts[0]||{}).participantId || State.achFor;
-  (DB.certs||[]).filter(c=>c.user_id===uid && c.status==='approved').forEach(c=>
-    out.push({cat:'cert', icon:/1|золот|перв/i.test(c.result||'')?'🥇':/2|серебр|втор/i.test(c.result||'')?'🥈':/3|бронз|трет/i.test(c.result||'')?'🥉':'🏅',
-      title:c.competition_name, desc:[c.result, c.competition_date?fmtDate(c.competition_date):'', c.competition_place].filter(Boolean).join(' · '), cur:1, target:1,
-      ...(()=>{ const b = c.badge_id && (DB.customBadges||[]).find(x=>x.id===c.badge_id);   // ачивка, которую админ выдал за этот сертификат
-        return b ? {badgeUrl:b.image_url, tag:c.competition_name, title:b.title, desc:[b.description, c.competition_name, c.result, c.competition_date?fmtDate(c.competition_date):''].filter(Boolean).join(' · ')} : {}; })()}));
+  // сертификаты и выданные админом ачивки: за сертификат может быть несколько ачивок (каждая — своя плитка); персональные — отдельная вкладка
+  const badgeById = id => (DB.customBadges||[]).find(x=>x.id===id);
+  const myBadges = (DB.userBadges||[]).filter(u=>u.user_id===uid);
+  (DB.certs||[]).filter(c=>c.user_id===uid && c.status==='approved').forEach(c=>{
+    const base = {cat:'cert', icon:/1|золот|перв/i.test(c.result||'')?'🥇':/2|серебр|втор/i.test(c.result||'')?'🥈':/3|бронз|трет/i.test(c.result||'')?'🥉':'🏅',
+      title:c.competition_name, desc:[c.result, c.competition_date?fmtDate(c.competition_date):'', c.competition_place].filter(Boolean).join(' · '), cur:1, target:1};
+    const bs = myBadges.filter(u=>u.cert_id===c.id).map(u=>badgeById(u.badge_id)).filter(Boolean);
+    if(!bs.length && c.badge_id && badgeById(c.badge_id)) bs.push(badgeById(c.badge_id));   // выданные до этапа 21 одним полем
+    if(!bs.length) out.push(base);
+    bs.forEach(b=>out.push({...base, badgeUrl:b.image_url, tag:c.competition_name, title:b.title,
+      desc:[b.description, c.competition_name, c.result, c.competition_date?fmtDate(c.competition_date):''].filter(Boolean).join(' · ')}));
+  });
+  myBadges.filter(u=>!u.cert_id).forEach(u=>{ const b = badgeById(u.badge_id); if(!b) return;
+    out.push({cat:'personal', icon:'🎖️', badgeUrl:b.image_url, title:b.title, desc:[b.description, u.note, fmtDate(u.created_at.slice(0,10))].filter(Boolean).join(' · '), cur:1, target:1}); });
   const hc = heroContext(workouts);
   HERO_ACH.forEach(a=>{ const r = a.check(hc); out.push({cat:'hero', icon:'', hero:a.h, style:a.style, rare:a.rare, title:a.title,
     desc:`${HERO_NAMES[a.h]}: ${a.desc}`, cur:r.cur, target:r.target, heroGot:r.got}); });
@@ -1217,7 +1240,7 @@ function achievementsCard(workouts, pid){
   const done = workouts.filter(w=>w.status==='done' || (w.date<=dstr(new Date()) && hasFilledSets(w)));
   // пересчёт ~850 ачивок заметен на телефоне — повторяем только если тренировки или личные данные изменились
   const key = State.achFor+'|'+dstr(new Date())+'|'+done.map(w=>w.id+w.date+(w.time||'')+(w.duration||'')+w.status+JSON.stringify(w.blocks)).join('~')
-    +'|'+(DB.exercises||[]).length+'|'+JSON.stringify((DB.details||[]).find(d=>d.user_id===State.achFor)||{})+'|'+(DB.weights||[]).length+'|'+JSON.stringify((DB.certs||[]).map(c=>c.id+(c.badge_id||'')))+'|'+(DB.customBadges||[]).length;
+    +'|'+(DB.exercises||[]).length+'|'+JSON.stringify((DB.details||[]).find(d=>d.user_id===State.achFor)||{})+'|'+(DB.weights||[]).length+'|'+JSON.stringify((DB.certs||[]).map(c=>c.id+(c.badge_id||'')))+'|'+(DB.customBadges||[]).length+'|'+(DB.userBadges||[]).length;
   State.achCache = State.achCache || new Map();
   let all = State.achCache.get(key);
   if(!all){ all = achievementsList(done); if(State.achCache.size>8) State.achCache.clear(); State.achCache.set(key, all); }
@@ -1256,7 +1279,7 @@ function achCardHtml(all, list, tab, cat, tile){
   return `<div class="card" style="margin-bottom:10px">
     <div class="row" style="justify-content:space-between"><h3 class="row" style="gap:6px;margin:0"><span class="ach-ico">${icon('trophy')}</span>Достижения</h3><span class="muted">${all.filter(a=>a.got).length} из ${all.length}</span></div>
     ${lwShowcase(all)}
-    <div class="ach-chips">${chip('got','Мои','#e9e9ea')}${ACH_CATS.map(c=>chip(c.id,c.name,c.color)).join('')}</div>
+    <div class="ach-chips">${chip('got','Мои','#e9e9ea')}${ACH_CATS.filter(c=>c.id!=='personal' || all.some(a=>a.cat==='personal')).map(c=>chip(c.id,c.name,c.color)).join('')}</div>
     ${tab!=='got'?`<div class="muted" style="margin-top:6px">${cat(tab).hint}</div>`:''}
     ${tab==='bw' ? `<div style="margin-top:10px">${bwLadderView()}</div>` : `<div class="ach-grid">${[...list.filter(a=>a.got), ...list.filter(a=>!a.got)].map(tile).join('') || '<div class="muted">Пока нет полученных ачивок — всё впереди!</div>'}</div>`}
   </div>`;
@@ -2604,20 +2627,25 @@ function viewStats(){
   const totalT = list.reduce((a,w)=>a+Calc.workoutTonnage(w),0);
   const avgT = list.length? totalT/list.length : 0;
   const hours = list.reduce((a,w)=>a+(Number(w.duration)||0),0)/60;
-  const mgTotals = {};
-  list.forEach(w=>{ const b=Calc.muscleBreakdown(w,DB.exercises); Object.keys(b).forEach(g=>mgTotals[g]=(mgTotals[g]||0)+b[g]); });
+  const mgTotals = {}, mgWorkouts = {};
+  list.forEach(w=>{ const b=Calc.muscleBreakdown(w,DB.exercises); Object.keys(b).forEach(g=>{ mgTotals[g]=(mgTotals[g]||0)+b[g]; if(b[g]>0) mgWorkouts[g]=(mgWorkouts[g]||0)+1; }); });
+  // длина выбранного периода в днях («Всё время» — с первой тренировки); среднее за неделю/месяц… = тоннаж ÷ число таких отрезков в периоде
+  const firstD = list.length ? parseD(list.map(w=>w.date).sort()[0]) : now;
+  const spanDays = Math.max(1, Math.round((now - (State.statsPeriod==='all' ? firstD : from))/86400000) + 1);
+  const MG_COLS = [['week',7,'За неделю'],['month',30.44,'За месяц'],['3m',91.31,'За 3 месяца'],['6m',182.62,'За полгода'],['year',365.25,'За год']];
+  const perUnit = (g, len) => spanDays >= len*0.97 ? fmtNum(convW(mgTotals[g]/(spanDays/len),units)) : '—';
 
   const exTotals = {};
   list.forEach(w=>(w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{
     const info = DB.exercises.find(e=>e.id===ex.exerciseId); if(!info) return;
     const key = ex.exerciseId;
-    exTotals[key] = exTotals[key] || {name:info.name, maxW:0, maxR:0, tonnage:0, count:0};
+    exTotals[key] = exTotals[key] || {name:info.name, maxW:0, maxR:0, tonnage:0, count:0, ws:new Set()};
     ex.sets.forEach(s=>{
       exTotals[key].maxW = Math.max(exTotals[key].maxW, Number(s.weight)||0);
       exTotals[key].maxR = Math.max(exTotals[key].maxR, Number(s.reps)||0);
       exTotals[key].tonnage += Calc.setTonnage(s, Calc.bwFor(w, ex));
     });
-    exTotals[key].count++;
+    exTotals[key].ws.add(w.id); exTotals[key].count = exTotals[key].ws.size;
   })));
 
   // simple sparkline of tonnage by day
@@ -2648,14 +2676,15 @@ function viewStats(){
 
   <div class="card" style="margin-bottom:10px">
     <h3>По группам мышц</h3>
-    <table><thead><tr><th>Группа</th><th>Тоннаж</th></tr></thead><tbody>
-    ${Object.keys(mgTotals).sort((a,b)=>mgTotals[b]-mgTotals[a]).map(g=>`<tr><td>${MG[g]||g}</td><td>${fmtNum(convW(mgTotals[g],units))} ${unitLabel(units)}</td></tr>`).join('') || '<tr><td colspan="2" class="muted">Нет данных</td></tr>'}
-    </tbody></table>
+    <div class="muted" style="font-size:12px;margin-bottom:6px">Средний тоннаж, ${unitLabel(units)}, за выбранный период. «—» — период короче этого отрезка.</div>
+    <div style="overflow-x:auto"><table class="mg-table"><thead><tr><th>Группа</th><th>Всего</th><th>За тренировку</th>${MG_COLS.map(c=>`<th>${c[2]}</th>`).join('')}</tr></thead><tbody>
+    ${Object.keys(mgTotals).sort((a,b)=>mgTotals[b]-mgTotals[a]).map(g=>`<tr><td>${MG[g]||g}</td><td>${fmtNum(convW(mgTotals[g],units))}</td><td>${fmtNum(convW(mgTotals[g]/(mgWorkouts[g]||1),units))}</td>${MG_COLS.map(c=>`<td>${perUnit(g,c[1])}</td>`).join('')}</tr>`).join('') || '<tr><td colspan="8" class="muted">Нет данных</td></tr>'}
+    </tbody></table></div>
   </div>
 
   <div class="card">
     <h3>По упражнениям</h3>
-    <table><thead><tr><th>Упражнение</th><th>Макс. вес</th><th>Макс. повт.</th><th>Тоннаж</th><th>Раз</th></tr></thead><tbody>
+    <table><thead><tr><th>Упражнение</th><th>Макс. вес</th><th>Макс. повт.</th><th>Тоннаж</th><th>Кол-во тренировок</th></tr></thead><tbody>
     ${Object.values(exTotals).sort((a,b)=>b.tonnage-a.tonnage).map(e=>`<tr><td>${esc(e.name)}</td><td>${fmtNum(convW(e.maxW,units))}</td><td>${e.maxR}</td><td>${fmtNum(convW(e.tonnage,units))}</td><td>${e.count}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Нет данных</td></tr>'}
     </tbody></table>
   </div>
@@ -2708,7 +2737,7 @@ function archiveCard(pid){
 // справочник на 100 г: [название, ккал, белки, жиры, углеводы, граммов в штуке, название штуки]
 const MEALS = [['breakfast','🌅 Завтрак'],['snack1','🍎 Перекус'],['lunch','🍲 Обед'],['snack2','🍎 Перекус'],['dinner','🌙 Ужин'],['snack3','🍎 Вечерний перекус']];
 // напитки считаем в мл (плотность ≈ 1)
-const LIQUIDS = new Set(['Квас','Айран','Кисель','Молочный коктейль','Ряженка','Молоко соевое','Молоко овсяное','Газировка сладкая','Энергетический напиток','Изотоник','Сок яблочный','Сок томатный','Морс','Какао с молоком','Минеральная вода','Кефир 3,2%','Молоко 2,5%','Молоко 3,2%','Кефир 1%','Кефир 2,5%','Катык','Сок апельсиновый','Кола','Чай с сахаром','Кофе с молоком','Пиво','Вино сухое','Молоко 1,5%','Молоко обезжиренное','Кефир 0%','Йогурт питьевой','Простокваша','Снежок','Кофе чёрный без сахара','Капучино','Латте','Чай без сахара','Сок мультифруктовый','Сок вишнёвый','Сок гранатовый','Нектар персиковый','Компот','Холодный чай','Лимонад','Кола без сахара','Смузи фруктовый','Протеиновый коктейль готовый','Кумыс','Вода кокосовая','Пиво безалкогольное','Вино красное полусладкое','Шампанское','Сидр','Водка','Коньяк','Сок виноградный','Сок ананасовый','Сок грейпфрутовый','Сок морковный','Сок тыквенный','Сок берёзовый','Сок лимонный','Нектар манговый','Нектар абрикосовый','Нектар банановый','Нектар грушевый','Тоник','Газированный напиток лимон-лайм','Имбирный эль','Тархун (лимонад)','Энергетический напиток без сахара','Квас окрошечный','Раф кофе','Мокко','Флэт уайт','Американо','Эспрессо','Латте макиато','Капучино на овсяном молоке','Латте с сиропом','Айс латте','Фраппучино','Кофе глясе','Матча-латте','Чай латте масала','Чай с молоком без сахара','Горячий шоколад','Каркаде без сахара','Сбитень','Молочный коктейль шоколадный','Молочный коктейль клубничный','Смузи зелёный','Пиво тёмное','Пиво пшеничное','Пиво крепкое','Пиво лёгкое (лайт)','Пиво нефильтрованное','Эль','Стаут','Пиво фруктовое вишнёвое','Вино белое полусладкое','Вино белое сладкое','Вино красное сладкое','Вино розовое','Портвейн','Вермут','Кагор','Глинтвейн','Сангрия','Виски','Ром','Текила','Джин','Чача','Наливка вишнёвая','Ликёр сливочный','Ликёр кофейный','Ликёр апельсиновый','Ликёр яичный','Ликёр миндальный (амаретто)','Сакэ','Медовуха','Мохито','Пина колада','Маргарита','Кровавая Мэри','Спритц','Космополитен','Лонг-айленд','Джин-тоник','Виски-кола','Отвёртка (водка с апельсиновым соком)','Белый русский','Дайкири','Слабоалкогольный коктейль в банке','Напиток с L-карнитином','Молоко 0,5%','Молоко 1%','Молоко 3,5%','Молоко 4%','Молоко 6%','Молоко цельное деревенское','Молоко козье','Молоко топлёное 4%','Молоко топлёное 6%','Молоко топлёное 1%','Молоко безлактозное 1,5%','Молоко ультрапастеризованное 3,2%','Молоко клубничное 1,5%','Молоко шоколадное 2%','Молоко банановое 1,5%','Коктейль молочный ванильный','Молоко кокосовое','Молоко миндальное','Молоко рисовое','Кефир 1,5%','Кефир 3,5%','Кефир 4%','Кефир 6%','Кефир козий','Биокефир 1%','Кефир фруктовый 1,5%','Ряженка 1%','Ряженка 2,5%','Ряженка 4%','Ряженка 6%','Варенец 2,5%','Варенец 4%','Тан','Тан с зеленью','Мацони 3,2%','Мацони 1,5%','Простокваша 1%','Простокваша 3,2%','Простокваша мечниковская','Ацидофилин 1%','Ацидофилин 3,2%','Бифидок 2,5%','Шубат','Сыворотка молочная','Пахта','Йогурт питьевой клубничный 1,5%','Йогурт питьевой персиковый 2,5%','Йогурт питьевой натуральный 2,5%','Биойогурт питьевой 1,5%','Сливки 15%','Сливки 22%','Сливки 35%','Сливки 38%','Сливки 25%','Сливки 8%']);
+const LIQUIDS = new Set(['Квас','Айран','Кисель','Молочный коктейль','Ряженка','Молоко соевое','Молоко овсяное','Газировка сладкая','Энергетический напиток','Изотоник','Сок яблочный','Сок томатный','Морс','Какао с молоком','Минеральная вода','Кефир 3,2%','Молоко 2,5%','Молоко 3,2%','Кефир 1%','Кефир 2,5%','Катык','Сок апельсиновый','Кола','Чай с сахаром','Кофе с молоком','Пиво','Вино сухое','Молоко 1,5%','Молоко обезжиренное','Кефир 0%','Йогурт питьевой','Простокваша','Снежок','Кофе чёрный без сахара','Капучино','Латте','Чай без сахара','Сок мультифруктовый','Сок вишнёвый','Сок гранатовый','Нектар персиковый','Компот','Холодный чай','Лимонад','Кола без сахара','Смузи фруктовый','Протеиновый коктейль готовый','Кумыс','Вода кокосовая','Пиво безалкогольное','Вино красное полусладкое','Шампанское','Сидр','Водка','Коньяк','Сок виноградный','Сок ананасовый','Сок грейпфрутовый','Сок морковный','Сок тыквенный','Сок берёзовый','Сок лимонный','Нектар манговый','Нектар абрикосовый','Нектар банановый','Нектар грушевый','Тоник','Газированный напиток лимон-лайм','Имбирный эль','Тархун (лимонад)','Энергетический напиток без сахара','Квас окрошечный','Раф кофе','Мокко','Флэт уайт','Американо','Эспрессо','Латте макиато','Капучино на овсяном молоке','Латте с сиропом','Айс латте','Фраппучино','Кофе глясе','Матча-латте','Чай латте масала','Чай с молоком без сахара','Горячий шоколад','Каркаде без сахара','Сбитень','Молочный коктейль шоколадный','Молочный коктейль клубничный','Смузи зелёный','Пиво тёмное','Пиво пшеничное','Пиво крепкое','Пиво лёгкое (лайт)','Пиво нефильтрованное','Эль','Стаут','Пиво фруктовое вишнёвое','Вино белое полусладкое','Вино белое сладкое','Вино красное сладкое','Вино розовое','Портвейн','Вермут','Кагор','Глинтвейн','Сангрия','Виски','Ром','Текила','Джин','Чача','Наливка вишнёвая','Ликёр сливочный','Ликёр кофейный','Ликёр апельсиновый','Ликёр яичный','Ликёр миндальный (амаретто)','Сакэ','Медовуха','Мохито','Пина колада','Маргарита','Кровавая Мэри','Спритц','Космополитен','Лонг-айленд','Джин-тоник','Виски-кола','Отвёртка (водка с апельсиновым соком)','Белый русский','Дайкири','Слабоалкогольный коктейль в банке','Напиток с L-карнитином','Молоко 0,5%','Молоко 1%','Молоко 3,5%','Молоко 4%','Молоко 6%','Молоко цельное деревенское','Молоко козье','Молоко топлёное 4%','Молоко топлёное 6%','Молоко топлёное 1%','Молоко безлактозное 1,5%','Молоко ультрапастеризованное 3,2%','Молоко клубничное 1,5%','Молоко шоколадное 2%','Молоко банановое 1,5%','Коктейль молочный ванильный','Молоко кокосовое','Молоко миндальное','Молоко рисовое','Кефир 1,5%','Кефир 3,5%','Кефир 4%','Кефир 6%','Кефир козий','Биокефир 1%','Кефир фруктовый 1,5%','Ряженка 1%','Ряженка 2,5%','Ряженка 4%','Ряженка 6%','Варенец 2,5%','Варенец 4%','Тан','Тан с зеленью','Мацони 3,2%','Мацони 1,5%','Простокваша 1%','Простокваша 3,2%','Простокваша мечниковская','Ацидофилин 1%','Ацидофилин 3,2%','Бифидок 2,5%','Шубат','Сыворотка молочная','Пахта','Йогурт питьевой клубничный 1,5%','Йогурт питьевой персиковый 2,5%','Йогурт питьевой натуральный 2,5%','Биойогурт питьевой 1,5%','Сливки 15%','Сливки 22%','Сливки 35%','Сливки 38%','Сливки 25%','Сливки 8%','Кола лайт','Газировка апельсиновая','Газировка апельсиновая без сахара','Газировка лимон-лайм без сахара','Газировка вишнёвая','Лимонад дюшес','Лимонад крем-сода','Лимонад груша','Лимонад байкал','Лимонад тархун без сахара','Лимонад без сахара','Тоник без сахара','Имбирный лимонад','Изотоник без сахара','Энергетик фруктовый','Холодный чай лимонный','Холодный чай персиковый','Холодный зелёный чай','Холодный чай без сахара','Холодный кофе в банке','Кофе латте в бутылке','Сок апельсиновый свежевыжатый','Сок яблочный свежевыжатый','Сок морковно-яблочный','Сок персиковый','Сок абрикосовый','Сок сливовый','Нектар вишнёвый','Нектар яблочный','Нектар мультивитаминный','Нектар ананасовый','Сок томатный с солью','Сок овощной ассорти','Сок детский яблочный осветлённый','Вода газированная','Вода минеральная лечебно-столовая','Вода с лимоном','Кефирный напиток 1%','Компот из сухофруктов','Узвар','Айран газированный']);
 const unitOf = x => (x && (x.unit==='ml' || LIQUIDS.has(x.name))) ? 'мл' : 'г';
 const FOOD_DB = [
   ['Гречка варёная',110,4.2,1.1,21.3],['Гречка сухая',313,12.6,3.3,62.1],['Рис варёный',116,2.2,0.5,24.9],['Рис сухой',344,6.7,0.7,78.9],
@@ -3213,6 +3242,51 @@ const FOOD_DB = [
   ['Ролл с угрём',200,8,7,26,30,'шт'],['Ролл Канада',210,8,8.5,25.5,30,'шт'],['Маки-ролл с лососем',150,6.5,2.5,25,25,'шт'],['Маки-ролл с огурцом',120,2.8,0.5,26,25,'шт'],
   ['Ролл запечённый с лососем',220,7.5,10.5,24,35,'шт'],['Ролл темпура',240,7,11,28.5,35,'шт'],['Ролл Дракон',200,7.5,7.5,25.5,30,'шт'],['Ролл с креветкой',160,6.5,4,24,30,'шт'],
   ['Ролл спайси с лососем',190,7,7.5,23,30,'шт'],['Ролл Цезарь',200,8.5,8,24,30,'шт'],['Нигири с тунцом',140,8,0.8,24,30,'шт'],
+  // снеки, закуски, копчёные сыры, напитки
+  ['Чипсы картофельные с солью',536,6.5,34,52,90,'пачка'],['Чипсы картофельные с паприкой',530,6,33,53,90,'пачка'],['Чипсы картофельные со сметаной и зеленью',532,6.4,33.5,52.5,90,'пачка'],['Чипсы картофельные со вкусом краба',528,6.2,33,53,90,'пачка'],
+  ['Чипсы картофельные со вкусом холодца и хрена',527,6.5,32.5,53.5,90,'пачка'],['Чипсы картофельные со вкусом лука',530,6.3,33,53,90,'пачка'],['Чипсы картофельные со вкусом грибов',529,6.2,33,53,90,'пачка'],['Чипсы картофельные со вкусом красной икры',527,6.4,32.5,53.5,90,'пачка'],
+  ['Чипсы картофельные со вкусом шашлыка',530,6.5,33,52.5,90,'пачка'],['Чипсы картофельные острые чили',528,6.2,33,53,90,'пачка'],['Чипсы картофельные с солью и уксусом',525,6,32.5,54,90,'пачка'],['Чипсы картофельные домашние (кеттл)',505,6.5,28,56,90,'пачка'],
+  ['Чипсы картофельные несолёные',540,6.5,34.5,52,90,'пачка'],['Чипсы тортилья с солью',495,7,24,62,90,'пачка'],['Чипсы тортилья с сыром',500,7.5,25,60.5,90,'пачка'],['Чипсы тортилья острые',497,7,24.5,61,90,'пачка'],
+  ['Чипсы из батата',500,4.5,28,58,70,'пачка'],['Пита-чипсы с солью',450,10.5,16,66,70,'пачка'],['Пита-чипсы с чесноком и зеленью',452,10.5,16.5,65.5,70,'пачка'],['Рисовые чипсы',420,6.5,10,76,60,'пачка'],
+  ['Чипсы из цельного зерна',470,8.5,20,64,70,'пачка'],['Чипсы гороховые',460,14,20,56,70,'пачка'],['Чипсы из свёклы',480,5,30,48,50,'пачка'],['Сухарики пшеничные с солью',410,11,8,72,40,'пачка'],
+  ['Сухарики ржаные со вкусом бекона',425,10,11,70,40,'пачка'],['Сухарики ржаные со вкусом холодца и хрена',420,10,10.5,70,40,'пачка'],['Сухарики со вкусом красной икры',418,10.5,10,70,40,'пачка'],['Сухарики со вкусом краба',418,10,10,71,40,'пачка'],
+  ['Сухарики со вкусом салями',425,10.5,11,69.5,40,'пачка'],['Сухарики со вкусом сметаны и зелени',420,10,10.5,70,40,'пачка'],['Сухарики со вкусом шашлыка',422,10.5,10.5,70,40,'пачка'],['Сухарики со вкусом томата и зелени',415,10,10,70,40,'пачка'],
+  ['Гренки ржаные с чесноком',430,10,14,66,100,'порция'],['Гренки пшеничные жареные в масле',450,9.5,20,58,100,'порция'],['Крекер солёный',440,9.5,14,69],['Крекер с сыром',480,11,20,63],
+  ['Крекер луковый',450,9.5,16,67],['Крекер с зеленью',445,9.5,15,68],['Крекер цельнозерновой',420,10.5,12,66],['Соломка солёная с кунжутом',400,11,9,68],
+  ['Соломка солёная с маком',395,10.5,8.5,68],['Гриссини с кунжутом',420,12,10.5,68.5],['Гриссини с розмарином',410,11.5,9.5,69],['Кукурузные палочки солёные',490,6,24,63,50,'пачка'],
+  ['Кукурузные снеки со вкусом сыра',520,6.5,28,60,50,'пачка'],['Кукурузные снеки колечки солёные',500,6.5,25,62,50,'пачка'],['Пшеничные снеки колечки',480,8,22,62,50,'пачка'],['Арахис в тесте со вкусом сыра',505,15,28,48,50,'пачка'],
+  ['Арахис в тесте со вкусом бекона',505,15,28,48,50,'пачка'],['Арахис в тесте острый',500,15,27.5,48.5,50,'пачка'],['Фисташки жареные солёные',590,21,48,17,50,'пачка'],['Миндаль копчёный',610,21,53,13,50,'пачка'],
+  ['Миндаль жареный солёный',615,21,54,12,50,'пачка'],['Кешью жареный солёный',590,18.5,48,27,50,'пачка'],['Смесь солёных орешков к пиву',595,21,50,16,50,'пачка'],['Фундук жареный солёный',650,15,62,10,50,'пачка'],
+  ['Семечки подсолнечника жареные солёные',590,20.5,52.5,10.5,100,'пачка'],['Семечки подсолнечника очищенные жареные',600,21,53.5,10,50,'пачка'],['Семечки тыквенные жареные солёные',560,28,47,12.5,50,'пачка'],['Кальмар копчёный',270,36,8,13,50,'пачка'],
+  ['Кальмар соломка сушёная',286,48,2.5,18,50,'пачка'],['Кальмар кольца сушёные',290,47,3,19,50,'пачка'],['Кальмар с перцем по-шанхайски',300,40,3,28,50,'пачка'],['Тарань вяленая',250,46,7,0],
+  ['Корюшка сушёная',240,42,7.5,0,50,'пачка'],['Анчоусы сушёные солёные',290,55,8,0,30,'пачка'],['Рыбные чипсы',380,40,6,41,30,'пачка'],['Рыбка золотистая сушёная (путассу)',260,50,6.5,0,40,'пачка'],
+  ['Янтарная рыбка сушёная с перцем',300,60,3.5,6.5,30,'пачка'],['Чехонь вяленая',250,42,8.5,0],['Щупальца кальмара копчёные',260,35,7,14,50,'пачка'],['Мидии копчёные в масле',280,15,23,3],
+  ['Икра мойвы в соусе',225,10,18.5,4],['Джерки куриный',280,52,4,8,40,'пачка'],['Джерки из индейки',275,50,4,9,40,'пачка'],['Джерки из свинины',320,45,12,8,40,'пачка'],
+  ['Колбаски пеперони-снеки сыровяленые',500,24,44,1.5,50,'пачка'],['Колбаски-снеки из конины сыровяленые',420,28,34,1,50,'пачка'],['Колбаски-снеки куриные сыровяленые',350,30,25,2,50,'пачка'],['Чипсы мясные из свинины',380,55,15,6,30,'пачка'],
+  ['Чипсы мясные из курицы',350,60,8,9,30,'пачка'],['Чипсы мясные из говядины',360,58,10,8.5,30,'пачка'],['Сыр-снек сушёный хрустящий',510,40,37,4,30,'пачка'],['Сырные палочки сушёные',520,42,38,3,30,'пачка'],
+  ['Сырные шарики кукурузные',530,7,30,57,60,'пачка'],['Сырные палочки из косички',340,28,24,0.5],['Сыр-спагетти',320,26,23,1],['Сыр-спагетти копчёный',325,27,23,1],
+  ['Сулугуни копчёный',300,21,24,0.5],['Скаморца копчёная',330,25,25,1],['Моцарелла копчёная',290,20,22,2],['Моцарелла в панировке жареная',340,15,22,21,100,'порция'],
+  ['Сыр жареный в панировке',380,18,25,20,100,'порция'],['Сулугуни жареный на сковороде',330,21,26,2,100,'порция'],['Сырные шарики во фритюре',390,14,28,20,100,'порция'],['Наггетсы сырные',360,13,24,23,100,'порция'],
+  ['Халуми жареный на гриле',330,22,26,2,100,'порция'],['Нарезка мясная ассорти',370,20,31,1.5,100,'порция'],['Нарезка сырная ассорти',360,25,28.5,1,100,'порция'],['Нарезка овощная (огурец, помидор, перец)',20,0.9,0.1,3.8,200,'порция'],
+  ['Нарезка рыбная (сёмга, масляная рыба, скумбрия)',220,19,16,0,100,'порция'],['Канапе с сыром и виноградом',230,12,16.5,8.5,25,'шт'],['Канапе с ветчиной и огурцом',210,11,12.5,13.5,25,'шт'],['Канапе с красной рыбой',230,11,13,17.5,25,'шт'],
+  ['Тарталетки с красной икрой',310,14,16,28,20,'шт'],['Тарталетки с сыром и чесноком',360,8,25,25,20,'шт'],['Тарталетки с салатом из курицы',310,9,20,23,25,'шт'],['Тарталетки с крабовым салатом',300,6.5,19,26,25,'шт'],
+  ['Рулетики из ветчины с сыром и чесноком',300,16,25.5,1.5,40,'шт'],['Рулетики из лаваша с крабовыми палочками',230,7,12,23.5,100,'порция'],['Рулетики из лаваша с красной рыбой',250,10.5,13,23,100,'порция'],['Яйца фаршированные',190,10.5,15.5,1.5,50,'половинка'],
+  ['Яйца фаршированные печенью трески',230,11,20,1,50,'половинка'],['Оливки фаршированные лимоном',145,1.2,14.5,3],['Оливки фаршированные анчоусом',150,2,15,2.5],['Оливки фаршированные перцем',135,1,13.5,3],
+  ['Ассорти солений (огурцы, помидоры, капуста)',16,0.9,0.1,2.9,150,'порция'],['Баба гануш',130,2.5,10.5,7.5],['Мутабаль',150,3.5,12,8],['Паштет на хлебце',290,9.5,17,25,40,'шт'],
+  ['Брускетта с томатами и базиликом',200,5.5,7,28.5,60,'шт'],['Брускетта с сыром и помидорами',240,9,11,26,60,'шт'],['Брускетта с красной рыбой и сливочным сыром',250,11,12,24.5,60,'шт'],['Брускетта с грибами',210,6,9,26,60,'шт'],
+  ['Брускетта с ветчиной',240,10.5,10.5,26,60,'шт'],['Брускетта с авокадо',230,5.5,12,25.5,60,'шт'],['Картофельные дольки с сыром',230,6.5,13,22,150,'порция'],['Картофельные дольки во фритюре',210,3,11,25.5,150,'порция'],
+  ['Крылышки баффало',270,20,19.5,4,200,'порция'],['Креветки в панировке жареные',260,13,13,22.5,150,'порция'],['Начос с сыром и халапеньо',330,8.5,18,34,150,'порция'],['Хумус с пита-чипсами',320,9.5,16.5,34,150,'порция'],
+  ['Чесночные гренки к пиву',420,9,20,52,100,'порция'],['Пивная тарелка (ассорти закусок)',390,18,27,18,300,'порция'],['Сырная тарелка с мёдом и орехами',380,20,28.5,11,150,'порция'],['Кола лайт',1,0,0,0.1,330,'банка'],
+  ['Газировка апельсиновая',48,0,0,12,330,'банка'],['Газировка апельсиновая без сахара',3,0,0,0.6,330,'банка'],['Газировка лимон-лайм без сахара',1,0,0,0.2,330,'банка'],['Газировка вишнёвая',45,0,0,11.2,500,'бутылка'],
+  ['Лимонад дюшес',40,0,0,10,500,'бутылка'],['Лимонад крем-сода',42,0,0,10.5,500,'бутылка'],['Лимонад груша',41,0,0,10.3,500,'бутылка'],['Лимонад байкал',42,0,0,10.5,500,'бутылка'],
+  ['Лимонад тархун без сахара',1,0,0,0.2,500,'бутылка'],['Лимонад без сахара',2,0,0,0.4,500,'бутылка'],['Тоник без сахара',1,0,0,0.2,330,'банка'],['Имбирный лимонад',40,0,0,10,500,'бутылка'],
+  ['Изотоник без сахара',4,0,0,0.9,500,'бутылка'],['Энергетик фруктовый',48,0,0,12,450,'банка'],['Холодный чай лимонный',32,0,0,8,500,'бутылка'],['Холодный чай персиковый',33,0,0,8.2,500,'бутылка'],
+  ['Холодный зелёный чай',30,0,0,7.5,500,'бутылка'],['Холодный чай без сахара',1,0,0,0.2,500,'бутылка'],['Холодный кофе в банке',60,2.5,1.5,9,250,'банка'],['Кофе латте в бутылке',70,3,2.2,9.5,250,'бутылка'],
+  ['Сок апельсиновый свежевыжатый',45,0.7,0.2,10.4,250,'стакан'],['Сок яблочный свежевыжатый',46,0.4,0.1,10.5,250,'стакан'],['Сок морковно-яблочный',44,0.6,0.1,10,250,'стакан'],['Сок персиковый',48,0.5,0,11.5,250,'стакан'],
+  ['Сок абрикосовый',46,0.6,0.1,10.8,250,'стакан'],['Сок сливовый',55,0.6,0.1,13,250,'стакан'],['Нектар вишнёвый',54,0.3,0,13.2,250,'стакан'],['Нектар яблочный',48,0.2,0,11.8,250,'стакан'],
+  ['Нектар мультивитаминный',52,0.3,0,12.7,250,'стакан'],['Нектар ананасовый',54,0.2,0,13.3,250,'стакан'],['Сок томатный с солью',20,1,0.1,3.5,250,'стакан'],['Сок овощной ассорти',22,0.9,0.1,4.2,250,'стакан'],
+  ['Сок детский яблочный осветлённый',42,0.1,0,10.3,200,'пачка'],['Вода газированная',0,0,0,0,500,'бутылка'],['Вода минеральная лечебно-столовая',0,0,0,0,500,'бутылка'],['Вода с лимоном',2,0,0,0.5,250,'стакан'],
+  ['Кефирный напиток 1%',38,3,1,4.2,250,'стакан'],['Компот из сухофруктов',60,0.4,0,14.5,250,'стакан'],['Узвар',45,0.3,0,11,250,'стакан'],['Айран газированный',26,1.2,1.5,1.8,250,'стакан'],
 ].map(([name,kcal,p,f,c,pc,pcName])=>({name,kcal,p,f,c,pc,pcName, unit: LIQUIDS.has(name)?'ml':'g'}));
 const ACTIVITY = [['1.2','Минимальная (сидячая работа)'],['1.375','Лёгкая (1–3 тренировки в неделю)'],['1.55','Средняя (3–5 тренировок)'],['1.725','Высокая (6–7 тренировок)'],['1.9','Очень высокая (спорт + физический труд)']];
 
@@ -3363,6 +3437,19 @@ async function saveFoodNorm(){
   return saveFoodPatch({ activity: document.getElementById('foodActivity').value, kcal_target: t > 0 ? t : null }, 'Норма сохранена');
 }
 
+// поиск по брендам: «кока-кола», «спрайт», «сникерс»… находят обычные позиции справочника
+const FOOD_ALIASES = {
+  'Кола':'кока-кола кока кола пепси coca-cola coca cola coke pepsi', 'Кола без сахара':'кока-кола зеро кола зеро пепси макс coca-cola zero coke zero pepsi max',
+  'Кола лайт':'кока-кола лайт диет кола diet coke pepsi light', 'Газированный напиток лимон-лайм':'спрайт севен ап 7up sprite 7 up', 'Газировка лимон-лайм без сахара':'спрайт зеро sprite zero 7up zero',
+  'Газировка апельсиновая':'фанта миринда fanta mirinda', 'Газировка апельсиновая без сахара':'фанта зеро fanta zero', 'Газировка сладкая':'лимонад газвода soda',
+  'Энергетический напиток':'ред булл адреналин монстр флеш red bull adrenaline monster flash burn берн', 'Энергетический напиток без сахара':'ред булл без сахара монстр ультра red bull sugarfree monster ultra',
+  'Холодный чай':'липтон фьюз ти lipton fuze tea айс ти ice tea', 'Холодный чай лимонный':'липтон лимон lipton lemon', 'Холодный чай персиковый':'липтон персик lipton peach', 'Холодный чай без сахара':'липтон без сахара lipton zero',
+  'Изотоник':'пауэрэйд гаторейд powerade gatorade', 'Изотоник без сахара':'пауэрэйд зеро powerade zero',
+  'Шоколадный батончик с арахисом':'сникерс snickers', 'Шоколадный батончик с нугой и карамелью':'марс mars милки вэй milky way', 'Шоколадный батончик с кокосом':'баунти bounty',
+  'Шоколадный батончик с вафлей':'кит кат kitkat kit kat', 'Шоколадный батончик с печеньем и карамелью':'твикс twix', 'Шоколадная паста':'нутелла nutella',
+  'Чипсы в тубе':'принглс pringles', 'Чипсы':'лейс лэйс lays lay’s', 'Чипсы кукурузные (начос)':'доритос doritos', 'Сухарики':'кириешки три корочки хрустим',
+  'Йогурт питьевой':'актимель актива activia actimel', 'Хлопья кукурузные':'корнфлейкс cornflakes', 'Холодный кофе в банке':'нескафе nescafe starbucks старбакс'
+};
 // окно добавления: поиск по справочнику + недавние, граммы или штуки, либо свой продукт
 function foodMatches(q){
   const recent = []; const seen = new Set();
@@ -3374,7 +3461,8 @@ function foodMatches(q){
   if(!nq) return [...recent.slice(0,8), ...cat].slice(0,40);
   const stem = w => w.length>=4 ? w.slice(0,-1) : w;
   const words = nq.split(' ');
-  const tn = x => { const t = I18N.lang!=='ru' ? I18N.t(x.name) : ''; return t && t!==x.name ? normName(x.name)+' '+normName(t) : normName(x.name); };
+  const tn = x => { const t = I18N.lang!=='ru' ? I18N.t(x.name) : '', al = FOOD_ALIASES[x.name];
+    return normName(x.name) + (t && t!==x.name ? ' '+normName(t) : '') + (al ? ' '+normName(al) : ''); };
   const hit = x => { const n = tn(x), nw = n.split(/[\s(),%]+/);
     return words.every(w => n.includes(w) || nw.some(t => t.startsWith(stem(w)))); };
   return [...recent, ...cat].filter(hit).sort((a,b)=>(tn(b).startsWith(nq)) - (tn(a).startsWith(nq))).slice(0,40);
@@ -3478,8 +3566,8 @@ function viewSettings(){
         ${(()=>{ const v = t.design ? t.D : t.L; return `<span class="theme-prev" style="background:${v.art?v.art+',':''}${v.bg}"><i style="background:${t.design?'linear-gradient(120deg,'+t.dark+','+t.accent2+')':t.accent}"></i><i style="background:${t.accent2}"></i><b style="background:${v.surface}"></b></span>`; })()}${esc(t.name)}<span class="muted" style="font-size:11px">${t.kind}</span></button>`).join('')}</div>`).join('')}
     </div>
   </div>
-  <div class="card" style="margin-bottom:10px">
-    <h3>Управление упражнениями</h3>
+  <details class="card ex-list" id="exList" style="margin-bottom:10px" ${State.exListOpen?'open':''}>
+    <summary><h3 style="display:inline">Управление упражнениями</h3> <span class="muted">${DB.exercises.length}</span></summary>
     ${isAdmin() ? DB.exercises.map(e=>`<div class="ex-admin">
       <input type="text" data-ex-edit="${e.id}.name" value="${esc(e.name)}">
       <select data-ex-edit="${e.id}.mainGroup">${MUSCLE_GROUPS.map(([id,l])=>`<option value="${id}" ${e.mainGroup===id?'selected':''}>${l}</option>`).join('')}</select>
@@ -3488,7 +3576,7 @@ function viewSettings(){
     : `<table><thead><tr><th>Название</th><th>Группа</th><th>Тип</th></tr></thead><tbody>
     ${DB.exercises.map(e=>`<tr><td><span class="row" style="flex-wrap:nowrap">${exThumb(e,30)}${esc(e.name)}</span></td><td>${MG[e.mainGroup]||''}</td><td>${WT[e.type]||e.type}</td></tr>`).join('')}
     </tbody></table>`}
-  </div>
+  </details>
   <div class="card" style="margin-bottom:10px">
     <h3>Резервное копирование</h3>
     <div class="row">
@@ -3526,6 +3614,8 @@ async function loadLinks(){
     DB.links = l||[]; DB.linkTexts = Object.fromEntries((t||[]).map(x=>[x.key, x.value]));
     const {data:cb} = await c.from('custom_badges').select('*').order('created_at');   // свои ачивки за соревнования
     DB.customBadges = cb||[];
+    const {data:ub} = await c.from('user_badges').select('*');   // выданные ачивки (свои и тех, кто открыл мне данные)
+    DB.userBadges = ub||[];
     if(State.linkDraft && !State.linkDraft.dirty) State.linkDraft = null;   // черновик без правок — пересобрать из свежих данных
     if(LINK_PAGES.includes(State.view) || State.view==='admin') renderMain();
   }catch(e){}
@@ -3757,14 +3847,15 @@ const GENDER_RU = {male:'Мужчины', female:'Женщины', unknown:'По
 const AGE_ORDER = ['до 18','18–24','25–34','35–44','45–54','55+','не указан'];
 async function loadAdmin(){
   const c = Auth.getClient(), days = State.adminDays ?? 30;
-  const [st, pend, appr] = await Promise.all([
+  const [st, pend, appr, ub] = await Promise.all([
     c.rpc('admin_stats', {p_days: days}),
     c.from('user_achievements').select('*').eq('status','pending').not('competition_name','is',null).order('created_at'),
-    c.from('user_achievements').select('*').eq('status','approved').not('competition_name','is',null).order('reviewed_at',{ascending:false}).limit(60)
+    c.from('user_achievements').select('*').eq('status','approved').not('competition_name','is',null).order('reviewed_at',{ascending:false}).limit(60),
+    c.from('user_badges').select('*')
   ]);
   const ids = [...new Set([...(pend.data||[]), ...(appr.data||[])].map(x=>x.user_id))];
   const {data:names} = ids.length ? await c.from('profiles').select('id,name,telegram_username').in('id', ids) : {data:[]};
-  State.admin = { stats: st.data||[], error: st.error&&st.error.message, pending: pend.data||[], approved: appr.data||[], names: names||[] };
+  State.admin = { stats: st.data||[], error: st.error&&st.error.message, pending: pend.data||[], approved: appr.data||[], names: names||[], userBadges: (ub&&ub.data)||[] };
   if(State.view==='admin') renderMain();
 }
 function viewAdmin(){
@@ -3788,10 +3879,11 @@ function viewAdmin(){
         <div class="muted">${[c.result, c.competition_date?fmtDate(c.competition_date):'', c.competition_place].filter(Boolean).map(esc).join(' · ')}</div>
         <input type="text" id="rej_${c.id}" placeholder="Причина отказа (если отклоняете)" style="width:100%;margin-top:6px;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface)">
         ${certBadgePicker(c)}
-        <div class="row" style="margin-top:6px"><button class="btn sm primary" data-review-cert="${c.id}.1">Подтвердить${State.certPick&&State.certPick[c.id]?' с ачивкой':''}</button><button class="btn sm" data-review-cert="${c.id}.0">Отклонить</button></div>
+        <div class="row" style="margin-top:6px"><button class="btn sm primary" data-review-cert="${c.id}.1">Подтвердить${pickOf(c.id,[]).length?` и выдать ачивки (${pickOf(c.id,[]).length})`:''}</button><button class="btn sm" data-review-cert="${c.id}.0">Отклонить</button></div>
       </div></div>`).join('') || '<div class="muted">Новых сертификатов нет.</div>'}
   </div>
   ${adminApprovedCerts(A, nameOf)}
+  ${adminPersonalBadges(A)}
   ${adminBadgeLibrary()}
   <div class="card">
     <div class="row" style="justify-content:space-between"><h3 style="margin:0">Пользователи по полу и возрасту</h3>
@@ -3814,52 +3906,81 @@ function viewAdmin(){
 }
 async function reviewCert(id, approve){
   const comment = approve ? null : ((document.getElementById('rej_'+id)||{}).value||'').trim() || null;
-  const badge = approve && State.certPick ? State.certPick[id] || null : null;
-  const {error} = await Auth.getClient().from('user_achievements').update({status: approve?'approved':'rejected', review_comment: comment, ...(badge?{badge_id:badge}:{}),
+  const pick = approve ? pickOf(id, []) : [];
+  const c = Auth.getClient();
+  const {error} = await c.from('user_achievements').update({status: approve?'approved':'rejected', review_comment: comment,
     reviewed_at: new Date().toISOString(), reviewed_by: selfParticipantId()}).eq('id', id);
   if(error) return toast('Ошибка: '+error.message);
-  toast(approve ? 'Сертификат подтверждён — пользователю придёт сообщение' : 'Сертификат отклонён');
   const done = State.admin.pending.find(x=>x.id===id);
+  if(pick.length && done){   // выбранные ачивки выдаются вместе с подтверждением
+    const {data, error:e2} = await c.from('user_badges').insert(pick.map(b=>({user_id:done.user_id, badge_id:b, cert_id:id}))).select();
+    if(e2) toast('Сертификат подтверждён, но ачивки не выданы: '+e2.message+(/user_badges|relation/.test(e2.message)?' — запустите stage21_user_badges.sql':''));
+    else State.admin.userBadges = (State.admin.userBadges||[]).concat(data||[]);
+  }
+  delete (State.bpick||{})[id];
+  toast(approve ? (pick.length ? `Сертификат подтверждён, ачивок выдано: ${pick.length}` : 'Сертификат подтверждён — пользователю придёт сообщение') : 'Сертификат отклонён');
   State.admin.pending = State.admin.pending.filter(x=>x.id!==id);
-  if(approve && done) State.admin.approved = [{...done, status:'approved', badge_id:badge}, ...(State.admin.approved||[])];
+  if(approve && done) State.admin.approved = [{...done, status:'approved'}, ...(State.admin.approved||[])];
   renderMain();
 }
-// ===== свои ачивки за соревнования: библиотека картинок (таблица custom_badges, хранилище badges) =====
-function certBadgePicker(c){
-  const P = (State.certPick = State.certPick || {}), pick = c.id in P ? P[c.id] : (c.badge_id || null), list = DB.customBadges || [];
-  const isNew = State.cbNew === c.id;
-  return `<div class="cb-pick" style="margin-top:8px"><div class="muted" style="font-size:12px;margin-bottom:4px">Ачивка за этот сертификат (необязательно): нажмите, чтобы выбрать</div>
-    <div class="cb-grid">${list.map(b=>`<button class="cb-item ${pick===b.id?'on':''}" data-cb-pick="${c.id}|${b.id}" title="${esc(b.description||'')}"><img src="${esc(b.image_url)}" alt="" loading="lazy"><span>${esc(b.title)}</span></button>`).join('')}
-      <button class="cb-item cb-add" data-cb-new="${c.id}"><b>+</b><span>Новая ачивка</span></button></div>
+// ===== свои ачивки: библиотека картинок (custom_badges, хранилище badges) и выданные (user_badges) =====
+// выбор ачивок — несколько сразу; key — id сертификата или 'personal'
+const pickOf = (key, def) => { const P = (State.bpick = State.bpick || {}); return key in P ? P[key] : def; };
+const certBadgeRows = certId => (State.admin.userBadges||[]).filter(u=>u.cert_id===certId);
+function badgePicker(key, selected, defTitle, defDesc){
+  const list = DB.customBadges || [], isNew = State.cbNew === key;
+  return `<div class="cb-pick" style="margin-top:8px"><div class="muted" style="font-size:12px;margin-bottom:4px">Ачивки (можно несколько, необязательно): нажмите, чтобы выбрать или снять</div>
+    <div class="cb-grid">${list.map(b=>`<button class="cb-item ${selected.includes(b.id)?'on':''}" data-cb-pick="${key}|${b.id}" title="${esc(b.description||'')}"><img src="${esc(b.image_url)}" alt="" loading="lazy"><span>${esc(b.title)}</span>${selected.includes(b.id)?'<i class="cb-check">✓</i>':''}</button>`).join('')}
+      <button class="cb-item cb-add" data-cb-new="${key}"><b>+</b><span>Новая ачивка</span></button></div>
     ${isNew?`<div class="cb-form">
       <div class="field"><label>Картинка ачивки (PNG/JPG/WebP, лучше квадратная, прозрачный фон — PNG)</label><input type="file" id="cbFile" accept="image/*"></div>
-      <div class="field"><label>Название ачивки</label><input type="text" id="cbTitle" maxlength="80" value="${esc(c.competition_name||'')}"></div>
-      <div class="field"><label>Описание (за что)</label><input type="text" id="cbDesc" maxlength="300" value="${esc([c.result, c.competition_date?fmtDate(c.competition_date):''].filter(Boolean).join(' · '))}"></div>
-      <div class="row" style="gap:6px"><button class="btn sm primary" data-cb-create="${c.id}">Загрузить и выбрать</button><button class="btn sm" data-cb-new="">Отмена</button></div></div>`:''}
+      <div class="field"><label>Название ачивки</label><input type="text" id="cbTitle" maxlength="80" value="${esc(defTitle||'')}"></div>
+      <div class="field"><label>Описание (за что)</label><input type="text" id="cbDesc" maxlength="300" value="${esc(defDesc||'')}"></div>
+      <div class="row" style="gap:6px"><button class="btn sm primary" data-cb-create="${key}">Загрузить и выбрать</button><button class="btn sm" data-cb-new="">Отмена</button></div></div>`:''}
   </div>`;
 }
+function certBadgePicker(c){
+  return badgePicker(c.id, pickOf(c.id, certBadgeRows(c.id).map(u=>u.badge_id)), c.competition_name, [c.result, c.competition_date?fmtDate(c.competition_date):''].filter(Boolean).join(' · '));
+}
+const badgeThumbs = ids => ids.map(id=>(DB.customBadges||[]).find(b=>b.id===id)).filter(Boolean).map(b=>`<img class="cb-thumb" src="${esc(b.image_url)}" alt="" title="${esc(b.title)}">`).join('');
 function adminApprovedCerts(A, nameOf){
   const list = A.approved || []; if(!list.length) return '';
-  const badgeOf = id => (DB.customBadges||[]).find(b=>b.id===id);
   return `<div class="card" style="margin-bottom:10px"><h3>Подтверждённые сертификаты <span class="muted">${list.length}</span></h3>
-    <div class="muted" style="margin-bottom:6px">Ачивку можно выдать или поменять и после подтверждения — пользователю придёт сообщение в бот.</div>
-    ${list.map(c=>{ const b = badgeOf(c.badge_id), open = State.cbOpen===c.id;
-      return `<div class="cert-row" style="flex-wrap:wrap">${b?`<img class="cb-thumb" src="${esc(b.image_url)}" alt="">`:'<div class="cb-thumb cb-none">—</div>'}
+    <div class="muted" style="margin-bottom:6px">Ачивки можно выдать, добавить или снять и после подтверждения — о каждой новой пользователю придёт сообщение в бот.</div>
+    ${list.map(c=>{ const cur = certBadgeRows(c.id).map(u=>u.badge_id), open = State.cbOpen===c.id;
+      return `<div class="cert-row" style="flex-wrap:wrap"><div class="cb-thumbs">${badgeThumbs(cur) || '<div class="cb-thumb cb-none">—</div>'}</div>
         <div class="grow" style="min-width:0"><b>${esc(c.competition_name)}</b><div class="muted">${esc(nameOf(c.user_id))}${c.result?' · '+esc(c.result):''}</div>
-          <div class="muted">${b?'Ачивка: '+esc(b.title):'Без своей ачивки'}</div>
-          ${open?certBadgePicker(c)+`<div class="row" style="margin-top:6px;gap:6px"><button class="btn sm primary" data-cb-save="${c.id}">Сохранить ачивку</button><button class="btn sm" data-cb-open="">Закрыть</button></div>`
-            :`<button class="btn sm" style="margin-top:6px" data-cb-open="${c.id}">${b?'Изменить ачивку':'Выдать ачивку'}</button>`}</div></div>`; }).join('')}
+          <div class="muted">${cur.length?'Ачивок: '+cur.length:'Без своих ачивок'}</div>
+          ${open?certBadgePicker(c)+`<div class="row" style="margin-top:6px;gap:6px"><button class="btn sm primary" data-cb-save="${c.id}">Сохранить ачивки</button><button class="btn sm" data-cb-open="">Закрыть</button></div>`
+            :`<button class="btn sm" style="margin-top:6px" data-cb-open="${c.id}">${cur.length?'Изменить ачивки':'Выдать ачивки'}</button>`}</div></div>`; }).join('')}
+  </div>`;
+}
+// персональные ачивки: найти пользователя → выбрать одну или несколько ачивок → «Выдать»
+function adminPersonalBadges(A){
+  const u = State.pbUser, res = State.pbResults || [];
+  const mine = u ? (A.userBadges||[]).filter(x=>x.user_id===u.id && !x.cert_id) : [];
+  return `<div class="card" style="margin-bottom:10px"><h3>🎖️ Персональные ачивки</h3>
+    <div class="muted" style="margin-bottom:6px">Выдайте любому пользователю одну или несколько ачивок из библиотеки (или загрузите новую) — за что угодно. Они появятся во вкладке «Персональные», в бот придёт сообщение с картинкой.</div>
+    <div class="row" style="gap:6px"><input type="text" id="pbQ" value="${esc(State.pbQ||'')}" placeholder="Имя или @username" style="flex:1;padding:7px;border:1px solid var(--border);border-radius:6px;background:var(--surface)"><button class="btn sm" data-pb-find="1">Найти</button></div>
+    ${res.length?`<div class="cb-users">${res.map(p=>`<button class="btn sm ${u&&u.id===p.id?'primary':''}" data-pb-user="${p.id}">${esc(p.name||'Без имени')}${p.telegram_username?' @'+esc(p.telegram_username):''}</button>`).join('')}</div>`:State.pbQ?'<div class="muted" style="margin-top:6px">Никого не нашлось.</div>':''}
+    ${u?`<div style="margin-top:10px"><b>${esc(u.name||'')}</b>
+      <div class="muted" style="margin:4px 0">Уже выдано: ${mine.length||'нет'}</div>
+      ${mine.map(x=>{ const b=(DB.customBadges||[]).find(y=>y.id===x.badge_id); return b?`<div class="cert-row"><img class="cb-thumb" src="${esc(b.image_url)}" alt=""><div class="grow"><b>${esc(b.title)}</b>${x.note?`<div class="muted">${esc(x.note)}</div>`:''}<div class="muted">${fmtDate(x.created_at.slice(0,10))}</div></div><button class="btn sm danger" data-ub-del="${x.id}">Снять</button></div>`:''; }).join('')}
+      ${badgePicker('personal', pickOf('personal', []), '', '')}
+      <div class="field" style="margin-top:6px"><label>За что (необязательно, увидит пользователь)</label><input type="text" id="pbNote" maxlength="300" placeholder="например: за лучший прогресс месяца"></div>
+      <button class="btn primary" data-pb-give="1">Выдать выбранные</button></div>`:''}
   </div>`;
 }
 function adminBadgeLibrary(){
   const list = DB.customBadges || []; if(!list.length) return '';
-  return `<div class="card" style="margin-bottom:10px"><h3>Библиотека ачивок за соревнования <span class="muted">${list.length}</span></h3>
+  const used = id => (State.admin.userBadges||[]).filter(u=>u.badge_id===id).length;
+  return `<div class="card" style="margin-bottom:10px"><h3>Библиотека ачивок <span class="muted">${list.length}</span></h3>
     <div class="muted" style="margin-bottom:6px">Одну ачивку можно выдавать многим (например, всем участникам турнира). Удаление убирает её у всех.</div>
-    ${list.map(b=>`<div class="cert-row"><img class="cb-thumb" src="${esc(b.image_url)}" alt=""><div class="grow"><b>${esc(b.title)}</b>${b.description?`<div class="muted">${esc(b.description)}</div>`:''}</div>
+    ${list.map(b=>`<div class="cert-row"><img class="cb-thumb" src="${esc(b.image_url)}" alt=""><div class="grow"><b>${esc(b.title)}</b>${b.description?`<div class="muted">${esc(b.description)}</div>`:''}<div class="muted">выдана: ${used(b.id)}</div></div>
       <button class="btn sm danger" data-cb-del="${b.id}">Удалить</button></div>`).join('')}</div>`;
 }
-// картинка → квадрат до 512 px (PNG, прозрачность сохраняется) → хранилище → запись в библиотеку
-async function createCustomBadge(certId){
+// картинка → до 512 px (PNG, прозрачность сохраняется) → хранилище → запись в библиотеку → сразу выбрана
+async function createCustomBadge(key){
   const f = (document.getElementById('cbFile')||{}).files?.[0], title = (document.getElementById('cbTitle')||{}).value?.trim(), desc = (document.getElementById('cbDesc')||{}).value?.trim();
   if(!f) return toast('Выберите картинку ачивки'); if(!title) return toast('Впишите название ачивки');
   try{
@@ -3873,18 +3994,47 @@ async function createCustomBadge(certId){
     const url = c.storage.from('badges').getPublicUrl(path).data.publicUrl;
     const {data, error} = await c.from('custom_badges').insert({title:title.slice(0,80), description:desc?desc.slice(0,300):null, image_url:url}).select().single();
     if(error) throw error;
-    DB.customBadges = [...(DB.customBadges||[]), data]; (State.certPick = State.certPick||{})[certId] = data.id; State.cbNew = null;
-    toast('Ачивка загружена'); renderMain();
+    DB.customBadges = [...(DB.customBadges||[]), data];
+    const cur = pickOf(key, key==='personal' ? [] : certBadgeRows(key).map(u=>u.badge_id));
+    State.bpick[key] = [...cur, data.id]; State.cbNew = null;
+    toast('Ачивка загружена и выбрана'); renderMain();
   }catch(e){ toast('Не загрузилось: '+(e.message||e)+(/badges|custom_badges|relation|bucket/i.test(String(e.message||e))?' — запустите stage19_cert_badges.sql':'')); }
 }
-async function saveCertBadge(certId){
-  const P = State.certPick||{}, c0 = (State.admin.approved||[]).find(x=>x.id===certId)||{};
-  const badge = certId in P ? P[certId] : (c0.badge_id || null);
-  const {error} = await Auth.getClient().from('user_achievements').update({badge_id: badge}).eq('id', certId);
+// сохранить набор ачивок сертификата: новые — выдать, снятые — убрать
+async function saveCertBadges(certId){
+  const cert = (State.admin.approved||[]).find(x=>x.id===certId); if(!cert) return;
+  const rows = certBadgeRows(certId), cur = rows.map(u=>u.badge_id), want = pickOf(certId, cur);
+  const add = want.filter(id=>!cur.includes(id)), del = rows.filter(u=>!want.includes(u.badge_id)).map(u=>u.id), c = Auth.getClient();
+  if(del.length){ const {error} = await c.from('user_badges').delete().in('id', del); if(error) return toast('Ошибка: '+error.message); }
+  let added = [];
+  if(add.length){ const {data, error} = await c.from('user_badges').insert(add.map(b=>({user_id:cert.user_id, badge_id:b, cert_id:certId}))).select(); if(error) return toast('Ошибка: '+error.message); added = [].concat(data||[]); }
+  State.admin.userBadges = (State.admin.userBadges||[]).filter(u=>!del.includes(u.id)).concat(added);
+  delete State.bpick[certId]; State.cbOpen = null;
+  toast(add.length||del.length ? `Выдано: ${add.length}, снято: ${del.length}` : 'Без изменений'); renderMain();
+}
+async function findUsersForBadges(){
+  const q = ((document.getElementById('pbQ')||{}).value||'').trim().replace(/^@/, ''); State.pbQ = q;
+  if(q.length < 2){ State.pbResults = []; renderMain(); return toast('Введите хотя бы 2 буквы'); }
+  const s = q.replace(/[%_,()]/g, ' ');
+  const {data, error} = await Auth.getClient().from('profiles').select('id,name,telegram_username').or(`name.ilike.%${s}%,telegram_username.ilike.%${s}%`).limit(20);
   if(error) return toast('Ошибка: '+error.message);
-  const c = (State.admin.approved||[]).find(x=>x.id===certId); if(c) c.badge_id = badge;
-  const mine = (DB.certs||[]).find(x=>x.id===certId); if(mine) mine.badge_id = badge;
-  delete P[certId]; State.cbOpen = null; toast(badge ? 'Ачивка выдана — пользователю придёт сообщение' : 'Ачивка снята'); renderMain();
+  State.pbResults = data||[]; renderMain();
+}
+async function givePersonalBadges(){
+  const u = State.pbUser, pick = pickOf('personal', []), note = ((document.getElementById('pbNote')||{}).value||'').trim().slice(0,300) || null;
+  if(!u) return; if(!pick.length) return toast('Выберите хотя бы одну ачивку');
+  const {data, error} = await Auth.getClient().from('user_badges').insert(pick.map(b=>({user_id:u.id, badge_id:b, note}))).select();
+  if(error) return toast('Ошибка: '+error.message+(/user_badges|relation/.test(error.message)?' — запустите stage21_user_badges.sql':''));
+  State.admin.userBadges = (State.admin.userBadges||[]).concat(data||[]); State.bpick.personal = [];
+  if(u.id===selfParticipantId()) DB.userBadges = (DB.userBadges||[]).concat(data||[]);
+  toast(`Выдано ачивок: ${pick.length} — пользователю придёт сообщение`); renderMain();
+}
+async function removeUserBadge(id){
+  askConfirm('Снять ачивку?', 'Она пропадёт у пользователя.', 'Снять', async ()=>{
+    const {error} = await Auth.getClient().from('user_badges').delete().eq('id', id);
+    if(error) return toast('Ошибка: '+error.message);
+    State.admin.userBadges = (State.admin.userBadges||[]).filter(u=>u.id!==id); DB.userBadges = (DB.userBadges||[]).filter(u=>u.id!==id);
+    toast('Ачивка снята'); renderMain(); });
 }
 async function deleteCustomBadge(id){
   const b = (DB.customBadges||[]).find(x=>x.id===id); if(!b) return;
@@ -3893,7 +4043,7 @@ async function deleteCustomBadge(id){
     if(error) return toast('Ошибка: '+error.message);
     const path = b.image_url.split('/badges/')[1]; if(path) c.storage.from('badges').remove([decodeURIComponent(path)]);
     DB.customBadges = DB.customBadges.filter(x=>x.id!==id);
-    (State.admin.approved||[]).forEach(x=>{ if(x.badge_id===id) x.badge_id = null; });
+    State.admin.userBadges = (State.admin.userBadges||[]).filter(u=>u.badge_id!==id); DB.userBadges = (DB.userBadges||[]).filter(u=>u.badge_id!==id);
     toast('Ачивка удалена'); renderMain(); });
 }
 
@@ -4028,12 +4178,16 @@ function handleMainClick(e, ds){
     let j=i+d; while(j>=0 && j<L.length && L[j].section!==sec) j+=d;
     if(j>=0 && j<L.length){ [L[i],L[j]]=[L[j],L[i]]; renderMain(); } return true; }
   if(ds.lkSave!==undefined){ saveLinks(); return true; }
-  if(ds.cbPick!==undefined){ const [cid,bid]=ds.cbPick.split('|'), P=(State.certPick=State.certPick||{}), cur = cid in P ? P[cid] : (([...(State.admin.pending||[]),...(State.admin.approved||[])].find(x=>x.id===cid)||{}).badge_id || null);
-    P[cid] = cur===bid ? null : bid; renderMain(); return true; }
+  if(ds.cbPick!==undefined){ const [key,bid]=ds.cbPick.split('|'), cur=pickOf(key, key==='personal'?[]:certBadgeRows(key).map(u=>u.badge_id));
+    State.bpick[key] = cur.includes(bid) ? cur.filter(x=>x!==bid) : [...cur, bid]; renderMain(); return true; }
   if(ds.cbNew!==undefined){ State.cbNew = ds.cbNew || null; renderMain(); return true; }
   if(ds.cbCreate!==undefined){ createCustomBadge(ds.cbCreate); return true; }
-  if(ds.cbOpen!==undefined){ State.cbOpen = ds.cbOpen || null; State.cbNew = null; renderMain(); return true; }
-  if(ds.cbSave!==undefined){ saveCertBadge(ds.cbSave); return true; }
+  if(ds.cbOpen!==undefined){ if(State.cbOpen && State.bpick) delete State.bpick[State.cbOpen]; State.cbOpen = ds.cbOpen || null; State.cbNew = null; renderMain(); return true; }
+  if(ds.cbSave!==undefined){ saveCertBadges(ds.cbSave); return true; }
+  if(ds.pbFind!==undefined){ findUsersForBadges(); return true; }
+  if(ds.pbUser!==undefined){ const p=(State.pbResults||[]).find(x=>x.id===ds.pbUser); State.pbUser = p||null; if(State.bpick) State.bpick.personal=[]; renderMain(); return true; }
+  if(ds.pbGive!==undefined){ givePersonalBadges(); return true; }
+  if(ds.ubDel!==undefined){ removeUserBadge(ds.ubDel); return true; }
   if(ds.cbDel!==undefined){ deleteCustomBadge(ds.cbDel); return true; }
   if(ds.lkReset!==undefined){ State.linkDraft=null; State.linkError=''; renderMain(); return true; }
   if(ds.copyCode!==undefined){ copyText(DB.me.inviteCode).then(ok=>toast(ok?'Код скопирован — отправьте его другу в Telegram':'Не удалось скопировать — выделите код и скопируйте вручную')); return true; }
@@ -4158,7 +4312,7 @@ function initEvents(){
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme],[data-hist-more],[data-lk-add],[data-lk-del],[data-lk-move],[data-lk-save],[data-lk-reset],[data-cb-pick],[data-cb-new],[data-cb-create],[data-cb-open],[data-cb-save],[data-cb-del]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme],[data-hist-more],[data-lk-add],[data-lk-del],[data-lk-move],[data-lk-save],[data-lk-reset],[data-cb-pick],[data-cb-new],[data-cb-create],[data-cb-open],[data-cb-save],[data-cb-del],[data-pb-find],[data-pb-user],[data-pb-give],[data-ub-del]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){
@@ -4189,7 +4343,7 @@ function initEvents(){
     if(mainEl){ handleMainChange(e, mainEl.dataset); }
   }
   // помним раскрытую группу базовых программ между перерисовками
-  document.addEventListener('toggle', e=>{ const d=e.target; if(d.classList && d.classList.contains('base-group')){ if(d.open) State.openBase=d.dataset.baseGroup; else if(State.openBase===d.dataset.baseGroup) State.openBase=null; } }, true);
+  document.addEventListener('toggle', e=>{ const d=e.target; if(d.id==='exList') State.exListOpen = d.open; if(d.classList && d.classList.contains('base-group')){ if(d.open) State.openBase=d.dataset.baseGroup; else if(State.openBase===d.dataset.baseGroup) State.openBase=null; } }, true);
   document.addEventListener('change', onChangeOrInput);
   document.addEventListener('input', onChangeOrInput);
 }

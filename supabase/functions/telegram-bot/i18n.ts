@@ -316,7 +316,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🧹 Уборка, дача, работа по дому": "🧹 Прибирання, дача, хатні справи",
   "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 За сертифікат «{name}» вам видано ачівку!",
   "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 Сертифікат «{name}» надіслано на перевірку. Щойно адміністратор його перегляне, я напишу — він з’явиться в «Досягнення → Змагання».",
-  "🛡️ Открыть админ-панель": "🛡️ Відкрити адмін-панель"
+  "🛡️ Открыть админ-панель": "🛡️ Відкрити адмін-панель",
+  "🎖️ Вам выдана персональная ачивка!": "🎖️ Вам видано персональну ачівку!"
  },
  "en": {
   " ({d}% к прошлому периоду)": " ({d}% vs. the previous period)",
@@ -634,7 +635,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🧹 Уборка, дача, работа по дому": "🧹 Cleaning, garden, housework",
   "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 You've earned an achievement for your certificate “{name}”!",
   "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 Your certificate “{name}” has been sent for review. I’ll message you as soon as an admin checks it — it will appear in “Achievements → Competitions”.",
-  "🛡️ Открыть админ-панель": "🛡️ Open admin panel"
+  "🛡️ Открыть админ-панель": "🛡️ Open admin panel",
+  "🎖️ Вам выдана персональная ачивка!": "🎖️ You've received a personal achievement!"
  },
  "fr": {
   " ({d}% к прошлому периоду)": " ({d} % par rapport à la période précédente)",
@@ -952,7 +954,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🧹 Уборка, дача, работа по дому": "🧹 Ménage, jardinage, travaux à la maison",
   "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 Vous avez reçu un succès pour votre certificat « {name} » !",
   "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 Le certificat « {name} » a été envoyé pour vérification. Je vous écrirai dès qu’un administrateur l’aura examiné — il apparaîtra dans « Succès → Compétitions ».",
-  "🛡️ Открыть админ-панель": "🛡️ Ouvrir l’administration"
+  "🛡️ Открыть админ-панель": "🛡️ Ouvrir l’administration",
+  "🎖️ Вам выдана персональная ачивка!": "🎖️ Vous avez reçu un succès personnel !"
  },
  "es": {
   " ({d}% к прошлому периоду)": " ({d}% respecto al periodo anterior)",
@@ -1270,7 +1273,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🧹 Уборка, дача, работа по дому": "🧹 Limpieza, jardín, tareas del hogar",
   "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 ¡Has recibido un logro por tu certificado «{name}»!",
   "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 El certificado «{name}» se ha enviado a revisión. Te escribiré en cuanto un administrador lo revise; aparecerá en «Logros → Competiciones».",
-  "🛡️ Открыть админ-панель": "🛡️ Abrir panel de administración"
+  "🛡️ Открыть админ-панель": "🛡️ Abrir panel de administración",
+  "🎖️ Вам выдана персональная ачивка!": "🎖️ ¡Has recibido un logro personal!"
  },
  "it": {
   " ({d}% к прошлому периоду)": " ({d}% rispetto al periodo precedente)",
@@ -1588,7 +1592,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🧹 Уборка, дача, работа по дому": "🧹 Pulizie, giardino, lavori domestici",
   "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 Hai ricevuto un obiettivo per il certificato «{name}»!",
   "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 Il certificato «{name}» è stato inviato per la verifica. Ti scriverò appena un amministratore lo avrà controllato: apparirà in «Obiettivi → Gare».",
-  "🛡️ Открыть админ-панель": "🛡️ Apri pannello admin"
+  "🛡️ Открыть админ-панель": "🛡️ Apri pannello admin",
+  "🎖️ Вам выдана персональная ачивка!": "🎖️ Hai ricevuto un obiettivo personale!"
  },
  "uz": {
   " ({d}% к прошлому периоду)": " (oldingi davrga nisbatan {d}%)",
@@ -1906,7 +1911,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🧹 Уборка, дача, работа по дому": "🧹 Tozalash, dala hovli, uy ishlari",
   "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 «{name}» sertifikati uchun sizga yutuq berildi!",
   "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 «{name}» sertifikati tekshiruvga yuborildi. Administrator koʻrib chiqishi bilan yozaman — u «Yutuqlar → Musobaqalar» boʻlimida chiqadi.",
-  "🛡️ Открыть админ-панель": "🛡️ Admin panelni ochish"
+  "🛡️ Открыть админ-панель": "🛡️ Admin panelni ochish",
+  "🎖️ Вам выдана персональная ачивка!": "🎖️ Sizga shaxsiy yutuq berildi!"
  },
  "tr": {
   " ({d}% к прошлому периоду)": " (önceki döneme göre %{d})",
@@ -2224,7 +2230,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🧹 Уборка, дача, работа по дому": "🧹 Temizlik, bahçe işi, ev işleri",
   "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 «{name}» sertifikanız için bir başarı kazandınız!",
   "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 «{name}» sertifikası incelemeye gönderildi. Yönetici kontrol eder etmez yazacağım — «Başarılar → Yarışmalar» bölümünde görünecek.",
-  "🛡️ Открыть админ-панель": "🛡️ Yönetim panelini aç"
+  "🛡️ Открыть админ-панель": "🛡️ Yönetim panelini aç",
+  "🎖️ Вам выдана персональная ачивка!": "🎖️ Size kişisel bir başarı verildi!"
  },
  "zh": {
   " ({d}% к прошлому периоду)": "（较上一周期 {d}%）",
@@ -2542,7 +2549,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🧹 Уборка, дача, работа по дому": "🧹 打扫、打理菜园、做家务",
   "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 你因证书“{name}”获得了一项成就！",
   "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 证书“{name}”已提交审核。管理员审核后我会通知你——它将出现在“成就 → 比赛”中。",
-  "🛡️ Открыть админ-панель": "🛡️ 打开管理面板"
+  "🛡️ Открыть админ-панель": "🛡️ 打开管理面板",
+  "🎖️ Вам выдана персональная ачивка!": "🎖️ 你获得了一项专属成就！"
  },
  "ja": {
   " ({d}% к прошлому периоду)": "（前期間比 {d}%）",
@@ -2860,7 +2868,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🧹 Уборка, дача, работа по дому": "🧹 掃除、庭仕事、家事",
   "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 証明書「{name}」で実績を獲得しました！",
   "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 証明書「{name}」を審査に送信しました。管理者が確認したらお知らせします。「実績 → 大会」に表示されます。",
-  "🛡️ Открыть админ-панель": "🛡️ 管理パネルを開く"
+  "🛡️ Открыть админ-панель": "🛡️ 管理パネルを開く",
+  "🎖️ Вам выдана персональная ачивка!": "🎖️ パーソナル実績を獲得しました！"
  },
  "ko": {
   " ({d}% к прошлому периоду)": " ({d}% 지난 기간 대비)",
@@ -3178,6 +3187,7 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🧹 Уборка, дача, работа по дому": "🧹 청소, 텃밭, 집안일",
   "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 인증서 «{name}»으로 업적을 받았습니다!",
   "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 인증서 «{name}»이(가) 검토 요청되었습니다. 관리자가 확인하면 알려 드릴게요 — ‘업적 → 대회’에 표시됩니다.",
-  "🛡️ Открыть админ-панель": "🛡️ 관리자 패널 열기"
+  "🛡️ Открыть админ-панель": "🛡️ 관리자 패널 열기",
+  "🎖️ Вам выдана персональная ачивка!": "🎖️ 개인 업적을 받았습니다!"
  }
 };
