@@ -17,7 +17,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-09-27 · badges";
+const BOT_VERSION = "2026-09-27 · cert-notify";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -671,7 +671,9 @@ async function cron(kind: string) {
         friend_accepted: L(lang, "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.", { who }),
         trainer_offer: L(lang, "🏋️ {who} предлагает стать вашим тренером. Принять или отклонить можно в разделе «Участники».", { who }),
         trainer_assigned: L(lang, "✅ {who} принял(а) вас как тренера. Его (её) тренировки теперь в вашем календаре.", { who }),
-        achievement_pending: L(lang, "🏅 Новый сертификат на проверке от {who}: «{name}». Откройте Настройки → Админ-панель.", { who, name }),
+        achievement_pending: L(lang, "🏅 Новый сертификат на проверке от {who}: «{name}». Откройте Настройки → Админ-панель.", { who, name })
+          + [n.payload?.result, n.payload?.date ? String(n.payload.date).split("-").reverse().join(".") : "", n.payload?.place].filter(Boolean).map((x) => "\n• " + esc(x)).join(""),
+        achievement_submitted: L(lang, "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».", { name }),
         achievement_approved: L(lang, "🏅 Ваш сертификат «{name}» подтверждён! Он уже в «Достижениях → Соревнования».", { name }),
         food_norm: L(lang, "🎯 Тренер {who} изменил(а) вашу норму питания: цель — <b>{goal}</b>, норма — <b>{target}</b>. Подробности в разделе «Калории».", { who,
           goal: L(lang, GOAL[n.payload?.goal] ?? "по расчёту"), target: n.payload?.target ? n.payload.target + " " + L(lang, "ккал") : L(lang, "по расчёту приложения") }),
@@ -683,6 +685,13 @@ async function cron(kind: string) {
       if (to?.telegram_id && text[n.type] && okImg && ["achievement_approved", "achievement_badge"].includes(n.type)) {
         const cap = text[n.type] + `\n\n🏆 <b>${esc(String(n.payload?.badge_title ?? "").slice(0, 80))}</b>` + (n.payload?.badge_desc ? `\n${esc(String(n.payload.badge_desc).slice(0, 300))}` : "");
         await sendPhotoSafe(to.telegram_id, badgeImg, cap, appKb(undefined, lang)); sent++; await sleep(40);
+      } else if (to?.telegram_id && n.type === "achievement_pending" && n.payload?.cert_id) {
+        // админу — фото сертификата (закрытое хранилище: временная ссылка на 1 час)
+        const { data: cert } = await admin.from("user_achievements").select("certificate_image_url").eq("id", n.payload.cert_id).maybeSingle();
+        const { data: signed } = cert?.certificate_image_url ? await admin.storage.from("certificates").createSignedUrl(cert.certificate_image_url, 3600) : { data: null };
+        if (signed?.signedUrl) await sendPhotoSafe(to.telegram_id, signed.signedUrl, text[n.type], appKb("🛡️ Открыть админ-панель", lang));
+        else await send(to.telegram_id, text[n.type], appKb("🛡️ Открыть админ-панель", lang));
+        sent++; await sleep(40);
       } else if (to?.telegram_id && text[n.type]) { await send(to.telegram_id, text[n.type], appKb(undefined, lang)); sent++; await sleep(40); }
       await admin.from("notifications").update({ telegram_sent: true }).eq("id", n.id);
     }

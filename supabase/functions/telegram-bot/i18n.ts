@@ -314,7 +314,9 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🤒 Болею / восстанавливаюсь": "🤒 Хворію / відновлююся",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} підтвердив(ла) заявку — тепер ви учасники одне в одного.",
   "🧹 Уборка, дача, работа по дому": "🧹 Прибирання, дача, хатні справи",
-  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 За сертифікат «{name}» вам видано ачівку!"
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 За сертифікат «{name}» вам видано ачівку!",
+  "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 Сертифікат «{name}» надіслано на перевірку. Щойно адміністратор його перегляне, я напишу — він з’явиться в «Досягнення → Змагання».",
+  "🛡️ Открыть админ-панель": "🛡️ Відкрити адмін-панель"
  },
  "en": {
   " ({d}% к прошлому периоду)": " ({d}% vs. the previous period)",
@@ -630,7 +632,9 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🤒 Болею / восстанавливаюсь": "🤒 Sick / recovering",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} confirmed the request — you're now members of each other.",
   "🧹 Уборка, дача, работа по дому": "🧹 Cleaning, garden, housework",
-  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 You've earned an achievement for your certificate “{name}”!"
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 You've earned an achievement for your certificate “{name}”!",
+  "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 Your certificate “{name}” has been sent for review. I’ll message you as soon as an admin checks it — it will appear in “Achievements → Competitions”.",
+  "🛡️ Открыть админ-панель": "🛡️ Open admin panel"
  },
  "fr": {
   " ({d}% к прошлому периоду)": " ({d} % par rapport à la période précédente)",
@@ -946,7 +950,9 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🤒 Болею / восстанавливаюсь": "🤒 Malade / en convalescence",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} a validé la demande — vous êtes maintenant participants l'un chez l'autre.",
   "🧹 Уборка, дача, работа по дому": "🧹 Ménage, jardinage, travaux à la maison",
-  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 Vous avez reçu un succès pour votre certificat « {name} » !"
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 Vous avez reçu un succès pour votre certificat « {name} » !",
+  "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 Le certificat « {name} » a été envoyé pour vérification. Je vous écrirai dès qu’un administrateur l’aura examiné — il apparaîtra dans « Succès → Compétitions ».",
+  "🛡️ Открыть админ-панель": "🛡️ Ouvrir l’administration"
  },
  "es": {
   " ({d}% к прошлому периоду)": " ({d}% respecto al periodo anterior)",
@@ -1262,7 +1268,9 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🤒 Болею / восстанавливаюсь": "🤒 Enfermo / recuperándome",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} confirmó la solicitud — ahora son participantes mutuos.",
   "🧹 Уборка, дача, работа по дому": "🧹 Limpieza, jardín, tareas del hogar",
-  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 ¡Has recibido un logro por tu certificado «{name}»!"
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 ¡Has recibido un logro por tu certificado «{name}»!",
+  "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 El certificado «{name}» se ha enviado a revisión. Te escribiré en cuanto un administrador lo revise; aparecerá en «Logros → Competiciones».",
+  "🛡️ Открыть админ-панель": "🛡️ Abrir panel de administración"
  },
  "it": {
   " ({d}% к прошлому периоду)": " ({d}% rispetto al periodo precedente)",
@@ -1578,7 +1586,9 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🤒 Болею / восстанавливаюсь": "🤒 Sono malato/a / mi sto riprendendo",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} ha confermato la richiesta — ora siete partecipanti l'uno dell'altro.",
   "🧹 Уборка, дача, работа по дому": "🧹 Pulizie, giardino, lavori domestici",
-  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 Hai ricevuto un obiettivo per il certificato «{name}»!"
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 Hai ricevuto un obiettivo per il certificato «{name}»!",
+  "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 Il certificato «{name}» è stato inviato per la verifica. Ti scriverò appena un amministratore lo avrà controllato: apparirà in «Obiettivi → Gare».",
+  "🛡️ Открыть админ-панель": "🛡️ Apri pannello admin"
  },
  "uz": {
   " ({d}% к прошлому периоду)": " (oldingi davrga nisbatan {d}%)",
@@ -1894,7 +1904,9 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🤒 Болею / восстанавливаюсь": "🤒 Kasalman / tiklanyapman",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} soʻrovni tasdiqladi — endi siz bir-biringizning ishtirokchilarisiz.",
   "🧹 Уборка, дача, работа по дому": "🧹 Tozalash, dala hovli, uy ishlari",
-  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 «{name}» sertifikati uchun sizga yutuq berildi!"
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 «{name}» sertifikati uchun sizga yutuq berildi!",
+  "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 «{name}» sertifikati tekshiruvga yuborildi. Administrator koʻrib chiqishi bilan yozaman — u «Yutuqlar → Musobaqalar» boʻlimida chiqadi.",
+  "🛡️ Открыть админ-панель": "🛡️ Admin panelni ochish"
  },
  "tr": {
   " ({d}% к прошлому периоду)": " (önceki döneme göre %{d})",
@@ -2210,7 +2222,9 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🤒 Болею / восстанавливаюсь": "🤒 Hastayım / iyileşiyorum",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} isteği onayladı — artık birbirinizin katılımcısısınız.",
   "🧹 Уборка, дача, работа по дому": "🧹 Temizlik, bahçe işi, ev işleri",
-  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 «{name}» sertifikanız için bir başarı kazandınız!"
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 «{name}» sertifikanız için bir başarı kazandınız!",
+  "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 «{name}» sertifikası incelemeye gönderildi. Yönetici kontrol eder etmez yazacağım — «Başarılar → Yarışmalar» bölümünde görünecek.",
+  "🛡️ Открыть админ-панель": "🛡️ Yönetim panelini aç"
  },
  "zh": {
   " ({d}% к прошлому периоду)": "（较上一周期 {d}%）",
@@ -2526,7 +2540,9 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🤒 Болею / восстанавливаюсь": "🤒 生病 / 恢复中",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who} 已确认申请——现在你们互为成员。",
   "🧹 Уборка, дача, работа по дому": "🧹 打扫、打理菜园、做家务",
-  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 你因证书“{name}”获得了一项成就！"
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 你因证书“{name}”获得了一项成就！",
+  "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 证书“{name}”已提交审核。管理员审核后我会通知你——它将出现在“成就 → 比赛”中。",
+  "🛡️ Открыть админ-панель": "🛡️ 打开管理面板"
  },
  "ja": {
   " ({d}% к прошлому периоду)": "（前期間比 {d}%）",
@@ -2842,7 +2858,9 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🤒 Болею / восстанавливаюсь": "🤒 体調不良・回復中",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who}さんがリクエストを承認しました — これでお互いにメンバーです。",
   "🧹 Уборка, дача, работа по дому": "🧹 掃除、庭仕事、家事",
-  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 証明書「{name}」で実績を獲得しました！"
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 証明書「{name}」で実績を獲得しました！",
+  "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 証明書「{name}」を審査に送信しました。管理者が確認したらお知らせします。「実績 → 大会」に表示されます。",
+  "🛡️ Открыть админ-панель": "🛡️ 管理パネルを開く"
  },
  "ko": {
   " ({d}% к прошлому периоду)": " ({d}% 지난 기간 대비)",
@@ -3158,6 +3176,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "🤒 Болею / восстанавливаюсь": "🤒 아파요 / 회복 중이에요",
   "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.": "🤝 {who}님이 요청을 수락했어요 — 이제 서로 참가자가 되었어요.",
   "🧹 Уборка, дача, работа по дому": "🧹 청소, 텃밭, 집안일",
-  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 인증서 «{name}»으로 업적을 받았습니다!"
+  "🏅 За сертификат «{name}» вам выдана ачивка!": "🏅 인증서 «{name}»으로 업적을 받았습니다!",
+  "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».": "📨 인증서 «{name}»이(가) 검토 요청되었습니다. 관리자가 확인하면 알려 드릴게요 — ‘업적 → 대회’에 표시됩니다.",
+  "🛡️ Открыть админ-панель": "🛡️ 관리자 패널 열기"
  }
 };
