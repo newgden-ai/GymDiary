@@ -45,7 +45,11 @@ async function verifyInitData(initData: string, botToken: string) {
 
   const secretKey = await hmacRaw(new TextEncoder().encode("WebAppData"), botToken);
   const computed = toHex(await hmacRaw(secretKey, dataCheckString));
-  if (computed !== hash) return null;
+  // сравнение без утечки по времени
+  if (computed.length !== hash.length) return null;
+  let diff = 0;
+  for (let i = 0; i < computed.length; i++) diff |= computed.charCodeAt(i) ^ hash.charCodeAt(i);
+  if (diff !== 0) return null;
 
   const authDate = Number(params.get("auth_date") || 0);
   if (!authDate || Date.now() / 1000 - authDate > MAX_AUTH_AGE_SECONDS) return null;

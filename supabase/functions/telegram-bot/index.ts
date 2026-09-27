@@ -17,7 +17,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-09-27 · user-badges";
+const BOT_VERSION = "2026-09-27 · secure";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -76,6 +76,18 @@ function normLang(code?: string | null) {
   return ["be", "kk", "ky", "tg", "hy", "az", "ka", "tt", "ba"].includes(c) || !c ? "ru" : "en";
 }
 const langOf = (p: any, from?: any) => p?.lang && LANGS.includes(p.lang) ? p.lang : normLang(from?.language_code);
+// род: женщинам — женские формы. key — общий ключ перевода; ruM/ruF — русские формы (и украинские переводы по этим ключам, если есть)
+const genderCache = new Map<string, string>();
+async function genderOf(uid?: string | null) {
+  if (!uid) return "m";
+  if (!genderCache.has(uid)) { const { data } = await admin.from("profile_details").select("gender").eq("user_id", uid).maybeSingle(); genderCache.set(uid, data?.gender === "female" ? "f" : "m"); }
+  return genderCache.get(uid)!;
+}
+function G(lang: string, g: string, key: string, ruM: string, ruF: string, v: Record<string, unknown> = {}) {
+  const ru = g === "f" ? ruF : ruM;
+  if (lang === "ru") return L("ru", ru, v);
+  return BOT_I18N[lang]?.[ru] ? L(lang, ru, v) : L(lang, key, v);
+}
 // L(lang, "Русская фраза {x}", {x}) — перевод + подстановка
 function L(lang: string, ru: string, v: Record<string, unknown> = {}) {
   const t = (lang !== "ru" && BOT_I18N[lang]?.[ru]) || ru;
@@ -88,6 +100,14 @@ function today(offsetDays = 0) {
 }
 
 // ---------------- тексты ----------------
+// первое нажатие /start
+const WELCOME = "Привет, {name}! 👋\n\nЭто <b>GymDiary</b> — дневник тренировок прямо в Telegram.\n\n🏋️ Записывайте подходы, веса и повторы — тоннаж, рекорды и прогресс посчитаются сами.\n🏆 Получайте ачивки и постеры «Light weight, baby!» за личные рекорды.\n🍽 Считайте калории и БЖУ — больше 2000 продуктов и блюд.\n👥 Тренируйтесь с друзьями и тренером: он видит ваши тренировки и питание, если вы разрешите.\n📊 Итоги тренировок, недели и месяца, утренняя зарядка — я пришлю сюда.\n\nСначала 6 коротких вопросов — это минута. Ответы видите только вы, пока сами не решите иначе.";
+// описание бота в Telegram (ставится командой /set_descriptions — только админ)
+const BOT_SHORT = "Дневник тренировок: подходы, тоннаж, рекорды, ачивки, калории и тренер — прямо в Telegram 💪";
+const BOT_LONG = "GymDiary — дневник тренировок прямо в Telegram.\n\n• Подходы, веса и повторы: тоннаж, рекорды и прогресс считаются сами.\n• Сотни ачивок и постеры «Light weight, baby!» за личные рекорды.\n• Калории и БЖУ: больше 2000 продуктов и блюд.\n• Тренер видит тренировки и питание подопечных, друзья — ваши ачивки.\n• Итоги тренировок, недели и месяца и утренняя зарядка — от бота.\n\nНажмите «Запустить» 👇";
+// женские формы мотивационных фраз (по тому же номеру; null — фраза одинакова для всех)
+const MOTIVATION_F: (string | null)[] = [null, "Помнишь, зачем ты начинала? Один шаг — одна тренировка. Сегодня отличный день, чтобы вернуться!", null, null, null,
+  "Твоя будущая «я» скажет спасибо за сегодняшнюю тренировку. Не подводи её!", null, null, null, null];
 const MOTIVATION = [
   "Уже несколько дней без тренировки. Мышцы скучают — даже 20 минут сегодня лучше, чем ничего 💪",
   "Помнишь, зачем ты начинал? Один шаг — одна тренировка. Сегодня отличный день, чтобы вернуться!",
@@ -188,7 +208,7 @@ async function onMessage(msg: any) {
 
   if (text.startsWith("/start")) {
     if (!p.onboarded) {
-      await send(chat, L(lang, "Привет, {name}! 👋 Я бот «ТренДневника».\nЗадам 6 коротких вопросов — это займёт минуту. Эти данные видите только вы, пока сами не решите иначе.", { name: esc(p.name) }));
+      await send(chat, L(lang, WELCOME, { name: esc(p.name) }), appKb(undefined, lang));
       return askAge(chat, p.id, lang);
     }
     await setState(p.id, {});
@@ -199,6 +219,17 @@ async function onMessage(msg: any) {
     const d = today(); const cur = await periodStats(p.id, addDays(d, -6), d);
     return send(chat, L(lang, "📊 Последние 7 дней: тренировок <b>{n}</b>, тоннаж <b>{ton} кг</b>{cardio}.\nПолные итоги придут в воскресенье, в конце месяца, квартала и года в 21:00.",
       { n: cur.n, ton: fmt(cur.ton, lang), cardio: cur.km ? L(lang, ", кардио {km} км", { km: Math.round(cur.km * 10) / 10 }) : "" }));
+  }
+  if (text === "/set_descriptions" && p.role === "admin") {   // описание бота на всех языках
+    const res: string[] = [];
+    for (const l of LANGS) {
+      const code = l === "ru" ? undefined : l;
+      const a = await tg("setMyShortDescription", { short_description: L(l, BOT_SHORT).slice(0, 120), ...(code ? { language_code: code } : {}) });
+      const b = await tg("setMyDescription", { description: L(l, BOT_LONG).slice(0, 512), ...(code ? { language_code: code } : {}) });
+      res.push(`${l}: ${a.ok && b.ok ? "✅" : "❌ " + (a.description ?? b.description ?? "")}`);
+      await sleep(60);
+    }
+    return send(chat, "Описание бота обновлено:\n" + res.join("\n"));
   }
   if (text === "/version") return send(chat, `Версия бота / Bot version: <b>${BOT_VERSION}</b>\nMINI_APP_URL: <code>${esc(APP_URL || "—")}</code>\nlang: ${lang}`);
   if (text === "/test_images") {
@@ -455,9 +486,27 @@ async function onWorkoutDone(req: Request, body: any) {
   }
   for (const t of (people ?? []).filter((x: any) => x.id !== w.participant_id && x.telegram_id)) {
     const tl = langOf(t);
-    await send(t.telegram_id, L(tl, "👀 Подопечный <b>{name}</b> завершил тренировку:", { name: esc(athlete?.name) }) + "\n\n" + (tl === al ? text : await workoutSummary(w, tl)));
+    await send(t.telegram_id, G(tl, await genderOf(w.participant_id), "👀 Подопечный <b>{name}</b> завершил тренировку:", "👀 Подопечный <b>{name}</b> завершил тренировку:", "👀 Подопечная <b>{name}</b> завершила тренировку:", { name: esc(athlete?.name) }) + "\n\n" + (tl === al ? text : await workoutSummary(w, tl)));
   }
   return json({ ok: true });
+}
+
+// ---------------- резервная копия: приложение присылает свои данные, бот отдаёт их файлом в чат ----------------
+async function onBackup(req: Request, body: any) {
+  const jwt = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  const { data: u } = await admin.auth.getUser(jwt);
+  if (!u?.user) return json({ error: "not authorized" }, 401);
+  const { data: p } = await admin.from("profiles").select("*").eq("id", u.user.id).maybeSingle();
+  if (!p?.telegram_id) return json({ error: "no telegram" }, 400);
+  const text = JSON.stringify(body.data ?? {});
+  if (text.length > 40_000_000) return json({ error: "too big" }, 413);
+  const lang = langOf(p), name = String(body.name ?? "gymdiary-backup.json").replace(/[^\w.-]/g, "_").slice(0, 80);
+  const fd = new FormData();
+  fd.append("chat_id", String(p.telegram_id));
+  fd.append("caption", L(lang, "📦 Резервная копия дневника. Сохраните файл: на новом устройстве или аккаунте откройте Настройки → «Загрузить из файла»."));
+  fd.append("document", new Blob([text], { type: "application/json" }), name);
+  const r = await (await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, { method: "POST", body: fd })).json().catch(() => ({}));
+  return r.ok ? json({ ok: true }) : json({ error: "telegram: " + (r.description ?? "failed") }, 502);
 }
 
 // ---------------- итоги недели / месяца / квартала / года ----------------
@@ -635,7 +684,7 @@ async function foodNotifications(list: any[]) {
     const n0 = items[0];
     const { data: ps } = await admin.from("profiles").select("*").in("id", [n0.user_id, n0.payload?.from].filter(Boolean));
     const to = ps?.find((x: any) => x.id === n0.user_id), from = ps?.find((x: any) => x.id === n0.payload?.from);
-    const lang = langOf(to);
+    const lang = langOf(to), fg = await genderOf(from?.id);
     const who = `<b>${esc(from?.name ?? L(lang, "Участник"))}</b>`;
     const lines = items.map((n: any) => {
       const p = n.payload ?? {}, u = L(lang, p.unit === "ml" ? "мл" : "г"), when = `${L(lang, MEAL[p.meal] ?? "")}, ${String(p.date ?? "").split("-").reverse().slice(0, 2).join(".")}`;
@@ -646,8 +695,8 @@ async function foodNotifications(list: any[]) {
       return `• ${verb}: ${what} (${when})`;
     });
     const head = n0.payload?.by === "trainer"
-      ? L(lang, "🍽 Тренер {who} изменил(а) ваш дневник питания:", { who })
-      : L(lang, "🍽 {who} изменил(а) записи в своём дневнике питания, которые вносили вы:", { who });
+      ? G(lang, fg, "🍽 Тренер {who} изменил(а) ваш дневник питания:", "🍽 Тренер {who} изменил ваш дневник питания:", "🍽 Тренер {who} изменила ваш дневник питания:", { who })
+      : G(lang, fg, "🍽 {who} изменил(а) записи в своём дневнике питания, которые вносили вы:", "🍽 {who} изменил записи в своём дневнике питания, которые вносили вы:", "🍽 {who} изменила записи в своём дневнике питания, которые вносили вы:", { who });
     if (to?.telegram_id) { await send(to.telegram_id, `${head}\n${lines.join("\n")}`, appKb(undefined, lang)); sent++; await sleep(40); }
     await admin.from("notifications").update({ telegram_sent: true }).in("id", items.map((n: any) => n.id));
   }
@@ -664,18 +713,18 @@ async function cron(kind: string) {
       const { data: ps } = await admin.from("profiles").select("*").in("id", ids);
       const to = ps?.find((x: any) => x.id === n.user_id), from = ps?.find((x: any) => x.id === n.payload?.from);
       const lang = langOf(to);
-      const who = `<b>${esc(from?.name ?? L(lang, "Участник"))}</b>`, name = esc(n.payload?.name);
+      const who = `<b>${esc(from?.name ?? L(lang, "Участник"))}</b>`, name = esc(n.payload?.name), fg = await genderOf(from?.id);
       const GOAL: Record<string, string> = { lose: "снижение веса", keep: "поддержание веса", gain: "набор мышечной массы" };
       const text: Record<string, string> = {
         friend_request: L(lang, "📨 {who} хочет добавить вас в участники. Ответьте в разделе «Участники».", { who }),
-        friend_accepted: L(lang, "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.", { who }),
+        friend_accepted: G(lang, fg, "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.", "🤝 {who} подтвердил заявку — теперь вы участники друг у друга.", "🤝 {who} подтвердила заявку — теперь вы участники друг у друга.", { who }),
         trainer_offer: L(lang, "🏋️ {who} предлагает стать вашим тренером. Принять или отклонить можно в разделе «Участники».", { who }),
-        trainer_assigned: L(lang, "✅ {who} принял(а) вас как тренера. Его (её) тренировки теперь в вашем календаре.", { who }),
+        trainer_assigned: G(lang, fg, "✅ {who} принял(а) вас как тренера. Его (её) тренировки теперь в вашем календаре.", "✅ {who} принял вас как тренера. Его тренировки теперь в вашем календаре.", "✅ {who} приняла вас как тренера. Её тренировки теперь в вашем календаре.", { who }),
         achievement_pending: L(lang, "🏅 Новый сертификат на проверке от {who}: «{name}». Откройте Настройки → Админ-панель.", { who, name })
           + [n.payload?.result, n.payload?.date ? String(n.payload.date).split("-").reverse().join(".") : "", n.payload?.place].filter(Boolean).map((x) => "\n• " + esc(x)).join(""),
         achievement_submitted: L(lang, "📨 Сертификат «{name}» отправлен на проверку. Как только администратор его посмотрит, я напишу — он появится в «Достижениях → Соревнования».", { name }),
         achievement_approved: L(lang, "🏅 Ваш сертификат «{name}» подтверждён! Он уже в «Достижениях → Соревнования».", { name }),
-        food_norm: L(lang, "🎯 Тренер {who} изменил(а) вашу норму питания: цель — <b>{goal}</b>, норма — <b>{target}</b>. Подробности в разделе «Калории».", { who,
+        food_norm: G(lang, fg, "🎯 Тренер {who} изменил(а) вашу норму питания: цель — <b>{goal}</b>, норма — <b>{target}</b>. Подробности в разделе «Калории».", "🎯 Тренер {who} изменил вашу норму питания: цель — <b>{goal}</b>, норма — <b>{target}</b>. Подробности в разделе «Калории».", "🎯 Тренер {who} изменила вашу норму питания: цель — <b>{goal}</b>, норма — <b>{target}</b>. Подробности в разделе «Калории».", { who,
           goal: L(lang, GOAL[n.payload?.goal] ?? "по расчёту"), target: n.payload?.target ? n.payload.target + " " + L(lang, "ккал") : L(lang, "по расчёту приложения") }),
         achievement_badge: n.payload?.name ? L(lang, "🏅 За сертификат «{name}» вам выдана ачивка!", { name })
           : L(lang, "🎖️ Вам выдана персональная ачивка!") + (n.payload?.note ? "\n" + L(lang, "За что:") + " " + esc(String(n.payload.note).slice(0, 300)) : ""),
@@ -730,7 +779,8 @@ async function cron(kind: string) {
         const { data: last } = await admin.from("workouts").select("date").eq("participant_id", p.id).eq("status", "done").lte("date", d).order("date", { ascending: false }).limit(1);
         if (last?.[0] && last[0].date > border) continue;
         await admin.from("profiles").update({ last_motivation_date: d }).eq("id", p.id);
-        await send(p.telegram_id, L(lang, pick(MOTIVATION)), appKb("📅 Запланировать тренировку", lang));
+        { const i = Math.floor(Math.random() * MOTIVATION.length), g = await genderOf(p.id), f = MOTIVATION_F[i];
+          await send(p.telegram_id, f ? G(lang, g, MOTIVATION[i], MOTIVATION[i], f) : L(lang, MOTIVATION[i]), appKb("📅 Запланировать тренировку", lang)); }
         sent++;
       }
     } catch (e) { console.log("CRON_USER_ERROR", p.id, String(e)); }
@@ -744,7 +794,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   try {
     if (req.headers.get("x-telegram-bot-api-secret-token") !== null) {
-      if (req.headers.get("x-telegram-bot-api-secret-token") !== WEBHOOK_SECRET) return new Response("forbidden", { status: 403 });
+      // секрет обязателен: без него любой мог бы прислать «сообщение от Telegram» от имени другого человека
+      if (!WEBHOOK_SECRET || req.headers.get("x-telegram-bot-api-secret-token") !== WEBHOOK_SECRET) return new Response("forbidden", { status: 403 });
       const upd = await req.json();
       const chatId = upd.message?.chat?.id ?? upd.callback_query?.message?.chat?.id;
       try {
@@ -758,6 +809,7 @@ Deno.serve(async (req) => {
     }
     const body = await req.json().catch(() => ({}));
     if (body.action === "workout_done") return await onWorkoutDone(req, body);
+    if (body.action === "backup") return await onBackup(req, body);
     if (body.action === "cron") {
       if (!CRON_SECRET || req.headers.get("x-cron-secret") !== CRON_SECRET) return json({ error: "forbidden" }, 403);
       return json({ ok: true, sent: await cron(String(body.kind)) });
