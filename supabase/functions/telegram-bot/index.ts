@@ -14,9 +14,10 @@
 // Деплой: supabase functions deploy telegram-bot --no-verify-jwt
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-09-27 · morning-set";
+const BOT_VERSION = "2026-09-27 · i18n+food";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -60,9 +61,25 @@ async function sendPhotoSafe(chat_id: number, url: string, caption: string, extr
   return { ok: false, status };
 }
 const kb = (rows: [string, string][][]) => ({ reply_markup: { inline_keyboard: rows.map((r) => r.map(([text, callback_data]) => ({ text, callback_data }))) } });
-const appKb = (text = "📒 Открыть дневник") => APP_URL ? { reply_markup: { inline_keyboard: [[{ text, web_app: { url: APP_URL } }]] } } : {};
+const appKb = (text = "📒 Открыть дневник", lang = "ru") => APP_URL ? { reply_markup: { inline_keyboard: [[{ text: L(lang, text), web_app: { url: APP_URL } }]] } } : {};
 const esc = (s: unknown) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
 const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
+
+// ---------------- языки ----------------
+// язык человека: выбранный в приложении (profiles.lang) → язык Telegram → русский; тексты — в i18n.ts (ключ = русская фраза)
+const LANGS = ["ru", "uk", "en", "fr", "es", "it", "uz", "tr", "zh", "ja", "ko"];
+const LOCALE: Record<string, string> = { ru: "ru-RU", uk: "uk-UA", en: "en-GB", fr: "fr-FR", es: "es-ES", it: "it-IT", uz: "uz-Latn-UZ", tr: "tr-TR", zh: "zh-CN", ja: "ja-JP", ko: "ko-KR" };
+function normLang(code?: string | null) {
+  const c = String(code ?? "").toLowerCase().split(/[-_]/)[0];
+  if (LANGS.includes(c)) return c;
+  return ["be", "kk", "ky", "tg", "hy", "az", "ka", "tt", "ba"].includes(c) || !c ? "ru" : "en";
+}
+const langOf = (p: any, from?: any) => p?.lang && LANGS.includes(p.lang) ? p.lang : normLang(from?.language_code);
+// L(lang, "Русская фраза {x}", {x}) — перевод + подстановка
+function L(lang: string, ru: string, v: Record<string, unknown> = {}) {
+  const t = (lang !== "ru" && BOT_I18N[lang]?.[ru]) || ru;
+  return t.replace(/\{(\w+)\}/g, (m, k) => (k in v ? String(v[k]) : m));
+}
 
 function today(offsetDays = 0) {
   const d = new Date(Date.now() + offsetDays * 86400000);
@@ -70,18 +87,6 @@ function today(offsetDays = 0) {
 }
 
 // ---------------- тексты ----------------
-const MORNING = [
-  "Доброе утро! ☀️ Не забудь размяться: 5 минут — и тело скажет спасибо.",
-  "Подъём! Пара наклонов, вращения плечами и 10 приседаний — отличный старт дня 💪",
-  "Утренняя зарядка — это не про спорт, это про бодрость. Начни с шеи и плеч 🙂",
-  "Потянись как следует! Руки вверх, глубокий вдох — и 20 лёгких прыжков на месте.",
-  "Минутка для суставов: вращения кистями, локтями, плечами, тазом, коленями и стопами.",
-  "Кошка-корова 10 раз и планка 30 секунд — спина будет благодарна весь день.",
-  "Сделай 3 круга: 10 приседаний, 10 отжиманий от стены, 20 секунд планки. Погнали! 🔥",
-  "Не залипай в телефон — вставай и разгоняй кровь: 30 «джампинг-джеков» и пара выпадов.",
-  "Чем бодрее утро, тем продуктивнее день. 5 минут растяжки прямо сейчас? ✅",
-  "Разминка — лучший кофе. Наклоны, повороты корпуса, махи руками — и вперёд к целям!",
-];
 const MOTIVATION = [
   "Уже несколько дней без тренировки. Мышцы скучают — даже 20 минут сегодня лучше, чем ничего 💪",
   "Помнишь, зачем ты начинал? Один шаг — одна тренировка. Сегодня отличный день, чтобы вернуться!",
@@ -107,7 +112,6 @@ const MORNING_SET: [string, string][] = [
   ["09", "Не залипай в телефон — вставай! Шаг на месте 1 минуту, колени высоко."],
   ["10", "Утренний комплекс на 5 минут: потянись, плечи, наклоны, приседания, прыжки, выпады, планка, наклон вперёд, кошка-корова, шаг на месте ✅"],
 ];
-const MORNING_IMAGES = MORNING_SET.map(([n]) => `${APP_URL}bot/morning/${n}.jpg`);
 
 const GOALS: [string, string][] = [
   ["lose", "Похудеть"], ["mass", "Набрать мышечную массу"], ["strength", "Стать сильнее"],
@@ -148,23 +152,28 @@ const saveDetails = (id: string, patch: Record<string, unknown>) =>
   must(admin.from("profile_details").upsert({ user_id: id, ...patch, updated_at: new Date().toISOString() }, { onConflict: "user_id" }), "profile_details");
 
 // ---------------- анкета ----------------
-async function askAge(chat: number, id: string) {
+async function askAge(chat: number, id: string, lang: string) {
   await setState(id, { step: "age" });
-  await send(chat, "Сколько вам лет? Напишите число.");
+  await send(chat, L(lang, "Сколько вам лет? Напишите число."));
 }
-async function askGender(chat: number, id: string) {
+async function askGender(chat: number, id: string, lang: string) {
   await setState(id, { step: "gender" });
-  await send(chat, "Ваш пол:", kb([[["👨 Мужской", "g:male"], ["👩 Женский", "g:female"]]]));
+  await send(chat, L(lang, "Ваш пол:"), kb([[[L(lang, "👨 Мужской"), "g:male"], [L(lang, "👩 Женский"), "g:female"]]]));
 }
-async function askGoal(chat: number, id: string) {
+async function askGoal(chat: number, id: string, lang: string) {
   await setState(id, { step: "goal" });
-  await send(chat, "Какая у вас цель занятий?", kb(GOALS.map(([k, t]) => [[t, "goal:" + k]])));
+  await send(chat, L(lang, "Какая у вас цель занятий?"), kb(GOALS.map(([k, t]) => [[L(lang, t), "goal:" + k]])));
 }
-async function askPrivacy(chat: number, id: string) {
+async function askPrivacy(chat: number, id: string, lang: string) {
   await setState(id, { step: "privacy" });
   await send(chat,
-    "Кто может видеть ваши данные (возраст, пол, вес, рост, цель)?\nПо умолчанию — только вы. Изменить можно в приложении: Участники → вы → «Личные данные».",
-    kb([[["🔒 Только я", "priv:me"]], [["🏋️ Я и мой тренер", "priv:trainer"]], [["👥 Все мои участники", "priv:all"]]]));
+    L(lang, "Кто может видеть ваши данные (возраст, пол, вес, рост, цель)?\nПо умолчанию — только вы. Изменить можно в приложении: Участники → вы → «Личные данные»."),
+    kb([[[L(lang, "🔒 Только я"), "priv:me"]], [[L(lang, "🏋️ Я и мой тренер"), "priv:trainer"]], [[L(lang, "👥 Все мои участники"), "priv:all"]]]));
+}
+// язык ещё не сохранён — запоминаем язык Telegram (в приложении его можно сменить)
+async function withLang(p: any, from: any) {
+  if (!p.lang) { p.lang = normLang(from?.language_code); await admin.from("profiles").update({ lang: p.lang }).eq("id", p.id); }
+  return langOf(p, from);
 }
 
 async function onMessage(msg: any) {
@@ -173,22 +182,24 @@ async function onMessage(msg: any) {
   const text = String(msg.text ?? "").trim().replace(/^(\/\w+)@\w+/, "$1");  // /cmd@имя_бота → /cmd
   console.log("BOT_MESSAGE", BOT_VERSION, text.slice(0, 40));
   const p = await ensureProfile(msg.from);
+  const lang = await withLang(p, msg.from);
   const st = (p.bot_state ?? {}) as Record<string, any>;
 
   if (text.startsWith("/start")) {
     if (!p.onboarded) {
-      await send(chat, `Привет, ${esc(p.name)}! 👋 Я бот «ТренДневника».\nЗадам 6 коротких вопросов — это займёт минуту. Эти данные видите только вы, пока сами не решите иначе.`);
-      return askAge(chat, p.id);
+      await send(chat, L(lang, "Привет, {name}! 👋 Я бот «ТренДневника».\nЗадам 6 коротких вопросов — это займёт минуту. Эти данные видите только вы, пока сами не решите иначе.", { name: esc(p.name) }));
+      return askAge(chat, p.id, lang);
     }
     await setState(p.id, {});
-    return send(chat, `С возвращением, ${esc(p.name)}! Записывайте тренировки в дневнике 👇\n\n/profile — заново заполнить анкету\n/reminders — вкл/выкл напоминания`, appKb());
+    return send(chat, L(lang, "С возвращением, {name}! Записывайте тренировки в дневнике 👇\n\n/profile — заново заполнить анкету\n/reminders — вкл/выкл напоминания", { name: esc(p.name) }), appKb(undefined, lang));
   }
-  if (text === "/profile") return askAge(chat, p.id);
+  if (text === "/profile") return askAge(chat, p.id, lang);
   if (text === "/report") {   // проверить отчёт: итоги последних 7 дней
     const d = today(); const cur = await periodStats(p.id, addDays(d, -6), d);
-    return send(chat, `📊 Последние 7 дней: тренировок <b>${cur.n}</b>, тоннаж <b>${fmt(cur.ton)} кг</b>${cur.km ? `, кардио ${Math.round(cur.km * 10) / 10} км` : ""}.\nПолные итоги придут в воскресенье, в конце месяца, квартала и года в 21:00.`);
+    return send(chat, L(lang, "📊 Последние 7 дней: тренировок <b>{n}</b>, тоннаж <b>{ton} кг</b>{cardio}.\nПолные итоги придут в воскресенье, в конце месяца, квартала и года в 21:00.",
+      { n: cur.n, ton: fmt(cur.ton, lang), cardio: cur.km ? L(lang, ", кардио {km} км", { km: Math.round(cur.km * 10) / 10 }) : "" }));
   }
-  if (text === "/version") return send(chat, `Версия бота: <b>${BOT_VERSION}</b>\nАдрес приложения (MINI_APP_URL): <code>${esc(APP_URL || "не задан")}</code>`);
+  if (text === "/version") return send(chat, `Версия бота / Bot version: <b>${BOT_VERSION}</b>\nMINI_APP_URL: <code>${esc(APP_URL || "—")}</code>\nlang: ${lang}`);
   if (text === "/test_images") {
     if (!APP_URL) return send(chat, "⚠️ Секрет MINI_APP_URL не задан — боту неоткуда брать картинки.");
     await send(chat, `Проверяю картинки по адресу приложения:\n<code>${esc(APP_URL)}</code>`);
@@ -200,38 +211,38 @@ async function onMessage(msg: any) {
   if (text === "/reminders") {
     const on = !p.reminders;
     await admin.from("profiles").update({ reminders: on }).eq("id", p.id);
-    return send(chat, on ? "🔔 Напоминания включены." : "🔕 Напоминания выключены. Включить снова — /reminders");
+    return send(chat, on ? L(lang, "🔔 Напоминания включены.") : L(lang, "🔕 Напоминания выключены. Включить снова — /reminders"));
   }
 
   const num = Number(text.replace(",", ".").replace(/[^\d.]/g, ""));
   switch (st.step) {
     case "age":
-      if (!(num >= 7 && num <= 100)) return send(chat, "Напишите возраст числом, например: 29");
+      if (!(num >= 7 && num <= 100)) return send(chat, L(lang, "Напишите возраст числом, например: 29"));
       { const d = new Date(); d.setFullYear(d.getFullYear() - Math.floor(num)); await saveDetails(p.id, { birth_date: d.toISOString().slice(0, 10) }); }
-      return askGender(chat, p.id);
+      return askGender(chat, p.id, lang);
     case "weight":
-      if (!(num >= 20 && num <= 350)) return send(chat, "Напишите вес в килограммах, например: 72.5");
+      if (!(num >= 20 && num <= 350)) return send(chat, L(lang, "Напишите вес в килограммах, например: 72.5"));
       await saveDetails(p.id, { weight_kg: num });
       await admin.from("body_weights").upsert({ user_id: p.id, date: today(), weight_kg: num }, { onConflict: "user_id,date" });
       await setState(p.id, { step: "height" });
-      return send(chat, "Ваш рост в сантиметрах?");
+      return send(chat, L(lang, "Ваш рост в сантиметрах?"));
     case "height":
-      if (!(num >= 90 && num <= 250)) return send(chat, "Напишите рост в сантиметрах, например: 178");
+      if (!(num >= 90 && num <= 250)) return send(chat, L(lang, "Напишите рост в сантиметрах, например: 178"));
       await saveDetails(p.id, { height_cm: num });
-      return askGoal(chat, p.id);
+      return askGoal(chat, p.id, lang);
     case "goal_other":
-      if (!text) return send(chat, "Опишите цель в паре слов.");
+      if (!text) return send(chat, L(lang, "Опишите цель в паре слов."));
       await saveDetails(p.id, { goal: text.slice(0, 200) });
-      return askPrivacy(chat, p.id);
+      return askPrivacy(chat, p.id, lang);
     case "steps":
-      if (!(num >= 0 && num <= 200000)) return send(chat, "Напишите количество шагов числом, например: 12000");
+      if (!(num >= 0 && num <= 200000)) return send(chat, L(lang, "Напишите количество шагов числом, например: 12000"));
       await admin.from("daily_activity").upsert({ user_id: p.id, date: st.date ?? today(), kind: "steps", steps: Math.round(num) }, { onConflict: "user_id,date" });
       await setState(p.id, {});
-      return send(chat, num >= 10000 ? `🔥 ${Math.round(num).toLocaleString("ru-RU")} шагов — отличный результат! Записал.` : `Записал: ${Math.round(num).toLocaleString("ru-RU")} шагов 👍`);
+      return send(chat, num >= 10000 ? L(lang, "🔥 {n} шагов — отличный результат! Записал.", { n: fmt(num, lang) }) : L(lang, "Записал: {n} шагов 👍", { n: fmt(num, lang) }));
   }
-  if (["gender", "goal", "privacy", "activity", "activity_q"].includes(st.step)) return send(chat, "Выберите вариант кнопкой в сообщении выше 👆");
-  if (!p.onboarded) return askAge(chat, p.id);
-  return send(chat, "Дневник тренировок — в приложении 👇", appKb());
+  if (["gender", "goal", "privacy", "activity", "activity_q"].includes(st.step)) return send(chat, L(lang, "Выберите вариант кнопкой в сообщении выше 👆"));
+  if (!p.onboarded) return askAge(chat, p.id, lang);
+  return send(chat, L(lang, "Дневник тренировок — в приложении 👇"), appKb(undefined, lang));
 }
 
 async function onCallback(cb: any) {
@@ -240,44 +251,45 @@ async function onCallback(cb: any) {
   await tg("answerCallbackQuery", { callback_query_id: cb.id });
   if (cb.message) await tg("editMessageReplyMarkup", { chat_id: chat, message_id: cb.message.message_id, reply_markup: { inline_keyboard: [] } });
   const p = await ensureProfile(cb.from);
+  const lang = await withLang(p, cb.from);
   const st = (p.bot_state ?? {}) as Record<string, any>;
   const [key, val] = data.split(":");
 
   if (key === "g") {
     await saveDetails(p.id, { gender: val === "female" ? "female" : "male" });
     await setState(p.id, { step: "weight" });
-    return send(chat, "Ваш вес в килограммах?");
+    return send(chat, L(lang, "Ваш вес в килограммах?"));
   }
   if (key === "goal") {
-    if (val === "other") { await setState(p.id, { step: "goal_other" }); return send(chat, "Напишите свою цель в паре слов."); }
-    await saveDetails(p.id, { goal: GOALS.find(([k]) => k === val)?.[1] ?? val });
-    return askPrivacy(chat, p.id);
+    if (val === "other") { await setState(p.id, { step: "goal_other" }); return send(chat, L(lang, "Напишите свою цель в паре слов.")); }
+    await saveDetails(p.id, { goal: GOALS.find(([k]) => k === val)?.[1] ?? val });   // в базе — русская формулировка, приложение переводит
+    return askPrivacy(chat, p.id, lang);
   }
   if (key === "priv") {
     await saveDetails(p.id, { show_public: val === "all", show_trainer: val === "all" || val === "trainer" });
     await admin.from("profiles").update({ onboarded: true, bot_state: {} }).eq("id", p.id);
-    return send(chat, "Готово! ✅ Анкета сохранена.\nЯ буду присылать итоги тренировок, утренние напоминания о зарядке и иногда спрашивать про активность. Выключить напоминания — /reminders", appKb());
+    return send(chat, L(lang, "Готово! ✅ Анкета сохранена.\nЯ буду присылать итоги тренировок, утренние напоминания о зарядке и иногда спрашивать про активность. Выключить напоминания — /reminders"), appKb(undefined, lang));
   }
   if (key === "act") {
     const date = st.date ?? today();
     if (val === "no") {
       await admin.from("daily_activity").upsert({ user_id: p.id, date, kind: "none" }, { onConflict: "user_id,date" });
       await setState(p.id, {});
-      return send(chat, "Понял. Отдых тоже часть прогресса 😌 Завтра — новый день!");
+      return send(chat, L(lang, "Понял. Отдых тоже часть прогресса 😌 Завтра — новый день!"));
     }
     await setState(p.id, { step: "activity", date });
-    return send(chat, "Отлично! Какая была активность?", kb(ACTIVITIES.map(([k, t]) => [[t, "actk:" + k]])));
+    return send(chat, L(lang, "Отлично! Какая была активность?"), kb(ACTIVITIES.map(([k, t]) => [[L(lang, t), "actk:" + k]])));
   }
   if (key === "actk") {
     const date = st.date ?? today();
     await admin.from("daily_activity").upsert({ user_id: p.id, date, kind: val }, { onConflict: "user_id,date" });
-    if (val === "steps") { await setState(p.id, { step: "steps", date }); return send(chat, "Сколько шагов прошли за день?"); }
+    if (val === "steps") { await setState(p.id, { step: "steps", date }); return send(chat, L(lang, "Сколько шагов прошли за день?")); }
     await setState(p.id, {});
     const reply: Record<string, string> = {
       work: "Бывает. Восстановление важно — выспись как следует 😴",
       moving: "Это тоже серьёзная нагрузка! Засчитано 💪", sick: "Выздоравливай! Тренировки подождут 🙏",
     };
-    return send(chat, reply[val] ?? "Записал! Любое движение — в копилку 👍");
+    return send(chat, L(lang, reply[val] ?? "Записал! Любое движение — в копилку 👍"));
   }
 }
 
@@ -287,9 +299,10 @@ const TONNAGE_CMP: [number, string][] = [[50, "кот 🐈"], [200, "пиани�
   [40000, "грузовик-фура 🚛"], [60000, "башенный кран 🏗️"], [100000, "синий кит 🐋"]];
 const MG: Record<string, string> = { chest: "Грудь", back: "Спина", shoulders: "Плечи", biceps: "Бицепс", triceps: "Трицепс", forearms: "Предплечья",
   quads: "Квадрицепс", hamstrings: "Бицепс бедра", glutes: "Ягодицы", calves: "Икры", abs: "Пресс", other: "Другое" };
-const fmt = (n: number) => Math.round(n).toLocaleString("ru-RU");
+const fmt = (n: number, lang = "ru") => Math.round(n).toLocaleString(LOCALE[lang] ?? "ru-RU");
+const exName = (lang: string, n?: string) => L(lang, n ?? "Упражнение");   // базовые упражнения переведены, свои — как записаны
 
-async function workoutSummary(w: any) {
+async function workoutSummary(w: any, lang = "ru") {
   const ids = new Set<string>();
   (w.blocks ?? []).forEach((b: any) => (b.exercises ?? []).forEach((e: any) => ids.add(e.exerciseId)));
   const { data: exs } = ids.size ? await admin.from("exercises").select("id,name,main_group,type").in("id", [...ids]) : { data: [] };
@@ -316,20 +329,21 @@ async function workoutSummary(w: any) {
     if (!n) continue;
     sets += n; total += t;
     if (ex && t > 0) groups[ex.main_group] = (groups[ex.main_group] ?? 0) + t;
-    const cardio = ex?.type === "cardio" ? [km ? `${Math.round(km * 100) / 100} км` : "", min ? `${Math.round(min)} мин` : "", incl ? `уклон ${incl}%` : ""].filter(Boolean).join(", ") : "";
-    const bestTxt = ex?.type === "cardio" ? "" : best ? ` · лучший: <b>${best.wt > 0 ? `${Math.round(best.wt * 10) / 10}×${best.r}` : `${best.r} повт.`}</b>` : "";
-    lines.push(`• ${esc(ex?.name ?? "Упражнение")}${b.kind === "superset" ? " (суперсет)" : e.isDropset ? " (дроп-сет)" : ""}: ${cardio || `${n} подх.`}${t > 0 ? `, ${fmt(t)} кг` : ""}${bestTxt}`);
+    const cardio = ex?.type === "cardio" ? [km ? L(lang, "{v} км", { v: Math.round(km * 100) / 100 }) : "", min ? L(lang, "{v} мин", { v: Math.round(min) }) : "", incl ? L(lang, "уклон {v}%", { v: incl }) : ""].filter(Boolean).join(", ") : "";
+    const bestTxt = ex?.type === "cardio" ? "" : best ? L(lang, " · лучший: <b>{v}</b>", { v: best.wt > 0 ? `${Math.round(best.wt * 10) / 10}×${best.r}` : L(lang, "{n} повт.", { n: best.r }) }) : "";
+    lines.push(`• ${esc(exName(lang, ex?.name))}${b.kind === "superset" ? L(lang, " (суперсет)") : e.isDropset ? L(lang, " (дроп-сет)") : ""}: ${cardio || L(lang, "{n} подх.", { n })}${t > 0 ? `, ${fmt(t, lang)} ${L(lang, "кг")}` : ""}${bestTxt}`);
   }
   const cmp = [...TONNAGE_CMP].reverse().find(([th]) => total >= th);
-  const g = Object.entries(groups).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${MG[k] ?? k} ${fmt(v)}`).join(" · ");
+  const g = Object.entries(groups).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${L(lang, MG[k] ?? k)} ${fmt(v, lang)}`).join(" · ");
+  const kg = L(lang, "кг");
   return [
-    `🏋️ <b>${esc(w.name || "Тренировка")}</b>`,
-    `📅 ${w.date}${w.duration ? ` · ⏱ ${w.duration} мин` : ""}${Number(w.body_weight) ? ` · ⚖️ ${w.body_weight} кг` : ""}`,
-    lines.length ? lines.join("\n") : "Подходы не заполнены",
-    `\nПодходов: <b>${sets}</b>${total > 0 ? ` · Тоннаж: <b>${fmt(total)} кг</b>` : ""}`,
-    cmp ? `Это как поднять: ${cmp[1]}` : "",
-    g ? `По группам: ${g}` : "",
-    w.result ? `Самочувствие: ${esc(w.result)}` : "",
+    `🏋️ <b>${esc(w.name ? L(lang, w.name) : L(lang, "Тренировка"))}</b>`,
+    `📅 ${w.date}${w.duration ? ` · ⏱ ${L(lang, "{v} мин", { v: w.duration })}` : ""}${Number(w.body_weight) ? ` · ⚖️ ${w.body_weight} ${kg}` : ""}`,
+    lines.length ? lines.join("\n") : L(lang, "Подходы не заполнены"),
+    "\n" + L(lang, "Подходов: <b>{n}</b>", { n: sets }) + (total > 0 ? " · " + L(lang, "Тоннаж: <b>{v} кг</b>", { v: fmt(total, lang) }) : ""),
+    cmp ? L(lang, "Это как поднять: {v}", { v: L(lang, cmp[1]) }) : "",
+    g ? L(lang, "По группам: {v}", { v: g }) : "",
+    w.result ? L(lang, "Самочувствие: {v}", { v: esc(w.result) }) : "",
   ].filter(Boolean).join("\n");
 }
 
@@ -353,7 +367,7 @@ async function findRecords(w: any) {
   }
   if (!out.length) return [];
   const { data: exs } = await admin.from("exercises").select("id,name").in("id", out.map((x) => x.exerciseId));
-  return out.map((r) => ({ ...r, name: exs?.find((e: any) => e.id === r.exerciseId)?.name ?? "упражнение" }));
+  return out.map((r) => ({ ...r, name: exs?.find((e: any) => e.id === r.exerciseId)?.name ?? "Упражнение" }));
 }
 
 // ---------------- «НУ ДАВАЙ, ЗАПЛАЧЬ!!!»: тренировка на 25%+ слабее обычного по группе мышц ----------------
@@ -403,19 +417,20 @@ async function onWorkoutDone(req: Request, body: any) {
   const isTrainer = (links ?? []).some((l: any) => l.trainer_id === me);
   if (w.participant_id !== me && w.created_by !== me && !isTrainer) return json({ error: "forbidden" }, 403);
 
-  const text = await workoutSummary(w);
-  const { data: people } = await admin.from("profiles").select("id,name,telegram_id").in("id", [w.participant_id, ...(links ?? []).map((l: any) => l.trainer_id)]);
+  const { data: people } = await admin.from("profiles").select("*").in("id", [w.participant_id, ...(links ?? []).map((l: any) => l.trainer_id)]);
   const athlete = (people ?? []).find((x: any) => x.id === w.participant_id);
-  // ачивки, полученные за эту тренировку (считает приложение и присылает списком)
+  const al = langOf(athlete);
+  const text = await workoutSummary(w, al);
+  // ачивки, полученные за эту тренировку (приложение присылает названия уже на языке пользователя)
   const achs = Array.isArray(body.achievements) ? body.achievements.filter((x: unknown) => typeof x === "string").slice(0, 30) : [];
-  const achText = achs.length ? `\n\n🏅 <b>Новые ачивки (${achs.length}):</b>\n` + achs.map((a: string) => "• " + esc(a.slice(0, 80))).join("\n") : "";
-  if (athlete?.telegram_id) await send(athlete.telegram_id, "✅ Тренировка завершена!\n\n" + text + achText, appKb("📒 Открыть дневник"));
+  const achText = achs.length ? "\n\n" + L(al, "🏅 <b>Новые ачивки ({n}):</b>", { n: achs.length }) + "\n" + achs.map((a: string) => "• " + esc(a.slice(0, 80))).join("\n") : "";
+  if (athlete?.telegram_id) await send(athlete.telegram_id, L(al, "✅ Тренировка завершена!") + "\n\n" + text + achText, appKb("📒 Открыть дневник", al));
   // ачивки серии «Light weight» (рекорды, герои, мировые рекорды): постер + за что дали
   const lwAch = Array.isArray(body.lw) ? body.lw.slice(0, 5) : [];
   if (athlete?.telegram_id && APP_URL) for (const a of lwAch) {
     const img = String(a?.img ?? "").replace(/^\/+/, "");
     if (!/^img\/lightweight\/[\w./-]+\.(jpg|webp)$/.test(img)) continue;
-    await sendPhotoSafe(athlete.telegram_id, APP_URL + img, `🏆 <b>LIGHT WEIGHT — ${esc(String(a.title ?? "").slice(0, 80))}</b>\n\nЗа что: ${esc(String(a.desc ?? "").slice(0, 300))}`);
+    await sendPhotoSafe(athlete.telegram_id, APP_URL + img, `🏆 <b>LIGHT WEIGHT — ${esc(String(a.title ?? "").slice(0, 80))}</b>\n\n${L(al, "За что:")} ${esc(String(a.desc ?? "").slice(0, 300))}`);
     await sleep(40);
   }
   // новый рекорд — постер «Light weight» с подписью
@@ -423,7 +438,7 @@ async function onWorkoutDone(req: Request, body: any) {
   if (athlete?.telegram_id && records.length && APP_URL) {
     const n = String(1 + Math.floor(Math.random() * LW_COUNT)).padStart(2, "0");
     const caption = "🏆 LIGHT WEIGHT, BABY!\n\n" + records.map((r) =>
-      `Впервые достигнут вес ${fmt(r.weight)} кг в упражнении «${esc(r.name)}», количество повторений ${r.reps}.`).join("\n");
+      L(al, "Впервые достигнут вес {kg} кг в упражнении «{ex}», количество повторений {reps}.", { kg: fmt(r.weight, al), ex: esc(exName(al, r.name)), reps: r.reps })).join("\n");
     await sendPhotoSafe(athlete.telegram_id, `${APP_URL}img/lightweight/${n}.jpg`, caption);
   }
   // слабая тренировка — постер «Ну давай, заплачь!!!» (не вместе с рекордом: рекорд важнее)
@@ -431,25 +446,27 @@ async function onWorkoutDone(req: Request, body: any) {
     const weak = await weakWorkout(w).catch((e) => { console.log("WEAK_ERR", String(e)); return null; });
     if (weak) {
       const top = Math.round(weak[0].drop * 100);
-      const caption = `😤 НУ ДАВАЙ, ЗАПЛАЧЬ!!!\n\nТренировка на ${top}% хуже обычного:\n` + weak.map((x) =>
-        `• ${MG[x.k] ?? x.k}: ${fmt(x.v)} кг против обычных ${fmt(x.avg)} кг (−${Math.round(x.drop * 100)}%)`).join("\n") + "\n\nСледующая — злее. 💪";
+      const caption = L(al, "😤 НУ ДАВАЙ, ЗАПЛАЧЬ!!!\n\nТренировка на {p}% хуже обычного:", { p: top }) + "\n" + weak.map((x) =>
+        "• " + L(al, "{group}: {v} кг против обычных {avg} кг (−{p}%)", { group: L(al, MG[x.k] ?? x.k), v: fmt(x.v, al), avg: fmt(x.avg, al), p: Math.round(x.drop * 100) })).join("\n") + "\n\n" + L(al, "Следующая — злее. 💪");
       const n = String(1 + Math.floor(Math.random() * WEAK_COUNT)).padStart(2, "0");
       await sendPhotoSafe(athlete.telegram_id, `${APP_URL}img/weak/${n}.jpg`, caption);
     }
   }
-  for (const t of (people ?? []).filter((x: any) => x.id !== w.participant_id && x.telegram_id))
-    await send(t.telegram_id, `👀 Подопечный <b>${esc(athlete?.name)}</b> завершил тренировку:\n\n` + text);
+  for (const t of (people ?? []).filter((x: any) => x.id !== w.participant_id && x.telegram_id)) {
+    const tl = langOf(t);
+    await send(t.telegram_id, L(tl, "👀 Подопечный <b>{name}</b> завершил тренировку:", { name: esc(athlete?.name) }) + "\n\n" + (tl === al ? text : await workoutSummary(w, tl)));
+  }
   return json({ ok: true });
 }
 
 // ---------------- итоги недели / месяца / квартала / года ----------------
 function addDays(ds: string, n: number) { const d = new Date(ds + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 function periodsEndingToday(d: string) {
-  const dt = new Date(d + "T12:00:00Z"), tomorrow = addDays(d, 1), out: { key: string; title: string; from: string; prevFrom: string; prevTo: string }[] = [];
+  const dt = new Date(d + "T12:00:00Z"), tomorrow = addDays(d, 1), out: { key: string; title: string; from: string; prevFrom: string; prevTo: string; y?: number; q?: number }[] = [];
   const y = +d.slice(0, 4), m = +d.slice(5, 7);
-  if (tomorrow.slice(0, 4) !== d.slice(0, 4)) out.push({ key: "year", title: `Итоги ${y} года`, from: `${y}-01-01`, prevFrom: `${y - 1}-01-01`, prevTo: `${y - 1}-12-31` });
+  if (tomorrow.slice(0, 4) !== d.slice(0, 4)) out.push({ key: "year", title: "Итоги {y} года", y, from: `${y}-01-01`, prevFrom: `${y - 1}-01-01`, prevTo: `${y - 1}-12-31` });
   if (tomorrow.slice(5, 7) !== d.slice(5, 7) && m % 3 === 0) { const q = m / 3, qs = `${y}-${String(m - 2).padStart(2, "0")}-01`;
-    out.push({ key: "quarter", title: `Итоги ${q}-го квартала`, from: qs, prevFrom: new Date(Date.UTC(y, m - 6, 1)).toISOString().slice(0, 10), prevTo: addDays(qs, -1) }); }
+    out.push({ key: "quarter", title: "Итоги {q}-го квартала", q, from: qs, prevFrom: new Date(Date.UTC(y, m - 6, 1)).toISOString().slice(0, 10), prevTo: addDays(qs, -1) }); }
   if (tomorrow.slice(5, 7) !== d.slice(5, 7)) { const ms = d.slice(0, 8) + "01";
     out.push({ key: "month", title: "Итоги месяца", from: ms, prevFrom: new Date(Date.UTC(y, m - 2, 1)).toISOString().slice(0, 10), prevTo: addDays(ms, -1) }); }
   if (dt.getUTCDay() === 0) out.push({ key: "week", title: "Итоги недели", from: addDays(d, -6), prevFrom: addDays(d, -13), prevTo: addDays(d, -7) });
@@ -472,28 +489,118 @@ async function periodStats(uid: string, from: string, to: string) {
   return { n: list.length, ton, min, km, best, groups };
 }
 async function periodReports(p: any, d: string) {
-  let sent = 0;
+  let sent = 0; const lang = langOf(p), kg = L(lang, "кг");
   for (const per of periodsEndingToday(d)) {
     const cur = await periodStats(p.id, per.from, d), prev = await periodStats(p.id, per.prevFrom, per.prevTo);
     if (!cur.n && !prev.n) continue;
     const diff = prev.ton > 0 ? Math.round((cur.ton / prev.ton - 1) * 100) : null;
-    const top = Object.entries(cur.groups).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${MG[k] ?? k} ${fmt(v)} кг`).join(" · ");
-    const text = [`📊 <b>${per.title}</b> (${per.from.split("-").reverse().join(".")} — ${d.split("-").reverse().join(".")})`, "",
-      `Тренировок: <b>${cur.n}</b>${prev.n ? ` (было ${prev.n})` : ""}`,
-      `Тоннаж: <b>${fmt(cur.ton)} кг</b>${diff !== null ? ` (${diff >= 0 ? "+" : ""}${diff}% к прошлому периоду)` : ""}`,
-      cur.min ? `Время в зале: <b>${Math.round(cur.min / 60 * 10) / 10} ч</b>` : "",
-      cur.km ? `Кардио: <b>${Math.round(cur.km * 10) / 10} км</b>` : "",
-      top ? `Больше всего: ${top}` : "",
-      cur.best ? `Лучшая тренировка: ${esc(cur.best.name || "тренировка")} ${cur.best.date.split("-").reverse().join(".")} — ${fmt(cur.best.t)} кг` : "",
-      "", cur.n === 0 ? "За период ни одной тренировки. Самое время вернуться 💪" : diff !== null && diff >= 0 ? "Прогресс есть — так держать! 🔥" : "Следующий период — сильнее. 💪"].filter((x, i, a) => x || (i > 0 && a[i - 1])).join("\n");
-    await send(p.telegram_id, text, appKb("📊 Открыть статистику")); sent++; await sleep(40);
+    const top = Object.entries(cur.groups).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${L(lang, MG[k] ?? k)} ${fmt(v, lang)} ${kg}`).join(" · ");
+    const text = [`📊 <b>${L(lang, per.title, { y: per.y, q: per.q })}</b> (${per.from.split("-").reverse().join(".")} — ${d.split("-").reverse().join(".")})`, "",
+      L(lang, "Тренировок: <b>{n}</b>", { n: cur.n }) + (prev.n ? L(lang, " (было {n})", { n: prev.n }) : ""),
+      L(lang, "Тоннаж: <b>{v} кг</b>", { v: fmt(cur.ton, lang) }) + (diff !== null ? L(lang, " ({d}% к прошлому периоду)", { d: (diff >= 0 ? "+" : "") + diff }) : ""),
+      cur.min ? L(lang, "Время в зале: <b>{v} ч</b>", { v: Math.round(cur.min / 60 * 10) / 10 }) : "",
+      cur.km ? L(lang, "Кардио: <b>{v} км</b>", { v: Math.round(cur.km * 10) / 10 }) : "",
+      top ? L(lang, "Больше всего: {v}", { v: top }) : "",
+      cur.best ? L(lang, "Лучшая тренировка: {name} {date} — {v} кг", { name: esc(cur.best.name ? L(lang, cur.best.name) : L(lang, "тренировка")), date: cur.best.date.split("-").reverse().join("."), v: fmt(cur.best.t, lang) }) : "",
+      "", cur.n === 0 ? L(lang, "За период ни одной тренировки. Самое время вернуться 💪") : diff !== null && diff >= 0 ? L(lang, "Прогресс есть — так держать! 🔥") : L(lang, "Следующий период — сильнее. 💪")].filter((x, i, a) => x || (i > 0 && a[i - 1])).join("\n");
+    await send(p.telegram_id, text, appKb("📊 Открыть статистику", lang)); sent++; await sleep(40);
+  }
+  return sent;
+}
+
+// ---------------- питание: норма (как в приложении) и отчёты ----------------
+const KCAL_GOALS: Record<string, [string, number]> = { lose: ["снижение веса", 0.85], keep: ["поддержание веса", 1], gain: ["набор мышечной массы", 1.1] };
+function ageFrom(b?: string) {
+  if (!b) return 0; const d = new Date(b + "T12:00:00Z"), n = new Date();
+  let a = n.getUTCFullYear() - d.getUTCFullYear();
+  if (n.getUTCMonth() < d.getUTCMonth() || (n.getUTCMonth() === d.getUTCMonth() && n.getUTCDate() < d.getUTCDate())) a--;
+  return a;
+}
+async function foodNormOf(uid: string) {
+  const { data: d } = await admin.from("profile_details").select("*").eq("user_id", uid).maybeSingle();
+  if (!d) return null;
+  const w = +d.weight_kg || 0, h = +d.height_cm || 0, age = ageFrom(d.birth_date), act = +d.activity || 1.375;
+  const goal = d.kcal_goal || (/похуд/i.test(d.goal || "") ? "lose" : /масс/i.test(d.goal || "") ? "gain" : "keep");
+  const bmr = w && h && age && d.gender ? 10 * w + 6.25 * h - 5 * age + (d.gender === "male" ? 5 : -161) : 0;
+  const kcal = +d.kcal_target || (bmr ? Math.round(bmr * act * KCAL_GOALS[goal][1] / 10) * 10 : 0);
+  if (!kcal) return { kcal: 0, goal, p: 0 };
+  return { kcal, goal, p: Math.round(w ? w * (goal === "keep" ? 1.6 : 2) : kcal * 0.25 / 4), f: Math.round(w ? w * 0.9 : kcal * 0.3 / 9) };
+}
+async function foodRows(uid: string, from: string, to: string) {
+  const { data } = await admin.from("food_log").select("date,meal,kcal,protein,fat,carbs").eq("user_id", uid).gte("date", from).lte("date", to);
+  return data ?? [];
+}
+const sum = (rows: any[], k: string) => rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+// итог дня: съедено / норма / БЖУ / по приёмам пищи + вывод
+async function foodDaily(p: any, d: string) {
+  const rows = await foodRows(p.id, d, d);
+  if (!rows.length) return 0;
+  const lang = langOf(p), n = await foodNormOf(p.id), kcal = sum(rows, "kcal"), pr = sum(rows, "protein"), g = L(lang, "г");
+  const MEALS: [string, string[]][] = [["Завтрак", ["breakfast"]], ["Обед", ["lunch"]], ["Ужин", ["dinner"]], ["Перекусы", ["snack1", "snack2", "snack3"]]];
+  const meals = MEALS.map(([t, ks]) => [t, sum(rows.filter((r: any) => ks.includes(r.meal)), "kcal")] as [string, number]).filter(([, v]) => v > 0)
+    .map(([t, v]) => `${L(lang, t)} ${fmt(v, lang)}`).join(" · ");
+  const lines = [L(lang, "🍽 <b>Питание за день</b> ({date})", { date: d.split("-").reverse().slice(0, 2).join(".") }), "",
+    n?.kcal ? L(lang, "Съедено: <b>{v} ккал</b> из {norm} ({p}%)", { v: fmt(kcal, lang), norm: fmt(n.kcal, lang), p: Math.round(kcal / n.kcal * 100) }) : L(lang, "Съедено: <b>{v} ккал</b>", { v: fmt(kcal, lang) }),
+    `${L(lang, "Белки")} ${fmt(pr, lang)}${n?.p ? "/" + n.p : ""} ${g} · ${L(lang, "Жиры")} ${fmt(sum(rows, "fat"), lang)}${n?.f ? "/" + n.f : ""} ${g} · ${L(lang, "Углеводы")} ${fmt(sum(rows, "carbs"), lang)} ${g}`,
+    meals, ""];
+  if (!n?.kcal) lines.push(L(lang, "Заполните возраст, пол, рост и вес в личных данных — я посчитаю вашу норму и подскажу, всё ли в порядке."));
+  else {
+    const r = kcal / n.kcal;
+    lines.push(L(lang, "<b>Вывод:</b>") + " " + (r < 0.8 ? L(lang, "недобор {v} ккал — организму не хватает энергии на тренировки и восстановление. Если что-то съели и не записали — добавьте.", { v: fmt(n.kcal - kcal, lang) })
+      : r > 1.1 ? L(lang, "перебор {v} ккал. Один такой день не страшен — завтра просто держитесь нормы.", { v: fmt(kcal - n.kcal, lang) })
+      : L(lang, "калорийность в норме — отлично! ✅")));
+    if (n.p && pr < n.p * 0.8) lines.push(L(lang, "Белка маловато: {v} из {t} г — добавьте мясо, рыбу, творог, яйца или протеин.", { v: fmt(pr, lang), t: n.p }));
+  }
+  await send(p.telegram_id, lines.filter((x, i, a) => x || (i > 0 && a[i - 1])).join("\n"), appKb("🍽 Открыть калории", lang));
+  return 1;
+}
+// итоги питания за неделю / месяц / квартал / год: среднее за день, дни в норме, вес — и вывод
+async function foodPeriodReports(p: any, d: string) {
+  let sent = 0; const lang = langOf(p);
+  for (const per of periodsEndingToday(d)) {
+    const rows = await foodRows(p.id, per.from, d);
+    const days = new Set(rows.map((r: any) => r.date));
+    if (!days.size) continue;
+    const n = await foodNormOf(p.id);
+    const byDay: Record<string, number> = {}; rows.forEach((r: any) => byDay[r.date] = (byDay[r.date] ?? 0) + (Number(r.kcal) || 0));
+    const avg = sum(rows, "kcal") / days.size, avgP = sum(rows, "protein") / days.size;
+    const inNorm = n?.kcal ? Object.values(byDay).filter((v) => v >= n.kcal * 0.9 && v <= n.kcal * 1.1).length : 0;
+    const prevRows = await foodRows(p.id, per.prevFrom, per.prevTo), prevDays = new Set(prevRows.map((r: any) => r.date)).size;
+    const prevAvg = prevDays ? sum(prevRows, "kcal") / prevDays : 0;
+    const { data: ws } = await admin.from("body_weights").select("date,weight_kg").eq("user_id", p.id).gte("date", per.from).lte("date", d).order("date", { ascending: true });
+    const w0 = Number(ws?.[0]?.weight_kg) || 0, w1 = Number(ws?.[ws.length - 1]?.weight_kg) || 0, dw = ws && ws.length > 1 ? Math.round((w1 - w0) * 10) / 10 : null;
+    const kg = L(lang, "кг");
+    const lines = [`🍽 <b>${L(lang, per.title, { y: per.y, q: per.q })}: ${L(lang, "питание")}</b> (${per.from.split("-").reverse().join(".")} — ${d.split("-").reverse().join(".")})`, "",
+      L(lang, "Дней с записями: <b>{n}</b>", { n: days.size }),
+      L(lang, "В среднем за день: <b>{v} ккал</b>", { v: fmt(avg, lang) }) + (n?.kcal ? L(lang, " (норма {v})", { v: fmt(n.kcal, lang) }) : "") + (prevAvg ? L(lang, ", в прошлом периоде {v}", { v: fmt(prevAvg, lang) }) : ""),
+      n?.kcal ? L(lang, "Дней в норме (±10%): <b>{n} из {t}</b>", { n: inNorm, t: days.size }) : "",
+      L(lang, "Белок в среднем: {v} г/день", { v: fmt(avgP, lang) }) + (n?.p ? L(lang, " (цель {v} г)", { v: n.p }) : ""),
+      dw !== null ? L(lang, "Вес: {a} → {b} {kg} ({d})", { a: w0, b: w1, kg, d: (dw > 0 ? "+" : "") + dw }) : "", ""];
+    // вывод: калории + направление веса относительно цели
+    let out: string;
+    if (!n?.kcal) out = L(lang, "заполните личные данные — тогда я сравню питание с вашей нормой.");
+    else {
+      const r = avg / n.kcal, share = inNorm / days.size;
+      out = share >= 0.7 ? L(lang, "отличная дисциплина — большинство дней в норме 🔥")
+        : r > 1.1 ? L(lang, "в среднем перебор {v} ккал в день.", { v: fmt(avg - n.kcal, lang) })
+        : r < 0.8 ? L(lang, "в среднем недобор {v} ккал в день — это мешает восстановлению и росту силы.", { v: fmt(n.kcal - avg, lang) })
+        : L(lang, "почти в норме, но дни сильно скачут — старайтесь держаться ровнее.");
+      if (dw !== null) {
+        const ok = n.goal === "lose" ? dw < 0 : n.goal === "gain" ? dw > 0 : Math.abs(dw) <= 1;
+        out += " " + (ok ? L(lang, "Вес меняется как нужно для вашей цели ({goal}) ✅", { goal: L(lang, KCAL_GOALS[n.goal][0]) })
+          : L(lang, "Вес пока не идёт к цели ({goal}) — скорректируйте норму на 100–200 ккал.", { goal: L(lang, KCAL_GOALS[n.goal][0]) }));
+      }
+      if (n.p && avgP < n.p * 0.8) out += " " + L(lang, "Добавьте белка.");
+    }
+    lines.push(L(lang, "<b>Вывод:</b>") + " " + out);
+    await send(p.telegram_id, lines.filter((x, i, a) => x || (i > 0 && a[i - 1])).join("\n"), appKb("🍽 Открыть калории", lang)); sent++; await sleep(40);
   }
   return sent;
 }
 
 // ---------------- расписание ----------------
 async function recipients() {
-  const { data } = await admin.from("profiles").select("id,name,telegram_id,reminders,last_evening_date,last_motivation_date,created_at,bot_state").not("telegram_id", "is", null).eq("reminders", true);
+  const { data } = await admin.from("profiles").select("*").not("telegram_id", "is", null).eq("reminders", true);
   return data ?? [];
 }
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -504,13 +611,14 @@ async function membershipReminders() {
   const in4 = today(4), in1 = today(1);
   const { data: list } = await admin.from("profile_details").select("user_id,membership_end").in("membership_end", [in4, in1]);
   for (const m of list ?? []) {
-    const { data: p } = await admin.from("profiles").select("telegram_id").eq("id", m.user_id).maybeSingle();
+    const { data: p } = await admin.from("profiles").select("*").eq("id", m.user_id).maybeSingle();
+    const lang = langOf(p);
     if (!p?.telegram_id) continue;
     const [y, mo, da] = m.membership_end.split("-");
     const text = m.membership_end === in1
-      ? `🎫 Завтра (${da}.${mo}) последний день абонемента в зал. Не забудьте продлить!`
-      : `🎫 Абонемент в зал заканчивается через 4 дня — ${da}.${mo}.${y}. Самое время продлить 💪`;
-    await send(p.telegram_id, text, appKb("🎫 Обновить дату абонемента"));
+      ? L(lang, "🎫 Завтра ({date}) последний день абонемента в зал. Не забудьте продлить!", { date: `${da}.${mo}` })
+      : L(lang, "🎫 Абонемент в зал заканчивается через 4 дня — {date}. Самое время продлить 💪", { date: `${da}.${mo}.${y}` });
+    await send(p.telegram_id, text, appKb("🎫 Обновить дату абонемента", lang));
     sent++; await sleep(40);
   }
   return sent;
@@ -524,20 +632,22 @@ async function foodNotifications(list: any[]) {
   for (const n of list) { const k = `${n.user_id}|${n.payload?.from}|${n.payload?.by}`; groups.set(k, [...(groups.get(k) ?? []), n]); }
   for (const items of groups.values()) {
     const n0 = items[0];
-    const { data: ps } = await admin.from("profiles").select("id,name,telegram_id").in("id", [n0.user_id, n0.payload?.from].filter(Boolean));
+    const { data: ps } = await admin.from("profiles").select("*").in("id", [n0.user_id, n0.payload?.from].filter(Boolean));
     const to = ps?.find((x: any) => x.id === n0.user_id), from = ps?.find((x: any) => x.id === n0.payload?.from);
-    const who = `<b>${esc(from?.name ?? "Участник")}</b>`;
+    const lang = langOf(to);
+    const who = `<b>${esc(from?.name ?? L(lang, "Участник"))}</b>`;
     const lines = items.map((n: any) => {
-      const p = n.payload ?? {}, u = p.unit === "ml" ? "мл" : "г", when = `${MEAL[p.meal] ?? ""}, ${String(p.date ?? "").split("-").reverse().slice(0, 2).join(".")}`;
-      const verb = p.action === "insert" ? "добавлено" : p.action === "delete" ? "удалено" : "изменено";
+      const p = n.payload ?? {}, u = L(lang, p.unit === "ml" ? "мл" : "г"), when = `${L(lang, MEAL[p.meal] ?? "")}, ${String(p.date ?? "").split("-").reverse().slice(0, 2).join(".")}`;
+      const verb = L(lang, p.action === "insert" ? "добавлено" : p.action === "delete" ? "удалено" : "изменено");
+      const nm = (x: string) => esc(L(lang, x));   // продукты из базы переведены, свои — как записаны
       const what = p.action === "update" && (p.old_grams != p.grams || p.old_name !== p.name)
-        ? `${esc(p.old_name ?? p.name)} ${Number(p.old_grams)} ${u} → ${esc(p.name)} ${Number(p.grams)} ${u}` : `${esc(p.name)} ${Number(p.grams)} ${u}`;
+        ? `${nm(p.old_name ?? p.name)} ${Number(p.old_grams)} ${u} → ${nm(p.name)} ${Number(p.grams)} ${u}` : `${nm(p.name)} ${Number(p.grams)} ${u}`;
       return `• ${verb}: ${what} (${when})`;
     });
     const head = n0.payload?.by === "trainer"
-      ? `🍽 Тренер ${who} изменил(а) ваш дневник питания:`
-      : `🍽 ${who} изменил(а) записи в своём дневнике питания, которые вносили вы:`;
-    if (to?.telegram_id) { await send(to.telegram_id, `${head}\n${lines.join("\n")}`, appKb()); sent++; await sleep(40); }
+      ? L(lang, "🍽 Тренер {who} изменил(а) ваш дневник питания:", { who })
+      : L(lang, "🍽 {who} изменил(а) записи в своём дневнике питания, которые вносили вы:", { who });
+    if (to?.telegram_id) { await send(to.telegram_id, `${head}\n${lines.join("\n")}`, appKb(undefined, lang)); sent++; await sleep(40); }
     await admin.from("notifications").update({ telegram_sent: true }).in("id", items.map((n: any) => n.id));
   }
   return sent;
@@ -550,20 +660,23 @@ async function cron(kind: string) {
     sent += await foodNotifications((list ?? []).filter((n: any) => n.type === "food_changed"));
     for (const n of (list ?? []).filter((n: any) => n.type !== "food_changed")) {
       const ids = [n.user_id, n.payload?.from].filter(Boolean);
-      const { data: ps } = await admin.from("profiles").select("id,name,telegram_id").in("id", ids);
+      const { data: ps } = await admin.from("profiles").select("*").in("id", ids);
       const to = ps?.find((x: any) => x.id === n.user_id), from = ps?.find((x: any) => x.id === n.payload?.from);
-      const who = `<b>${esc(from?.name ?? "Участник")}</b>`;
+      const lang = langOf(to);
+      const who = `<b>${esc(from?.name ?? L(lang, "Участник"))}</b>`, name = esc(n.payload?.name);
+      const GOAL: Record<string, string> = { lose: "снижение веса", keep: "поддержание веса", gain: "набор мышечной массы" };
       const text: Record<string, string> = {
-        friend_request: `📨 ${who} хочет добавить вас в участники. Ответьте в разделе «Участники».`,
-        friend_accepted: `🤝 ${who} подтвердил(а) заявку — теперь вы участники друг у друга.`,
-        trainer_offer: `🏋️ ${who} предлагает стать вашим тренером. Принять или отклонить можно в разделе «Участники».`,
-        trainer_assigned: `✅ ${who} принял(а) вас как тренера. Его (её) тренировки теперь в вашем календаре.`,
-        achievement_pending: `🏅 Новый сертификат на проверке от ${who}: «${esc(n.payload?.name)}». Откройте Настройки → Админ-панель.`,
-        achievement_approved: `🏅 Ваш сертификат «${esc(n.payload?.name)}» подтверждён! Он уже в «Достижениях → Соревнования».`,
-        food_norm: `🎯 Тренер ${who} изменил(а) вашу норму питания: цель — <b>${({ lose: "снижение веса", keep: "поддержание веса", gain: "набор мышечной массы" } as any)[n.payload?.goal] ?? "по расчёту"}</b>, норма — <b>${n.payload?.target ? n.payload.target + " ккал" : "по расчёту приложения"}</b>. Подробности в разделе «Калории».`,
-        achievement_rejected: `Сертификат «${esc(n.payload?.name)}» отклонён.${n.payload?.comment ? " Причина: " + esc(n.payload.comment) + "." : ""} Можно загрузить заново.`,
+        friend_request: L(lang, "📨 {who} хочет добавить вас в участники. Ответьте в разделе «Участники».", { who }),
+        friend_accepted: L(lang, "🤝 {who} подтвердил(а) заявку — теперь вы участники друг у друга.", { who }),
+        trainer_offer: L(lang, "🏋️ {who} предлагает стать вашим тренером. Принять или отклонить можно в разделе «Участники».", { who }),
+        trainer_assigned: L(lang, "✅ {who} принял(а) вас как тренера. Его (её) тренировки теперь в вашем календаре.", { who }),
+        achievement_pending: L(lang, "🏅 Новый сертификат на проверке от {who}: «{name}». Откройте Настройки → Админ-панель.", { who, name }),
+        achievement_approved: L(lang, "🏅 Ваш сертификат «{name}» подтверждён! Он уже в «Достижениях → Соревнования».", { name }),
+        food_norm: L(lang, "🎯 Тренер {who} изменил(а) вашу норму питания: цель — <b>{goal}</b>, норма — <b>{target}</b>. Подробности в разделе «Калории».", { who,
+          goal: L(lang, GOAL[n.payload?.goal] ?? "по расчёту"), target: n.payload?.target ? n.payload.target + " " + L(lang, "ккал") : L(lang, "по расчёту приложения") }),
+        achievement_rejected: L(lang, "Сертификат «{name}» отклонён.", { name }) + (n.payload?.comment ? " " + L(lang, "Причина: {v}.", { v: esc(n.payload.comment) }) : "") + " " + L(lang, "Можно загрузить заново."),
       };
-      if (to?.telegram_id && text[n.type]) { await send(to.telegram_id, text[n.type], appKb()); sent++; await sleep(40); }
+      if (to?.telegram_id && text[n.type]) { await send(to.telegram_id, text[n.type], appKb(undefined, lang)); sent++; await sleep(40); }
       await admin.from("notifications").update({ telegram_sent: true }).eq("id", n.id);
     }
     return sent;
@@ -573,10 +686,15 @@ async function cron(kind: string) {
   const users = await recipients();
   const d = today();
   for (const p of users) {
+    const lang = langOf(p);
     try {
       if (kind === "evening") sent += await periodReports(p, d).catch((e) => { console.log("REPORT_ERR", String(e)); return 0; });
+      if (kind === "evening") {
+        sent += await foodDaily(p, d).catch((e) => { console.log("FOOD_DAY_ERR", String(e)); return 0; });
+        sent += await foodPeriodReports(p, d).catch((e) => { console.log("FOOD_REPORT_ERR", String(e)); return 0; });
+      }
       if (kind === "morning") {
-        { const [n, t] = pick(MORNING_SET); await sendPhotoSafe(p.telegram_id, `${APP_URL}bot/morning/${n}.jpg`, t); }
+        { const [n, t] = pick(MORNING_SET); await sendPhotoSafe(p.telegram_id, `${APP_URL}bot/morning/${n}.jpg`, L(lang, t)); }
         sent++;
       } else if (kind === "evening") {
         if (p.last_evening_date === d) continue;
@@ -586,7 +704,7 @@ async function cron(kind: string) {
         ]);
         if ((w ?? 0) > 0 || (a ?? 0) > 0) continue;
         await admin.from("profiles").update({ last_evening_date: d, bot_state: { step: "activity_q", date: d } }).eq("id", p.id);
-        await send(p.telegram_id, "Сегодня тренировки не было. Была ли какая-то физическая активность за день?", kb([[["👍 Да", "act:yes"], ["👎 Нет", "act:no"]]]));
+        await send(p.telegram_id, L(lang, "Сегодня тренировки не было. Была ли какая-то физическая активность за день?"), kb([[[L(lang, "👍 Да"), "act:yes"], [L(lang, "👎 Нет"), "act:no"]]]));
         sent++;
       } else if (kind === "motivation") {
         const border = today(-3); // тренировки не было больше 2 дней
@@ -595,7 +713,7 @@ async function cron(kind: string) {
         const { data: last } = await admin.from("workouts").select("date").eq("participant_id", p.id).eq("status", "done").lte("date", d).order("date", { ascending: false }).limit(1);
         if (last?.[0] && last[0].date > border) continue;
         await admin.from("profiles").update({ last_motivation_date: d }).eq("id", p.id);
-        await send(p.telegram_id, pick(MOTIVATION), appKb("📅 Запланировать тренировку"));
+        await send(p.telegram_id, L(lang, pick(MOTIVATION)), appKb("📅 Запланировать тренировку", lang));
         sent++;
       }
     } catch (e) { console.log("CRON_USER_ERROR", p.id, String(e)); }
