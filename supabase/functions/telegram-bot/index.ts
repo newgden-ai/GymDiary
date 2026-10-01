@@ -6,7 +6,7 @@
 //  2) Приложение: { action: "workout_done", workout_id } + Authorization: Bearer <сессия пользователя>
 //     → итог тренировки участнику и его тренерам.
 //  3) Расписание (pg_cron, заголовок x-cron-secret = CRON_SECRET): { action: "cron", kind }
-//     kind: "morning" — зарядка, "evening" — вопрос об активности, "motivation" — >2 дней без тренировок,
+//     kind: "morning" — зарядка, "evening" — вопрос об активности, "motivation" — >2 дней без тренировок, "daily" (00:00) — итоги прошедшего дня и периодов,
 //           "notify" — отправка накопленных уведомлений (заявки в друзья, тренерство).
 //
 // Секреты (supabase secrets set ...): TELEGRAM_BOT_TOKEN, BOT_WEBHOOK_SECRET, CRON_SECRET,
@@ -17,7 +17,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-09-27 · secure";
+const BOT_VERSION = "2026-10-01 · daily-00";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -326,6 +326,9 @@ async function onCallback(cb: any) {
 }
 
 // ---------------- итог тренировки ----------------
+// «можно с личным весом» (флаг упражнения, иначе — по названию): тоннаж = (свой вес + отягощение) × повторы
+const BW_NAME_RX = /подтяг|отжим|брус|выход силой|переворот|пистолет|свой вес|австрал|стойк.*рук|планк|уголок|\bвис|флаж|планш|бёрпи|берпи|выпрыгив|подъём ног в висе|pull-?up|chin-?up|push-?up|dips?\b|muscle-?up|burpee/i;
+const isBwEx = (ex: any) => !!ex && ex.type !== "cardio" && ex.type !== "stretch" && (ex.bodyweight === true || (ex.bodyweight == null && BW_NAME_RX.test(ex.name ?? "")));
 const TONNAGE_CMP: [number, string][] = [[50, "кот 🐈"], [200, "пианино 🎹"], [800, "мотоцикл 🏍️"], [1500, "легковой автомобиль 🚗"], [3000, "внедорожник 🚙"],
   [5000, "белый носорог 🦏"], [7000, "слон 🐘"], [9000, "мини-экскаватор 🚜"], [15000, "городской автобус 🚌"], [25000, "строительный экскаватор 🏗️"],
   [40000, "грузовик-фура 🚛"], [60000, "башенный кран 🏗️"], [100000, "синий кит 🐋"]];
@@ -337,7 +340,7 @@ const exName = (lang: string, n?: string) => L(lang, n ?? "Упражнение"
 async function workoutSummary(w: any, lang = "ru") {
   const ids = new Set<string>();
   (w.blocks ?? []).forEach((b: any) => (b.exercises ?? []).forEach((e: any) => ids.add(e.exerciseId)));
-  const { data: exs } = ids.size ? await admin.from("exercises").select("id,name,main_group,type").in("id", [...ids]) : { data: [] };
+  const { data: exs } = ids.size ? await admin.from("exercises").select("*").in("id", [...ids]) : { data: [] };
   const info = new Map((exs ?? []).map((e: any) => [e.id, e]));
   // собственный вес на дату тренировки: подход без веса = повторения × вес спортсмена (как в приложении)
   const { data: bwRow } = await admin.from("body_weights").select("weight_kg").eq("user_id", w.participant_id).lte("date", w.date).order("date", { ascending: false }).limit(1);
@@ -347,14 +350,14 @@ async function workoutSummary(w: any, lang = "ru") {
   for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) {
     let t = 0, n = 0;
     const ex: any = info.get(e.exerciseId);
-    const ownBw = ex && ["strength", "functional"].includes(ex.type) ? bw : 0;
+    const ownBw = isBwEx(ex) ? bw : 0;
     let km = 0, min = 0, incl = 0, best: { wt: number; r: number } | null = null;
     for (const s of e.sets ?? []) {
       const bw0 = Number(s.weight) || 0, br = Number(s.reps) || 0;
       if (br > 0 && (!best || bw0 > best.wt || (bw0 === best.wt && br > best.r))) best = { wt: bw0, r: br };
-      const wt = Number(s.weight) || 0; let v = (wt > 0 ? wt : ownBw) * (Number(s.reps) || 0);
+      const wt = Number(s.weight) || 0; let v = (wt + ownBw) * (Number(s.reps) || 0);
       // дроп-сет: к подходу прибавляются дропы (вес × повторения каждого)
-      if (e.isDropset || s.isDrop) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; v += (dw > 0 ? dw : ownBw) * (Number(d.reps) || 0); }
+      if (e.isDropset || s.isDrop) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; v += (dw + ownBw) * (Number(d.reps) || 0); }
       if (v > 0 || Number(s.reps) > 0 || Number(s.time) > 0 || Number(s.distance) > 0) n++;
       t += v; km += Number(s.distance) || 0; min += Number(s.time) || 0; incl = Math.max(incl, Number(s.incline) || 0);
     }
@@ -363,7 +366,7 @@ async function workoutSummary(w: any, lang = "ru") {
     if (ex && t > 0) groups[ex.main_group] = (groups[ex.main_group] ?? 0) + t;
     const cardio = ex?.type === "cardio" ? [km ? L(lang, "{v} км", { v: Math.round(km * 100) / 100 }) : "", min ? L(lang, "{v} мин", { v: Math.round(min) }) : "", incl ? L(lang, "уклон {v}%", { v: incl }) : ""].filter(Boolean).join(", ") : "";
     const bestTxt = ex?.type === "cardio" ? "" : best ? L(lang, " · лучший: <b>{v}</b>", { v: best.wt > 0 ? `${Math.round(best.wt * 10) / 10}×${best.r}` : L(lang, "{n} повт.", { n: best.r }) }) : "";
-    lines.push(`• ${esc(exName(lang, ex?.name))}${b.kind === "superset" ? L(lang, " (суперсет)") : e.isDropset ? L(lang, " (дроп-сет)") : ""}: ${cardio || L(lang, "{n} подх.", { n })}${t > 0 ? `, ${fmt(t, lang)} ${L(lang, "кг")}` : ""}${bestTxt}`);
+    lines.push(`• ${esc(exName(lang, ex?.name))}${b.kind === "superset" ? L(lang, " (суперсет)") : b.kind === "circuit" ? L(lang, " (круговая)") : e.isDropset ? L(lang, " (дроп-сет)") : ""}: ${cardio || L(lang, "{n} подх.", { n })}${t > 0 ? `, ${fmt(t, lang)} ${L(lang, "кг")}` : ""}${bestTxt}`);
   }
   const cmp = [...TONNAGE_CMP].reverse().find(([th]) => total >= th);
   const g = Object.entries(groups).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${L(lang, MG[k] ?? k)} ${fmt(v, lang)}`).join(" · ");
@@ -409,10 +412,10 @@ function groupTonnage(w: any, info: Map<string, any>, bw: number) {
   const g: Record<string, number> = {};
   for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) {
     const ex = info.get(e.exerciseId); if (!ex || ex.type === "cardio") continue;
-    const own = ["strength", "functional"].includes(ex.type) ? bw : 0; let t = 0;
+    const own = isBwEx(ex) ? bw : 0; let t = 0;
     for (const s of e.sets ?? []) {
-      const wt = Number(s.weight) || 0; t += (wt > 0 ? wt : own) * (Number(s.reps) || 0);
-      if (e.isDropset || s.isDrop) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; t += (dw > 0 ? dw : own) * (Number(d.reps) || 0); }
+      const wt = Number(s.weight) || 0; t += (wt + own) * (Number(s.reps) || 0);
+      if (e.isDropset || s.isDrop) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; t += (dw + own) * (Number(d.reps) || 0); }
     }
     if (t > 0) g[ex.main_group] = (g[ex.main_group] ?? 0) + t;
   }
@@ -425,7 +428,7 @@ async function weakWorkout(w: any) {
   const all = [w, ...(prev ?? [])];
   const ids = new Set<string>(); all.forEach((x: any) => (x.blocks ?? []).forEach((b: any) => (b.exercises ?? []).forEach((e: any) => ids.add(e.exerciseId))));
   if (!ids.size) return null;
-  const { data: exs } = await admin.from("exercises").select("id,main_group,type").in("id", [...ids]);
+  const { data: exs } = await admin.from("exercises").select("*").in("id", [...ids]);
   const info = new Map((exs ?? []).map((e: any) => [e.id, e]));
   const { data: d } = await admin.from("profile_details").select("weight_kg").eq("user_id", w.participant_id).maybeSingle();
   const bwOf = (x: any) => Number(x.body_weight) || Number(w.body_weight) || Number(d?.weight_kg) || 0;
@@ -526,7 +529,7 @@ async function periodStats(uid: string, from: string, to: string) {
   const { data: ws } = await admin.from("workouts").select("id,date,duration,blocks,body_weight,name").eq("participant_id", uid).gte("date", from).lte("date", to);
   const list = (ws ?? []).filter((w: any) => (w.blocks ?? []).some((b: any) => (b.exercises ?? []).some((e: any) => (e.sets ?? []).some((s: any) => Number(s.reps) > 0 || Number(s.time) > 0 || Number(s.distance) > 0))));
   const ids = new Set<string>(); list.forEach((w: any) => (w.blocks ?? []).forEach((b: any) => (b.exercises ?? []).forEach((e: any) => ids.add(e.exerciseId))));
-  const { data: exs } = ids.size ? await admin.from("exercises").select("id,name,main_group,type").in("id", [...ids]) : { data: [] };
+  const { data: exs } = ids.size ? await admin.from("exercises").select("*").in("id", [...ids]) : { data: [] };
   const info = new Map((exs ?? []).map((e: any) => [e.id, e]));
   const { data: d } = await admin.from("profile_details").select("weight_kg").eq("user_id", uid).maybeSingle();
   let ton = 0, min = 0, km = 0, best: any = null; const groups: Record<string, number> = {};
@@ -754,10 +757,12 @@ async function cron(kind: string) {
   for (const p of users) {
     const lang = langOf(p);
     try {
-      if (kind === "evening") sent += await periodReports(p, d).catch((e) => { console.log("REPORT_ERR", String(e)); return 0; });
-      if (kind === "evening") {
-        sent += await foodDaily(p, d).catch((e) => { console.log("FOOD_DAY_ERR", String(e)); return 0; });
-        sent += await foodPeriodReports(p, d).catch((e) => { console.log("FOOD_REPORT_ERR", String(e)); return 0; });
+      // 00:00 — итоги прошедшего дня (питание) и закончившихся недели / месяца / квартала / года
+      if (kind === "daily") {
+        const y = today(-1);
+        sent += await periodReports(p, y).catch((e) => { console.log("REPORT_ERR", String(e)); return 0; });
+        sent += await foodDaily(p, y).catch((e) => { console.log("FOOD_DAY_ERR", String(e)); return 0; });
+        sent += await foodPeriodReports(p, y).catch((e) => { console.log("FOOD_REPORT_ERR", String(e)); return 0; });
       }
       if (kind === "morning") {
         { const [n, t] = pick(MORNING_SET); await sendPhotoSafe(p.telegram_id, `${APP_URL}bot/morning/${n}.jpg`, L(lang, t)); }
