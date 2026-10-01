@@ -141,6 +141,8 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .cal-title{font-weight:800;color:var(--ink,var(--text));font-size:22px;line-height:1.15;white-space:nowrap;letter-spacing:-.01em;}
 .cal-actions{margin:0 0 10px;gap:8px;flex-wrap:wrap;align-items:center}.cal-actions .cal-log{margin-left:auto}
 .back-up{margin-bottom:8px}
+.set-fold{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:none;background:var(--surface2);border-radius:12px;padding:9px 12px;margin:5px 0;color:var(--text);font-size:14px}
+.set-fold b{margin-left:auto;font-variant-numeric:tabular-nums}.set-fold .sf-ok{color:var(--accent);font-weight:800}.set-fold .sf-ed{color:var(--text-dim);font-size:13px}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .kpi{background:var(--surface2);border-radius:var(--radius);padding:14px 16px}.kpi-wide{grid-column:1/-1}
 .kpi-l{font-size:11.5px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em}
@@ -411,6 +413,12 @@ details.ex-list[open]>summary::before{content:'▾ ';}
 .adm-bar{height:10px;background:var(--surface2);border-radius:6px;overflow:hidden;}
 .adm-bar i{display:block;height:100%;border-radius:6px;}
 .ex-thumb{flex:0 0 auto;object-fit:contain;background:#fff;border-radius:8px;border:1px solid var(--border);padding:2px;cursor:zoom-in;}
+.ex-ph{display:inline-flex;align-items:center;justify-content:center;background:var(--surface2);cursor:default;line-height:1;padding:0;box-sizing:border-box;overflow:hidden}
+.ex-card .row b{min-width:0;overflow-wrap:anywhere}
+/* одинаковый вид на iPhone: без системного оформления кнопок, полей и списков */
+button,select,textarea,input[type=text],input[type=search],input[type=number]{-webkit-appearance:none;appearance:none}
+input[type=date],input[type=time]{min-height:38px}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--text-dim) 50%),linear-gradient(135deg,var(--text-dim) 50%,transparent 50%)!important;background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%!important;background-size:5px 5px!important;background-repeat:no-repeat!important;padding-right:26px!important}
 .agenda-item.row{gap:10px;align-items:center;}
 /* Light weight: постер по центру, вокруг — переливающийся контур */
 .lw-box{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;}
@@ -1650,7 +1658,7 @@ function isBodyweightEx(info){ if(!info || info.type==='cardio' || info.type==='
   return info.bodyweight!==null && info.bodyweight!==undefined ? !!info.bodyweight : BW_NAME_RX.test(info.name||''); }
 Calc.setBodyWeightProvider((w, ex)=>{
   const info = DB.exercises.find(e=>e.id===ex.exerciseId);
-  return isBodyweightEx(info) ? (Number(w.bodyWeight) || bodyWeightOn(w.participantId, w.date)) : 0;
+  return (isBodyweightEx(info) || ex.withBw) ? (Number(w.bodyWeight) || bodyWeightOn(w.participantId, w.date)) : 0;   // ex.withBw — вес записан как «+4»: свой вес + отягощение
 });
 function isAdmin(){ return (DB.me&&DB.me.role)==='admin'; }
 const State = {
@@ -2051,8 +2059,7 @@ function renderRecurControls(){
       </select></div>
       <div class="field"><label>До какой даты</label><input type="date" data-recur-until value="${r.until}"></div>
     </div>
-    ${r.freq==='weekly'?`<div class="chips-wrap">${WEEKDAYS.map((d,i)=>`<label class="pill"><input type="checkbox" data-recur-day="${i}" ${r.days.includes(i)?'checked':''}> ${d}</label>`).join('')}</div>`:''}
-    </div>`:''}
+    ${r.freq==='weekly'?`<div class="chips-wrap">${WEEKDAYS.map((d,i)=>`<label class="pill"><input type="checkbox" data-recur-day="${i}" ${r.days.includes(i)?'checked':''}> ${d}</label>`).join('')}</div>`:''}`:''}
   </div>`;
 }
 
@@ -2111,13 +2118,13 @@ function renderExerciseCard(ex,bi,ei,w,units){
   const isCardio = info.type==='cardio', isStatic = !isCardio && isStaticEx(info.name);   // статика: секунды удержания
   const bw = Calc.bwFor(w, ex);
   const ton = Calc.exTonnage(ex, bw);
-  const needBw = !isCardio && isBodyweightEx(info) && !bw && ex.sets.some(s=>Number(s.reps)>0);
+  const needBw = !isCardio && (isBodyweightEx(info) || ex.withBw) && !bw && ex.sets.some(s=>Number(s.reps)>0);
   const prev = lastResultFor(ex.exerciseId, w.participantId, w.id);
   const best = bestSetFor(ex.exerciseId, w.participantId, w.id, isCardio);
   const isDrop = ex.isDropset && !isCardio;
   const hist = isCardio || isStatic ? {} : setHistory(ex.exerciseId, w.participantId, w.id);
   const b = w.blocks[bi], L = b.kind==='superset' ? supersetLetter(w, bi)+(ei+1) : b.kind==='circuit' ? String(ei+1) : '', round = isRoundBlock(b);
-  const bwEx = !isCardio && isBodyweightEx(info), u = unitLabel(units);
+  const bwEx = !isCardio && (isBodyweightEx(info) || ex.withBw), u = unitLabel(units);
   const nEx = b.exercises.length, first = bi===0 && ei===0, last = bi===w.blocks.length-1 && ei===nEx-1;
   const bestTxt = best ? (isCardio ? `${fmtNum(+best.set.distance||0)} км${best.set.time?` за ${best.set.time} мин`:''}` : `${convW(best.set.weight,units)}×${best.set.reps}`) : '';
   return `<div class="ex-card ${isDrop?'dropset':''}" data-ex="${bi}.${ei}">
@@ -2125,14 +2132,15 @@ function renderExerciseCard(ex,bi,ei,w,units){
       <div class="row">${L?`<span class="ss-tag">${L}</span>`:''}${exThumb(info,46)}<b>${esc(info.name)}</b>${helpBtn(info.name)}${bestTxt?`<span class="best-pill" title="Лучший подход — ${fmtDateShort(best.date)}">🏆 ${bestTxt}</span>`:''}${isDrop?'<span class="drop-badge">ДРОП-СЕТ</span>':''}</div>
       <div class="row">
         ${!isCardio?`<label class="muted"><input type="checkbox" data-dropset="${bi}.${ei}" ${ex.isDropset?'checked':''}> дроп-сет</label>`:''}
+        ${!isCardio && !isBodyweightEx(info)?`<label class="muted" title="Тоннаж = свой вес + отягощение. Можно просто написать в весе «+4»"><input type="checkbox" data-withbw="${bi}.${ei}" ${ex.withBw?'checked':''}> + свой вес</label>`:''}
         <button class="btn sm ghost mv" data-move-ex="${bi}.${ei}.-1" title="Выше" ${first?'disabled':''}>↑</button>
         <button class="btn sm ghost mv" data-move-ex="${bi}.${ei}.1" title="Ниже" ${last?'disabled':''}>↓</button>
         <button class="btn sm danger" data-remove-exercise="${bi}.${ei}">✕</button>
       </div>
     </div>
     ${prev?`<div class="muted"><span>Пред.:</span> <span data-no-tr>${prev.sets.map(s=>isCardio?`${s.time||''}${s.distance?(' '+s.distance+'км'):''}`:`${convW(s.weight,units)}×${s.reps}`).join(', ')} (${fmtDateShort(prev.date)})</span></div>`:''}
-    ${ex.sets.map((s,si)=>`<div class="set-box ${isCardio?'cardio':''}">
-      <div class="set-head"><b>${TT(round?'{k}-й круг':'{k}-й подход', {k:si+1})}</b><button class="btn sm ghost" data-remove-set="${bi}.${ei}.${si}" title="Удалить ${round?'круг':'подход'}">✕</button></div>
+    ${ex.sets.map((s,si)=> setFolded(w,bi,ei,si,s) ? foldedSetHtml(s,si,bi,ei,round,isCardio,isStatic,bwEx,units) : `<div class="set-box ${isCardio?'cardio':''}">
+      <div class="set-head"><b>${TT(round?'{k}-й круг':'{k}-й подход', {k:si+1})}</b>${setDoneAny(s)?`<button class="btn sm ghost" data-set-open="${bi}.${ei}.${si}" title="Свернуть">▴</button>`:''}<button class="btn sm ghost" data-remove-set="${bi}.${ei}.${si}" title="Удалить ${round?'круг':'подход'}">✕</button></div>
       <div class="set-fields">${isCardio?`
         <label class="sf"><span>Время, мин</span><input type="text" inputmode="decimal" placeholder="${phOf(s,'time','')}" data-set="${bi}.${ei}.${si}.time" value="${s.time??''}"></label>
         <label class="sf"><span>Дистанция, км</span><input type="text" inputmode="decimal" placeholder="${phOf(s,'distance','')}" data-set="${bi}.${ei}.${si}.distance" value="${s.distance??''}"></label>
@@ -2156,6 +2164,17 @@ function renderExerciseCard(ex,bi,ei,w,units){
   </div>`;
 }
 
+// выполненные подходы сворачиваются в одну строку; нажатие — развернуть для правки
+const setDoneAny = s => !!s && (Number(s.reps)>0 || Number(s.time)>0 || Number(s.distance)>0);
+const setKey = (w,bi,ei,si) => w.id+'.'+bi+'.'+ei+'.'+si;
+function setFolded(w,bi,ei,si,s){ const n = ((w.blocks[bi]||{}).exercises||[])[ei]; return setDoneAny(s) && n && si < n.sets.length-1 && !(State.openSets||{})[setKey(w,bi,ei,si)]; }   // последний подход упражнения не сворачиваем — с ним работают
+function foldedSetHtml(s,si,bi,ei,round,isCardio,isStatic,bwEx,units){
+  const u = unitLabel(units), wt = Number(s.weight)>0 ? (bwEx?'+':'')+fmtNum(convW(s.weight,units))+' '+u : (bwEx?trn('свой вес'):'');
+  const val = isCardio ? [s.time?s.time+' '+trn('мин'):'', s.distance?s.distance+' '+trn('км'):''].filter(Boolean).join(' · ')
+    : isStatic ? (wt?wt+' · ':'')+s.time+' '+trn('сек') : (wt?wt+' × ':'')+s.reps;
+  const drops = (s.drops||[]).filter(d=>Number(d.reps)>0).length;
+  return `<button class="set-fold" data-set-open="${bi}.${ei}.${si}"><span class="sf-ok">✓</span><span>${TT(round?'{k}-й круг':'{k}-й подход', {k:si+1})}</span><b data-no-tr>${esc(val)}</b>${drops?`<span class="pill">+${drops} ${trn('дроп')}</span>`:''}<span class="sf-ed">✎</span></button>`;
+}
 function renderExercisePicker(){
   const q = (State.modal.query||'').toLowerCase();
   const list = DB.exercises.filter(e=>e.name.toLowerCase().includes(q));
@@ -2250,6 +2269,7 @@ function handleModalClick(e, ds){
     if(ds.saveWorkout!==undefined){ saveWorkoutFromModal(); return true; }
     if(ds.closeEditor!==undefined){ closeWorkoutEditor(); return true; }
     if(ds.finishWorkout!==undefined){ finishWorkout(); return true; }
+    if(ds.setOpen!==undefined){ const [bi,ei,si] = ds.setOpen.split('.'); const k = setKey(modal.w,bi,ei,si); State.openSets = State.openSets||{}; State.openSets[k] = !State.openSets[k]; renderModal(); return true; }
     if(ds.saveAsTemplate!==undefined){ autosaveWorkout(); State.modal={kind:'saveTemplate', suggestedName:w.name, sourceBlocks:w.blocks, back:modal}; renderModal(); return true; }
     if(ds.deleteWorkout!==undefined){
       State.modal={kind:'confirmDelete', title:'Удалить тренировку?', text:'Это действие нельзя отменить.', back:modal, onYes:()=>{
@@ -2346,6 +2366,7 @@ function handleModalChange(e, ds){
     if(ds.blockKind!==undefined){ const b = w.blocks[+ds.blockKind]; b.kind = e.target.value;
       if(isRoundBlock(b) && b.exercises.length){ const n = Math.max(...b.exercises.map(x=>x.sets.length)); b.exercises.forEach(x=>{ while(x.sets.length<n) x.sets.push(blankSet()); }); }
       autosaveWorkout(); renderModal(); return true; }
+    if(ds.withbw!==undefined){ const [bi,ei]=pathGet(ds.withbw); w.blocks[bi].exercises[ei].withBw = e.target.checked; autosaveWorkout(); renderModal(); return true; }
     if(ds.dropset!==undefined){ const [bi,ei]=pathGet(ds.dropset); const ex = w.blocks[bi].exercises[ei]; ex.isDropset = e.target.checked;
       if(ex.isDropset) ex.sets.forEach(s=>{ s.drops = s.drops || [{weight:'',reps:''},{weight:'',reps:''},{weight:'',reps:''}]; });
       renderModal(); return true; }
@@ -2356,7 +2377,11 @@ function handleModalChange(e, ds){
       if(field==='drop'){ set.drops = set.drops || [{},{},{}]; target = set.drops[+parts[4]] = set.drops[+parts[4]] || {}; field = parts[5]; }
       const val = e.target.value.trim();
       // «70,» или «70.» — ещё набирают дробную часть: храним как есть в поле ввода, в данных — число
-      if(field==='weight') target.weight = val==='' ? '' : toKg(val, DB.settings.units);
+      // «+4» — свой вес плюс 4 кг отягощения: отмечаем упражнение «+ свой вес», в поле храним только отягощение
+      if(field==='weight' && /^\+/.test(val)){ const ex = w.blocks[bi].exercises[ei]; if(!ex.withBw){ ex.withBw = true;   // подписи и галочку меняем на месте — без перерисовки, чтобы не сбить ввод
+        document.querySelectorAll(`#modalRoot [data-set^="${bi}.${ei}."][data-set$=".weight"]`).forEach(inp=>{ const sp = inp.closest('.sf') && inp.closest('.sf').querySelector('span'); if(sp) sp.textContent = 'Отягощение (к своему весу), '+unitLabel(DB.settings.units); });
+        const cb = document.querySelector(`#modalRoot [data-withbw="${bi}.${ei}"]`); if(cb) cb.checked = true; } }
+      if(field==='weight') target.weight = val.replace(/^\+/,'')==='' ? '' : toKg(val.replace(/^\+/,''), DB.settings.units);
       else if(['reps','time','distance','incline'].includes(field)) target[field] = val==='' ? '' : numIn(val);
       else target[field] = e.target.value;
       liveUpdateModal(); return true;
@@ -2637,8 +2662,12 @@ function findHelp(name){
   return helpItems().find(it=>normName(it.name)===n || (it.aliases||[]).some(a=>normName(a)===n)) || null;
 }
 function exFig(info){ if(!info) return ''; if(info.imageUrl) return info.imageUrl; const h = findHelp(info.name); return (h && h.fig) || ''; }
-const exThumb = (info, size) => { const src = exFig(info); return src ? `<img class="ex-thumb" src="${esc(src)}" style="width:${size}px;height:${size}px" data-zoom="${esc(src)}" alt="" loading="lazy">` : ''; };
-const helpBtn = key => `<button class="help-btn" data-help="${esc(key)}" title="Справка">i</button>`;
+// нет картинки — ровная плитка-заглушка того же размера с значком группы (чтобы строка не «прыгала», особенно на iPhone)
+const EX_PH = {cardio:'🏃', stretch:'🧘', quads:'🦵', hamstrings:'🦵', glutes:'🦵', calves:'🦵', biceps:'💪', triceps:'💪', forearms:'💪', abs:'🔥'};
+const exThumb = (info, size) => { const src = exFig(info); if(src) return `<img class="ex-thumb" src="${esc(src)}" style="width:${size}px;height:${size}px" data-zoom="${esc(src)}" alt="" loading="lazy">`;
+  if(!info) return ''; const ic = EX_PH[info.type] || EX_PH[info.mainGroup] || '🏋️';
+  return `<span class="ex-thumb ex-ph" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.5)}px" aria-hidden="true">${ic}</span>`; };
+const helpBtn = key => (!window.HELP_DATA || findHelp(key)) ? `<button class="help-btn" data-help="${esc(key)}" title="Справка">i</button>` : '';   // нет справки — нет кнопки
 function viewHelp(){
   const q = normName(State.helpQuery||'');
   const groups = (window.HELP_DATA||[]).map(g=>({...g, items:g.items.filter(it=>!q || normName(it.name).includes(q))})).filter(g=>g.items.length);
@@ -5012,9 +5041,10 @@ function foodNorm(uid = foodUid()){
   const auto = bmr ? byGoal[goal] : 0;
   const kcal = +d.kcal_target || auto;
   if(!kcal) return null;
-  const pk = goal==='keep' ? 1.6 : 2;
-  const p = w ? w * pk : kcal*0.25/4, f = w ? w*0.9 : kcal*0.3/9;
-  return { kcal, auto, manual: !!+d.kcal_target, goal, gk, bmr, tdee, byGoal, act, age, h, pk, gender: d.gender,
+  // белок и жиры — граммы на кг веса тела; можно задать свои (protein_per_kg, fat_per_kg), углеводы — остаток калорий
+  const pkAuto = goal==='keep' ? 1.6 : 2, pk = +d.protein_per_kg || pkAuto, fk = +d.fat_per_kg || 0.9;
+  const p = w ? w * pk : kcal*0.25/4, f = w ? w*fk : kcal*0.3/9;
+  return { kcal, auto, manual: !!+d.kcal_target, goal, gk, bmr, tdee, byGoal, act, age, h, pk, fk, pkAuto, macroCustom: !!(+d.protein_per_kg || +d.fat_per_kg), gender: d.gender,
     p: Math.round(p), f: Math.round(f), c: Math.max(0, Math.round((kcal - p*4 - f*9)/4)), weight: w, activity: d.activity || '1.375' };
 }
 // «почему так»: расчёт по шагам простыми словами
@@ -5030,7 +5060,7 @@ function normExplain(n){
       : n.goal==='gain' ? 'Плюс 10% к расходу. Небольшой профицит даёт материал для роста мышц при силовых тренировках; больший — чаще уходит в жир.'
       : 'Калорийность равна расходу: вес стабилен, энергии хватает на тренировки и восстановление.'}</p>
     <p><b>4. Белки, жиры, углеводы.</b><br>Белок ${String(n.pk).replace('.',',')} г на кг веса (${n.p} г) — строительный материал мышц${n.goal==='keep'?'':', при дефиците и наборе нужно больше'}.<br>
-    Жиры 0,9 г/кг (${n.f} г) — для гормонов и усвоения витаминов.<br>Углеводы — всё остальное (${n.c} г): основное топливо для тренировок.</p>
+    Жиры ${String(n.fk).replace('.',',')} г/кг (${n.f} г) — для гормонов и усвоения витаминов.<br>Углеводы — всё остальное (${n.c} г): основное топливо для тренировок.</p>
     <p class="muted">Это ориентир, а не точная цифра. Если 2–3 недели вес меняется не так, как нужно, скорректируйте норму на 100–200 ккал.</p>
   </div></details>`;
 }
@@ -5093,6 +5123,12 @@ function viewFood(){
       : `<div class="muted" style="margin-bottom:8px">${own?'Укажите':'Подопечному нужно указать'} возраст, пол, вес и рост в личных данных — приложение рассчитает норму для цели.</div>`}
     <div class="field"><label>Уровень активности</label><select id="foodActivity">${ACTIVITY.map(([v,l])=>`<option value="${v}" ${(n?n.activity:'1.375')==v?'selected':''}>${l}</option>`).join('')}</select></div>
     <div class="field"><label>Своя норма, ккал (если хотите задать вручную)</label><input type="text" inputmode="numeric" id="foodTarget" value="${n&&n.manual?n.kcal:''}" placeholder="${n&&n.auto?'по расчёту '+n.auto:'например 2200'}"></div>
+    <div class="field"><label>БЖУ на кг веса тела</label>
+      <div class="grid2" style="gap:8px">
+        <label class="sf"><span>Белок, г/кг</span><input type="text" inputmode="decimal" id="foodPk" value="${n&&n.macroCustom?String(n.pk).replace('.',','):''}" placeholder="${n?String(n.pkAuto).replace('.',','):'1,6'}"></label>
+        <label class="sf"><span>Жиры, г/кг</span><input type="text" inputmode="decimal" id="foodFk" value="${n&&n.macroCustom?String(n.fk).replace('.',','):''}" placeholder="0,9"></label>
+      </div>
+      <div class="muted" style="margin-top:4px">Углеводы — всё, что остаётся от нормы калорий${n&&n.weight?` <span data-no-tr>(${n.p} г белка · ${n.f} г жиров · ${n.c} г углеводов при весе ${fmtNum(n.weight)} кг)</span>`:''}. Обычно: белок 1,6–2,2 г/кг, жиры 0,8–1,2 г/кг. Пусто — по расчёту.</div></div>
     <button class="btn primary" data-food="saveNorm">Сохранить</button>
     ${n ? normExplain(n) : ''}
     <div class="muted" style="margin-top:10px">💡 Точность зависит от того, насколько честно записано всё съеденное. Учитывайте даже мелочи: масло при готовке (1 ст. л. ≈ 150 ккал), соусы и майонез, сахар и мёд в чае, орехи и сухофрукты «на ходу», сок, газировку, кофе с молоком. Незаписанные мелочи легко дают +300–500 ккал в день.</div>
@@ -5117,7 +5153,11 @@ async function saveFoodPatch(patch, msg){
 }
 async function saveFoodNorm(){
   const t = parseInt(document.getElementById('foodTarget').value, 10);
-  return saveFoodPatch({ activity: document.getElementById('foodActivity').value, kcal_target: t > 0 ? t : null }, 'Норма сохранена');
+  const num = id => { const v = parseFloat(String((document.getElementById(id)||{}).value||'').replace(',','.')); return v>0 ? v : null; };
+  const pk = num('foodPk'), fk = num('foodFk');
+  if(pk!=null && (pk<0.5 || pk>4)) return toast('Белок: от 0,5 до 4 г на кг веса');
+  if(fk!=null && (fk<0.3 || fk>3)) return toast('Жиры: от 0,3 до 3 г на кг веса');
+  return saveFoodPatch({ activity: document.getElementById('foodActivity').value, kcal_target: t > 0 ? t : null, protein_per_kg: pk, fat_per_kg: fk }, 'Норма сохранена');
 }
 
 // поиск по брендам: «кока-кола», «спрайт», «сникерс»… находят обычные позиции справочника
@@ -6100,7 +6140,7 @@ function initEvents(){
   document.addEventListener('click', (e)=>{
     const foodEl = e.target.closest('#main [data-food],#modalRoot [data-food]');
     if(foodEl){ if(!foodEl.disabled) foodClick(foodEl.dataset); return; }
-    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-ach-info],#modalRoot [data-set-drop],#modalRoot [data-move-ex],#modalRoot [data-move-block],#modalRoot [data-add-cardio],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-close-editor],#modalRoot [data-finish-workout],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom],#modalRoot [data-send-cert]');
+    const modalEl = e.target.closest('#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-ach-info],#modalRoot [data-set-drop],#modalRoot [data-move-ex],#modalRoot [data-move-block],#modalRoot [data-add-cardio],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-close-editor],#modalRoot [data-finish-workout],#modalRoot [data-set-open],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom],#modalRoot [data-send-cert]');
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
@@ -6125,9 +6165,9 @@ function initEvents(){
     // for free-text/number fields use 'input' for live recalculation; for select/checkbox use 'change'
     const tag = e.target.tagName;
     const isTextish = tag==='INPUT' && ['text','number','date','time'].includes(e.target.type);
-    if(isTextish && e.type!=='input'){ if(e.type==='change' && e.target.matches('#modalRoot [data-set]')) restAfterSet(e.target); return; }
+    if(isTextish && e.type!=='input'){ if(e.type==='change' && e.target.matches('#modalRoot [data-set]')){ restAfterSet(e.target); } return; }
     if(!isTextish && e.type!=='change') return;
-    const modalEl = e.target.closest('#modalRoot [data-w],#modalRoot [data-block-kind],#modalRoot [data-block-rest],#modalRoot [data-dropset],#modalRoot [data-set],#modalRoot [data-recur-on],#modalRoot [data-recur-freq],#modalRoot [data-recur-until],#modalRoot [data-recur-day]');
+    const modalEl = e.target.closest('#modalRoot [data-w],#modalRoot [data-block-kind],#modalRoot [data-block-rest],#modalRoot [data-dropset],#modalRoot [data-withbw],#modalRoot [data-set],#modalRoot [data-recur-on],#modalRoot [data-recur-freq],#modalRoot [data-recur-until],#modalRoot [data-recur-day]');
     if(modalEl){ if(handleModalChange(e, modalEl.dataset)) return; }
     const lk = e.target.closest('#main [data-lk]');
     if(lk && State.linkDraft){ State.linkDraft.dirty = true; const [a,b]=lk.dataset.lk.split('.'); if(a==='t') State.linkDraft.texts[b]=e.target.value; else if(State.linkDraft.links[+a]) State.linkDraft.links[+a][b]=e.target.value; return; }
@@ -6444,8 +6484,9 @@ function guidedClick(a, el){
     const s = T.s;
     if(cardio){ s.time = rv; if(dv && String(dv).trim()) s.distance = numIn(dv); }
     else if(stat) s.time = rv; else s.reps = rv;
-    s.weight = (wv!=null && String(wv).trim()!=='') ? toKg(String(wv).trim(), DB.settings.units) : '';
-    if(isBodyweightEx(info) && (w.bodyWeight==='' || w.bodyWeight==null)){ const bwv = bodyWeightOn(selfParticipantId(), w.date); if(bwv) w.bodyWeight = bwv; }
+    if(wv!=null && /^\+/.test(String(wv).trim()) && !isBodyweightEx(info)) T.ex.withBw = true;   // «+4» — свой вес + отягощение
+    s.weight = (wv!=null && String(wv).trim().replace(/^\+/,'')!=='') ? toKg(String(wv).trim().replace(/^\+/,''), DB.settings.units) : '';
+    if((isBodyweightEx(info) || T.ex.withBw) && (w.bodyWeight==='' || w.bodyWeight==null)){ const bwv = bodyWeightOn(selfParticipantId(), w.date); if(bwv) w.bodyWeight = bwv; }
     if(w.startedAt) w.duration = Math.max(1, Math.round((Date.now()-Date.parse(w.startedAt))/60000));
     guidedSaveW(w);
     m.go = false; m.extra = null; m.swVal = null;

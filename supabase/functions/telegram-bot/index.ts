@@ -17,7 +17,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-10-01 · steps";
+const BOT_VERSION = "2026-10-01 · steps-daily · macros";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -268,7 +268,9 @@ async function onMessage(msg: any) {
       return askPrivacy(chat, p.id, lang);
     case "steps":
       if (!(num >= 0 && num <= 200000)) return send(chat, L(lang, "Напишите количество шагов числом, например: 12000"));
-      await admin.from("daily_activity").upsert({ user_id: p.id, date: st.date ?? today(), kind: "steps", steps: Math.round(num) }, { onConflict: "user_id,date" });
+      { const dd = st.date ?? today();
+        const { data: cur } = await admin.from("daily_activity").select("kind").eq("user_id", p.id).eq("date", dd).maybeSingle();   // вид активности не теряем
+        await admin.from("daily_activity").upsert({ user_id: p.id, date: dd, kind: cur?.kind && cur.kind !== "none" ? cur.kind : "steps", steps: Math.round(num) }, { onConflict: "user_id,date" }); }
       await setState(p.id, {});
       return send(chat, num >= 10000 ? L(lang, "🔥 {n} шагов — отличный результат! Записал.", { n: fmt(num, lang) }) : L(lang, "Записал: {n} шагов 👍", { n: fmt(num, lang) }));
   }
@@ -304,6 +306,7 @@ async function onCallback(cb: any) {
   }
   if (key === "act") {
     const date = st.date ?? today();
+    if (val === "skip") { await setState(p.id, {}); return send(chat, L(lang, "Хорошо 👍 Спрошу завтра.")); }
     if (val === "no") {
       await admin.from("daily_activity").upsert({ user_id: p.id, date, kind: "none" }, { onConflict: "user_id,date" });
       await setState(p.id, {});
@@ -350,7 +353,7 @@ async function workoutSummary(w: any, lang = "ru") {
   for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) {
     let t = 0, n = 0;
     const ex: any = info.get(e.exerciseId);
-    const ownBw = isBwEx(ex) ? bw : 0;
+    const ownBw = isBwEx(ex) || e.withBw ? bw : 0;   // «+4 кг» в приложении: свой вес + отягощение
     let km = 0, min = 0, incl = 0, best: { wt: number; r: number } | null = null;
     for (const s of e.sets ?? []) {
       const bw0 = Number(s.weight) || 0, br = Number(s.reps) || 0;
@@ -412,7 +415,7 @@ function groupTonnage(w: any, info: Map<string, any>, bw: number) {
   const g: Record<string, number> = {};
   for (const b of w.blocks ?? []) for (const e of b.exercises ?? []) {
     const ex = info.get(e.exerciseId); if (!ex || ex.type === "cardio") continue;
-    const own = isBwEx(ex) ? bw : 0; let t = 0;
+    const own = isBwEx(ex) || e.withBw ? bw : 0; let t = 0;
     for (const s of e.sets ?? []) {
       const wt = Number(s.weight) || 0; t += (wt + own) * (Number(s.reps) || 0);
       if (e.isDropset || s.isDrop) for (const d of s.drops ?? []) { const dw = Number(d.weight) || 0; t += (dw + own) * (Number(d.reps) || 0); }
@@ -577,7 +580,8 @@ async function foodNormOf(uid: string) {
   const bmr = w && h && age && d.gender ? 10 * w + 6.25 * h - 5 * age + (d.gender === "male" ? 5 : -161) : 0;
   const kcal = +d.kcal_target || (bmr ? Math.round(bmr * act * KCAL_GOALS[goal][1] / 10) * 10 : 0);
   if (!kcal) return { kcal: 0, goal, p: 0 };
-  return { kcal, goal, p: Math.round(w ? w * (goal === "keep" ? 1.6 : 2) : kcal * 0.25 / 4), f: Math.round(w ? w * 0.9 : kcal * 0.3 / 9) };
+  const pk = +d.protein_per_kg || (goal === "keep" ? 1.6 : 2), fk = +d.fat_per_kg || 0.9;   // своё БЖУ на кг веса, если задано
+  return { kcal, goal, p: Math.round(w ? w * pk : kcal * 0.25 / 4), f: Math.round(w ? w * fk : kcal * 0.3 / 9) };
 }
 async function foodRows(uid: string, from: string, to: string) {
   const { data } = await admin.from("food_log").select("date,meal,kcal,protein,fat,carbs").eq("user_id", uid).gte("date", from).lte("date", to);
@@ -769,14 +773,15 @@ async function cron(kind: string) {
         sent++;
       } else if (kind === "evening") {
         if (p.last_evening_date === d) continue;
-        const [{ count: w }, { count: a }] = await Promise.all([
+        const [{ count: w }, { data: act }] = await Promise.all([
           admin.from("workouts").select("id", { count: "exact", head: true }).eq("participant_id", p.id).eq("date", d).eq("status", "done"),
-          admin.from("daily_activity").select("id", { count: "exact", head: true }).eq("user_id", p.id).eq("date", d),
+          admin.from("daily_activity").select("kind,steps").eq("user_id", p.id).eq("date", d).maybeSingle(),
         ]);
-        if ((w ?? 0) > 0 || (a ?? 0) > 0) continue;
-        // в день без тренировки спрашиваем шаги (число пишут в ответ); другая активность — кнопкой
+        if (act && (Number(act.steps) > 0 || act.kind === "none")) continue;   // шаги уже записаны или ответил «без активности»
+        // каждый вечер спрашиваем шаги (число пишут в ответ); в день без тренировки — ещё и про другую активность
         await admin.from("profiles").update({ last_evening_date: d, bot_state: { step: "steps", date: d } }).eq("id", p.id);
-        await send(p.telegram_id, L(lang, "Сегодня тренировки не было. Сколько шагов вы прошли за день? Напишите число, например: 8000.\n\nБыла другая активность — нажмите кнопку ниже."), kb([[[L(lang, "🏃 Другая активность"), "act:yes"]], [[L(lang, "😴 Без активности"), "act:no"]]]));
+        if ((w ?? 0) > 0 || act) await send(p.telegram_id, L(lang, "Сколько шагов вы прошли сегодня? Напишите число, например: 8000."), kb([[[L(lang, "🤷 Не считал(а)"), "act:skip"]]]));
+        else await send(p.telegram_id, L(lang, "Сегодня тренировки не было. Сколько шагов вы прошли за день? Напишите число, например: 8000.\n\nБыла другая активность — нажмите кнопку ниже."), kb([[[L(lang, "🏃 Другая активность"), "act:yes"]], [[L(lang, "😴 Без активности"), "act:no"]]]));
         sent++;
       } else if (kind === "motivation") {
         const border = today(-3); // тренировки не было больше 2 дней
