@@ -17,7 +17,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-10-01 · daily-00";
+const BOT_VERSION = "2026-10-01 · steps";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -774,8 +774,9 @@ async function cron(kind: string) {
           admin.from("daily_activity").select("id", { count: "exact", head: true }).eq("user_id", p.id).eq("date", d),
         ]);
         if ((w ?? 0) > 0 || (a ?? 0) > 0) continue;
-        await admin.from("profiles").update({ last_evening_date: d, bot_state: { step: "activity_q", date: d } }).eq("id", p.id);
-        await send(p.telegram_id, L(lang, "Сегодня тренировки не было. Была ли какая-то физическая активность за день?"), kb([[[L(lang, "👍 Да"), "act:yes"], [L(lang, "👎 Нет"), "act:no"]]]));
+        // в день без тренировки спрашиваем шаги (число пишут в ответ); другая активность — кнопкой
+        await admin.from("profiles").update({ last_evening_date: d, bot_state: { step: "steps", date: d } }).eq("id", p.id);
+        await send(p.telegram_id, L(lang, "Сегодня тренировки не было. Сколько шагов вы прошли за день? Напишите число, например: 8000.\n\nБыла другая активность — нажмите кнопку ниже."), kb([[[L(lang, "🏃 Другая активность"), "act:yes"]], [[L(lang, "😴 Без активности"), "act:no"]]]));
         sent++;
       } else if (kind === "motivation") {
         const border = today(-3); // тренировки не было больше 2 дней
