@@ -137,9 +137,8 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 :root{--metal-hi:#8b9096;--metal-mid:#5a5f65;--metal-lo:#2c3035;--ico-red:#e3262e;}
 .bottomnav button.active .ico,.navitem.active .ico{filter:drop-shadow(0 0 3px rgba(227,38,46,.45));}
 .navitem .ico{width:20px;height:20px;}
-@font-face{font-family:'GD Brush';src:url(img/fonts/yanone-700.woff) format('woff');font-weight:700;font-display:swap;}
 .cal-nav{flex-wrap:nowrap!important;gap:5px;min-width:0;width:100%}.cal-nav .btn{flex:none;padding-left:9px;padding-right:9px}.cal-nav h2{margin:0 0 0 2px;flex:1 1 auto;min-width:0;overflow:hidden;white-space:nowrap;padding:2px 8px 2px 2px}
-.cal-title{font-family:'GD Brush',Impact,'Arial Narrow',sans-serif;font-weight:700;color:var(--accent);font-size:28px;line-height:1.05;white-space:nowrap;letter-spacing:.2px;transform:skewX(-14deg) rotate(-3deg);transform-origin:left center;}
+.cal-title{font-weight:800;color:var(--ink,var(--text));font-size:22px;line-height:1.15;white-space:nowrap;letter-spacing:-.01em;}
 .cal-actions{margin:0 0 10px;gap:8px;flex-wrap:wrap;align-items:center}.cal-actions .cal-log{margin-left:auto}
 .back-up{margin-bottom:8px}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
@@ -199,7 +198,6 @@ details.fold:not([open]) .fold-sum::after{transform:rotate(0deg)}
 [data-brand] .g-card::before,[data-brand] .g-run::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--lw-red);}
 [data-brand] .rest-bar{background:var(--ink);color:var(--bg);}
 [data-brand] .g-rest-num{color:var(--ink);}
-[data-brand] .cal-title{color:var(--lw-red);}
 [data-brand] .ach-chip.on{box-shadow:0 0 0 2px var(--lw-red) inset;}
 @media (max-width:860px){
   [data-brand] .bottomnav{background:color-mix(in srgb,var(--surface) 92%,transparent);border-top:1px solid var(--border);}
@@ -1757,20 +1755,20 @@ function occurrencesInRange(from,to){
   });
 }
 // «Сентябрь 2026г»: месяц с заглавной, «г» слитно и строчная (по-украински «р»)
-// заголовки календаря в стиле надписи LIGHT WEIGHT: заглавными, «г» — строчная и слитно с годом
+// заголовки календаря: «Октябрь 2026г» — с заглавной, «г» строчная и слитно с годом
 const yearMark = () => (I18N.lang==='ru' ? 'г' : I18N.lang==='uk' ? 'р' : '');
-const capsT = t => t.toLocaleUpperCase(I18N.locale);
+const capsT = t => t.charAt(0).toLocaleUpperCase(I18N.locale) + t.slice(1);
 function calMonthTitle(d){
   const L = I18N.lang||'ru';
   if(L==='ru' || L==='uk') return capsT(d.toLocaleDateString(I18N.locale,{month:'long'}))+' '+d.getFullYear()+yearMark();
   return capsT(d.toLocaleDateString(I18N.locale,{month:'long',year:'numeric'}));
 }
-function calWeekTitle(a, b){ const f = x => capsT(x.toLocaleDateString(I18N.locale,{day:'numeric',month:'short'}).replace('.','')); return f(a)+' — '+f(b); }
+function calWeekTitle(a, b){ const f = x => x.toLocaleDateString(I18N.locale,{day:'numeric',month:'short'}); return f(a)+' — '+f(b); }
 function calDayTitle(d){ const L = I18N.lang||'ru';
   if(L==='ru' || L==='uk') return capsT(d.toLocaleDateString(I18N.locale,{day:'numeric',month:'long'}))+' '+d.getFullYear()+yearMark();
   return capsT(d.toLocaleDateString(I18N.locale,{day:'numeric',month:'long',year:'numeric'})); }
 // заголовок уменьшается, пока не поместится рядом с кнопками
-function fitCalTitle(){ const h = document.querySelector('#main .cal-nav h2'); if(!h) return; let fs = 28; h.style.fontSize = fs+'px';
+function fitCalTitle(){ const h = document.querySelector('#main .cal-nav h2'); if(!h) return; let fs = 22; h.style.fontSize = fs+'px';
   while(h.scrollWidth > h.clientWidth && fs > 13){ fs--; h.style.fontSize = fs+'px'; } }
 function viewCalendar(){
   const d = State.calDate;
