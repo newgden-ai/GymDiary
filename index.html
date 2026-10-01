@@ -138,18 +138,44 @@ h1,h2,h3{margin:0 0 8px;font-weight:600;}
 .bottomnav button.active .ico,.navitem.active .ico{filter:drop-shadow(0 0 3px rgba(227,38,46,.45));}
 .navitem .ico{width:20px;height:20px;}
 @font-face{font-family:'GD Brush';src:url(img/fonts/oswald-700.woff) format('woff');font-weight:700;font-display:swap;}
-.cal-title{font-family:'GD Brush',Impact,'Arial Narrow',sans-serif;font-weight:700;color:var(--accent);font-size:24px;white-space:nowrap;letter-spacing:.3px;transform:skewX(-12deg) rotate(-2deg);transform-origin:left center;}
+.cal-nav{flex-wrap:nowrap!important;gap:6px;min-width:0;max-width:100%}.cal-nav .btn{flex:none;padding-left:10px;padding-right:10px}.cal-nav h2{margin:0 0 0 4px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cal-title2{font-size:clamp(14px,4.2vw,20px)}
+.cal-title{font-family:'GD Brush',Impact,'Arial Narrow',sans-serif;font-weight:700;color:var(--accent);font-size:clamp(18px,6vw,24px);white-space:nowrap;letter-spacing:.3px;transform:skewX(-12deg) rotate(-2deg);transform-origin:left center;}
 .cal-actions{margin:0 0 10px;gap:8px;flex-wrap:wrap;align-items:center}.cal-actions .cal-log{margin-left:auto}
 .back-up{margin-bottom:8px}
-.g-overlay{padding:0;align-items:stretch}.g-modal{margin:0;border-radius:0;min-height:100%;max-width:640px;padding:12px 16px calc(96px + env(safe-area-inset-bottom,0px))}
+.overlay.g-overlay{inset:0;bottom:0;padding:calc(8px + env(safe-area-inset-top,0px)) 8px calc(8px + env(safe-area-inset-bottom,0px));align-items:stretch;background:var(--bg);z-index:80;overflow:hidden}
+.g-modal{margin:0 auto;border-radius:20px;height:100%;max-width:640px;padding:10px 14px 12px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px -12px rgba(0,0,0,.45);border:1px solid var(--border)}
+.g-body{flex:1;min-height:0;display:flex;flex-direction:column}
+.g-scroll{flex:1;min-height:0;overflow:auto}
+.g-head2{display:flex;justify-content:space-between;align-items:center;gap:6px;min-height:30px}
+.g-figbox{flex:1 1 0;min-height:70px;display:flex;align-items:center;justify-content:center;margin:4px 0}
+.g-figbox.g-nofig{flex:0.2 1 0;min-height:0}
+.g-figbox .g-fig{max-height:100%;margin:0}
+.g-why{font-size:12px;color:var(--muted);margin-bottom:4px;line-height:1.3}.g-why a{color:var(--accent)}
+.g-done{font-size:12.5px;font-weight:500}
+.g-sw{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0}.g-sw-num{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums}
+.g-actions{display:flex;flex-direction:column;gap:4px;align-items:stretch}.g-actions .btn.sm{align-self:center}
+.g-skip{display:block;margin:0 auto;width:84px;height:84px;border-radius:50%;border:none;background:var(--accent);color:var(--on-accent,#fff);font-size:30px;box-shadow:0 8px 20px -8px var(--accent)}
+.g-skip-l{text-align:center;margin:6px 0 10px;font-weight:600}
+.g-explain ol{padding-left:20px}.g-explain li{margin:8px 0;line-height:1.4}
+.g-run{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;border:1.5px solid var(--accent)}
+.w-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.w-head-l{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.w-x{padding:2px 8px;margin:-4px 0 2px -6px;font-size:18px}
+.w-head-l h2{font-size:20px}
+.w-play{display:flex;align-items:center;gap:8px;flex:none;max-width:46%;font-size:13.5px;text-align:left;line-height:1.2;padding:8px 12px}
+.w-play-ico{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.22);font-size:13px;flex:none}
+.w-times{font-size:12.5px;margin-top:6px}
+.tpl-ico{flex:0 0 auto!important;min-width:44px;font-size:16px}
+.play-btn{min-width:38px;font-size:13px}
+ul.advice{padding-left:18px;margin:6px 0}ul.advice li{margin:5px 0;line-height:1.35}
 .g-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0 -6px 10px}.g-title{flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .g-warn{background:rgba(227,38,46,.1);border:1px solid rgba(227,38,46,.35);border-radius:12px;padding:12px;margin-bottom:12px}
-.g-list{padding-left:20px}.g-list li{margin:8px 0}.g-step{font-size:13px}.g-name{margin:4px 0 8px;font-size:22px}
-.g-fig{display:block;width:100%;max-height:230px;object-fit:contain;background:var(--surface2);border-radius:12px;margin-bottom:8px}
-.g-set{font-size:20px;font-weight:800;margin:12px 0 4px}.g-task{font-size:15.5px;margin-bottom:6px}
-.g-form{display:grid;gap:10px;margin:10px 0 12px}.g-form input{font-size:20px;padding:10px;font-weight:700}
+.g-list{padding-left:20px}.g-list li{margin:8px 0}.g-step{font-size:13px}.g-name{margin:2px 0;font-size:20px;line-height:1.2}
+.g-fig{display:block;width:100%;height:100%;object-fit:contain;background:var(--surface2);border-radius:12px}
+.g-set{font-size:18px;font-weight:800;margin:4px 0 2px}.g-task{font-size:14.5px;margin-bottom:4px;line-height:1.35}
+.g-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:6px 0 8px;align-items:end}.g-form input{font-size:20px;padding:9px;font-weight:700}
 .g-go{background:#1faa59;color:#fff;text-align:center;font-weight:800;font-size:20px;border-radius:12px;padding:10px;margin-bottom:10px;animation:gpulse .5s ease 2 alternate}@keyframes gpulse{to{transform:scale(1.04)}}
-.g-rest{text-align:center;padding:30px 0}.g-rest-num{font-size:64px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);margin:6px 0 12px}
+.g-rest{text-align:center;padding:20px 0;flex:1}.g-rest-num{font-size:64px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);margin:6px 0 12px}
 .g-big{font-size:24px;font-weight:800;text-align:center;margin:20px 0 6px}
 .g-alt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px;margin-bottom:6px;border:1px solid var(--border);border-radius:12px;background:var(--surface);flex-wrap:wrap}
 .g-alt b{width:100%}.g-alt b + .muted{width:100%;font-size:12.5px}
@@ -458,7 +484,7 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
 /* подходы: подписи над полями */
 .set-box{border:1px solid var(--border);border-radius:10px;padding:6px 8px;margin:6px 0;background:var(--surface);}
 .set-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;}
-.set-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:4px;}
+.set-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:4px;align-items:end;}
 .set-box.cardio .set-fields{grid-template-columns:repeat(3,minmax(0,1fr));}
 .sf{display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:var(--muted);line-height:1.2;}
 .sf small{display:block;font-size:10.5px;opacity:.85;}
@@ -609,13 +635,14 @@ const Storage = (function(){
       type:w.type, blocks:w.blocks||[], notes:w.notes||null, result:w.result||null,
       recurring_group_id:w.recurringId||null, status:w.status||'planned',
       ...(w.bodyWeight!==''&&w.bodyWeight!=null ? {body_weight:Number(w.bodyWeight)} : {}),
-      ...(w.shared!==undefined && w.shared!==null ? {shared:!!w.shared} : {})
+      ...(w.shared!==undefined && w.shared!==null ? {shared:!!w.shared} : {}),
+      ...(w.startedAt ? {started_at:w.startedAt} : {}), ...(w.finishedAt ? {finished_at:w.finishedAt} : {})
     };
   }
   function workoutFromDb(r){
     return { id:r.id, date:r.date, time:r.time||'', duration:r.duration||'', name:r.name||'',
       participantId:r.participant_id, createdBy:r.created_by, type:r.type, blocks:r.blocks||[], notes:r.notes||'',
-      result:r.result||'', recurringId:r.recurring_group_id||null, status:r.status||'planned', bodyWeight:r.body_weight??'', shared:r.shared??undefined };
+      result:r.result||'', recurringId:r.recurring_group_id||null, status:r.status||'planned', bodyWeight:r.body_weight??'', shared:r.shared??undefined, startedAt:r.started_at||undefined, finishedAt:r.finished_at||undefined };
   }
   function templateToDb(t){ return { id:t.id, owner_id:(t.ownerId===undefined?selfId:t.ownerId), name:t.name, blocks:t.blocks||[], is_public:!!t.isPublic, author_name:t.authorName||null }; }
   function templateFromDb(r){ return { id:r.id, name:r.name, blocks:r.blocks||[], ownerId:r.owner_id, isPublic:!!r.is_public, authorName:r.author_name||'' }; }
@@ -1372,7 +1399,7 @@ function achTile(a, color){
     ${a.lwText?`<div class="lwt lwt-${a.lwText[1]}"><img src="img/lwtext/${a.lwText[1]}.webp" alt="Light weight" loading="lazy" decoding="async"></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${a.lwText[2]}</div>`:a.poster?`<div class="lw-poster"><img src="img/lightweight/thumb/${String(a.poster).padStart(2,'0')}.webp" alt="" loading="lazy"></div><div class="ach-t">${esc(a.title)}</div>`:''}
     ${a.tier?`<div class="tier-medal"><img src="img/badges/tier_${a.tier}.webp" alt="" decoding="async"><img class="tier-ico" src="img/badges/ico_${a.cat}.webp" alt="" loading="lazy" decoding="async"><span class="tier-txt" style="font-size:${a.tierText.length<=5?15:a.tierText.length<=8?12:a.tierText.length<=12?8.5:8}px">${esc(a.tierText)}</span></div>`:''}
     ${a.cat==='bw'||a.tier||a.poster?'':a.hero?`<div class="lw-poster"><img src="img/lightweight/thumb/${HERO_POSTER[a.hero]||'01'}.webp" alt="${esc(HERO_NAMES[a.hero])}" loading="lazy" decoding="async"></div><div class="ach-t">${esc(a.title)}</div><div class="ach-tag">${esc(HERO_NAMES[a.hero])}</div>`
-    :a.wr?`<div class="wr-card" style="--wr:${a.wr.color}"><img src="img/lightweight/thumb/${a.wr.poster}.webp" alt="" loading="lazy" decoding="async"><img class="wr-lw" src="img/lwtext/${a.wr.pct}.webp" alt="Light weight"><span class="wr-kg">${fmtNum(a.wr.kg)} кг</span><span class="wr-pct">${a.wr.pct===100?'МИРОВОЙ РЕКОРД':a.wr.pct+'% рекорда'}</span></div><div class="ach-t">${esc(a.wr.lift)}</div>`:a.badgeUrl?`<img class="ach-badge" src="${esc(a.badgeUrl)}" alt="${esc(a.title)}" loading="lazy" decoding="async"><div class="ach-t" data-no-tr>${esc(a.title)}</div>${a.tag?`<div class="ach-tag" data-no-tr>${esc(a.tag)}</div>`:''}`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<div class="ach-emo">${a.icon}</div>
+    :a.wr?`<div class="wr-card" style="--wr:${a.wr.color}"><img src="img/lightweight/thumb/${a.wr.poster}.webp" alt="" loading="lazy" decoding="async"><img class="wr-lw" src="img/lwtext/${a.wr.pct}.webp" alt="Light weight"><span class="wr-kg">${fmtNum(a.wr.kg)} кг</span><span class="wr-pct">${a.wr.pct===100?'МИРОВОЙ РЕКОРД':a.wr.pct+'% рекорда'}</span></div><div class="ach-t">${esc(a.wr.lift)}</div>`:a.badgeUrl?`<img class="ach-badge" data-cb-src="${esc(a.badgeUrl)}" src="${esc(cbClean.cache[a.badgeUrl]||a.badgeUrl)}" alt=""${esc(a.title)}" loading="lazy" decoding="async"><div class="ach-t" data-no-tr>${esc(a.title)}</div>${a.tag?`<div class="ach-tag" data-no-tr>${esc(a.tag)}</div>`:''}`:a.badge?`<img class="ach-badge" src="img/badges/${a.badge}.webp" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<div class="ach-emo">${a.icon}</div>
     <div class="ach-t">${esc(a.title)}</div>${a.tag?`<div class="ach-tag">${esc(a.tag)}</div>`:''}`}
     ${a.got?`<div class="ach-ok">${a.rare?'редкая · ':''}получено</div>`:`<div class="ach-bar"><i style="width:${a.pct}%"></i></div><div class="ach-d">${a.cat==='hero'?a.cur+'%':a.show||fmtNum(a.cur)+' / '+fmtNum(a.target)}</div>`}
   </div>`;
@@ -1392,15 +1419,15 @@ function achCardHtml(all, list, tab, cat, tile){
   return `<div class="card" style="margin-bottom:10px">
     <div class="row" style="justify-content:space-between"><h3 class="row" style="gap:6px;margin:0"><span class="ach-ico">${icon('trophy')}</span>Достижения</h3><span class="muted">${all.filter(a=>a.got).length} из ${all.length}</span></div>
     ${lwShowcase(all)}
-    <div class="ach-chips">${chip('got','Мои','#e9e9ea')}${ACH_CATS.filter(c=>c.id!=='personal' || all.some(a=>a.cat==='personal')).map(c=>chip(c.id,c.name,c.color)).join('')}</div>
+    <div class="ach-chips">${chip('got','Мои','#e9e9ea')}${[...ACH_CATS.filter(c=>c.id==='personal' && all.some(a=>a.cat==='personal')), ...ACH_CATS.filter(c=>c.id!=='personal')].map(c=>chip(c.id,c.name,c.color)).join('')}</div>
     ${tab!=='got'?`<div class="muted" style="margin-top:6px">${cat(tab).hint}</div>`:''}
-    ${tab==='bw' ? `<div style="margin-top:10px">${bwLadderView()}</div>` : `<div class="ach-grid">${[...list.filter(a=>a.got), ...list.filter(a=>!a.got)].map(tile).join('') || '<div class="muted">Пока нет полученных ачивок — всё впереди!</div>'}</div>`}
+    ${tab==='bw' ? `<div style="margin-top:10px">${bwLadderView()}</div>` : `<div class="ach-grid">${[...list.filter(a=>a.got && a.cat==='personal'), ...list.filter(a=>a.got && a.cat!=='personal'), ...list.filter(a=>!a.got)].map(tile).join('') || '<div class="muted">Пока нет полученных ачивок — всё впереди!</div>'}</div>`}
   </div>`;
 }
 function renderAchInfoModal(){
   const {a, status} = State.modal, units = DB.settings.units;
   const exName = id => (DB.exercises.find(e=>e.id===id)||{}).name || 'упражнение';
-  const img = a.poster ? `img/lightweight/${String(a.poster).padStart(2,'0')}.jpg` : a.hero ? `img/lightweight/${HERO_POSTER[a.hero]||'01'}.jpg` : a.wr ? `img/lightweight/thumb/${a.wr.poster}.webp` : a.badgeUrl ? a.badgeUrl : a.badge ? `img/badges/${a.badge}.webp` : '';
+  const img = a.poster ? `img/lightweight/${String(a.poster).padStart(2,'0')}.jpg` : a.hero ? `img/lightweight/${HERO_POSTER[a.hero]||'01'}.jpg` : a.wr ? `img/lightweight/thumb/${a.wr.poster}.webp` : a.badgeUrl ? (cbClean.cache[a.badgeUrl]||a.badgeUrl) : a.badge ? `img/badges/${a.badge}.webp` : '';
   const recs = (a.lwRecs||[]).slice().reverse();
   return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:440px">
     <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h2 style="margin:0">${esc(a.title)}</h2><button class="btn sm ghost" data-close-modal="1">✕</button></div>
@@ -1724,11 +1751,11 @@ function viewCalendar(){
   }
   return `
   <div class="topbar">
-    <div class="row">
+    <div class="row cal-nav">
       <button class="btn" data-cal-nav="prev">←</button>
       <button class="btn" data-cal-nav="today">Сегодня</button>
       <button class="btn" data-cal-nav="next">→</button>
-      <h2 class="${State.calMode==='month'?'cal-title':''}" style="margin-left:8px;text-transform:capitalize" data-no-tr>${header}</h2>
+      <h2 class="${State.calMode==='month'?'cal-title':'cal-title2'}" style="text-transform:capitalize" data-no-tr>${header}</h2>
     </div>
     <div class="row">
       ${['month','week','day'].map(mm=>`<button class="btn ${State.calMode===mm?'primary':''}" data-cal-mode="${mm}">${mm==='month'?'Месяц':mm==='week'?'Неделя':'День'}</button>`).join('')}
@@ -1778,7 +1805,7 @@ function openWorkoutModal(opts){
 function closeModal(){
   const was = State.modal;
   if(was && was.kind==='workout') autosaveWorkout(true);
-  if(was && was.kind==='guided'){ if(was.sub){ was.sub = null; renderModal(); return; } Rest.stop(true); guidedSaveW(was.w); State.modal = null; renderModal(); renderMain(); return; }
+  if(was && was.kind==='guided'){ if(was.sub){ was.sub = null; renderModal(); return; } Rest.stop(true); clearInterval(swTimer); was.sw = null; guidedSaveW(was.w); State.modal = null; renderModal(); renderMain(); return; }
   let back = (was && was.back) || null;
   if(was && was.kind==='exercisePicker' && was._back) back = was._back.kind ? was._back : {kind:'workout', ...was._back};
   State.modal = back; renderModal();
@@ -1869,6 +1896,7 @@ function renderModalInner(root){
   else if(State.modal.kind==='achInfo') root.innerHTML = renderAchInfoModal();
   else if(State.modal.kind==='guided') root.innerHTML = renderGuided();
   else if(State.modal.kind==='coachSetup') root.innerHTML = renderCoachSetup();
+  else if(State.modal.kind==='guidedWhy') root.innerHTML = renderGuidedWhy();
 }
 
 function renderWorkoutModal(){
@@ -1877,8 +1905,14 @@ function renderWorkoutModal(){
   const total = Calc.workoutTonnage(w);
   const mg = Calc.muscleBreakdown(w, DB.exercises);
   return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop>
-    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${isNew?'Новая тренировка':'Редактирование'}</h2><span class="muted autosave-note">✓ сохраняется автоматически</span>
-      <span class="pill ${w.status==='done'?'st-done':'st-plan'}">${w.status==='done'?'выполнена':(w.date>dstr(new Date())?'запланирована':'не завершена')}</span></div>
+    <div class="w-head">
+      <div class="w-head-l"><button class="btn sm ghost w-x" data-close-modal="1" title="Закрыть">✕</button>
+        <h2 style="margin:0">${isNew?'Новая тренировка':'Редактирование'}</h2>
+        <span class="muted autosave-note">✓ сохраняется автоматически</span>
+        <span class="pill ${w.status==='done'?'st-done':'st-plan'}">${w.status==='done'?'выполнена':w.startedAt?'идёт':(w.date>dstr(new Date())?'запланирована':'не завершена')}</span></div>
+      ${w.status==='done' ? '' : `<button class="btn primary w-play" data-gm="go"><span class="w-play-ico">▶</span><span>${w.startedAt?'Продолжить тренировку':'Начать тренировку'}</span></button>`}
+    </div>
+    ${w.startedAt?`<div class="muted w-times">⏱ ${esc(TT('Начало {a}', {a:fmtClock(w.startedAt)}))}${w.finishedAt?' · '+esc(TT('окончание {b} · {m} мин', {b:fmtClock(w.finishedAt), m:w.duration||''})):''}</div>`:''}
     <div style="height:10px"></div>
     <div class="grid3">
       <div class="field"><label>Дата</label><input type="date" data-w="date" value="${w.date}"></div>
@@ -1916,12 +1950,11 @@ function renderWorkoutModal(){
     <label class="row" style="gap:8px;margin:4px 0 8px;cursor:pointer"><input type="checkbox" data-w="shared" ${w.shared?'checked':''}> 👥 Показать тренировку друзьям <span class="muted" style="font-size:12px">(название, упражнения, подходы и тоннаж — в вашем профиле у друзей)</span></label>
 
     <div class="w-actions">
-      <button class="btn finish big-finish" data-finish-workout="1">${w.status==='done'?'📨 Отправить итог в бот ещё раз':'✅ Завершить тренировку'}</button>
+      ${w.status==='done' || w.startedAt ? `<button class="btn finish big-finish" data-finish-workout="1">${w.status==='done'?'📨 Отправить итог в бот ещё раз':'✅ Завершить тренировку'}</button>` : ''}
       <div class="w-actions-row">
         <button class="btn primary" data-save-workout="1">Сохранить</button>
-        <button class="btn" data-save-as-template="1">В шаблоны</button>
+        <button class="btn tpl-ico" data-save-as-template="1" title="Сохранить в шаблоны">⭐</button>
         ${!isNew?'<button class="btn danger" data-delete-workout="1">Удалить</button>':''}
-        <button class="btn ghost" data-close-modal="1">Закрыть</button>
       </div>
     </div>
   </div></div>`;
@@ -2341,6 +2374,7 @@ function renderResultModal(){
     ${recs.length?`<h3 style="margin-top:14px">🏆 Новые рекорды</h3>${recs.map(r=>`<div class="help-row" style="cursor:default"><span class="grow">${esc(r.name)}</span><b>${convW(r.weight,units)} ${unitLabel(units)} × ${r.reps}</b><span class="muted">было ${convW(r.prev,units)}</span></div>`).join('')}`:''}
     <h3 style="margin-top:14px">🏅 Получено за тренировку ${achs.length?`<span class="muted">${achs.length}</span>`:''}</h3>
     ${achs.length?`<div class="ach-grid" style="max-height:none">${achs.map(a=>achTile(a, col(a.cat))).join('')}</div>`:'<div class="muted">В этот раз без новых ачивок — но каждая тренировка приближает к следующей!</div>'}
+    ${(()=>{ const adv = workoutAdvice(w); return adv.length?`<h3 style="margin-top:14px">🧠 Рекомендации</h3><ul class="advice">${adv.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''; })()}
     <div class="bot-status" id="botStatus" style="${State.botStatus&&State.botStatus.err?'color:var(--danger)':''}">${esc((State.botStatus||{}).text||'⏳ Отправляем итог в бот…')}</div>
     <button class="btn primary" style="width:100%;margin-top:14px" data-close-modal="1">Отлично!</button>
   </div></div>`;
@@ -2358,6 +2392,8 @@ async function finishWorkout(){
   const w = State.modal.w;
   if(!hasFilledSets(w)){ toast('Заполните хотя бы один подход'); return; }
   if(!w.name) w.name = WT[w.type] || 'Тренировка';
+  // время окончания и длительность — по нажатию «Завершить» (если тренировка была начата кнопкой ▶)
+  if(w.startedAt && !w.finishedAt){ w.finishedAt = new Date().toISOString(); w.duration = Math.max(1, Math.round((Date.parse(w.finishedAt)-Date.parse(w.startedAt))/60000)); }
   w.status = 'done';
   const idx = DB.workouts.findIndex(x=>x.id===w.id); if(idx<0) DB.workouts.push(w); else DB.workouts[idx]=w;
   rerender();
@@ -2478,6 +2514,7 @@ function templateCard(t){
     <div class="muted">${t.blocks.length} блок(ов), ${exCount} упражнений${!mine?` · ${t.ownerId?('автор: '+esc(t.authorName||'участник')):'базовая программа'}`:''}</div>
     <div class="row" style="margin-top:8px;flex-wrap:wrap">
       <button class="btn sm primary" data-use-template="${t.id}">Создать тренировку</button>
+      <button class="btn sm play-btn" data-gm="tpl" data-id="${t.id}" title="Начать тренировку по шаблону в минималистичном режиме">▶</button>
       ${canEdit?`<button class="btn sm" data-rename-template="${t.id}">Переименовать</button>`:''}
       ${mine?`<button class="btn sm" data-toggle-public="${t.id}">${t.isPublic?'Сделать личным':'Сделать общим'}</button>`:''}
       ${!mine?`<button class="btn sm" data-copy-template="${t.id}">В мои шаблоны</button>`:''}
@@ -3513,8 +3550,485 @@ const FOOD_DB = [
   ['Вафли бельгийские',310,6,15,38,100,'шт'],
   ['Бао с курицей',230,10,7,31,80,'шт'],
   ['Гёдза жареные',230,9,10,26,20,'шт'],
-  ['Хачапури по-мегрельски',290,13,15,26,400,'шт']
-].map(([name,kcal,p,f,c,pc,pcName])=>({name,kcal,p,f,c,pc,pcName, unit: LIQUIDS.has(name)?'ml':'g'}));
+  ['Хачапури по-мегрельски',290,13,15,26,400,'шт'],
+  // бренды и варианты блюд
+  ['Шоколадный батончик Snickers',488,8.5,23.9,59,50,'шт'],
+  ['Шоколадный батончик Snickers Super',488,8.5,23.9,59,80,'шт'],
+  ['Шоколадный батончик Snickers Криспер',516,7,26,62,40,'шт'],
+  ['Шоколадный батончик Snickers лесной орех',510,8,28,55,81,'шт'],
+  ['Шоколадный батончик Snickers белый',498,8,25,59,81,'шт'],
+  ['Шоколадный батончик Mars',449,4,17,69.5,50,'шт'],
+  ['Шоколадный батончик Mars Max',449,4,17,69.5,81,'шт'],
+  ['Шоколадный батончик Twix',495,4.6,24,63.8,55,'шт'],
+  ['Шоколадный батончик Twix Xtra',495,4.6,24,63.8,82,'шт'],
+  ['Шоколадный батончик Bounty',471,3.7,25,58,57,'шт'],
+  ['Шоколадный батончик Bounty Trio',471,3.7,25,58,85,'шт'],
+  ['Шоколадный батончик Bounty в тёмном шоколаде',487,4,27,56,57,'шт'],
+  ['Шоколадный батончик KitKat',518,6.6,26.5,62.5,41.5,'шт'],
+  ['Шоколадный батончик KitKat Chunky',517,6,27,61,40,'шт'],
+  ['Шоколадный батончик Milky Way',449,3.6,16.6,72,26,'шт'],
+  ['Шоколадный батончик Picnic',500,8,26,57,52,'шт'],
+  ['Шоколадный батончик Nuts',495,8,26,57,50,'шт'],
+  ['Шоколадный батончик Шок',470,5.5,20,67,50,'шт'],
+  ['Шоколадный батончик Nesquik',460,5,20,65,43,'шт'],
+  ['Шоколадный батончик Kinder Bueno',572,8.6,37.3,49.5,43,'шт'],
+  ['Шоколадный батончик Kinder Chocolate',566,8.7,35,53.5,12.5,'шт'],
+  ['Шоколадный батончик Kinder Country',561,9,34,53,23.5,'шт'],
+  ['Шоколадный батончик 3 Musketeers',436,2.6,13,77,54,'шт'],
+  ['Шоколадный батончик Butterfinger',452,5,18,69,54,'шт'],
+  ['Шоколадный батончик Almond Joy',478,4.5,27,59,45,'шт'],
+  ['Шоколадный батончик Baby Ruth',469,6,22,64,54,'шт'],
+  ['Шоколадный батончик Hershey’s',535,7.6,31,59,43,'шт'],
+  ['Шоколадный батончик Hershey’s Cookies’n’Creme',536,6,27,64,43,'шт'],
+  ['Конфеты Hershey’s Kisses',535,7.6,31,59,4.5,'шт'],
+  ['Конфеты Reese’s Peanut Butter Cups',515,10.6,30,54,21,'шт'],
+  ['Драже Reese’s Pieces',497,12,23,61,46,'пачка'],
+  ['Драже M&M’s с арахисом',512,9,26,59,45,'пачка'],
+  ['Драже M&M’s шоколадные',491,4.4,21,70,45,'пачка'],
+  ['Драже M&M’s Crispy',500,5,24,67,36,'пачка'],
+  ['Драже Skittles фруктовые',405,0,4.3,90.5,38,'пачка'],
+  ['Шоколадный батончик Toblerone',535,5.5,30,60,35,'шт'],
+  ['Шоколад Toblerone молочный',535,5.5,30,60,100,'шт'],
+  ['Шоколад Milka молочный',530,6.3,29.5,58.5,90,'шт'],
+  ['Шоколад Milka с цельным фундуком',550,8,33,53,90,'шт'],
+  ['Шоколад Milka Oreo',545,5.5,30,61,92,'шт'],
+  ['Шоколад Milka Bubbles пористый',540,6,31,58,76,'шт'],
+  ['Шоколад Alpen Gold молочный',540,6,31,57,85,'шт'],
+  ['Шоколад Alpen Gold с фундуком и изюмом',520,6.3,28,59,85,'шт'],
+  ['Шоколад Alpen Gold Oreo',540,6,31,58,90,'шт'],
+  ['Шоколад Alpen Gold тёмный',525,5.5,31,54,85,'шт'],
+  ['Шоколад Ritter Sport с цельным лесным орехом',573,8.5,38,48,100,'шт'],
+  ['Шоколад Ritter Sport с марципаном',488,6,27,54,100,'шт'],
+  ['Шоколад Ritter Sport кукурузные хлопья',515,7,27,60,100,'шт'],
+  ['Шоколад Ritter Sport тёмный 74%',572,9,47,24,100,'шт'],
+  ['Шоколад Аленка молочный',535,5.9,30.7,59.6,90,'шт'],
+  ['Шоколад Россия Щедрая душа молочный',540,6,30,59,90,'шт'],
+  ['Шоколад Россия Щедрая душа с фундуком',545,7,32,56,90,'шт'],
+  ['Шоколад Бабаевский тёмный',540,6,36,47,90,'шт'],
+  ['Шоколад Бабаевский элитный 75%',560,9,42,33,90,'шт'],
+  ['Шоколад Бабаевский фирменный с фундуком',560,7.5,37,49,90,'шт'],
+  ['Шоколад Победа горький 72%',560,8,40,35,100,'шт'],
+  ['Шоколад Коркунов молочный с фундуком',560,7.5,36,51,90,'шт'],
+  ['Конфеты Коркунов ассорти',560,6.5,36,52,10,'шт'],
+  ['Конфеты Вдохновение Бабаевский',570,6.5,38,50,10,'шт'],
+  ['Конфеты Рот Фронт Батончики',470,7.4,25,54,10,'шт'],
+  ['Конфеты Рот Фронт Коровка',364,3,4.5,78,7,'шт'],
+  ['Конфеты Рот Фронт Птичье молоко',420,3,20,58,10,'шт'],
+  ['Конфеты Красный Октябрь Мишка косолапый',541,6.6,33.8,52.8,15,'шт'],
+  ['Конфеты Красный Октябрь Красная Шапочка',536,6,33,53,15,'шт'],
+  ['Конфеты Красный Октябрь Аленка',535,6,31,58,15,'шт'],
+  ['Конфеты Красный Октябрь Маска',530,6,32,54,15,'шт'],
+  ['Конфеты Ferrero Rocher',603,8.2,42.7,44.4,12.5,'шт'],
+  ['Конфеты Raffaello',628,7.8,47.9,40.3,10,'шт'],
+  ['Конфеты Merci ассорти',563,7.3,36.1,51.1,8.3,'шт'],
+  ['Конфеты Kinder Сюрприз яйцо',565,8.1,36,53,20,'шт'],
+  ['Конфеты Toffifee',517,6,28,59,8.3,'шт'],
+  ['Конфеты Lindt Lindor молочные',625,5,47,44,12.5,'шт'],
+  ['Шоколад Lindt Excellence 70%',566,9.5,41,34,100,'шт'],
+  ['Шоколад Lindt Excellence 85%',584,12.5,46,22,100,'шт'],
+  ['Шоколад Cadbury Dairy Milk',534,7.3,30,57,90,'шт'],
+  ['Шоколад Nestle Classic молочный',540,6,30,59,90,'шт'],
+  ['Шоколад Fazer молочный',550,7.5,33,55,100,'шт'],
+  ['Шоколад Ghirardelli тёмный 72%',570,8,42,39,100,'шт'],
+  ['Вафли Hanuta',542,7.5,32,54,22,'шт'],
+  ['Пирожное Barni молочное',410,5.6,18.5,56,30,'шт'],
+  ['Пирожное Barni шоколадное',420,5.5,19,57,30,'шт'],
+  ['Пирожное Choco Pie Lotte',436,4.4,18,64,28,'шт'],
+  ['Пирожное Choco Pie Orion',440,4.6,17.6,66,30,'шт'],
+  ['Пирожное Kinder Delice',451,6.5,25,50,39,'шт'],
+  ['Паста ореховая Nutella',539,6.3,30.9,57.5,15,'порция'],
+  ['Шоколад Рахат Казахстанский молочный',545,7,32,56,100,'шт'],
+  ['Шоколад Рахат Алматы горький',555,7,38,45,100,'шт'],
+  ['Конфеты Рахат Птичье молоко',430,3,21,58,10,'шт'],
+  ['Шоколад Баян Сулу молочный',540,6.5,31,57,100,'шт'],
+  ['Конфеты Баян Сулу ассорти',520,5,29,60,10,'шт'],
+  ['Шоколад Barambo молочный',540,6.5,31,57,90,'шт'],
+  ['Конфеты Roshen Шалена бджілка',440,3,18,67,10,'шт'],
+  ['Конфеты Roshen Candy Nut',480,6,23,62,10,'шт'],
+  ['Мармелад Haribo Goldbears',343,6.9,0.5,77,100,'пачка'],
+  ['Мармелад Haribo Happy Cola',344,6.5,0.2,78,100,'пачка'],
+  ['Мармелад Haribo Starmix',346,6.3,0.2,79,100,'пачка'],
+  ['Мармелад Haribo кислый',349,3.5,0.5,82,100,'пачка'],
+  ['Драже Skittles кисломикс',400,0,4,90,38,'пачка'],
+  ['Конфеты жевательные Mentos фруктовые',380,0,1.6,92,37.5,'пачка'],
+  ['Конфеты жевательные Mentos мятные',400,0,3,93,37.5,'пачка'],
+  ['Леденец Chupa Chups',394,0,0.5,98,12,'шт'],
+  ['Конфеты Bonpari',396,0,1,98,5,'шт'],
+  ['Конфеты жевательные Fruittella',395,0.5,6.7,82,41,'пачка'],
+  ['Конфеты жевательные Mamba',388,0.5,6,81.6,26.5,'пачка'],
+  ['Конфеты Tic Tac',390,0,0,97.5,16,'пачка'],
+  ['Леденцы Halls',390,0,0,98,25,'пачка'],
+  ['Конфеты жевательные Starburst',408,0,8,83,45,'пачка'],
+  ['Мармелад Fini',340,3,0,82,100,'пачка'],
+  ['Жевательная резинка Orbit без сахара',155,0,0.4,64,1.4,'шт'],
+  ['Жевательная резинка Dirol без сахара',205,0,0.8,63,1.5,'шт'],
+  ['Жевательная резинка Eclipse',160,0,0,64,1.4,'шт'],
+  ['Жевательная резинка Love is',380,0,0,95,4.2,'шт'],
+  ['Печенье Oreo',480,5,20,69,11,'шт'],
+  ['Печенье Oreo Golden',475,4.5,19.5,70,11,'шт'],
+  ['Печенье Юбилейное традиционное',467,7.7,17,70,8,'шт'],
+  ['Печенье Юбилейное с глазурью',476,6.4,21,65,13,'шт'],
+  ['Печенье Юбилейное утреннее со злаками',440,8,15,68,9,'шт'],
+  ['Печенье Lotus Biscoff',484,4.9,19,72.6,6.2,'шт'],
+  ['Печенье Chips Ahoy',487,5.8,24,63,11,'шт'],
+  ['Печенье Prince шоколадное',471,6,18,70,16.5,'шт'],
+  ['Печенье Belvita утреннее',450,8,15.5,69,12.5,'шт'],
+  ['Печенье McVitie’s Digestive',488,7.1,21.5,62.7,15,'шт'],
+  ['Печенье Bahlsen Choco Leibniz',507,7,25,63,12.5,'шт'],
+  ['Печенье Pick Up! с молочным шоколадом',510,7,26,62,28,'шт'],
+  ['Печенье Kinder Happy Hippo',562,7.5,35,54,20.7,'шт'],
+  ['Печенье Посиделкино',440,6,18,63,10,'шт'],
+  ['Печенье Мария',410,8.7,8.8,73,6,'шт'],
+  ['Вафли Яшкино с ореховой начинкой',519,5,28,61,20,'шт'],
+  ['Вафли Loacker Napolitaner',512,7.5,26,61,45,'пачка'],
+  ['Вафли Коломенские',530,4.5,30,60,20,'шт'],
+  ['Вафли Артек',540,4.5,31,61,20,'шт'],
+  ['Пряники Яшкино',360,5,5,72,30,'шт'],
+  ['Чипсы Lay’s с солью',541,6.5,33,53,140,'пачка'],
+  ['Чипсы Lay’s сметана и зелень',510,6.5,30,53,140,'пачка'],
+  ['Чипсы Lay’s сметана и лук',520,6.5,31,53,140,'пачка'],
+  ['Чипсы Lay’s сыр',512,6.5,30,54,140,'пачка'],
+  ['Чипсы Lay’s краб',510,6,30,54,140,'пачка'],
+  ['Чипсы Lay’s бекон',512,6.5,30,54,140,'пачка'],
+  ['Чипсы Lay’s красная икра',510,6,30,54,140,'пачка'],
+  ['Чипсы Lay’s паприка',510,6.5,30,53,140,'пачка'],
+  ['Чипсы Lay’s зелёный лук',510,6.5,30,53,140,'пачка'],
+  ['Чипсы Lay’s барбекю',525,6.5,32,52,140,'пачка'],
+  ['Чипсы Lay’s Max сыр',520,6.5,30,54,120,'пачка'],
+  ['Чипсы Lay’s Strong острый перец',525,6,31,54,120,'пачка'],
+  ['Чипсы Lay’s из печи',440,7,16,67,85,'пачка'],
+  ['Чипсы Pringles Original',534,4.9,33,52,165,'банка'],
+  ['Чипсы Pringles сметана и лук',527,4.9,32,52,165,'банка'],
+  ['Чипсы Pringles паприка',528,5,32,53,165,'банка'],
+  ['Чипсы Pringles сыр',530,5,32,53,165,'банка'],
+  ['Чипсы Pringles Hot & Spicy',525,5,32,52,165,'банка'],
+  ['Чипсы Doritos Nacho Cheese',498,7,25,59,100,'пачка'],
+  ['Чипсы Doritos острый чили',500,7,25,60,100,'пачка'],
+  ['Чипсы Doritos Cool Ranch',500,7,25,60,100,'пачка'],
+  ['Снеки Cheetos Crunchy',530,6,32,54,85,'пачка'],
+  ['Снеки Читос сыр',510,6,25,63,85,'пачка'],
+  ['Снеки Читос кетчуп',505,6,24,64,85,'пачка'],
+  ['Снеки Читос пицца',505,6,24,64,85,'пачка'],
+  ['Чипсы Estrella с солью',535,6,33,51,175,'пачка'],
+  ['Чипсы Estrella сметана и лук',530,6,32,52,175,'пачка'],
+  ['Чипсы Русская картошка сметана и лук',520,5,30,55,150,'пачка'],
+  ['Чипсы Русская картошка сыр',520,5,30,55,150,'пачка'],
+  ['Чипсы Московский картофель с солью',522,6,30,56,150,'пачка'],
+  ['Чипсы Московский картофель сметана и лук',520,6,30,56,150,'пачка'],
+  ['Чипсы Chio паприка',540,5.5,33,53,150,'пачка'],
+  ['Чипсы Lorenz Crunchips паприка',525,5.5,31,54,150,'пачка'],
+  ['Чипсы Funny Frisch паприка',535,6,33,51,175,'пачка'],
+  ['Чипсы Kettle морская соль',506,6.5,29,54,150,'пачка'],
+  ['Чипсы Ruffles с солью',536,6.6,34,50,150,'пачка'],
+  ['Чипсы Ruffles сметана и лук',536,6.6,34,50,150,'пачка'],
+  ['Чипсы Tyrrells морская соль',494,6,26,57,150,'пачка'],
+  ['Чипсы Pom-Bär',516,4,28,61,75,'пачка'],
+  ['Чипсы Sun Chips',490,7,21,66,105,'пачка'],
+  ['Чипсы Tostitos',504,7,23,66,100,'пачка'],
+  ['Чипсы Takis Fuego',507,6,25,62,92,'пачка'],
+  ['Чипсы Хрустящий картофель',530,6,31,55,150,'пачка'],
+  ['Сухарики Кириешки ржаные с беконом',390,10,6.8,71,40,'пачка'],
+  ['Сухарики Кириешки холодец с хреном',388,10,6.5,71,40,'пачка'],
+  ['Сухарики Кириешки сметана и зелень',390,10,6.8,71,40,'пачка'],
+  ['Сухарики Кириешки салями',390,10,6.8,71,40,'пачка'],
+  ['Сухарики Кириешки краб',390,10,6.8,71,40,'пачка'],
+  ['Сухарики 3 корочки ржаные с холодцом и хреном',390,11,7,69,40,'пачка'],
+  ['Сухарики 3 корочки ржаные с беконом',402,11,8,70,40,'пачка'],
+  ['Сухарики 3 корочки чеснок',395,11,7.5,69,40,'пачка'],
+  ['Сухарики Хрусteam багет сыр',440,11,15,64,60,'пачка'],
+  ['Сухарики Хрусteam ржаные бекон',410,10,10,68,40,'пачка'],
+  ['Сухарики Компашка ржаные',404,10,9,69,40,'пачка'],
+  ['Сухарики Бриешки ржаные',396,10,7.5,70,40,'пачка'],
+  ['Сухарики Емеля ржаные',400,10.5,8,70,40,'пачка'],
+  ['Сухарики Flint ржаные с беконом',405,10,9,70,80,'пачка'],
+  ['Сухарики Flint холодец с хреном',400,10,8.5,70,80,'пачка'],
+  ['Сухарики Воронцовские ржаные',397,12,7,71,80,'пачка'],
+  ['Сухарики Воронцовские пшеничные',405,11,8.5,71,80,'пачка'],
+  ['Крекер Tuc оригинальный',491,8,24,60,100,'пачка'],
+  ['Крекер Tuc сыр',495,8.5,25,59,100,'пачка'],
+  ['Крекер Tuc паприка',490,7.5,24,60,100,'пачка'],
+  ['Крекер Ritz',492,7,22,63,100,'пачка'],
+  ['Крекер Goldfish',470,9.6,19,64,30,'порция'],
+  ['Крекер Cheez-It',507,10.7,26,57,30,'порция'],
+  ['Хлебцы Finn Crisp',330,11,2,57,10,'шт'],
+  ['Хлебцы Wasa ржаные',333,9,1.5,66,11,'шт'],
+  ['Хлебцы Dr. Körner злаковый коктейль',360,11,2.5,70,9,'шт'],
+  ['Арахис жареный солёный Mr. Nut',600,26,49,12,60,'пачка'],
+  ['Кешью жареный Mr. Nut',590,18,47,26,60,'пачка'],
+  ['Фисташки Mr. Nut',580,21,46,19,50,'пачка'],
+  ['Арахис жареный солёный Семушка',610,26,51,10,100,'пачка'],
+  ['Фисташки жареные солёные Семушка',590,21,50,15,100,'пачка'],
+  ['Миндаль жареный Семушка',620,21,53,13,100,'пачка'],
+  ['Смесь орехов Семушка',620,19,54,15,100,'пачка'],
+  ['Кешью Семушка',600,18,48,25,100,'пачка'],
+  ['Арахис жареный Planters',588,24,50,21,50,'пачка'],
+  ['Кешью Planters',571,15,46,32,50,'пачка'],
+  ['Смесь орехов Planters',607,18,54,21,50,'пачка'],
+  ['Миндаль Blue Diamond копчёный',607,21,54,18,50,'пачка'],
+  ['Миндаль Blue Diamond солёный',600,21,53,19,50,'пачка'],
+  ['Фисташки Wonderful жареные солёные',567,21,46,28,50,'пачка'],
+  ['Смесь орехов Kirkland',607,18,54,21,50,'порция'],
+  ['Миндаль Kirkland',579,21,50,22,30,'порция'],
+  ['Семечки От Мартина',601,20.7,52.9,10.5,100,'пачка'],
+  ['Семечки От Мартина солёные',601,20.7,52.9,10.5,100,'пачка'],
+  ['Семечки тыквенные От Мартина',556,24.5,45.8,13.4,50,'пачка'],
+  ['Семечки Бабкины',578,20.7,52.9,5,100,'пачка'],
+  ['Семечки Бабкины солёные',578,20.7,52.9,5,100,'пачка'],
+  ['Кола Coca-Cola',42,0,0,10.6,330,'банка','ml'],
+  ['Кола Coca-Cola Zero',0.3,0,0,0,330,'банка','ml'],
+  ['Кола Pepsi',43,0,0,11,330,'банка','ml'],
+  ['Кола Pepsi Max',0.4,0,0,0.1,330,'банка','ml'],
+  ['Газировка Fanta апельсин',38,0,0,9.4,330,'банка','ml'],
+  ['Газировка Fanta Zero',2,0,0,0.5,330,'банка','ml'],
+  ['Газировка Sprite',36,0,0,9,330,'банка','ml'],
+  ['Газировка Sprite Zero',1,0,0,0.2,330,'банка','ml'],
+  ['Газировка 7Up',39,0,0,9.8,330,'банка','ml'],
+  ['Газировка Mirinda апельсин',44,0,0,11,330,'банка','ml'],
+  ['Газировка Mountain Dew',48,0,0,12.8,330,'банка','ml'],
+  ['Газировка Dr Pepper',42,0,0,10.6,330,'банка','ml'],
+  ['Газировка Schweppes Bitter Lemon',39,0,0,9.5,330,'банка','ml'],
+  ['Газировка Schweppes Тоник',37,0,0,9,330,'банка','ml'],
+  ['Энергетик Red Bull',46,0,0,11,250,'банка','ml'],
+  ['Энергетик Red Bull Sugarfree',3,0,0,0,250,'банка','ml'],
+  ['Энергетик Adrenaline Rush',46,0,0,11.6,449,'банка','ml'],
+  ['Энергетик Burn',53,0,0,13,449,'банка','ml'],
+  ['Энергетик Monster Energy',47,0,0,11.2,500,'банка','ml'],
+  ['Энергетик Monster Ultra',2,0,0,0.9,500,'банка','ml'],
+  ['Энергетик Flash Up Energy',45,0,0,11,450,'банка','ml'],
+  ['Энергетик Gorilla Energy',54,0,0,13.5,450,'банка','ml'],
+  ['Энергетик Rockstar Energy',52,0,0,13,500,'банка','ml'],
+  ['Энергетик Tornado Energy',47,0,0,11.5,450,'банка','ml'],
+  ['Энергетик Lit Energy',46,0,0,11,450,'банка','ml'],
+  ['Холодный чай Nestea лимон',30,0,0,7.5,500,'бутылка','ml'],
+  ['Холодный чай Nestea персик',30,0,0,7.5,500,'бутылка','ml'],
+  ['Холодный чай Lipton лимон',31,0,0,7.7,500,'бутылка','ml'],
+  ['Холодный чай Lipton персик',31,0,0,7.7,500,'бутылка','ml'],
+  ['Холодный чай Lipton зелёный',28,0,0,7,500,'бутылка','ml'],
+  ['Холодный чай FuseTea лимон',25,0,0,6.2,500,'бутылка','ml'],
+  ['Вода Hydrolife',0,0,0,0,500,'бутылка','ml'],
+  ['Вода минеральная Chortoq',0,0,0,0,500,'бутылка','ml'],
+  ['Вода Nestle Pure Life',0,0,0,0,500,'бутылка','ml'],
+  ['Вода BonAqua',0,0,0,0,500,'бутылка','ml'],
+  ['Вода минеральная Borjomi',0,0,0,0,500,'бутылка','ml'],
+  ['Вода минеральная Nabeglavi',0,0,0,0,500,'бутылка','ml'],
+  ['Вода минеральная Сарыагаш',0,0,0,0,500,'бутылка','ml'],
+  ['Вода Tassay',0,0,0,0,500,'бутылка','ml'],
+  ['Вода минеральная Ессентуки 17',0,0,0,0,500,'бутылка','ml'],
+  ['Лимонад Лагидзе тархун',44,0,0,11,500,'бутылка','ml'],
+  ['Лимонад Лагидзе сливочный',46,0,0,11.5,500,'бутылка','ml'],
+  ['Лимонад Лагидзе груша',45,0,0,11.2,500,'бутылка','ml'],
+  ['Лимонад Zedazeni тархун',46,0,0,11.5,500,'бутылка','ml'],
+  ['Лимонад Natakhtari тархун',43,0,0,10.7,500,'бутылка','ml'],
+  ['Лимонад Natakhtari груша',43,0,0,10.7,500,'бутылка','ml'],
+  ['Квас Очаково',31,0.2,0,7.6,500,'бутылка','ml'],
+  ['Квас Никола',29,0.2,0,7,500,'бутылка','ml'],
+  ['Сок J7 апельсиновый',45,0.7,0.1,10,200,'стакан','ml'],
+  ['Сок Rich апельсиновый',46,0.7,0,10.5,200,'стакан','ml'],
+  ['Сок Добрый яблочный',44,0.1,0,10.4,200,'стакан','ml'],
+  ['Нектар Gracio персиковый',48,0.3,0,11.6,200,'стакан','ml'],
+  ['Том ям с курицей',65,5,3.5,3.5,400,'порция'],
+  ['Том ям с морепродуктами',60,6,3,3,400,'порция'],
+  ['Том ям вегетарианский',45,2,3,4,400,'порция'],
+  ['Том ям с кокосовым молоком',85,5,6,3.5,400,'порция'],
+  ['Том кха с креветками',90,5,7,3,400,'порция'],
+  ['Плов ташкентский',230,7,12,24,300,'порция'],
+  ['Плов с бараниной',235,7.5,12.5,23,300,'порция'],
+  ['Плов с говядиной',200,8,9,22,300,'порция'],
+  ['Плов чайханский',240,7,13,23,300,'порция'],
+  ['Плов с перепелиными яйцами',230,7.5,12,23,300,'порция'],
+  ['Плов с айвой',215,6.5,11,23,300,'порция'],
+  ['Плов андижанский',235,7,12.5,24,300,'порция'],
+  ['Плов со свининой',220,7,11,23,300,'порция'],
+  ['Плов с грибами постный',150,3,5,23,300,'порция'],
+  ['Плов из бурого риса с курицей',160,9,5,20,300,'порция'],
+  ['Самса с курицей и сыром',290,12,15,27,120,'шт'],
+  ['Самса с говядиной',300,10,17,27,120,'шт'],
+  ['Самса с бараниной',320,9.5,19.5,27,120,'шт'],
+  ['Самса слоёная с говядиной',330,9.5,20,28,120,'шт'],
+  ['Самса тандырная с курицей',270,12,13,27,150,'шт'],
+  ['Самса тандырная с говядиной',290,10.5,15,28,150,'шт'],
+  ['Самса с сыром',330,11,18,30,100,'шт'],
+  ['Шаурма со свининой',230,10,12,20,300,'шт'],
+  ['Шаурма с бараниной',240,10,13,20,300,'шт'],
+  ['Шаурма в пите',210,10,9,22,250,'шт'],
+  ['Шаурма вегетарианская',170,5,7,22,250,'шт'],
+  ['Шаурма с курицей и картофелем фри',240,9,12,24,350,'шт'],
+  ['Лагман уйгурский',140,6.5,5.5,16,400,'порция'],
+  ['Суп-лагман',75,4,3,8,400,'порция'],
+  ['Лагман с говядиной',130,6.5,5,15,400,'порция'],
+  ['Лагман с бараниной',145,6.5,6.5,15,400,'порция'],
+  ['Манты с говядиной',200,10,10,18,50,'шт'],
+  ['Манты с бараниной',230,9,13,19,50,'шт'],
+  ['Манты с говядиной и тыквой',170,7.5,7.5,18,50,'шт'],
+  ['Манты с курицей',180,11,7,19,50,'шт'],
+  ['Пицца Дьябло',260,11,12,27,120,'кусок'],
+  ['Пицца с салями',265,11,13,27,120,'кусок'],
+  ['Пицца с тунцом',230,11,9,27,120,'кусок'],
+  ['Пицца Карбонара',255,11,12,26,120,'кусок'],
+  ['Пицца Цезарь',240,12,10,26,120,'кусок'],
+  ['Пицца с беконом',270,11,14,26,120,'кусок'],
+  ['Пицца Маргарита на тонком тесте',240,10,10,28,120,'кусок'],
+  ['Гамбургер',250,12.5,9.5,29,110,'шт'],
+  ['Двойной гамбургер',260,14,11.5,25,160,'шт'],
+  ['Бургер Биг Мак',257,12,13,22,230,'шт'],
+  ['Бургер Воппер',230,10,13,18,270,'шт'],
+  ['Чикенбургер',250,10,11,28,130,'шт'],
+  ['Бургер BBQ с говядиной',260,13,12,24,250,'шт'],
+  ['Бургер острый с халапеньо',255,12,13,22,250,'шт'],
+  ['Бургер с грибами и сыром',255,12.5,13,21,250,'шт'],
+  ['Бургер с бараниной',260,13,14,20,250,'шт'],
+  ['Суши с тунцом (нигири)',140,9,1,24,30,'шт'],
+  ['Суши с угрём (нигири)',190,8,6,26,30,'шт'],
+  ['Суши с креветкой (нигири)',140,9,0.5,24,30,'шт'],
+  ['Гункан с икрой лосося',160,10,4,22,30,'шт'],
+  ['Ролл с тунцом (тэкка маки)',135,8,1,23,25,'шт'],
+  ['Ролл Футомаки',150,6,4,23,30,'шт'],
+  ['Ролл Аляска',155,6,5,22,30,'шт'],
+  ['Ролл Бонито',160,6,5,23,30,'шт'],
+  ['Ролл Филадельфия лайт',160,7,5,22,30,'шт'],
+  ['Ролл Зелёный дракон',180,6,8,22,30,'шт'],
+  ['Сашими из лосося',200,20,13,0,100,'порция'],
+  ['Сашими из тунца',110,24,1,0,100,'порция'],
+  ['Хинкали с бараниной',230,10,11,23,60,'шт'],
+  ['Хинкали с говядиной и свининой',230,10,11,22,60,'шт'],
+  ['Хинкали с говядиной',220,10.5,10,23,60,'шт'],
+  ['Хинкали с грибами',175,5,5,27,60,'шт'],
+  ['Хинкали с картофелем',180,4.5,5,30,60,'шт'],
+  ['Хинкали жареные',280,10,15,26,60,'шт'],
+  ['Хачапури по-имеретински',280,11,13,30,150,'кусок'],
+  ['Хачапури по-гурийски',290,10,14,31,150,'шт'],
+  ['Пеновани хачапури',340,11,19,32,150,'шт'],
+  ['Кубдари',270,11,12,29,150,'кусок'],
+  ['Лобиани',250,7.5,8,36,150,'кусок'],
+  ['Ачма',300,12,17,26,150,'кусок'],
+  ['Мчади',210,5,2.5,42,80,'шт'],
+  ['Эларджи',220,7,9,26,200,'порция'],
+  ['Гоми',120,3.5,3.5,19,200,'порция'],
+  ['Люля-кебаб из баранины',290,15,24,3,150,'порция'],
+  ['Люля-кебаб из говядины',245,17,18,3,150,'порция'],
+  ['Люля-кебаб из курицы',190,18,12,2,150,'порция'],
+  ['Шашлык из куриных крыльев',220,18,16,1,200,'порция'],
+  ['Шашлык из куриных бёдер',195,19,13,1,200,'порция'],
+  ['Шашлык из индейки',160,22,7.5,1,200,'порция'],
+  ['Шашлык из сёмги',210,20,14,1,200,'порция'],
+  ['Шашлык из осетрины',180,18,11,0.5,200,'порция'],
+  ['Шашлык из шампиньонов',45,4,2,2,200,'порция'],
+  ['Шашлык из свиной шеи',300,16,26,1,200,'порция'],
+  ['Шашлык из говяжьей вырезки',190,25,9.5,1,200,'порция'],
+  ['Борщ с говядиной',55,4,2.5,5,350,'порция'],
+  ['Борщ со свининой',65,3.5,3.5,5,350,'порция'],
+  ['Борщ с курицей',45,3,1.5,5,350,'порция'],
+  ['Борщ зелёный',45,2.5,2,4.5,350,'порция'],
+  ['Борщ украинский с пампушками',90,3.5,3,12,400,'порция'],
+  ['Оливье с курицей',175,7,14,6,200,'порция'],
+  ['Оливье с колбасой',200,6,17,6,200,'порция'],
+  ['Оливье с говядиной',180,7,14,6,200,'порция'],
+  ['Оливье с йогуртом',90,6,4,7,200,'порция'],
+  ['Салат «Цезарь» с лососем',165,10,11,6,250,'порция'],
+  ['Салат «Цезарь» классический',160,5,12,8,200,'порция'],
+  ['Салат «Столичный»',190,7,15,6,200,'порция'],
+  ['Салат «Обжорка»',230,8,19,7,200,'порция'],
+  ['Салат «Нежность»',180,8,13,7,200,'порция'],
+  ['Винегрет с сельдью',110,4,7,8,200,'порция'],
+  ['Шурпа из баранины',75,4.5,4.5,4,400,'порция'],
+  ['Шурпа из говядины',65,5,3,4,400,'порция'],
+  ['Шурпа кайнатма',70,5,3.5,4.5,400,'порция'],
+  ['Мастава с бараниной',80,3.5,3.5,9,400,'порция'],
+  ['Чучвара в бульоне',90,5,3.5,9,400,'порция'],
+  ['Чучвара жареная',280,10,15,26,200,'порция'],
+  ['Солянка грибная',50,2,3.5,3,350,'порция'],
+  ['Харчо из баранины',80,5,4.5,5,350,'порция'],
+  ['Харчо из говядины',70,5.5,3,5.5,350,'порция'],
+  ['Харчо с курицей',60,5,2.5,5,350,'порция'],
+  ['Рассольник с курицей',45,3,1.5,5,350,'порция'],
+  ['Рассольник ленинградский',50,2,2.5,6,350,'порция'],
+  ['Окрошка на тане',45,2.5,2,4,350,'порция'],
+  ['Окрошка на минеральной воде',60,4,3.5,3.5,350,'порция'],
+  ['Щи из квашеной капусты',35,1.5,1.8,3.2,350,'порция'],
+  ['Щи из свежей капусты',40,2,2,3.5,350,'порция'],
+  ['Уха из лосося',50,5,2,2.5,350,'порция'],
+  ['Уха по-фински со сливками',70,5,4.5,3,350,'порция'],
+  ['Суп-лапша куриная домашняя',50,3.5,1.5,5.5,350,'порция'],
+  ['Суп с клёцками',45,2.5,1.5,5.5,350,'порция'],
+  ['Рамен с курицей',90,6,3,10,500,'порция'],
+  ['Рамен со свининой (тонкоцу)',110,6,5,10,500,'порция'],
+  ['Рамен мисо',80,4.5,3,9,500,'порция'],
+  ['Чакапули',130,11,7,3,300,'порция'],
+  ['Сациви из индейки',210,17,14,4,200,'порция'],
+  ['Гебжалия',230,12,17,6,150,'порция'],
+  ['Пхали из стручковой фасоли',140,5,10,8,100,'порция'],
+  ['Пхали из капусты',130,4,10,7,100,'порция'],
+  ['Лобио с грецким орехом',150,7,7,15,200,'порция'],
+  ['Оджахури из курицы',170,12,10,8,300,'порция'],
+  ['Чебурек с бараниной',280,10,17,23,130,'шт'],
+  ['Чебурек с говядиной',275,11,16,23,130,'шт'],
+  ['Чебурек с курицей',260,11,14,24,130,'шт'],
+  ['Чебурек с картошкой',250,5,13,29,130,'шт'],
+  ['Беляш с курицей',260,11,13,25,120,'шт'],
+  ['Хычин с сыром и картофелем',230,8,9,29,200,'шт'],
+  ['Кыстыбый с картофелем',230,5,9,33,120,'шт'],
+  ['Пирожок с курицей печёный',230,10,8,29,80,'шт'],
+  ['Кутабы с зеленью',180,4.5,7,25,80,'шт'],
+  ['Кутабы с сыром',230,9,10,26,80,'шт'],
+  ['Кутабы с тыквой',170,3.5,6,26,80,'шт'],
+  ['Слойка с вишней',340,5,17,42,80,'шт'],
+  ['Слойка с сыром',360,10,21,33,80,'шт'],
+  ['Слойка с ветчиной и сыром',330,11,19,29,90,'шт'],
+  ['Пельмени с курицей',200,11,8,21,250,'порция'],
+  ['Пельмени из баранины',260,11,14,22,250,'порция'],
+  ['Вареники с мясом',210,10,8,24,250,'порция'],
+  ['Торт «Медовик»',380,5.5,17,52,100,'кусок'],
+  ['Торт «Прага»',370,5,20,42,100,'кусок'],
+  ['Торт «Красный бархат»',370,4.5,20,43,100,'кусок'],
+  ['Торт «Муравейник»',450,5,25,52,100,'кусок'],
+  ['Торт «Киевский»',420,5,21,54,100,'кусок'],
+  ['Торт «Захер»',380,5,21,44,100,'кусок'],
+  ['Торт «Сметанник»',330,5,17,40,100,'кусок'],
+  ['Торт «Птичье молоко»',360,4.5,16,50,100,'кусок'],
+  ['Пирожное «Наполеон»',420,5,25,44,100,'шт'],
+  ['Чизкейк Сан-Себастьян',330,7,26,17,120,'кусок'],
+  ['Тирамису клубничное',260,4.5,16,25,120,'порция'],
+  ['Профитроли',300,6,18,29,15,'шт'],
+  ['Трубочки со сгущёнкой',420,5.5,23,48,40,'шт'],
+  ['Корзиночки с кремом',430,4.5,22,54,50,'шт'],
+  ['Панна котта',230,3,15,21,120,'порция'],
+  ['Мусс шоколадный',300,5,22,22,100,'порция'],
+  ['Пахлава с фисташками',480,7,28,50,50,'кусок'],
+  ['Пахлава шекинская',450,6,22,58,60,'кусок'],
+  ['Гозинаки',520,13,32,47,30,'шт'],
+  ['Пеламуши',120,1,0.5,28,150,'порция'],
+  ['Баурсаки',380,7,18,47,30,'шт'],
+  ['Шельпек',300,7,10,46,80,'шт'],
+  ['Сырники с изюмом',230,15,9,22,60,'шт'],
+  ['Сырники запечённые в духовке',180,17,6,15,60,'шт'],
+  ['Омлет с сыром',200,12,16,2,150,'порция'],
+  ['Омлет с ветчиной',190,13,14,2,150,'порция'],
+  ['Омлет с овощами',120,8,8,4,180,'порция'],
+  ['Омлет с помидорами',130,8.5,9.5,3,150,'порция'],
+  ['Омлет из белков',50,10,0.5,1,150,'порция'],
+  ['Омлет с грибами',140,9,10.5,2.5,150,'порция'],
+  ['Омлет на пару',130,9,9.5,2,150,'порция'],
+  ['Яичница-глазунья с беконом',260,14,22,1,150,'порция'],
+  ['Яичница с колбасой',230,12,19,1.5,150,'порция'],
+  ['Яйца пашот',143,12.6,9.5,0.7,50,'шт'],
+  ['Шакшука',110,6,7,6,250,'порция'],
+  ['Скрэмбл',150,10,11.5,1.5,150,'порция'],
+  ['Драники',210,4,11,24,60,'шт'],
+  ['Блины с творогом',200,10,8,22,80,'шт'],
+  ['Блины со сгущёнкой',280,6,9,44,80,'шт'],
+  ['Бешбармак из конины',200,13,10,14,400,'порция'],
+  ['Бешбармак из баранины',190,12,9.5,14,400,'порция'],
+  ['Бешбармак из говядины',170,13,7,14,400,'порция'],
+  ['Наурыз коже',70,2.5,1.5,11.5,300,'порция'],
+  ['Курт солёный',300,30,10,15,10,'шт'],
+  ['Шужук',450,17,42,0.5,100,'порция'],
+  ['Мошхурда',95,5,3,12,400,'порция'],
+  ['Халим',120,8,4,13,300,'порция'],
+  ['Хасип',230,11,19,4,100,'порция'],
+  ['Чалоп',25,1.5,1,2.5,300,'стакан'],
+  ['Бичак',300,9,16,30,100,'шт'],
+  ['Конфеты Красный Октябрь Белочка',550,7,35,51,15,'шт']
+].map(([name,kcal,p,f,c,pc,pcName,u])=>({name,kcal,p,f,c,pc:pc||undefined,pcName, unit: u==='ml'||LIQUIDS.has(name)?'ml':'g'}));
 const ACTIVITY = [['1.2','Минимальная (сидячая работа)'],['1.375','Лёгкая (1–3 тренировки в неделю)'],['1.55','Средняя (3–5 тренировок)'],['1.725','Высокая (6–7 тренировок)'],['1.9','Очень высокая (спорт + физический труд)']];
 
 const foodDate = () => State.foodDate || dstr(new Date());
@@ -3666,6 +4180,7 @@ async function saveFoodNorm(){
 
 // поиск по брендам: «кока-кола», «спрайт», «сникерс»… находят обычные позиции справочника
 const FOOD_ALIASES = {
+  'Шоколадный батончик Snickers':'сникерс снікерс snickers', 'Шоколадный батончик Snickers Super':'сникерс супер snickers super', 'Шоколадный батончик Snickers Криспер':'сникерс криспер snickers crisper', 'Шоколадный батончик Snickers лесной орех':'сникерс фундук snickers hazelnut', 'Шоколадный батончик Snickers белый':'сникерс белый snickers white', 'Шоколадный батончик Mars':'марс mars', 'Шоколадный батончик Mars Max':'марс макс mars max', 'Шоколадный батончик Twix':'твикс twix', 'Шоколадный батончик Twix Xtra':'твикс экстра twix xtra', 'Шоколадный батончик Bounty':'баунти bounty', 'Шоколадный батончик Bounty Trio':'баунти трио bounty trio', 'Шоколадный батончик Bounty в тёмном шоколаде':'баунти тёмный bounty dark', 'Шоколадный батончик KitKat':'киткат кит кат kitkat kit kat', 'Шоколадный батончик KitKat Chunky':'киткат чанки kitkat chunky', 'Шоколадный батончик Milky Way':'милки вэй милкивей milky way', 'Шоколадный батончик Picnic':'пикник picnic', 'Шоколадный батончик Nuts':'натс nuts nestle', 'Шоколадный батончик Шок':'шок shock nestle', 'Шоколадный батончик Nesquik':'несквик nesquik', 'Шоколадный батончик Kinder Bueno':'киндер буэно kinder bueno', 'Шоколадный батончик Kinder Chocolate':'киндер шоколад kinder chocolate', 'Шоколадный батончик Kinder Country':'киндер кантри kinder country', 'Шоколадный батончик 3 Musketeers':'три мушкетёра 3 musketeers', 'Шоколадный батончик Butterfinger':'баттерфингер butterfinger', 'Шоколадный батончик Almond Joy':'алмонд джой almond joy', 'Шоколадный батончик Baby Ruth':'бэби рут baby ruth', 'Шоколадный батончик Hershey’s':'херши хершис hersheys hershey', 'Шоколадный батончик Hershey’s Cookies’n’Creme':'херши куки крем hersheys cookies', 'Конфеты Hershey’s Kisses':'херши киссес hersheys kisses', 'Конфеты Reese’s Peanut Butter Cups':'рисес риз reeses peanut butter cups', 'Драже Reese’s Pieces':'рисес писес reeses pieces', 'Драже M&M’s с арахисом':'эмэндэмс эмемдемс m&m mms арахис', 'Драже M&M’s шоколадные':'эмэндэмс эмемдемс m&m mms', 'Драже M&M’s Crispy':'эмэндэмс криспи m&m mms crispy', 'Драже Skittles фруктовые':'скитлс skittles', 'Шоколадный батончик Toblerone':'тоблерон toblerone', 'Шоколад Toblerone молочный':'тоблерон toblerone', 'Шоколад Milka молочный':'милка milka', 'Шоколад Milka с цельным фундуком':'милка фундук milka', 'Шоколад Milka Oreo':'милка орео milka oreo', 'Шоколад Milka Bubbles пористый':'милка баблс milka bubbles', 'Шоколад Alpen Gold молочный':'альпен гольд альпенгольд alpen gold', 'Шоколад Alpen Gold с фундуком и изюмом':'альпен гольд alpen gold', 'Шоколад Alpen Gold Oreo':'альпен гольд орео alpen gold oreo', 'Шоколад Alpen Gold тёмный':'альпен гольд тёмный alpen gold dark', 'Шоколад Ritter Sport с цельным лесным орехом':'риттер спорт ritter sport', 'Шоколад Ritter Sport с марципаном':'риттер спорт марципан ritter sport', 'Шоколад Ritter Sport кукурузные хлопья':'риттер спорт ritter sport', 'Шоколад Ritter Sport тёмный 74%':'риттер спорт ritter sport dark', 'Шоколад Аленка молочный':'алёнка аленка alenka', 'Шоколад Россия Щедрая душа молочный':'россия щедрая душа nestle', 'Шоколад Россия Щедрая душа с фундуком':'россия щедрая душа фундук', 'Шоколад Бабаевский тёмный':'бабаевский babaevsky', 'Шоколад Бабаевский элитный 75%':'бабаевский элитный babaevsky', 'Шоколад Бабаевский фирменный с фундуком':'бабаевский фундук babaevsky', 'Шоколад Победа горький 72%':'победа вкуса pobeda', 'Шоколад Коркунов молочный с фундуком':'коркунов korkunov', 'Конфеты Коркунов ассорти':'коркунов korkunov', 'Конфеты Вдохновение Бабаевский':'вдохновение бабаевский', 'Конфеты Рот Фронт Батончики':'рот фронт батончики', 'Конфеты Рот Фронт Коровка':'рот фронт коровка', 'Конфеты Рот Фронт Птичье молоко':'рот фронт птичье молоко', 'Конфеты Красный Октябрь Мишка косолапый':'красный октябрь мишка косолапый', 'Конфеты Красный Октябрь Красная Шапочка':'красный октябрь красная шапочка', 'Конфеты Красный Октябрь Аленка':'красный октябрь алёнка', 'Конфеты Красный Октябрь Маска':'красный октябрь маска', 'Конфеты Ferrero Rocher':'ферреро роше ferrero rocher', 'Конфеты Raffaello':'рафаэлло раффаэлло raffaello', 'Конфеты Merci ассорти':'мерси merci', 'Конфеты Kinder Сюрприз яйцо':'киндер сюрприз kinder surprise', 'Конфеты Toffifee':'тоффифи toffifee', 'Конфеты Lindt Lindor молочные':'линдт линдор lindt lindor', 'Шоколад Lindt Excellence 70%':'линдт lindt excellence', 'Шоколад Lindt Excellence 85%':'линдт lindt excellence', 'Шоколад Cadbury Dairy Milk':'кэдбери cadbury dairy milk', 'Шоколад Nestle Classic молочный':'нестле классик nestle classic', 'Шоколад Fazer молочный':'фазер fazer', 'Шоколад Ghirardelli тёмный 72%':'гирарделли ghirardelli', 'Вафли Hanuta':'ханута hanuta', 'Пирожное Barni молочное':'барни barni', 'Пирожное Barni шоколадное':'барни barni', 'Пирожное Choco Pie Lotte':'чокопай чоко пай лотте choco pie lotte', 'Пирожное Choco Pie Orion':'чокопай чоко пай орион choco pie orion', 'Пирожное Kinder Delice':'киндер делис kinder delice', 'Паста ореховая Nutella':'нутелла nutella', 'Шоколад Рахат Казахстанский молочный':'рахат казахстанский rakhat', 'Шоколад Рахат Алматы горький':'рахат алматы rakhat', 'Конфеты Рахат Птичье молоко':'рахат птичье молоко rakhat', 'Шоколад Баян Сулу молочный':'баян сулу bayan sulu', 'Конфеты Баян Сулу ассорти':'баян сулу bayan sulu', 'Шоколад Barambo молочный':'барамбо barambo', 'Конфеты Roshen Шалена бджілка':'рошен roshen', 'Конфеты Roshen Candy Nut':'рошен кэнди нат roshen', 'Мармелад Haribo Goldbears':'харибо золотые мишки haribo goldbears', 'Мармелад Haribo Happy Cola':'харибо кола haribo', 'Мармелад Haribo Starmix':'харибо стармикс haribo', 'Мармелад Haribo кислый':'харибо кислый haribo sour', 'Драже Skittles кисломикс':'скитлс кислые skittles sour', 'Конфеты жевательные Mentos фруктовые':'ментос mentos', 'Конфеты жевательные Mentos мятные':'ментос мята mentos mint', 'Леденец Chupa Chups':'чупа чупс чупачупс chupa chups', 'Конфеты Bonpari':'бонпари bonpari', 'Конфеты жевательные Fruittella':'фрутелла fruittella', 'Конфеты жевательные Mamba':'мамба mamba', 'Конфеты Tic Tac':'тик так tictac tic tac', 'Леденцы Halls':'холлс halls', 'Конфеты жевательные Starburst':'старбёрст starburst', 'Мармелад Fini':'фини fini', 'Жевательная резинка Orbit без сахара':'орбит жвачка orbit', 'Жевательная резинка Dirol без сахара':'дирол жвачка dirol', 'Жевательная резинка Eclipse':'эклипс жвачка eclipse', 'Жевательная резинка Love is':'лав из жвачка love is', 'Печенье Oreo':'орео oreo', 'Печенье Oreo Golden':'орео голден oreo golden', 'Печенье Юбилейное традиционное':'юбилейное yubileynoe', 'Печенье Юбилейное с глазурью':'юбилейное глазурь', 'Печенье Юбилейное утреннее со злаками':'юбилейное утреннее', 'Печенье Lotus Biscoff':'лотус бискофф lotus biscoff', 'Печенье Chips Ahoy':'чипс ахой chips ahoy', 'Печенье Prince шоколадное':'принц принс prince lu', 'Печенье Belvita утреннее':'бельвита belvita', 'Печенье McVitie’s Digestive':'маквитис дайджестив mcvities digestive', 'Печенье Bahlsen Choco Leibniz':'бальзен лейбниц bahlsen leibniz', 'Печенье Pick Up! с молочным шоколадом':'пик ап pick up bahlsen', 'Печенье Kinder Happy Hippo':'киндер хэппи хиппо kinder', 'Печенье Посиделкино':'посиделкино', 'Печенье Мария':'мария maria', 'Вафли Яшкино с ореховой начинкой':'яшкино yashkino', 'Вафли Loacker Napolitaner':'лоакер loacker', 'Вафли Коломенские':'коломенские', 'Вафли Артек':'артек', 'Пряники Яшкино':'яшкино пряники', 'Чипсы Lay’s с солью':'лейс лэйс лейз lays', 'Чипсы Lay’s сметана и зелень':'лейс лэйс lays сметана зелень', 'Чипсы Lay’s сметана и лук':'лейс лэйс lays sour cream onion', 'Чипсы Lay’s сыр':'лейс лэйс lays сыр', 'Чипсы Lay’s краб':'лейс лэйс lays краб', 'Чипсы Lay’s бекон':'лейс лэйс lays бекон', 'Чипсы Lay’s красная икра':'лейс лэйс lays икра', 'Чипсы Lay’s паприка':'лейс лэйс lays паприка', 'Чипсы Lay’s зелёный лук':'лейс лэйс lays лук', 'Чипсы Lay’s барбекю':'лейс лэйс lays bbq barbecue', 'Чипсы Lay’s Max сыр':'лейс макс lays max', 'Чипсы Lay’s Strong острый перец':'лейс стронг lays strong', 'Чипсы Lay’s из печи':'лейс из печи lays baked', 'Чипсы Pringles Original':'принглс принглз pringles', 'Чипсы Pringles сметана и лук':'принглс принглз pringles sour cream', 'Чипсы Pringles паприка':'принглс принглз pringles paprika', 'Чипсы Pringles сыр':'принглс принглз pringles cheese', 'Чипсы Pringles Hot & Spicy':'принглс острые pringles hot spicy', 'Чипсы Doritos Nacho Cheese':'доритос doritos nacho', 'Чипсы Doritos острый чили':'доритос doritos chili', 'Чипсы Doritos Cool Ranch':'доритос кул рэнч doritos cool ranch', 'Снеки Cheetos Crunchy':'читос читоз cheetos', 'Снеки Читос сыр':'читос читоз cheetos сыр', 'Снеки Читос кетчуп':'читос читоз cheetos кетчуп', 'Снеки Читос пицца':'читос читоз cheetos пицца', 'Чипсы Estrella с солью':'эстрелла estrella', 'Чипсы Estrella сметана и лук':'эстрелла estrella', 'Чипсы Русская картошка сметана и лук':'русская картошка', 'Чипсы Русская картошка сыр':'русская картошка', 'Чипсы Московский картофель с солью':'московский картофель', 'Чипсы Московский картофель сметана и лук':'московский картофель', 'Чипсы Chio паприка':'чио chio', 'Чипсы Lorenz Crunchips паприка':'лоренц кранчипс lorenz crunchips', 'Чипсы Funny Frisch паприка':'фанни фриш funny frisch', 'Чипсы Kettle морская соль':'кеттл kettle', 'Чипсы Ruffles с солью':'раффлс ruffles', 'Чипсы Ruffles сметана и лук':'раффлс ruffles', 'Чипсы Tyrrells морская соль':'тирреллс tyrrells', 'Чипсы Pom-Bär':'помбер pom-bar pombar', 'Чипсы Sun Chips':'сан чипс sunchips', 'Чипсы Tostitos':'тоститос tostitos', 'Чипсы Takis Fuego':'такис фуэго takis fuego', 'Чипсы Хрустящий картофель':'хрустящий картофель', 'Сухарики Кириешки ржаные с беконом':'кириешки kirieshki бекон', 'Сухарики Кириешки холодец с хреном':'кириешки kirieshki холодец', 'Сухарики Кириешки сметана и зелень':'кириешки kirieshki сметана', 'Сухарики Кириешки салями':'кириешки kirieshki салями', 'Сухарики Кириешки краб':'кириешки kirieshki краб', 'Сухарики 3 корочки ржаные с холодцом и хреном':'три корочки 3 корочки', 'Сухарики 3 корочки ржаные с беконом':'три корочки 3 корочки', 'Сухарики 3 корочки чеснок':'три корочки 3 корочки', 'Сухарики Хрусteam багет сыр':'хрустим хрустеам хрусteam', 'Сухарики Хрусteam ржаные бекон':'хрустим хрустеам хрусteam', 'Сухарики Компашка ржаные':'компашка', 'Сухарики Бриешки ржаные':'бриешки', 'Сухарики Емеля ржаные':'емеля', 'Сухарики Flint ржаные с беконом':'флинт flint', 'Сухарики Flint холодец с хреном':'флинт flint', 'Сухарики Воронцовские ржаные':'воронцовские', 'Сухарики Воронцовские пшеничные':'воронцовские', 'Крекер Tuc оригинальный':'тук tuc', 'Крекер Tuc сыр':'тук tuc', 'Крекер Tuc паприка':'тук tuc', 'Крекер Ritz':'ритц ritz', 'Крекер Goldfish':'голдфиш goldfish', 'Крекер Cheez-It':'чиз ит cheez-it cheezit', 'Хлебцы Finn Crisp':'финн крисп финский finn crisp', 'Хлебцы Wasa ржаные':'васа wasa', 'Хлебцы Dr. Körner злаковый коктейль':'доктор кёрнер dr korner', 'Арахис жареный солёный Mr. Nut':'мистер нат mr nut', 'Кешью жареный Mr. Nut':'мистер нат mr nut', 'Фисташки Mr. Nut':'мистер нат mr nut', 'Арахис жареный солёный Семушка':'семушка', 'Фисташки жареные солёные Семушка':'семушка', 'Миндаль жареный Семушка':'семушка', 'Смесь орехов Семушка':'семушка ореховая смесь', 'Кешью Семушка':'семушка', 'Арахис жареный Planters':'плантерс planters', 'Кешью Planters':'плантерс planters cashew', 'Смесь орехов Planters':'плантерс planters mixed nuts', 'Миндаль Blue Diamond копчёный':'блю даймонд blue diamond smokehouse', 'Миндаль Blue Diamond солёный':'блю даймонд blue diamond', 'Фисташки Wonderful жареные солёные':'вандерфул wonderful pistachios', 'Смесь орехов Kirkland':'кёркланд киркленд kirkland', 'Миндаль Kirkland':'кёркланд киркленд kirkland', 'Семечки От Мартина':'от мартина мартин martin', 'Семечки От Мартина солёные':'от мартина мартин martin', 'Семечки тыквенные От Мартина':'от мартина мартин martin', 'Семечки Бабкины':'бабкины babkiny', 'Семечки Бабкины солёные':'бабкины babkiny', 'Кола Coca-Cola':'кока кола кокакола coca-cola coca cola coke', 'Кола Coca-Cola Zero':'кока кола зеро coca-cola zero coke zero', 'Кола Pepsi':'пепси pepsi', 'Кола Pepsi Max':'пепси макс pepsi max', 'Газировка Fanta апельсин':'фанта fanta', 'Газировка Fanta Zero':'фанта зеро fanta zero', 'Газировка Sprite':'спрайт sprite', 'Газировка Sprite Zero':'спрайт зеро sprite zero', 'Газировка 7Up':'севен ап 7up seven up', 'Газировка Mirinda апельсин':'миринда mirinda', 'Газировка Mountain Dew':'маунтин дью mountain dew', 'Газировка Dr Pepper':'доктор пеппер dr pepper', 'Газировка Schweppes Bitter Lemon':'швепс биттер лемон schweppes', 'Газировка Schweppes Тоник':'швепс тоник schweppes tonic', 'Энергетик Red Bull':'ред булл редбул red bull', 'Энергетик Red Bull Sugarfree':'ред булл без сахара red bull sugarfree', 'Энергетик Adrenaline Rush':'адреналин раш adrenaline rush', 'Энергетик Burn':'бёрн берн burn', 'Энергетик Monster Energy':'монстр monster energy', 'Энергетик Monster Ultra':'монстр ультра monster ultra', 'Энергетик Flash Up Energy':'флеш ап flash up', 'Энергетик Gorilla Energy':'горилла gorilla', 'Энергетик Rockstar Energy':'рокстар rockstar', 'Энергетик Tornado Energy':'торнадо tornado', 'Энергетик Lit Energy':'лит энерджи lit energy', 'Холодный чай Nestea лимон':'нести нести nestea', 'Холодный чай Nestea персик':'нести nestea', 'Холодный чай Lipton лимон':'липтон lipton ice tea', 'Холодный чай Lipton персик':'липтон lipton ice tea', 'Холодный чай Lipton зелёный':'липтон lipton green', 'Холодный чай FuseTea лимон':'фьюзти fuse tea fusetea', 'Вода Hydrolife':'гидролайф hydrolife', 'Вода минеральная Chortoq':'чортак чартак chortoq', 'Вода Nestle Pure Life':'нестле пьюр лайф nestle pure life', 'Вода BonAqua':'бонаква bonaqua', 'Вода минеральная Borjomi':'боржоми borjomi', 'Вода минеральная Nabeglavi':'набеглави nabeglavi', 'Вода минеральная Сарыагаш':'сарыагаш saryagash', 'Вода Tassay':'тассай tassay', 'Вода минеральная Ессентуки 17':'ессентуки essentuki', 'Лимонад Лагидзе тархун':'лагидзе lagidze тархун', 'Лимонад Лагидзе сливочный':'лагидзе lagidze крем', 'Лимонад Лагидзе груша':'лагидзе lagidze груша', 'Лимонад Zedazeni тархун':'зедазени zedazeni', 'Лимонад Natakhtari тархун':'натахтари natakhtari', 'Лимонад Natakhtari груша':'натахтари natakhtari', 'Квас Очаково':'очаково ochakovo', 'Квас Никола':'никола nikola', 'Сок J7 апельсиновый':'джей севен j7', 'Сок Rich апельсиновый':'рич rich', 'Сок Добрый яблочный':'добрый dobry', 'Нектар Gracio персиковый':'грацио gracio', 'Том ям с курицей':'том ям tom yum курица', 'Том ям с морепродуктами':'том ям tom yum морепродукты', 'Том ям вегетарианский':'том ям tom yum веган грибы', 'Том ям с кокосовым молоком':'том ям tom yum кокос', 'Том кха с креветками':'том кха tom kha', 'Плов ташкентский':'палов ош ташкентский', 'Плов с бараниной':'палов ош баранина', 'Плов с говядиной':'палов ош говядина', 'Плов чайханский':'палов ош чайхана', 'Плов с перепелиными яйцами':'палов ош', 'Плов с айвой':'палов ош айва', 'Плов андижанский':'палов ош', 'Плов со свининой':'палов свинина', 'Плов с грибами постный':'палов грибы постный', 'Плов из бурого риса с курицей':'палов пп', 'Самса с курицей и сыром':'сомса самса курица сыр', 'Самса с говядиной':'сомса самса говядина', 'Самса с бараниной':'сомса самса баранина', 'Самса слоёная с говядиной':'сомса самса слоёная', 'Самса тандырная с курицей':'сомса самса тандыр', 'Самса тандырная с говядиной':'сомса самса тандыр', 'Самса с сыром':'сомса самса сыр', 'Шаурма со свининой':'шаверма шаурма свинина', 'Шаурма с бараниной':'шаверма шаурма баранина', 'Шаурма в пите':'шаверма шаурма пита', 'Шаурма вегетарианская':'шаверма шаурма овощи', 'Шаурма с курицей и картофелем фри':'шаверма шаурма фри', 'Лагман уйгурский':'лагман уйгурский гуйру', 'Суп-лагман':'лагман суп шурпа', 'Лагман с говядиной':'лагман говядина', 'Лагман с бараниной':'лагман баранина', 'Манты с говядиной':'манты говядина', 'Манты с бараниной':'манты баранина', 'Манты с говядиной и тыквой':'манты тыква', 'Манты с курицей':'манты курица', 'Пицца Дьябло':'пицца дьябло острая', 'Пицца с салями':'пицца салями', 'Пицца с тунцом':'пицца тунец', 'Пицца Карбонара':'пицца карбонара', 'Пицца Цезарь':'пицца цезарь', 'Пицца с беконом':'пицца бекон', 'Пицца Маргарита на тонком тесте':'пицца маргарита тонкое', 'Гамбургер':'гамбургер hamburger', 'Двойной гамбургер':'гамбургер двойной', 'Бургер Биг Мак':'биг мак big mac', 'Бургер Воппер':'воппер whopper burger king', 'Чикенбургер':'чикенбургер чикен бургер chicken', 'Бургер BBQ с говядиной':'бургер барбекю bbq', 'Бургер острый с халапеньо':'бургер халапеньо', 'Бургер с грибами и сыром':'бургер грибы', 'Бургер с бараниной':'бургер баранина', 'Суши с тунцом (нигири)':'суши нигири тунец', 'Суши с угрём (нигири)':'суши нигири угорь унаги', 'Суши с креветкой (нигири)':'суши нигири эби', 'Гункан с икрой лосося':'гункан икра', 'Ролл с тунцом (тэкка маки)':'ролл тунец маки', 'Ролл Футомаки':'ролл футомаки', 'Ролл Аляска':'ролл аляска', 'Ролл Бонито':'ролл бонито', 'Ролл Филадельфия лайт':'ролл филадельфия', 'Ролл Зелёный дракон':'ролл дракон', 'Сашими из лосося':'сашими лосось', 'Сашими из тунца':'сашими тунец', 'Хинкали с бараниной':'хинкали баранина', 'Хинкали с говядиной и свининой':'хинкали по-тбилисски', 'Хинкали с говядиной':'хинкали говядина', 'Хинкали с грибами':'хинкали грибы', 'Хинкали с картофелем':'хинкали картошка', 'Хинкали жареные':'хинкали жареные', 'Хачапури по-имеретински':'хачапури имерули', 'Хачапури по-гурийски':'хачапури гурийский', 'Пеновани хачапури':'пеновани слоёный хачапури', 'Кубдари':'кубдари', 'Лобиани':'лобиани', 'Ачма':'ачма', 'Мчади':'мчади', 'Эларджи':'эларджи', 'Гоми':'гоми', 'Люля-кебаб из баранины':'люля кебаб баранина', 'Люля-кебаб из говядины':'люля кебаб говядина', 'Люля-кебаб из курицы':'люля кебаб курица', 'Шашлык из куриных крыльев':'шашлык крылья', 'Шашлык из куриных бёдер':'шашлык бедро', 'Шашлык из индейки':'шашлык индейка', 'Шашлык из сёмги':'шашлык лосось сёмга', 'Шашлык из осетрины':'шашлык осетрина', 'Шашлык из шампиньонов':'шашлык грибы', 'Шашлык из свиной шеи':'шашлык шея свинина', 'Шашлык из говяжьей вырезки':'шашлык вырезка', 'Борщ с говядиной':'борщ говядина', 'Борщ со свининой':'борщ свинина', 'Борщ с курицей':'борщ курица', 'Борщ зелёный':'зелёный борщ щавель', 'Борщ украинский с пампушками':'борщ пампушки', 'Оливье с курицей':'оливье курица', 'Оливье с колбасой':'оливье колбаса', 'Оливье с говядиной':'оливье говядина', 'Оливье с йогуртом':'оливье пп', 'Салат «Цезарь» с лососем':'цезарь лосось', 'Салат «Цезарь» классический':'цезарь', 'Салат «Столичный»':'столичный', 'Салат «Обжорка»':'обжорка', 'Салат «Нежность»':'нежность', 'Винегрет с сельдью':'винегрет сельдь', 'Шурпа из баранины':'шурпа баранина', 'Шурпа из говядины':'шурпа говядина', 'Шурпа кайнатма':'кайнатма шурпа', 'Мастава с бараниной':'мастава баранина', 'Чучвара в бульоне':'чучвара бульон', 'Чучвара жареная':'чучвара жареная', 'Солянка грибная':'солянка грибы', 'Харчо из баранины':'харчо баранина', 'Харчо из говядины':'харчо говядина', 'Харчо с курицей':'харчо курица', 'Рассольник с курицей':'рассольник курица', 'Рассольник ленинградский':'рассольник перловка', 'Окрошка на тане':'окрошка тан айран', 'Окрошка на минеральной воде':'окрошка минералка', 'Щи из квашеной капусты':'щи кислые', 'Щи из свежей капусты':'щи свежие', 'Уха из лосося':'уха лосось', 'Уха по-фински со сливками':'лохикейто уха сливки', 'Суп-лапша куриная домашняя':'суп лапша куриный', 'Суп с клёцками':'клёцки', 'Рамен с курицей':'рамен курица', 'Рамен со свининой (тонкоцу)':'рамен тонкоцу свинина', 'Рамен мисо':'рамен мисо', 'Чакапули':'чакапули', 'Сациви из индейки':'сациви индейка', 'Гебжалия':'гебжалия', 'Пхали из стручковой фасоли':'пхали фасоль', 'Пхали из капусты':'пхали капуста', 'Лобио с грецким орехом':'лобио орехи', 'Оджахури из курицы':'оджахури курица', 'Чебурек с бараниной':'чебурек баранина', 'Чебурек с говядиной':'чебурек говядина', 'Чебурек с курицей':'чебурек курица', 'Чебурек с картошкой':'чебурек картофель', 'Беляш с курицей':'беляш курица', 'Хычин с сыром и картофелем':'хычин', 'Кыстыбый с картофелем':'кыстыбый', 'Пирожок с курицей печёный':'пирожок курица', 'Кутабы с зеленью':'кутаб зелень', 'Кутабы с сыром':'кутаб сыр', 'Кутабы с тыквой':'кутаб тыква', 'Слойка с вишней':'слойка вишня', 'Слойка с сыром':'слойка сыр', 'Слойка с ветчиной и сыром':'слойка ветчина', 'Пельмени с курицей':'пельмени курица', 'Пельмени из баранины':'пельмени баранина', 'Вареники с мясом':'вареники мясо', 'Торт «Медовик»':'медовик', 'Торт «Прага»':'прага', 'Торт «Красный бархат»':'красный бархат red velvet', 'Торт «Муравейник»':'муравейник', 'Торт «Киевский»':'киевский', 'Торт «Захер»':'захер sacher', 'Торт «Сметанник»':'сметанник', 'Торт «Птичье молоко»':'птичье молоко торт', 'Пирожное «Наполеон»':'наполеон пирожное', 'Чизкейк Сан-Себастьян':'чизкейк баскский', 'Тирамису клубничное':'тирамису клубника', 'Профитроли':'профитроли', 'Трубочки со сгущёнкой':'трубочка сгущёнка', 'Корзиночки с кремом':'корзиночка', 'Панна котта':'панна котта', 'Мусс шоколадный':'мусс', 'Пахлава с фисташками':'пахлава баклава фисташки', 'Пахлава шекинская':'пахлава шекинская', 'Гозинаки':'гозинаки', 'Пеламуши':'пеламуши', 'Баурсаки':'баурсак бауырсак', 'Шельпек':'шельпек', 'Сырники с изюмом':'сырники изюм', 'Сырники запечённые в духовке':'сырники пп', 'Омлет с сыром':'омлет сыр', 'Омлет с ветчиной':'омлет ветчина', 'Омлет с овощами':'омлет овощи', 'Омлет с помидорами':'омлет помидоры', 'Омлет из белков':'белковый омлет', 'Омлет с грибами':'омлет грибы', 'Омлет на пару':'омлет пар', 'Яичница-глазунья с беконом':'глазунья бекон', 'Яичница с колбасой':'яичница колбаса', 'Яйца пашот':'пашот', 'Шакшука':'шакшука', 'Скрэмбл':'скрэмбл scramble', 'Драники':'драники деруны', 'Блины с творогом':'блины творог', 'Блины со сгущёнкой':'блины сгущёнка', 'Бешбармак из конины':'бешбармак конина', 'Бешбармак из баранины':'бешбармак баранина', 'Бешбармак из говядины':'бешбармак говядина', 'Наурыз коже':'наурыз коже', 'Курт солёный':'курт qurt', 'Шужук':'шужук чучук конская колбаса', 'Мошхурда':'мошхурда', 'Халим':'халим', 'Хасип':'хасип', 'Чалоп':'чалоп', 'Бичак':'бичак', 'Конфеты Красный Октябрь Белочка':'красный октябрь белочка',
   'Бургер двойной с соусом и салатом':'биг мак big mac', 'Бургер большой с говядиной и беконом':'биг тейсти big tasty', 'Бургер королевский с сыром':'роял чизбургер воппер whopper', 'Ролл с курицей в лаваше (твистер)':'твистер ростмастер шефбургер', 'Куриные байтсы':'байтсы', 'Баскет куриный (крылья, ножки, стрипсы)':'kfc кфс баскет', 'Крылышки острые в панировке':'кфс острые крылья', 'Куриная ножка в панировке':'ножки кфс', 'Пончик с глазурью':'донат donut', 'Пончик с начинкой':'донат donut', 'Мороженое мягкое с топпингом':'макфлурри санде', 'Батончик с печеньем и карамелью':'твикс twix', 'Батончик кокосовый в шоколаде':'баунти bounty', 'Блин с ветчиной и сыром':'теремок', 'Картофель запечённый с начинкой':'крошка картошка', 'Шоколадный батончик с арахисом':'сникерс snickers', 'Лапша быстрого приготовления':'доширак роллтон биг ланч',
   'Кола':'кока-кола кока кола пепси coca-cola coca cola coke pepsi', 'Кола без сахара':'кока-кола зеро кола зеро пепси макс coca-cola zero coke zero pepsi max',
   'Кола лайт':'кока-кола лайт диет кола diet coke pepsi light', 'Газированный напиток лимон-лайм':'спрайт севен ап 7up sprite 7 up', 'Газировка лимон-лайм без сахара':'спрайт зеро sprite zero 7up zero',
@@ -3911,6 +4426,7 @@ async function saveLinks(){
   State.linkDraft = null; await loadLinks(); toast('Ссылки сохранены'); renderMain();
 }
 let timerInterval=null, timerRunning=false, timerLeft = 90;
+const fmtClock = iso => { const d = new Date(iso); return pad(d.getHours())+':'+pad(d.getMinutes()); };
 function fmtTime(t){ const m=Math.floor(t/60), s=t%60; return pad(m)+':'+pad(s); }
 
 /* ===================== ЛИЧНЫЕ ДАННЫЕ И ВЕС ===================== */
@@ -4006,7 +4522,39 @@ async function saveDetails(){
 const CERT_STATUS = {pending:['на модерации','st-plan'], approved:['подтверждён','st-done'], rejected:['отклонён','st-rej']};
 // фото лежат в закрытом хранилище — показываем по временной ссылке
 const certUrlCache = {};
+// ===== фон у загруженных ачивок: однотонный фон по краям картинки становится прозрачным =====
+function removeBg(cv){
+  const W = cv.width, H = cv.height, ctx = cv.getContext('2d'); let id;
+  try{ id = ctx.getImageData(0, 0, W, H); }catch(e){ return false; }
+  const d = id.data, px = i => [d[i*4], d[i*4+1], d[i*4+2], d[i*4+3]];
+  const edge = []; for(let x=0;x<W;x++){ edge.push(x, (H-1)*W+x); } for(let y=0;y<H;y++){ edge.push(y*W, y*W+W-1); }
+  if(edge.filter(i=>d[i*4+3]<20).length > edge.length*0.5) return false;          // уже прозрачная
+  const q = {}; edge.forEach(i=>{ const [r,g,b] = px(i); const k = (r>>4)+','+(g>>4)+','+(b>>4); q[k] = (q[k]||0)+1; });
+  const top = Object.entries(q).sort((a,b)=>b[1]-a[1])[0]; if(!top || top[1] < edge.length*0.35) return false;   // фон не однотонный
+  const bg = top[0].split(',').map(v=>(+v<<4)+8);
+  const dist = i => Math.max(Math.abs(d[i*4]-bg[0]), Math.abs(d[i*4+1]-bg[1]), Math.abs(d[i*4+2]-bg[2]));
+  const seen = new Uint8Array(W*H), st = edge.filter(i=>dist(i)<40);
+  st.forEach(i=>seen[i]=1);
+  while(st.length){ const i = st.pop(); d[i*4+3] = 0; const x = i%W, y = (i/W)|0;
+    for(const j of [x>0?i-1:-1, x<W-1?i+1:-1, y>0?i-W:-1, y<H-1?i+W:-1]){ if(j<0 || seen[j]) continue; seen[j]=1;
+      const k = dist(j); if(k<40) st.push(j); else if(k<80) d[j*4+3] = Math.min(d[j*4+3], Math.round(255*(k-40)/40)); } }
+  ctx.putImageData(id, 0, 0); return true;
+}
+// уже загруженные ачивки чистим при показе (результат кешируется)
+const cbClean = { cache:{}, busy:{} };
+function hydrateBadges(){
+  document.querySelectorAll('img[data-cb-src]').forEach(img=>{
+    const u = img.dataset.cbSrc; if(cbClean.cache[u]){ if(img.src!==cbClean.cache[u]) img.src = cbClean.cache[u]; return; }
+    if(cbClean.busy[u]) return; cbClean.busy[u] = true;
+    const i = new Image(); i.crossOrigin = 'anonymous';
+    i.onload = ()=>{ try{ const cv = document.createElement('canvas'); cv.width = i.naturalWidth; cv.height = i.naturalHeight; cv.getContext('2d').drawImage(i,0,0);
+      if(removeBg(cv)) cv.toBlob(b=>{ if(!b) return; cbClean.cache[u] = URL.createObjectURL(b); document.querySelectorAll('img[data-cb-src]').forEach(x=>{ if(x.dataset.cbSrc===u) x.src = cbClean.cache[u]; }); }, 'image/png');
+      }catch(e){} };
+    i.src = u;
+  });
+}
 async function hydrateCertImages(){
+  hydrateBadges();
   const imgs = [...document.querySelectorAll('img[data-cert-path]:not([src])')]; if(!imgs.length) return;
   const c = Auth.getClient(); if(!c || !c.storage) return;
   for(const img of imgs){
@@ -4182,7 +4730,7 @@ function badgePicker(key, selected, defTitle, defDesc){
 function certBadgePicker(c){
   return badgePicker(c.id, pickOf(c.id, certBadgeRows(c.id).map(u=>u.badge_id)), c.competition_name, [c.result, c.competition_date?fmtDate(c.competition_date):''].filter(Boolean).join(' · '));
 }
-const badgeThumbs = ids => ids.map(id=>(DB.customBadges||[]).find(b=>b.id===id)).filter(Boolean).map(b=>`<img class="cb-thumb" src="${esc(b.image_url)}" alt="" title="${esc(b.title)}">`).join('');
+const badgeThumbs = ids => ids.map(id=>(DB.customBadges||[]).find(b=>b.id===id)).filter(Boolean).map(b=>`<img class="cb-thumb" data-cb-src="${esc(b.image_url)}" src="${esc(cbClean.cache[b.image_url]||b.image_url)}" alt="" title="${esc(b.title)}">`).join('');
 function adminApprovedCerts(A, nameOf){
   const list = A.approved || []; if(!list.length) return '';
   return `<div class="card" style="margin-bottom:10px"><h3>Подтверждённые сертификаты <span class="muted">${list.length}</span></h3>
@@ -4205,7 +4753,7 @@ function adminPersonalBadges(A){
     ${res.length?`<div class="cb-users">${res.map(p=>`<button class="btn sm ${u&&u.id===p.id?'primary':''}" data-pb-user="${p.id}">${esc(p.name||'Без имени')}${p.telegram_username?' @'+esc(p.telegram_username):''}</button>`).join('')}</div>`:State.pbQ?'<div class="muted" style="margin-top:6px">Никого не нашлось.</div>':''}
     ${u?`<div style="margin-top:10px"><b>${esc(u.name||'')}</b>
       <div class="muted" style="margin:4px 0">Уже выдано: ${mine.length||'нет'}</div>
-      ${mine.map(x=>{ const b=(DB.customBadges||[]).find(y=>y.id===x.badge_id); return b?`<div class="cert-row"><img class="cb-thumb" src="${esc(b.image_url)}" alt=""><div class="grow"><b>${esc(b.title)}</b>${x.note?`<div class="muted">${esc(x.note)}</div>`:''}<div class="muted">${fmtDate(x.created_at.slice(0,10))}</div></div><button class="btn sm danger" data-ub-del="${x.id}">Снять</button></div>`:''; }).join('')}
+      ${mine.map(x=>{ const b=(DB.customBadges||[]).find(y=>y.id===x.badge_id); return b?`<div class="cert-row"><img class="cb-thumb" data-cb-src="${esc(b.image_url)}" src="${esc(cbClean.cache[b.image_url]||b.image_url)}" alt=""><div class="grow"><b>${esc(b.title)}</b>${x.note?`<div class="muted">${esc(x.note)}</div>`:''}<div class="muted">${fmtDate(x.created_at.slice(0,10))}</div></div><button class="btn sm danger" data-ub-del="${x.id}">Снять</button></div>`:''; }).join('')}
       ${badgePicker('personal', pickOf('personal', []), '', '')}
       <div class="field" style="margin-top:6px"><label>За что (необязательно, увидит пользователь)</label><input type="text" id="pbNote" maxlength="300" placeholder="например: за лучший прогресс месяца"></div>
       <button class="btn primary" data-pb-give="1">Выдать выбранные</button></div>`:''}
@@ -4228,7 +4776,7 @@ function adminBadgeLibrary(){
   const used = id => (State.admin.userBadges||[]).filter(u=>u.badge_id===id).length;
   return `<div class="card" style="margin-bottom:10px"><h3>Библиотека ачивок <span class="muted">${list.length}</span></h3>
     <div class="muted" style="margin-bottom:6px">Одну ачивку можно выдавать многим (например, всем участникам турнира). Удаление убирает её у всех.</div>
-    ${list.map(b=>`<div class="cert-row"><img class="cb-thumb" src="${esc(b.image_url)}" alt=""><div class="grow"><b>${esc(b.title)}</b>${b.description?`<div class="muted">${esc(b.description)}</div>`:''}<div class="muted">выдана: ${used(b.id)}</div></div>
+    ${list.map(b=>`<div class="cert-row"><img class="cb-thumb" data-cb-src="${esc(b.image_url)}" src="${esc(cbClean.cache[b.image_url]||b.image_url)}" alt=""><div class="grow"><b>${esc(b.title)}</b>${b.description?`<div class="muted">${esc(b.description)}</div>`:''}<div class="muted">выдана: ${used(b.id)}</div></div>
       <button class="btn sm danger" data-cb-del="${b.id}">Удалить</button></div>`).join('')}</div>`;
 }
 // картинка → до 512 px (PNG, прозрачность сохраняется) → хранилище → запись в библиотеку → сразу выбрана
@@ -4239,6 +4787,7 @@ async function createCustomBadge(key){
     const img = await new Promise((res, rej)=>{ const i = new Image(); i.onload=()=>res(i); i.onerror=rej; i.src = URL.createObjectURL(f); });
     const k = Math.min(1, 512/Math.max(img.width, img.height)), cv = document.createElement('canvas');
     cv.width = Math.round(img.width*k); cv.height = Math.round(img.height*k); cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    removeBg(cv);   // однотонный фон картинки (белый, серый…) делаем прозрачным
     const blob = await new Promise(res=>cv.toBlob(res, 'image/png'));
     const c = Auth.getClient(), path = `${crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2)}.png`;
     const up = await c.storage.from('badges').upload(path, blob, {contentType:'image/png', upsert:false});
@@ -4646,9 +5195,10 @@ function initEvents(){
   document.addEventListener('input', onChangeOrInput);
 }
 
-/* ===================== УПРОЩЁННЫЙ РЕЖИМ ТРЕНИРОВКИ (для новичков, включается в Настройках) =====================
+/* ===================== УПРОЩЁННЫЙ (МИНИМАЛИСТИЧНЫЙ) РЕЖИМ ТРЕНИРОВКИ =====================
    Приложение ведёт по тренировке шаг за шагом: упражнение → подход k из N → «сколько сделали?» → отдых → «Приступаем!».
-   Это только другой интерфейс: подходы пишутся в обычную тренировку (DB.workouts), её можно в любой момент открыть в обычном режиме. */
+   Это только другой интерфейс: подходы пишутся в саму тренировку (DB.workouts); её можно в любой момент открыть в обычном режиме
+   и продолжить с того же места. Работает с программой, шаблоном и любой своей тренировкой (кнопка ▶). */
 const COACH_KEY = 'gd_coach';
 // перевод фразы с подстановками {r}, {w}…: сначала переводим шаблон, потом вставляем значения
 const TT = (k, o) => { let t = (window.I18N && I18N.lang!=='ru' && I18N.t) ? I18N.t(k) : k; for(const x in (o||{})) t = t.split('{'+x+'}').join(o[x]); return t; };
@@ -4660,66 +5210,75 @@ function coach(){
 function saveCoach(){ try{ localStorage.setItem(COACH_KEY, JSON.stringify(DB.coach)); }catch(e){} Storage.saveCoach(DB.coach); }
 const LEVELS = [['beginner','🌱 Новичок','занимаюсь меньше 6 месяцев или только начинаю'],['mid','💪 Есть опыт','тренируюсь от полугода, знаю основные упражнения'],['pro','🏆 Продвинутый атлет','много лет тренировок, сам составляю программу']];
 const FOCUS = [['chest','Грудь'],['back','Спина'],['legs','Ноги и ягодицы'],['shoulders','Плечи'],['arms','Руки']];
-// программы: [упражнение, рабочих подходов, повторений]; focus — какие акцентные группы нагружает день
+// программы: [упражнение, рабочих подходов, повторений]. Стандарт — 8–12 повторений; статика — секунды
 const PROGRAMS = {
   fullbody: {title:'Фулбади — 2 чередующиеся тренировки', days:[
-    {id:'fbA', title:'Фулбади A', focus:['legs','chest','back','shoulders'], ex:[['Присед со штангой',3,'8–10'],['Жим лёжа',3,'8–10'],['Тяга верхнего блока',3,'10–12'],['Жим гантелей сидя',3,'10–12'],['Румынская тяга',3,'10–12'],['Планка',3,'30–45']]},
-    {id:'fbB', title:'Фулбади B', focus:['legs','chest','back','arms'], ex:[['Жим ногами',3,'10–12'],['Жим гантелей на наклонной',3,'8–10'],['Тяга гантели в наклоне',3,'10–12'],['Ягодичный мостик',3,'12–15'],['Подъём штанги на бицепс',2,'10–12'],['Французский жим',2,'10–12'],['Скручивания',3,'15–20']]}]},
+    {id:'fbA', title:'Фулбади A', focus:['legs','chest','back','shoulders'], ex:[['Присед со штангой',3,'8–12'],['Жим лёжа',3,'8–12'],['Тяга верхнего блока',3,'8–12'],['Жим гантелей сидя',3,'8–12'],['Румынская тяга',3,'8–12'],['Планка',3,'30–45']]},
+    {id:'fbB', title:'Фулбади B', focus:['legs','chest','back','arms'], ex:[['Жим ногами',3,'8–12'],['Жим гантелей на наклонной',3,'8–12'],['Тяга гантели в наклоне',3,'8–12'],['Ягодичный мостик',3,'8–12'],['Подъём штанги на бицепс',2,'8–12'],['Французский жим',2,'8–12'],['Скручивания',3,'12–20']]}]},
   split3: {title:'Сплит на 3 дня', days:[
-    {id:'s3push', title:'Грудь, плечи, трицепс', focus:['chest','shoulders','arms'], ex:[['Жим лёжа',3,'8–10'],['Жим гантелей на наклонной',3,'10–12'],['Жим гантелей сидя',3,'10–12'],['Махи гантелями в стороны',3,'12–15'],['Французский жим',3,'10–12']]},
-    {id:'s3pull', title:'Спина и бицепс', focus:['back','arms'], ex:[['Тяга верхнего блока',3,'10–12'],['Тяга штанги в наклоне',3,'8–10'],['Тяга гантели в наклоне',3,'10–12'],['Подъём штанги на бицепс',3,'10–12'],['Молотки',2,'12–15']]},
-    {id:'s3legs', title:'Ноги и пресс', focus:['legs'], ex:[['Присед со штангой',3,'8–10'],['Румынская тяга',3,'10–12'],['Выпады',3,'10–12'],['Сгибание ног',3,'12–15'],['Икры стоя',3,'15–20'],['Скручивания',3,'15–20']]}]},
+    {id:'s3push', title:'Грудь, плечи, трицепс', focus:['chest','shoulders','arms'], ex:[['Жим лёжа',3,'8–12'],['Жим гантелей на наклонной',3,'8–12'],['Жим гантелей сидя',3,'8–12'],['Махи гантелями в стороны',3,'8–12'],['Французский жим',3,'8–12']]},
+    {id:'s3pull', title:'Спина и бицепс', focus:['back','arms'], ex:[['Тяга верхнего блока',3,'8–12'],['Тяга штанги в наклоне',3,'8–12'],['Тяга гантели в наклоне',3,'8–12'],['Подъём штанги на бицепс',3,'8–12'],['Молотки',2,'8–12']]},
+    {id:'s3legs', title:'Ноги и пресс', focus:['legs'], ex:[['Присед со штангой',3,'8–12'],['Румынская тяга',3,'8–12'],['Выпады',3,'8–12'],['Сгибание ног',3,'8–12'],['Икры стоя',3,'12–15'],['Скручивания',3,'12–20']]}]},
   split4: {title:'Сплит на 4 дня', days:[
-    {id:'s4chest', title:'Грудь и трицепс', focus:['chest','arms'], ex:[['Жим лёжа',4,'8–10'],['Жим гантелей на наклонной',3,'10–12'],['Разведение гантелей',3,'12–15'],['Отжимания на брусьях',3,'8–12'],['Французский жим',3,'10–12']]},
-    {id:'s4back', title:'Спина и бицепс', focus:['back','arms'], ex:[['Подтягивания',3,'6–10'],['Тяга штанги в наклоне',3,'8–10'],['Тяга гантели в наклоне',3,'10–12'],['Подъём штанги на бицепс',3,'10–12'],['Молотки',3,'12–15']]},
-    {id:'s4legs', title:'Ноги', focus:['legs'], ex:[['Присед со штангой',4,'8–10'],['Жим ногами',3,'10–12'],['Румынская тяга',3,'10–12'],['Выпады',3,'10–12'],['Икры стоя',4,'15–20']]},
-    {id:'s4sh', title:'Плечи и пресс', focus:['shoulders'], ex:[['Жим штанги стоя',3,'8–10'],['Жим гантелей сидя',3,'10–12'],['Махи гантелями в стороны',3,'12–15'],['Тяга штанги к подбородку',3,'10–12'],['Подъём ног в висе',3,'10–15'],['Планка',3,'30–60']]}]}
+    {id:'s4chest', title:'Грудь и трицепс', focus:['chest','arms'], ex:[['Жим лёжа',4,'8–12'],['Жим гантелей на наклонной',3,'8–12'],['Разведение гантелей',3,'8–12'],['Отжимания на брусьях',3,'8–12'],['Французский жим',3,'8–12']]},
+    {id:'s4back', title:'Спина и бицепс', focus:['back','arms'], ex:[['Подтягивания',3,'6–12'],['Тяга штанги в наклоне',3,'8–12'],['Тяга гантели в наклоне',3,'8–12'],['Подъём штанги на бицепс',3,'8–12'],['Молотки',3,'8–12']]},
+    {id:'s4legs', title:'Ноги', focus:['legs'], ex:[['Присед со штангой',4,'8–12'],['Жим ногами',3,'8–12'],['Румынская тяга',3,'8–12'],['Выпады',3,'8–12'],['Икры стоя',4,'12–15']]},
+    {id:'s4sh', title:'Плечи и пресс', focus:['shoulders'], ex:[['Жим штанги стоя',3,'8–12'],['Жим гантелей сидя',3,'8–12'],['Махи гантелями в стороны',3,'8–12'],['Тяга штанги к подбородку',3,'8–12'],['Подъём ног в висе',3,'10–15'],['Планка',3,'30–60']]}]}
 };
 const progKey = c => !c.program ? null : c.program.type==='split' ? 'split'+(c.program.days||3) : 'fullbody';
-// стартовый вес без истории: доля от веса тела × уровень (новичку — легче, продвинутому — тяжелее)
+// стартовый вес без истории: доля от веса тела × уровень — осторожная оценка для первой (пробной) тренировки
 const START_RATIO = {'Присед со штангой':.5,'Жим лёжа':.4,'Тяга верхнего блока':.4,'Жим гантелей сидя':.1,'Румынская тяга':.45,'Жим ногами':1,'Жим гантелей на наклонной':.1,'Тяга гантели в наклоне':.14,
   'Подъём штанги на бицепс':.2,'Французский жим':.15,'Становая тяга':.6,'Тяга штанги в наклоне':.35,'Махи гантелями в стороны':.05,'Молотки':.1,'Выпады':.1,'Сгибание ног':.25,'Разгибание ног':.3,
   'Икры стоя':.4,'Жим штанги стоя':.3,'Разведение гантелей':.07,'Жим узким хватом':.35,'Шраги':.4,'Тяга гантелей к поясу':.12,'Ягодичный мостик':.4,'Тяга штанги к подбородку':.25};
-const LEVEL_K = {beginner:.8, mid:1.1, pro:1.4};
+const LEVEL_K = {beginner:.7, mid:1, pro:1.3};
 const parseReps = r => { const m = String(r||'').match(/(\d+)\D*(\d+)?/); return m ? [ +m[1], +(m[2]||m[1]) ] : [8,12]; };
-const wStep = name => /гантел|молот|махи/i.test(name||'') ? 1 : 2.5;
+const isDumb = name => /гантел|молот|махи|разведен/i.test(name||'');
+const wStep = name => isDumb(name) ? 1 : 2.5;                 // шаг округления стартового веса
+const microStep = name => isDumb(name) ? 0.5 : 1;             // микропрогрессия: +0,5 кг на гантель, +1 кг на штангу (по 0,5 с каждой стороны)
 const roundTo = (x, st) => Math.max(st, Math.round(x/st)*st);
+const isTimedEx = info => !!info && (info.type==='cardio' || isStaticEx(info.name));
 function exByName(name){
   let e = DB.exercises.find(x=>normName(x.name)===normName(name));
   if(!e){ e = {id:Storage.uid(), name, mainGroup:'other', secondaryGroups:[], type:'strength', ownerId:selfParticipantId()}; DB.exercises.push(e); Storage.save(); }
   return e;
 }
-// последняя тренировка с этим упражнением: рабочие подходы (первый лёгкий — разминочный, не считаем)
-function lastSessionOf(exId, excludeId){
-  const me = selfParticipantId();
+const setDone = s => !!s && (Number(s.reps)>0 || Number(s.time)>0 || Number(s.distance)>0);
+// прошлые тренировки с этим упражнением: рабочие подходы (разминочный — отмечен или заметно легче — не считаем)
+function sessionsOf(exId, excludeId, n){
+  const me = selfParticipantId(), out = [];
   const past = DB.workouts.filter(w=>w.participantId===me && w.id!==excludeId).sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
-  for(const w of past) for(const b of w.blocks||[]) for(const ex of b.exercises||[]){
-    if(ex.exerciseId!==exId) continue;
-    const sets = (ex.sets||[]).filter(s=>Number(s.reps)>0 || Number(s.time)>0);
-    if(!sets.length) continue;
-    const top = Math.max(...sets.map(s=>Number(s.weight)||0));
-    const work = sets.filter((s,i)=>!(i===0 && top>0 && (Number(s.weight)||0) < top*0.8));
-    return {date:w.date, top, work};
-  }
-  return null;
+  for(const w of past){ for(const b of w.blocks||[]) for(const ex of b.exercises||[]){
+      if(ex.exerciseId!==exId) continue;
+      const sets = (ex.sets||[]).filter(setDone); if(!sets.length) continue;
+      const top = Math.max(...sets.map(s=>Number(s.weight)||0));
+      const work = sets.filter((s,i)=>!s.warm && !(i===0 && top>0 && (Number(s.weight)||0) < top*0.8)).filter(s=>(Number(s.weight)||0) >= top-0.01);
+      out.push({date:w.date, top, work}); break; }
+    if(out.length>=n) break; }
+  return out;
 }
-// рекомендация: был выполнен весь диапазон повторов — чуть прибавляем; не добрали — остаёмся на том же весе
-function recommendFor(item){
-  const info = DB.exercises.find(e=>e.id===item.exerciseId) || {};
-  const [lo, hi] = parseReps(item.reps), st = wStep(info.name), bw = isBodyweightEx(info), stat = isStaticEx(info.name);
-  const last = lastSessionOf(item.exerciseId, State.modal && State.modal.w && State.modal.w.id);
-  if(stat) return {weight:0, why:''};
-  if(last && last.top>0){
-    const w = last.work.filter(s=>(Number(s.weight)||0) >= last.top - 0.01);
-    const allHi = w.length && w.every(s=>Number(s.reps) >= hi), fail = w.some(s=>Number(s.reps) < lo);
-    if(allHi) return {weight:last.top + st, why:TT('в прошлый раз ({d}) все повторы с {w} кг — добавляем {s} кг', {d:fmtDateShort(last.date), w:fmtNum(last.top), s:fmtNum(st)})};
-    return {weight:last.top, why: fail ? TT('в прошлый раз ({d}) повторов было меньше цели — остаёмся на {w} кг', {d:fmtDateShort(last.date), w:fmtNum(last.top)}) : TT('как в прошлый раз ({d}): доберите повторы до {r} — потом прибавим вес', {d:fmtDateShort(last.date), r:hi})};
+// подбор веса по «двойной прогрессии»: работаем в 8–12 повторениях; пока не будет 12 во всех рабочих подходах — вес не растёт;
+// 12 во всех подходах две тренировки подряд — микропрогрессия (+0,5 кг гантель / +1 кг штанга)
+function recommendFor(exId, target, excludeId){
+  const info = DB.exercises.find(e=>e.id===exId) || {};
+  const [lo, hi] = parseReps(target), bw = isBodyweightEx(info);
+  if(isTimedEx(info)) return {weight:0, why:''};
+  const S = sessionsOf(exId, excludeId, 2), last = S[0];
+  const full = s => s && s.work.length>=2 && s.work.every(x=>Number(x.reps) >= hi);
+  if(last && (last.top>0 || bw)){
+    const d = fmtDateShort(last.date), wv = fmtNum(last.top), reps = last.work.map(x=>x.reps).join(', ');
+    if(full(last) && full(S[1])) return last.top>0 || !bw
+      ? {weight:last.top + microStep(info.name), up:true, why:TT('Две тренировки подряд по {r} повторений во всех подходах — слегка добавьте вес: +{s} кг (микропрогрессия).', {r:hi, s:fmtNum(microStep(info.name))})}
+      : {weight:0, why:TT('Две тренировки подряд по {r}+ повторений — можно добавить небольшое отягощение.', {r:hi})};
+    if(full(last)) return {weight:last.top, why:TT('В прошлый раз ({d}) — по {r} повторений во всех подходах. Повторите это сегодня — тогда в следующий раз слегка прибавим вес.', {d, r:hi})};
+    if(last.work.some(x=>Number(x.reps) < lo)) return {weight:last.top, why:TT('В прошлый раз ({d}): {p} повт. — меньше {lo}. Вес оставляем, цель — {lo}–{hi} во всех подходах. Совсем тяжело — снизьте на 5–10%.', {d, p:reps, lo, hi})};
+    return {weight:last.top, why:TT('В прошлый раз ({d}): {p} повт. с {w} кг. Вес тот же — добирайте повторения до {hi} во всех подходах.', {d, p:reps, w:wv, hi})};
   }
-  if(bw) return {weight:0, why: last ? TT('в прошлый раз: {r} повт.', {r:last.work.map(s=>s.reps).join(', ')}) : ''};
+  if(bw) return {weight:0, why:trn('Первый раз: сделайте сколько получится в пределах цели — это станет точкой отсчёта.')};
   const r = START_RATIO[info.name];
-  if(!r) return {weight:'', why:trn('подберите вес, с которым сделаете все повторы и останется запас 2–3 повторения')};
-  const body = bodyWeightOn(selfParticipantId(), dstr(new Date())) || 70;
-  return {weight: roundTo(body * r * (LEVEL_K[coach().level]||1), st), why:trn('стартовый вес по вашему весу тела и уровню. Легко — прибавьте, тяжело — снизьте')};
+  if(!r) return {weight:'', why:trn('Первый раз: подберите вес, с которым сделаете 8–12 повторений и останется запас 2–3 повторения.')};
+  const body = bodyWeightOn(selfParticipantId(), dstr(new Date())) || 70, lv = coach().level || 'mid';
+  return {weight: roundTo(body * r * (LEVEL_K[lv]||1), wStep(info.name)), first:true,
+    why:TT('Пробный вес: {p}% от вашего веса тела ({b} кг) с поправкой на уровень. Легко сделать 12 — добавьте, не получается 8 — снизьте.', {p:Math.round(r*(LEVEL_K[lv]||1)*100), b:fmtNum(body)})};
 }
 // какую тренировку программы делать сегодня: по очереди; после долгой паузы (5+ дней) — сначала акцентная группа
 function nextProgramDay(){
@@ -4736,142 +5295,208 @@ function nextProgramDay(){
   }
   return P.days[(titles.indexOf(last.name)+1) % P.days.length];
 }
-function guidedItemsFromDay(day){ return day.ex.map(([name,n,reps])=>({exerciseId:exByName(name).id, n, reps})); }
-function guidedItemsFromTemplate(t){
-  return (t.blocks||[]).flatMap(b=>(b.exercises||[]).map(ex=>{ const s0 = (ex.sets||[])[0]||{}, ph = s0.ph||{};
-    return {exerciseId:ex.exerciseId, n:Math.max(1,(ex.sets||[]).length), reps:String(s0.reps||ph.reps||'8–12')}; }))
-    .filter(it=>{ const i = DB.exercises.find(e=>e.id===it.exerciseId); return i && i.type!=='cardio'; });
-}
-// начать: тренировка сразу создаётся в дневнике (как «не завершена») и дальше заполняется по подходам
-function startGuided(title, items, existing){
+// новая тренировка на сегодня (из программы или шаблона): сразу в дневнике как «не завершена»
+function newGuidedWorkout(name, blocks){
   const now = new Date();
-  const w = existing || {id:Storage.uid(), date:dstr(now), time:pad(now.getHours())+':'+pad(now.getMinutes()), duration:'', name:title, participantId:selfParticipantId(),
-    type:'strength', blocks:[], notes:'', result:'', status:'planned', bodyWeight:''};
-  if(!existing){ DB.workouts.push(w); Storage.save(); }
-  const c = coach(); if(c.openId!==w.id){ c.openId = w.id; saveCoach(); }
-  items.forEach(it=>{ const b = (w.blocks||[]).find(b=>b.exercises[0] && b.exercises[0].exerciseId===it.exerciseId); if(b) it.blockId = b.id; });
-  const first = items.findIndex(it=>!guidedDone(w, it));
-  State.modal = {kind:'guided', w, items, i: first<0 ? items.length : first, phase: existing ? 'set' : 'intro', t0: Date.now(), durBase: existing ? Number(existing.duration)||0 : 0, back:null};
-  if(first<0 && existing) State.modal.phase = 'done';
+  const w = {id:Storage.uid(), date:dstr(now), time:'', duration:'', name, participantId:selfParticipantId(), type:'strength', blocks, notes:'', result:'', status:'planned', bodyWeight:''};
+  DB.workouts.push(w); Storage.save(); return w;
+}
+function programBlocks(day){
+  return day.ex.map(([name,n,reps])=>{ const info = exByName(name), b = blankBlock('normal');
+    const rec = recommendFor(info.id, reps), [lo,hi] = parseReps(reps);
+    const warm = !isBodyweightEx(info) && !isTimedEx(info) && Number(rec.weight) >= 10;
+    const sets = [];
+    if(warm) sets.push({...blankSet(), warm:true, ph:{weight:roundTo(rec.weight*0.5, wStep(info.name)), reps:12}});
+    for(let i=0;i<n;i++) sets.push({...blankSet(), ph: isStaticEx(info.name) ? {time:hi} : {...(rec.weight!==''&&rec.weight>0?{weight:rec.weight}:{}), reps:hi}});
+    b.exercises.push({exerciseId:info.id, isDropset:false, target:reps, sets}); return b; });
+}
+// шаги тренировки: обычный блок — упражнение за упражнением; суперсет/круговая — по кругам
+function gSteps(w){
+  const st = [];
+  (w.blocks||[]).forEach((b,bi)=>{ const exs = b.exercises||[];
+    if(isRoundBlock(b)){ const n = Math.max(0, ...exs.map(e=>(e.sets||[]).length));
+      for(let si=0; si<n; si++) exs.forEach((e,ei)=>{ if(e.sets[si]) st.push({bi, ei, si, round:true, endRound: ei===exs.length-1 || !exs.slice(ei+1).some(x=>x.sets[si])}); }); }
+    else exs.forEach((e,ei)=>(e.sets||[]).forEach((s,si)=>st.push({bi, ei, si}))); });
+  return st;
+}
+const gEx = (w, st) => w.blocks[st.bi].exercises[st.ei];
+const gSet = (w, st) => gEx(w, st).sets[st.si];
+// у упражнений без подходов — 3 пустых (кардио — 1), чтобы было что выполнять
+function gPrepare(w){
+  (w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{ if(!(ex.sets||[]).length){ const info = DB.exercises.find(e=>e.id===ex.exerciseId);
+    ex.sets = Array.from({length: info && info.type==='cardio' ? 1 : 3}, blankSet); } }));
+}
+const gPos = w => gSteps(w).findIndex(st=>!setDone(gSet(w, st)));
+// старт / продолжение: фиксируем время начала (один раз) и открываем шаг, на котором остановились
+function startGuided(w){
+  gPrepare(w);
+  const steps = gSteps(w);
+  if(!steps.length){ toast('Добавьте в тренировку упражнения'); return; }
+  const now = new Date(), fresh = !w.startedAt;
+  if(fresh){ w.startedAt = now.toISOString(); w.time = pad(now.getHours())+':'+pad(now.getMinutes()); if(w.date!==dstr(now) && w.status!=='done') w.date = dstr(now); }
+  guidedSaveW(w);
+  const pos = gPos(w), c = coach();
+  State.modal = {kind:'guided', w, phase: pos<0 ? 'done' : (fresh && !hasFilledSets(w) ? (c.explained ? 'intro' : 'explain') : 'set'), back:null, rec:{}};
   renderModal();
 }
-const guidedBlock = (w, it) => it.blockId && (w.blocks||[]).find(b=>b.id===it.blockId);
-const guidedSetsDone = (w, it) => { const b = guidedBlock(w, it); return b ? b.exercises[0].sets.filter(s=>Number(s.reps)>0||Number(s.time)>0) : []; };
-function guidedPlanOf(it){
-  const info = DB.exercises.find(e=>e.id===it.exerciseId) || {};
-  const rec = it.rec || (it.rec = recommendFor(it));
-  const warm = !isBodyweightEx(info) && !isStaticEx(info.name) && Number(rec.weight) >= 10;
-  return {info, rec, warm, total: it.n + (warm?1:0)};
-}
-const guidedDone = (w, it) => guidedSetsDone(w, it).length >= guidedPlanOf(it).total;
 function guidedSaveW(w){ const i = DB.workouts.findIndex(x=>x.id===w.id); if(i<0) DB.workouts.push(w); else DB.workouts[i] = w; Storage.save(); }
+// идущая (начатая и не завершённая) тренировка — чтобы вернуться к ней из календаря
+function runningWorkout(){
+  const me = selfParticipantId(), lim = Date.now() - 36*3600*1000;
+  return DB.workouts.filter(w=>w.participantId===me && w.startedAt && !w.finishedAt && w.status!=='done' && Date.parse(w.startedAt) > lim)
+    .sort((a,b)=>b.startedAt.localeCompare(a.startedAt))[0] || null;
+}
+// подсказка веса для текущего подхода: уже сделанный рабочий подход → шаблон/план (ph) → рекомендация
+function gTarget(m, st){
+  const w = m.w, ex = gEx(w, st), s = gSet(w, st), info = DB.exercises.find(e=>e.id===ex.exerciseId) || {};
+  const key = st.bi+'.'+st.ei, target = ex.target || (s.ph && s.ph.reps ? String(s.ph.reps) : (isStaticEx(info.name) ? '30–45' : '8–12'));
+  const rec = m.rec[key] || (m.rec[key] = recommendFor(ex.exerciseId, target, w.id));
+  const prevW = ex.sets.slice(0, st.si).filter(x=>setDone(x) && !x.warm && x.weight!=='' && x.weight!=null).map(x=>Number(x.weight)).pop();
+  let weight = s.warm ? (s.ph && s.ph.weight!=null ? s.ph.weight : roundTo((Number(rec.weight)||0)*0.5, wStep(info.name)))
+    : prevW!=null ? prevW : (s.ph && s.ph.weight!=null && s.ph.weight!=='' ? Number(s.ph.weight) : rec.weight);
+  return {info, ex, s, target, rec, weight};
+}
+const exOrder = w => { const seen = []; gSteps(w).forEach(st=>{ const k = st.bi+'.'+st.ei; if(!seen.includes(k)) seen.push(k); }); return seen; };
+const GWHY = () => `<div class="g-explain">
+  <h3>Как приложение подбирает вес</h3>
+  <ol>
+    <li><b>Работаем в диапазоне 8–12 повторений</b> в каждом рабочем подходе — так растут и сила, и мышцы.</li>
+    <li><b>Первая тренировка — пробная.</b> Стартовый вес — доля от вашего веса тела с поправкой на уровень (новичку — легче). Это осторожная оценка: 12 повторений даются легко — добавьте вес, не получается 8 — снизьте.</li>
+    <li><b>Пока во всех рабочих подходах не будет по 12 повторений, вес не увеличиваем</b> — прибавляем повторения.</li>
+    <li><b>12 повторений во всех подходах две тренировки подряд</b> — подскажем слегка увеличить вес: +0,5 кг на гантель или +1 кг на штангу (по 0,5 кг с каждой стороны). Это микропрогрессия — без резких скачков.</li>
+    <li><b>Первый подход в базовых упражнениях — разминочный</b>: половина рабочего веса × 12, без усилия.</li>
+    <li>Веса из прошлых тренировок запоминаются — следующая тренировка начнётся с них.</li>
+  </ol></div>`;
 
 function renderGuided(){
   const m = State.modal, w = m.w, units = DB.settings.units, u = unitLabel(units);
-  const head = `<div class="g-top"><button class="btn sm ghost" data-g="exit">✕ Выйти</button><b class="g-title">${esc(w.name||'Тренировка')}</b><button class="btn sm ghost" data-g="classic" title="Открыть в обычном режиме">Обычный режим</button></div>`;
+  const head = `<div class="g-top"><button class="btn sm ghost" data-gm="exit">✕ Выйти</button><b class="g-title">${esc(w.name||'Тренировка')}</b><button class="btn sm ghost" data-gm="classic" title="Открыть в обычном режиме">Обычный режим</button></div>`;
   let body = '';
-  if(m.phase==='intro'){
+  const steps = gSteps(w), pos = gPos(w), order = exOrder(w);
+  if(m.phase==='explain' || m.sub==='why'){
+    body = `<div class="g-scroll">${GWHY()}</div><button class="btn primary big-finish" data-gm="${m.sub==='why'?'unsub':'explained'}">${m.sub==='why'?'← Назад':'Понятно'}</button>`;
+  } else if(m.phase==='intro'){
     body = `<div class="g-warn">⚠️ <b>Обязательно выполните разминку перед началом тренировки.</b><br>5–10 минут лёгкого кардио (дорожка, велосипед, скакалка) и вращения в суставах: шея, плечи, локти, кисти, таз, колени, голеностоп.</div>
-      <h3>${TT('Упражнений сегодня: {n}', {n:m.items.length})}</h3>
-      <ol class="g-list">${m.items.map(it=>{ const p = guidedPlanOf(it); return `<li><span class="row" style="flex-wrap:nowrap;gap:8px">${exThumb(p.info,34)}<span>${esc(p.info.name||'')}<br><span class="muted">${it.n} × ${esc(it.reps)}${isStaticEx(p.info.name)?' '+trn('сек'):''}${p.warm?' + '+trn('разминочный подход'):''}</span></span></span></li>`; }).join('')}</ol>
-      <button class="btn primary big-finish" data-g="begin">Разминка сделана — начинаем</button>`;
-  } else if(m.phase==='done' || m.i >= m.items.length){
+      <div class="g-scroll"><h3>${TT('Упражнений сегодня: {n}', {n:order.length})}</h3>
+      <ol class="g-list">${order.map(k=>{ const [bi,ei] = k.split('.').map(Number), ex = w.blocks[bi].exercises[ei], info = DB.exercises.find(e=>e.id===ex.exerciseId)||{};
+        const warm = ex.sets.some(s=>s.warm), n = ex.sets.filter(s=>!s.warm).length;
+        return `<li><span class="row" style="flex-wrap:nowrap;gap:8px">${exThumb(info,30)}<span>${esc(info.name||'')}<br><span class="muted">${n} × ${esc(ex.target||'8–12')}${isStaticEx(info.name)?' '+trn('сек'):''}${warm?' + '+trn('разминочный подход'):''}</span></span></span></li>`; }).join('')}</ol></div>
+      <button class="btn primary big-finish" data-gm="begin">Разминка сделана — начинаем</button>`;
+  } else if(m.phase==='done' || pos<0){
     const t = Calc.workoutTonnage(w);
-    body = `<div class="g-big">🎉 Тренировка выполнена!</div>
-      <div class="muted" style="text-align:center;margin-bottom:12px">${TT('Упражнений: {n}', {n:m.items.length})}${t>0?' · '+TT('тоннаж {t}', {t:fmtNum(convW(t,units))+' '+u}):''}</div>
+    body = `<div class="g-scroll"><div class="g-big">🎉 Тренировка выполнена!</div>
+      <div class="muted" style="text-align:center;margin-bottom:12px">${TT('Упражнений: {n}', {n:order.length})}${t>0?' · '+TT('тоннаж {t}', {t:fmtNum(convW(t,units))+' '+u}):''}</div>
       <div class="field"><label>Заметки к тренировке</label><textarea id="gNotes" placeholder="Самочувствие, что было тяжело, что изменить">${esc(w.notes||'')}</textarea></div>
-      <label class="row" style="gap:8px;margin:4px 0 10px"><input type="checkbox" id="gShared" ${w.shared?'checked':''}> 👥 Показать тренировку друзьям</label>
-      <button class="btn finish big-finish" data-g="finish">✅ Завершить тренировку</button>`;
+      <label class="row" style="gap:8px;margin:4px 0 10px"><input type="checkbox" id="gShared" ${w.shared?'checked':''}> 👥 Показать тренировку друзьям</label></div>
+      <button class="btn finish big-finish" data-gm="finish">✅ Завершить тренировку</button>`;
+  } else if(m.phase==='rest'){
+    const st = steps[pos], nx = st && gTarget(m, st), exi = st ? order.indexOf(st.bi+'.'+st.ei) : -1;
+    body = `<div class="g-rest"><div class="muted">Отдых</div><div id="gRestNum" class="g-rest-num">${fmtTime(Rest.left||0)}</div>
+      <div class="row" style="justify-content:center;gap:8px"><button class="btn sm" data-gm="rest-15">−15 сек</button><button class="btn sm" data-gm="rest+15">+15 сек</button></div>
+      ${nx?`<div style="margin-top:14px">${trn('Далее:')} <b>${esc(nx.info.name||'')}</b> — ${TT('подход {k} из {n}', {k:st.si+1, n:nx.ex.sets.length})}${exi>0&&st.si===0?'':''}</div>`:''}</div>
+      <button class="g-skip" data-gm="restskip"><span>⏭</span></button><div class="g-skip-l">Пропустить отдых</div>`;
   } else {
-    const it = m.items[m.i], p = guidedPlanOf(it), info = p.info, done = guidedSetsDone(w, it), k = done.length;
-    const warmNow = p.warm && k===0, bw = isBodyweightEx(info), stat = isStaticEx(info.name);
-    const [lo, hi] = parseReps(it.reps), recW = Number(p.rec.weight)||0;
-    const targetW = warmNow ? roundTo(recW*0.5, wStep(info.name)) : (p.rec.weight===''?'':recW);
-    const rr = lo===hi ? String(lo) : lo+'–'+hi, ww = x => fmtNum(convW(x,units))+' '+u;
-    const task = stat ? TT('Удерживайте положение {r} секунд.', {r:rr})
-      : warmNow ? TT('Разминочный подход: {w} × 12 — легко, без усилия, чтобы подготовить мышцы.', {w:ww(targetW)})
+    const st = steps[pos], T = gTarget(m, st), info = T.info, ex = T.ex, s = T.s, k = order.indexOf(st.bi+'.'+st.ei);
+    const bw = isBodyweightEx(info), stat = isStaticEx(info.name), cardio = info.type==='cardio';
+    const [lo, hi] = parseReps(T.target), rr = lo===hi ? String(lo) : lo+'–'+hi, ww = x => fmtNum(convW(x,units))+' '+u;
+    const recW = Number(T.weight)||0, b = w.blocks[st.bi];
+    const task = cardio ? trn('Выполняйте в комфортном темпе. Нажмите «Начать отсчёт» — по окончании время запишется само.')
+      : stat ? TT('Удерживайте положение {r} секунд. Нажмите «Начать отсчёт» и держите.', {r:rr})
+      : s.warm ? TT('Разминочный подход: {w} × 12 — легко, без усилия, чтобы подготовить мышцы.', {w:ww(recW)})
       : bw ? (recW ? TT('Сделайте {r} повторений с отягощением {w}. Не получается — сколько сможете, это нормально.', {r:rr, w:ww(recW)}) : TT('Сделайте {r} повторений со своим весом. Не получается — сколько сможете, это нормально.', {r:rr}))
-      : (targetW!=='' ? TT('Сделайте {r} повторений с весом {w}. Последние 1–2 повтора должны даваться тяжело.', {r:rr, w:ww(targetW)}) : TT('Сделайте {r} повторений. Последние 1–2 повтора должны даваться тяжело.', {r:rr}));
+      : (T.weight!=='' && recW ? TT('Сделайте {r} повторений с весом {w}. Последние 1–2 повтора должны даваться тяжело.', {r:rr, w:ww(recW)}) : TT('Сделайте {r} повторений. Последние 1–2 повтора должны даваться тяжело.', {r:rr}));
     const fig = exFig(info);
     const extra = m.extra!=null ? m.extra : (bw ? recW>0 : true);
+    const doneSets = ex.sets.filter(setDone);
+    const anyDone = doneSets.length>0;
+    const timed = cardio || stat, sw = m.sw;
     body = `${m.go?`<div class="g-go">Приступаем! 💪</div>`:''}
-      <div class="muted g-step">${TT('Упражнение {k} из {n}', {k:m.i+1, n:m.items.length})}</div>
+      <div class="g-head2"><span class="muted g-step">${TT('Упражнение {k} из {n}', {k:k+1, n:order.length})}${isRoundBlock(b)?' · '+trn(b.kind==='circuit'?'круговая':'суперсет'):''}</span>
+        ${!anyDone && !isRoundBlock(b)?`<button class="btn sm ghost" data-gm="swap">🔁 Заменить</button>`:''}</div>
       <div class="row" style="justify-content:space-between;flex-wrap:nowrap;gap:8px"><h2 class="g-name">${esc(info.name||'')}</h2>${helpBtn(info.name||'')}</div>
-      ${fig?`<img class="g-fig" src="${esc(fig)}" alt="" data-zoom="${esc(fig)}">`:''}
-      ${k===0?`<button class="btn sm" data-g="swap">🔁 Заменить упражнение</button>`:''}
-      <div class="g-set">${TT('Подход {k} из {n}', {k:k+1, n:p.total})}${warmNow?' · <span class="pill">разминочный</span>':''}</div>
+      ${fig?`<div class="g-figbox"><img class="g-fig" src="${esc(fig)}" alt="" data-zoom="${esc(fig)}"></div>`:'<div class="g-figbox g-nofig"></div>'}
+      <div class="g-set">${TT('Подход {k} из {n}', {k:st.si+1, n:ex.sets.length})}${s.warm?' · <span class="pill">разминочный</span>':''}${doneSets.length?` <span class="muted g-done" data-no-tr>✓ ${doneSets.map(x=>x.time&&!x.reps?(cardio?x.time+' '+trn('мин'):x.time+' '+trn('сек')):(Number(x.weight)?fmtNum(convW(x.weight,units))+'×':'')+(x.reps||'')).join(', ')}</span>`:''}</div>
       <div class="g-task">${task}</div>
-      ${p.rec.why && !warmNow?`<div class="muted" style="font-size:12.5px;margin-bottom:8px">💡 ${esc(p.rec.why)}</div>`:''}
-      ${done.length?`<div class="muted" style="margin-bottom:8px"><span>Выполнено:</span> <span data-no-tr>${done.map(s=>stat?`${s.time} сек`:(Number(s.weight)?fmtNum(convW(s.weight,units))+'×':'')+s.reps).join(', ')}</span></div>`:''}
+      ${T.rec.why && !s.warm && !timed?`<div class="g-why">💡 ${esc(T.rec.why)} <a href="#" data-gm="why">Как считается вес?</a></div>`:''}
+      ${timed?`<div class="g-sw"><div id="gSw" class="g-sw-num" data-no-tr>${fmtTime(sw ? Math.floor((Date.now()-sw)/1000) : 0)}</div>
+          <button class="btn ${sw?'danger':'primary'}" data-gm="${sw?'swstop':'swstart'}">${sw?'⏹ Стоп':'▶ Начать отсчёт'}</button></div>`:''}
       <div class="g-form">
-        <label class="sf"><span>${stat?'Сколько секунд удержали?':'Сколько повторений сделали?'}</span><input id="gReps" type="text" inputmode="numeric" placeholder="${stat?lo:(warmNow?12:hi)}"></label>
-        ${bw||stat?`<div class="sf"><span>Использовали дополнительное отягощение?</span><div class="row" style="gap:6px"><button class="btn sm ${extra?'':'primary'}" data-g="noextra">Нет, свой вес</button><button class="btn sm ${extra?'primary':''}" data-g="extra">Да</button></div></div>`:''}
-        ${!(bw||stat) || extra ? `<label class="sf"><span>${bw||stat?'Вес отягощения':'Вес'}, ${u}</span><input id="gWeight" type="text" inputmode="decimal" value="${targetW!==''&&!(bw&&!recW)?fmtNum(convW(targetW,units)):''}"></label>` : `<div class="muted" style="font-size:12.5px">Учтём только ваш вес тела.</div>`}
+        ${cardio?`<label class="sf"><span>Время, мин</span><input id="gReps" type="text" inputmode="decimal" value="${m.swVal!=null?m.swVal:''}" placeholder="${s.ph&&s.ph.time||''}"></label>
+          <label class="sf"><span>Дистанция, км</span><input id="gDist" type="text" inputmode="decimal" placeholder="—"></label>`
+        :`<label class="sf"><span>${stat?'Сколько секунд удержали?':'Сколько повторений сделали?'}</span><input id="gReps" type="text" inputmode="numeric" value="${m.swVal!=null?m.swVal:''}" placeholder="${stat?lo:(s.warm?12:hi)}"></label>
+        ${bw||stat?`<div class="sf"><span>Дополнительное отягощение?</span><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm ${extra?'':'primary'}" data-gm="noextra">Нет</button><button class="btn sm ${extra?'primary':''}" data-gm="extra">Да</button></div></div>`:''}
+        ${!(bw||stat) || extra ? `<label class="sf"><span>${bw||stat?'Вес отягощения':'Вес'}, ${u}</span><input id="gWeight" type="text" inputmode="decimal" value="${T.weight!==''&&!(bw&&!recW)&&recW?fmtNum(convW(recW,units)):''}"></label>` : ''}`}
       </div>
-      <button class="btn primary big-finish" data-g="record">✓ Записать подход</button>
-      ${k>0?`<button class="btn sm ghost" style="margin-top:8px" data-g="skipex">Закончить упражнение</button>`:''}`;
+      <div class="g-actions"><button class="btn primary big-finish" data-gm="record">✓ Записать подход</button>
+      ${anyDone?`<button class="btn sm ghost" data-gm="skipex">Закончить упражнение</button>`:''}</div>`;
     if(m.sub==='swap'){
-      const alts = DB.exercises.filter(e=>e.id!==info.id && e.type!=='cardio' && e.type!=='stretch' && (e.mainGroup===info.mainGroup || (e.secondaryGroups||[]).includes(info.mainGroup)))
-        .sort((a,b)=>(!!exFig(b)-!!exFig(a)) || ((a.ownerId?1:0)-(b.ownerId?1:0)) || a.name.localeCompare(b.name,'ru')).slice(0,16);
+      const alts = DB.exercises.filter(e=>e.id!==info.id && e.type!=='stretch' && (info.type==='cardio' ? e.type==='cardio' : e.type!=='cardio' && (e.mainGroup===info.mainGroup || (e.secondaryGroups||[]).includes(info.mainGroup))))
+        .sort((a,b)=>(!!exFig(b)-!!exFig(a)) || ((a.ownerId?1:0)-(b.ownerId?1:0)) || a.name.localeCompare(b.name,'ru')).slice(0,20);
       body = `<h3>${esc(TT('Заменить «{x}»', {x:trn(info.name)}))}</h3><div class="muted" style="margin-bottom:8px">${esc(TT('Упражнения на ту же группу мышц ({g}):', {g:trn(MG[info.mainGroup]||'')}))}</div>
-        ${alts.map(e=>`<button class="g-alt" data-g="pick" data-id="${e.id}">${exThumb(e,40)}<span>${esc(e.name)}</span></button>`).join('') || '<div class="muted">Замен нет</div>'}
-        <button class="btn" style="margin-top:10px" data-g="unsub">← Назад</button>`;
+        <div class="g-scroll">${alts.map(e=>`<button class="g-alt" data-gm="pick" data-id="${e.id}">${exThumb(e,40)}<span>${esc(e.name)}</span></button>`).join('') || '<div class="muted">Замен нет</div>'}</div>
+        <button class="btn" style="margin-top:10px" data-gm="unsub">← Назад</button>`;
     }
   }
-  if(m.phase==='rest'){
-    const it = m.items[m.i], nx = it ? guidedPlanOf(it) : null;
-    body = `<div class="g-rest"><div class="muted">Отдых</div><div id="gRestNum" class="g-rest-num">${fmtTime(Rest.left||0)}</div>
-      <div class="row" style="justify-content:center;gap:8px"><button class="btn sm" data-g="rest-15">−15 сек</button><button class="btn sm" data-g="rest+15">+15 сек</button></div>
-      ${nx?`<div style="margin-top:14px">${trn('Далее:')} <b>${esc(nx.info.name||'')}</b> — ${TT('подход {k} из {n}', {k:guidedSetsDone(w, it).length+1, n:nx.total})}</div>`:''}
-      <button class="btn primary big-finish" style="margin-top:16px" data-g="restskip">Пропустить отдых</button></div>`;
-  }
-  return `<div class="overlay g-overlay"><div class="modal g-modal" data-stop>${head}${body}</div></div>`;
+  return `<div class="overlay g-overlay"><div class="modal g-modal" data-stop>${head}<div class="g-body">${body}</div></div></div>`;
 }
+let swTimer = null;
+function swTick(){ const m = State.modal, el = document.getElementById('gSw'); if(!m || m.kind!=='guided' || !m.sw || !el){ clearInterval(swTimer); swTimer = null; return; } el.textContent = fmtTime(Math.floor((Date.now()-m.sw)/1000)); }
 function guidedClick(a, el){
   const m = State.modal;
   if(a==='ask'){ openCoachSetup(); return; }
-  if(a==='start'){ const d = el.dataset.day ? PROGRAMS[progKey(coach())].days.find(x=>x.id===el.dataset.day) : nextProgramDay(); if(d) startGuided(d.title, guidedItemsFromDay(d)); return; }
-  if(a==='resume'){ const w = DB.workouts.find(x=>x.id===el.dataset.id); if(!w) return; const d = Object.values(PROGRAMS).flatMap(p=>p.days).find(x=>x.title===w.name);
-    const items = d ? guidedItemsFromDay(d) : (w.blocks||[]).map(b=>({exerciseId:b.exercises[0].exerciseId, n:Math.max(3, b.exercises[0].sets.length), reps:'8–12'}));
-    startGuided(w.name, items, w); return; }
-  if(a==='tpl'){ const t = DB.templates.find(x=>x.id===el.dataset.id); if(!t) return; const items = guidedItemsFromTemplate(t);
-    if(!items.length){ toast('В шаблоне нет силовых упражнений'); return; } startGuided(t.ownerId ? t.name : t.name.split(' · ').slice(2).join(' · ')||t.name, items); return; }
+  if(a==='start'){ const d = el.dataset.day ? PROGRAMS[progKey(coach())].days.find(x=>x.id===el.dataset.day) : nextProgramDay(); if(d) startGuided(newGuidedWorkout(d.title, programBlocks(d))); return; }
+  if(a==='resume'){ const w = DB.workouts.find(x=>x.id===el.dataset.id); if(w) startGuided(w); return; }
+  if(a==='tpl'){ const t = DB.templates.find(x=>x.id===el.dataset.id); if(!t) return;
+    const blocks = templatePlaceholders(t.blocks).map(b=>({...b, id:Storage.uid()}));
+    if(!blocks.some(b=>(b.exercises||[]).length)){ toast('В шаблоне нет упражнений'); return; }
+    State.modal = null; startGuided(newGuidedWorkout(t.ownerId ? t.name : t.name.split(' · ').slice(2).join(' · ')||t.name, blocks)); return; }
+  if(a==='go'){ const mm = State.modal; if(!mm || mm.kind!=='workout') return; const w = mm.w;
+    if(!(w.blocks||[]).some(b=>(b.exercises||[]).length)){ toast('Добавьте в тренировку упражнения'); return; }
+    autosaveWorkout(); if(!DB.workouts.some(x=>x.id===w.id)) DB.workouts.push(w); startGuided(w); return; }
   if(a==='mintoggle'){ const c = coach(); c.minimal = !c.minimal; c.asked = true; saveCoach(); rerender();
     toast(c.minimal ? '🧭 Упрощённый режим включён: в «Календаре» — «Начать тренировку»' : 'Упрощённый режим выключен'); return; }
   if(a==='setlevel'){ const c = coach(); c.level = el.dataset.v; saveCoach(); renderMain(); return; }
   if(a==='pickday'){ State.pickDay = !State.pickDay; renderMain(); return; }
+  if(a==='whyinfo'){ State.modal = {kind:'guidedWhy', back:State.modal}; renderModal(); return; }
   if(!m || m.kind!=='guided') return;
   const w = m.w;
   if(a==='exit'){ closeModal(); return; }
-  if(a==='classic'){ Rest.stop(true); guidedSaveW(w); openWorkoutModal({workoutId:w.id}); return; }
+  if(a==='classic'){ Rest.stop(true); clearInterval(swTimer); guidedSaveW(w); openWorkoutModal({workoutId:w.id}); return; }
+  if(a==='explained'){ const c = coach(); c.explained = true; saveCoach(); m.phase = hasFilledSets(w) ? 'set' : 'intro'; renderModal(); return; }
+  if(a==='why'){ m.sub='why'; renderModal(); return; }
   if(a==='begin'){ m.phase='set'; renderModal(); return; }
   if(a==='swap'){ m.sub='swap'; renderModal(); return; }
   if(a==='unsub'){ m.sub=null; renderModal(); return; }
-  if(a==='pick'){ const it = m.items[m.i]; it.exerciseId = el.dataset.id; it.rec = null; it.blockId = null; m.sub=null; renderModal(); return; }
+  if(a==='pick'){ const st = gSteps(w)[gPos(w)]; if(st){ const ex = gEx(w, st); ex.exerciseId = el.dataset.id; ex.sets.forEach(s=>{ if(!setDone(s) && s.ph) delete s.ph.weight; }); delete m.rec[st.bi+'.'+st.ei]; guidedSaveW(w); } m.sub=null; renderModal(); return; }
   if(a==='extra' || a==='noextra'){ m.extra = a==='extra'; renderModal(); return; }
   if(a==='rest-15' || a==='rest+15'){ Rest.add(a==='rest-15'?-15:15); return; }
   if(a==='restskip'){ Rest.stop(); return; }
-  if(a==='skipex'){ m.i++; m.extra=null; m.go=false; if(m.i>=m.items.length) m.phase='done'; renderModal(); return; }
+  if(a==='swstart'){ m.sw = Date.now(); m.swVal = null; renderModal(); clearInterval(swTimer); swTimer = setInterval(swTick, 500); return; }
+  if(a==='swstop'){ const sec = Math.max(1, Math.round((Date.now()-m.sw)/1000)); clearInterval(swTimer); m.sw = null;
+    const st = gSteps(w)[gPos(w)], info = st && DB.exercises.find(e=>e.id===gEx(w, st).exerciseId);
+    m.swVal = info && info.type==='cardio' ? Math.round(sec/6)/10 : sec; renderModal(); return; }
+  if(a==='skipex'){ const st = gSteps(w)[gPos(w)]; if(st){ const ex = gEx(w, st); ex.sets = ex.sets.filter(setDone); guidedSaveW(w); } m.extra=null; m.go=false; m.swVal=null; renderModal(); return; }
   if(a==='record'){
-    const it = m.items[m.i], p = guidedPlanOf(it), info = p.info, stat = isStaticEx(info.name);
-    const rv = numIn((document.getElementById('gReps')||{}).value||''), wv = (document.getElementById('gWeight')||{}).value;
-    if(!(rv>0)){ toast(stat?'Введите, сколько секунд удержали':'Введите, сколько повторений сделали'); return; }
-    let b = guidedBlock(w, it);
-    if(!b){ b = blankBlock('normal'); b.restSeconds = DB.settings.restDefault||90; b.exercises.push({exerciseId:it.exerciseId, isDropset:false, sets:[]}); w.blocks.push(b); it.blockId = b.id; }
-    const set = blankSet();
-    if(stat) set.time = rv; else set.reps = rv;
-    if(wv!=null && String(wv).trim()!=='') set.weight = toKg(String(wv).trim(), DB.settings.units);
-    b.exercises[0].sets.push(set);
-    if(isBodyweightEx(info) && w.bodyWeight==='' ) { const bwv = bodyWeightOn(selfParticipantId(), w.date); if(bwv) w.bodyWeight = bwv; }
-    w.duration = Math.max(1, Math.round((Date.now()-m.t0)/60000)) + (Number(m.durBase)||0);
+    const steps = gSteps(w), pos = gPos(w), st = steps[pos]; if(!st) return;
+    const T = gTarget(m, st), info = T.info, stat = isStaticEx(info.name), cardio = info.type==='cardio';
+    const rv = numIn((document.getElementById('gReps')||{}).value||''), wv = (document.getElementById('gWeight')||{}).value, dv = (document.getElementById('gDist')||{}).value;
+    if(!(rv>0)){ toast(cardio?'Введите время или запустите отсчёт':stat?'Введите, сколько секунд удержали':'Введите, сколько повторений сделали'); return; }
+    if(m.sw){ clearInterval(swTimer); m.sw = null; }
+    const s = T.s;
+    if(cardio){ s.time = rv; if(dv && String(dv).trim()) s.distance = numIn(dv); }
+    else if(stat) s.time = rv; else s.reps = rv;
+    s.weight = (wv!=null && String(wv).trim()!=='') ? toKg(String(wv).trim(), DB.settings.units) : '';
+    if(isBodyweightEx(info) && (w.bodyWeight==='' || w.bodyWeight==null)){ const bwv = bodyWeightOn(selfParticipantId(), w.date); if(bwv) w.bodyWeight = bwv; }
+    if(w.startedAt) w.duration = Math.max(1, Math.round((Date.now()-Date.parse(w.startedAt))/60000));
     guidedSaveW(w);
-    m.go = false; m.extra = null;
-    const finishedEx = guidedDone(w, it);
-    if(finishedEx) m.i++;
-    if(m.i >= m.items.length){ m.phase='done'; renderModal(); return; }
-    const warmJust = p.warm && guidedSetsDone(w, it).length===1 && !finishedEx;
+    m.go = false; m.extra = null; m.swVal = null;
+    const next = gPos(w);
+    if(next<0){ m.phase='done'; renderModal(); return; }
+    const b = w.blocks[st.bi];
+    if(st.round && !st.endRound){ m.go = true; m.phase='set'; renderModal(); return; }   // суперсет/круг: без отдыха к следующему упражнению
+    const sec = s.warm ? 60 : (Number(b.restSeconds) || DB.settings.restDefault || 90);
     m.phase = 'rest'; renderModal();
-    Rest.start(warmJust ? 60 : (DB.settings.restDefault||90), ()=>{ if(State.modal===m){ m.phase='set'; m.go=true; renderModal(); } });
+    Rest.start(sec, ()=>{ if(State.modal===m){ m.phase='set'; m.go=true; renderModal(); } });
     return;
   }
   if(a==='finish'){
@@ -4879,7 +5504,6 @@ function guidedClick(a, el){
     const sh = document.getElementById('gShared'); if(sh) w.shared = sh.checked;
     if(!hasFilledSets(w)){ toast('Заполните хотя бы один подход'); return; }
     Rest.stop(true); guidedSaveW(w);
-    const c = coach(); if(c.openId===w.id){ c.openId = null; saveCoach(); }
     State.modal = {kind:'workout', w, isNew:false, recurRule:{on:false, freq:'weekly', days:[], until:''}};
     finishWorkout();
     return;
@@ -4891,21 +5515,22 @@ function renderCoachSetup(){
   const m = State.modal, c = m.c;
   let body = '';
   if(m.step==='level') body = `<h2>Какой у вас опыт тренировок?</h2><div class="muted" style="margin-bottom:10px">Подстроим приложение под вас. Изменить можно в Настройках.</div>
-    ${LEVELS.map(([id,t,d])=>`<button class="g-alt" data-g="cs-level" data-v="${id}"><b>${t}</b><span class="muted">${d}</span></button>`).join('')}`;
+    ${LEVELS.map(([id,t,d])=>`<button class="g-alt" data-gm="cs-level" data-v="${id}"><b>${t}</b><span class="muted">${d}</span></button>`).join('')}`;
   else if(m.step==='help') body = `<h2>Нужна помощь с программой?</h2><div class="muted" style="margin-bottom:10px">Составим программу, подскажем веса и проведём по каждой тренировке: упражнение, подходы, отдых.</div>
-    <button class="g-alt" data-g="cs-help" data-v="1"><b>Да, помогите</b><span class="muted">приложение само ведёт тренировку</span></button>
-    <button class="g-alt" data-g="cs-help" data-v="0"><b>Нет, спасибо</b><span class="muted">буду записывать сам(а)</span></button>`;
+    <button class="g-alt" data-gm="cs-help" data-v="1"><b>Да, помогите</b><span class="muted">приложение само ведёт тренировку</span></button>
+    <button class="g-alt" data-gm="cs-help" data-v="0"><b>Нет, спасибо</b><span class="muted">буду записывать сам(а)</span></button>`;
   else if(m.step==='prog') body = `<h2>Выберите программу</h2>
-    <button class="g-alt" data-g="cs-prog" data-v="fullbody"><b>Фулбади</b><span class="muted">всё тело за тренировку, 2 варианта чередуются автоматически. 2–3 раза в неделю — лучший старт</span></button>
-    <button class="g-alt" data-g="cs-prog" data-v="split"><b>Сплит по дням</b><span class="muted">разные группы мышц в разные дни, 3 или 4 тренировки в неделю</span></button>`;
+    <button class="g-alt" data-gm="cs-prog" data-v="fullbody"><b>Фулбади</b><span class="muted">всё тело за тренировку, 2 варианта чередуются автоматически. 2–3 раза в неделю — лучший старт</span></button>
+    <button class="g-alt" data-gm="cs-prog" data-v="split"><b>Сплит по дням</b><span class="muted">разные группы мышц в разные дни, 3 или 4 тренировки в неделю</span></button>`;
   else if(m.step==='split') body = `<h2>Сколько тренировок в неделю?</h2>
-    <div class="row" style="gap:8px;margin-bottom:14px">${[3,4].map(n=>`<button class="btn ${(c.program.days||3)===n?'primary':''}" data-g="cs-days" data-v="${n}">${TT('{n} дня', {n})}</button>`).join('')}</div>
+    <div class="row" style="gap:8px;margin-bottom:14px">${[3,4].map(n=>`<button class="btn ${(c.program.days||3)===n?'primary':''}" data-gm="cs-days" data-v="${n}">${TT('{n} дня', {n})}</button>`).join('')}</div>
     <h3>Акцентные группы мышц <span class="muted" style="font-weight:400">(необязательно)</span></h3>
     <div class="muted" style="margin-bottom:8px">Если сделаете долгий перерыв, начнём с акцентной группы, а потом — остальные по порядку.</div>
-    <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:14px">${FOCUS.map(([id,l])=>`<button class="btn sm ${(c.program.focus||[]).includes(id)?'primary':''}" data-g="cs-focus" data-v="${id}">${l}</button>`).join('')}</div>
-    <button class="btn primary big-finish" data-g="cs-done">Готово</button>`;
-  return `<div class="overlay"><div class="modal" data-stop>${body}<button class="btn sm ghost" style="margin-top:12px" data-g="cs-later">Пропустить</button></div></div>`;
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:14px">${FOCUS.map(([id,l])=>`<button class="btn sm ${(c.program.focus||[]).includes(id)?'primary':''}" data-gm="cs-focus" data-v="${id}">${l}</button>`).join('')}</div>
+    <button class="btn primary big-finish" data-gm="cs-done">Готово</button>`;
+  return `<div class="overlay"><div class="modal" data-stop>${body}<button class="btn sm ghost" style="margin-top:12px" data-gm="cs-later">Пропустить</button></div></div>`;
 }
+function renderGuidedWhy(){ return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:520px">${GWHY()}<button class="btn primary" style="width:100%;margin-top:10px" data-close-modal="1">Понятно</button></div></div>`; }
 function coachSetupClick(a, el){
   const m = State.modal; if(!m || m.kind!=='coachSetup') return; const c = m.c, v = el.dataset.v;
   const finish = ()=>{ c.asked = true; DB.coach = c; saveCoach(); State.modal = null; renderModal(); rerender();
@@ -4918,28 +5543,32 @@ function coachSetupClick(a, el){
   if(a==='cs-focus'){ const f = c.program.focus = c.program.focus||[]; const i = f.indexOf(v); if(i<0) f.push(v); else f.splice(i,1); renderModal(); return; }
   if(a==='cs-done'){ finish(); return; }
 }
-// карточка в «Календаре»: следующая тренировка программы или шаблон
+// «Календарь»: идущая тренировка (продолжить) и карточка упрощённого режима
+function runningCard(){
+  const r = runningWorkout(); if(!r) return '';
+  const st = new Date(r.startedAt), mins = Math.max(0, Math.round((Date.now()-st)/60000));
+  return `<div class="card g-run"><div><b>⏱ ${esc(TT('Идёт тренировка: {x}', {x:trn(r.name||'Тренировка')}))}</b><div class="muted" style="font-size:12.5px">${esc(TT('начата в {t} · {m} мин', {t:pad(st.getHours())+':'+pad(st.getMinutes()), m:mins}))}</div></div>
+    <div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-open-workout="${r.id}">Открыть</button><button class="btn primary" data-gm="resume" data-id="${r.id}">▶ Продолжить</button></div></div>`;
+}
 function guidedCard(){
-  const c = coach(); if(!c.minimal) return '';
-  const me = selfParticipantId(), today = dstr(new Date());
-  const open = c.openId && DB.workouts.find(w=>w.id===c.openId && w.participantId===me && w.date===today && w.status!=='done' && (w.blocks||[]).length);
+  const c = coach(); if(!c.minimal) return runningCard();
+  const me = selfParticipantId(), run = runningWorkout();
   const P = PROGRAMS[progKey(c)], d = P && nextProgramDay();
   const mineT = DB.templates.filter(t=>t.ownerId===me).slice(0,6);
-  return `<div class="card g-card">
+  return `${runningCard()}<div class="card g-card">
     <div class="row" style="justify-content:space-between;align-items:center"><b>🧭 Тренировка с подсказками</b><span class="muted" style="font-size:12px">упрощённый режим</span></div>
-    ${open?`<button class="btn primary big-finish" data-g="resume" data-id="${open.id}">${esc(TT('▶ Продолжить: {x}', {x:trn(open.name)}))}</button>`:''}
     ${d?`<div style="margin:6px 0">Следующая по программе: <b>${esc(d.title)}</b> <span class="muted">· ${TT('упражнений: {n}', {n:d.ex.length})}</span></div>
-      <button class="btn ${open?'':'primary'} big-finish" data-g="start">▶ Начать тренировку</button>
-      <button class="btn sm ghost" data-g="pickday">${State.pickDay?'Скрыть':'Другая тренировка программы'}</button>
-      ${State.pickDay?`<div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px">${P.days.map(x=>`<button class="btn sm" data-g="start" data-day="${x.id}">${esc(x.title)}</button>`).join('')}</div>`:''}`
-    :`<div class="muted" style="margin:6px 0">Программа не выбрана. Выберите программу — приложение подскажет упражнения и веса.</div><button class="btn primary" data-g="ask">Выбрать программу</button>`}
-    ${mineT.length?`<div class="muted" style="margin-top:8px;font-size:12.5px">Или по своему шаблону:</div><div class="row" style="gap:6px;flex-wrap:wrap">${mineT.map(t=>`<button class="btn sm" data-g="tpl" data-id="${t.id}">${esc(t.name)}</button>`).join('')}</div>`:''}
+      <button class="btn ${run?'':'primary'} big-finish" data-gm="start">▶ Начать тренировку</button>
+      <div class="row" style="gap:6px;margin-top:4px"><button class="btn sm ghost" data-gm="pickday">${State.pickDay?'Скрыть':'Другая тренировка программы'}</button><button class="btn sm ghost" data-gm="whyinfo">Как считается вес?</button></div>
+      ${State.pickDay?`<div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px">${P.days.map(x=>`<button class="btn sm" data-gm="start" data-day="${x.id}">${esc(x.title)}</button>`).join('')}</div>`:''}`
+    :`<div class="muted" style="margin:6px 0">Программа не выбрана. Выберите программу — приложение подскажет упражнения и веса.</div><button class="btn primary" data-gm="ask">Выбрать программу</button>`}
+    ${mineT.length?`<div class="muted" style="margin-top:8px;font-size:12.5px">Или по своему шаблону:</div><div class="row" style="gap:6px;flex-wrap:wrap">${mineT.map(t=>`<button class="btn sm" data-gm="tpl" data-id="${t.id}">▶ ${esc(t.name)}</button>`).join('')}</div>`:''}
   </div>`;
 }
 document.addEventListener('click', e=>{
-  const el = e.target.closest('[data-g]'); if(!el) return;
+  const el = e.target.closest('[data-gm]'); if(!el) return;
   e.preventDefault(); e.stopPropagation();
-  const a = el.dataset.g;
+  const a = el.dataset.gm;
   if(a.startsWith('cs-')) coachSetupClick(a, el); else guidedClick(a, el);
 }, true);
 
@@ -4948,12 +5577,46 @@ function coachSettingsCard(){
   return `<div class="card" style="margin-bottom:10px">
     <h3>🧭 Режим тренировки</h3>
     <p class="muted" style="margin-top:0">Упрощённый режим ведёт по тренировке шаг за шагом: упражнение, подход, сколько сделали, отдых. Подходит новичкам, но включить может каждый. Данные сохраняются так же, как в обычном режиме.</p>
-    <button class="btn ${c.minimal?'':'primary'}" data-g="mintoggle">${c.minimal?'Выключить минималистичный режим тренировки':'Включить минималистичный режим тренировки'}</button>
+    <button class="btn ${c.minimal?'':'primary'}" data-gm="mintoggle">${c.minimal?'Выключить минималистичный режим тренировки':'Включить минималистичный режим тренировки'}</button>
+    <p class="muted" style="font-size:12.5px">Любую тренировку или шаблон можно пройти в этом режиме кнопкой ▶ — даже если он выключен.</p>
     <div class="muted" style="margin:10px 0 4px">Уровень</div>
-    <div class="row" style="gap:6px;flex-wrap:wrap">${LEVELS.map(([id,t])=>`<button class="btn sm ${c.level===id?'primary':''}" data-g="setlevel" data-v="${id}">${t}</button>`).join('')}</div>
+    <div class="row" style="gap:6px;flex-wrap:wrap">${LEVELS.map(([id,t])=>`<button class="btn sm ${c.level===id?'primary':''}" data-gm="setlevel" data-v="${id}">${t}</button>`).join('')}</div>
     <div style="margin-top:10px">Программа: <b>${P?esc(P.title):'не выбрана'}</b>${P && c.program.focus && c.program.focus.length?` <span class="muted">· ${esc(TT('акцент: {x}', {x:c.program.focus.map(f=>trn((FOCUS.find(x=>x[0]===f)||[,f])[1])).join(', ')}))}</span>`:''}
-      <button class="btn sm" style="margin-left:6px" data-g="ask">${P?'Изменить':'Выбрать'}</button></div>
+      <button class="btn sm" style="margin-left:6px" data-gm="ask">${P?'Изменить':'Выбрать'}</button></div>
+    <button class="btn sm ghost" style="margin-top:8px" data-gm="whyinfo">Как приложение подбирает вес?</button>
   </div>`;
+}
+
+// ===== советы после тренировки: по упражнениям (8–12), объёму, длительности, тоннажу и уровню =====
+function workoutAdvice(w){
+  const out = [], lv = coach().level || 'mid', me = w.participantId;
+  const exs = (w.blocks||[]).flatMap(b=>(b.exercises||[]).map(ex=>({ex, info:DB.exercises.find(e=>e.id===ex.exerciseId)||{}})));
+  let workSets = 0; const up = [], heavy = [];
+  exs.forEach(({ex, info})=>{ if(isTimedEx(info)) return;
+    const done = (ex.sets||[]).filter(setDone); if(!done.length) return;
+    const top = Math.max(...done.map(s=>Number(s.weight)||0));
+    const work = done.filter((s,i)=>!s.warm && !(i===0 && top>0 && (Number(s.weight)||0) < top*0.8));
+    workSets += work.length;
+    const [lo, hi] = parseReps(ex.target || '8–12');
+    if(work.length>=2 && work.every(s=>Number(s.reps)>=hi)) up.push(info.name);
+    else if(work.some(s=>Number(s.reps) < lo)) heavy.push(info.name); });
+  if(up.length) out.push(TT('Во всех подходах по 12+ повторений: {x}. Если и в следующий раз будет так же — слегка добавьте вес (+0,5–1 кг).', {x:up.slice(0,3).map(trn).join(', ')}));
+  if(heavy.length) out.push(TT('Меньше 8 повторений: {x}. Вес пока тяжеловат — оставьте его и добирайте повторения, при необходимости снизьте на 5–10%.', {x:heavy.slice(0,3).map(trn).join(', ')}));
+  const lim = {beginner:[8,16], mid:[10,22], pro:[12,28]}[lv] || [10,22];
+  if(workSets && workSets < lim[0]) out.push(TT('Рабочих подходов: {n} — для вашего уровня можно добавить 1–2 подхода в основных упражнениях.', {n:workSets}));
+  if(workSets > lim[1]) out.push(TT('Рабочих подходов: {n} — это много для вашего уровня. Следите за восстановлением: сон, питание, без тренировки «через боль».', {n:workSets}));
+  const dur = Number(w.duration)||0;
+  if(dur > 90) out.push(TT('Тренировка длилась {m} мин. Оптимально 45–75 мин: сократите отдых или число упражнений.', {m:dur}));
+  const t = Calc.workoutTonnage(w);
+  const prev = DB.workouts.filter(x=>x.participantId===me && x.id!==w.id && x.status==='done' && x.name===w.name).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4).map(x=>Calc.workoutTonnage(x)).filter(x=>x>0);
+  if(t>0 && prev.length){ const avg = prev.reduce((a,b)=>a+b,0)/prev.length, d = Math.round((t/avg-1)*100);
+    if(d >= 10) out.push(TT('Тоннаж на {p}% выше, чем в прошлые такие тренировки — отличный прогресс! 💪', {p:d}));
+    else if(d <= -15) out.push(TT('Тоннаж на {p}% ниже обычного. Бывает — проверьте сон и питание; если повторится 2–3 раза, сделайте лёгкую неделю.', {p:-d})); }
+  const groups = Object.keys(Calc.muscleBreakdown(w, DB.exercises)).filter(g=>g!=='other').slice(0,4).map(g=>trn(MG[g]||g));
+  if(groups.length) out.push(TT('Следующая тренировка на {g} — не раньше чем через {h} ч: мышцам нужно восстановиться.', {g:groups.join(', '), h: lv==='beginner' ? 72 : 48}));
+  if(lv==='beginner') out.push(trn('Новичку важнее техника, чем вес: если движение «плывёт», снизьте вес. Белок — 1,6–2 г на кг веса в день, сон — 7–9 часов.'));
+  else out.push(trn('Восстановление: белок 1,6–2 г на кг веса в день, вода и сон 7–9 часов.'));
+  return out.slice(0, 6);
 }
 
 /* ===================== INIT ===================== */
