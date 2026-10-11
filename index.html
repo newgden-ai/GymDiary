@@ -580,6 +580,21 @@ body:has(#modalRoot .overlay:not(.g-overlay)) #bottomnav{display:none!important;
 .pe-day input,.pe-day select{background:var(--surface)!important;}
 .pe-day .q-chip{background:var(--surface);}
 .pe-day .q-chip.on{background:var(--accent);}
+html,body{overflow-anchor:none;}
+.sfold{background:var(--surface);border-radius:20px;margin-bottom:10px;overflow:hidden;}
+.sfold>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;min-height:56px;}
+.sfold>summary::-webkit-details-marker{display:none;}
+.sfold>summary b{flex:1;font-size:15px;font-weight:800;}
+.sf-chev{color:var(--text-dim);font-size:22px;transition:transform .2s;}
+.sfold[open] .sf-chev{transform:rotate(90deg);}
+.sfold-b{padding:0 14px 14px;}
+.sfold-b>.card{background:none;padding:0;margin:0!important;box-shadow:none;}
+.sfold-b>.card>h3:first-child{display:none;}
+.sfold-b .set-group{background:var(--surface2);}
+.date-row{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto 14px;}
+.date-row .date-pill{margin:0;}
+.date-back{border:none;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:13px;border-radius:20px;padding:9px 13px;cursor:pointer;}
+#stepsIn{min-width:70px;}
 .fg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
 .fg{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--surface2);border-left:4px solid var(--border)}
 .fg-n{font-size:13px;color:var(--text-dim)}.fg-d{font-size:16px;color:var(--text)}
@@ -2125,6 +2140,14 @@ function renderNav(){
 }
 
 /* ===================== MAIN ROUTER ===================== */
+// после нажатия страница перерисовывается — нажатая кнопка остаётся на том же месте экрана
+let clickAnchor = null;
+document.addEventListener('click', e=>{ const el = e.target.closest('#main button, #main [data-nav], #main [data-day], #main summary, #main label'); if(!el) return;
+  const attrs = [...el.attributes].filter(a=>a.name.startsWith('data-') && a.name!=='data-no-tr').map(a=>`[${a.name}="${CSS.escape(a.value)}"]`).join('');
+  clickAnchor = attrs ? {sel: el.tagName.toLowerCase()+attrs, top: el.getBoundingClientRect().top, t: Date.now()} : null; }, true);
+function keepAnchor(){ const a = clickAnchor; if(!a || Date.now()-a.t > 1500) return;
+  const fix = () => { const n = document.querySelector('#main '+a.sel); if(n){ const d = n.getBoundingClientRect().top - a.top; if(Math.abs(d) > 1) window.scrollBy(0, d); } };
+  fix(); requestAnimationFrame(fix); setTimeout(fix, 120); }
 function renderMain(){
   const m = document.getElementById('main');
   // та же страница перерисовывается — остаёмся на месте прокрутки; перешли в другой раздел — наверх
@@ -2132,7 +2155,7 @@ function renderMain(){
   renderMain.lastKey = key;
   // горизонтальные полосы (категории ачивок) не прыгают к началу при перерисовке
   const hx = same ? [...m.querySelectorAll('.ach-chips')].map(el=>el.scrollLeft) : [];
-  requestAnimationFrame(()=>{ window.scrollTo(0, same ? y : 0);
+  requestAnimationFrame(()=>{ window.scrollTo(0, same ? y : 0); if(same) keepAnchor();
     m.querySelectorAll('.ach-chips').forEach((el,i)=>{ if(hx[i]) el.scrollLeft = hx[i];
       const on = el.querySelector('.on'); if(on && (on.offsetLeft < el.scrollLeft || on.offsetLeft+on.offsetWidth > el.scrollLeft+el.clientWidth)) el.scrollLeft = on.offsetLeft - 8; }); });
   if(State.view==='calendar'){ m.innerHTML = viewCalendar(); fitCalTitle(); if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitCalTitle); }
@@ -3559,7 +3582,7 @@ function activityCard(pid, list, period){
     <div class="row act-legend"><span><i style="background:var(--work,var(--accent2))"></i>Тоннаж</span><span><i style="background:var(--accent)"></i>Шаги</span>${avg?`<span class="muted" style="margin-left:auto"><span>в среднем</span> <b data-no-tr>${fmtNum(avg)}</b> <span>шагов в день</span></span>`:''}</div>
     ${me ? `<div class="steps-in ${trainedToday?'':'steps-ask'}">${trainedToday?'':`<div style="font-weight:700;margin-bottom:6px">Сегодня без тренировки — сколько шагов вы прошли?</div>`}
       <div class="row" style="gap:6px;flex-wrap:nowrap"><select id="stepsDay" style="flex:none">${[0,1,2].map(i=>{ const d = dstr(new Date(today.getFullYear(),today.getMonth(),today.getDate()-i)); return `<option value="${d}">${i===0?'Сегодня':i===1?'Вчера':fmtDateShort(d)}</option>`; }).join('')}</select>
-        <input id="stepsIn" type="text" inputmode="numeric" placeholder="${todayAct&&todayAct.steps?todayAct.steps:'например 8000'}" style="flex:1;min-width:0">
+        <input id="stepsIn" type="text" inputmode="numeric" placeholder="${todayAct&&todayAct.steps?todayAct.steps:'8000'}" aria-label="${trn('шагов')}" style="flex:1;min-width:72px;text-align:center">
         <button class="btn primary" data-steps-save="1">Записать</button></div></div>` : ''}
   </div>`;
 }
@@ -5676,7 +5699,7 @@ function viewFood(){
     const mini = (ds, dir) => { const e = sumFood(foodRows(ds)).kcal, k = n ? Math.min(1, e/Math.max(n.kcal,1)) : 0, C = 2*Math.PI*26, d = parseD(ds);
       return `<button class="kmini" data-food="${dir}"><svg viewBox="0 0 64 64" width="58" height="58"><circle cx="32" cy="32" r="26" stroke="var(--surface2)" stroke-width="7" fill="none"/><circle cx="32" cy="32" r="26" stroke="${n&&e>n.kcal*1.05?'var(--danger)':'var(--accent)'}" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-k)).toFixed(1)}" transform="rotate(-90 32 32)" opacity=".75"/></svg><span>${d.toLocaleDateString(I18N.locale,{weekday:'short'})} ${d.getDate()}</span></button>`; };
     return `<div class="kcar">${mini(pv,'prev')}<div class="kcar-c"></div>${date<today?mini(nx,'next'):'<span class="kmini ph"></span>'}</div>`; })().replace('<div class="kcar-c"></div>', `<div class="kcar-c">${n ? kcalRing(s.kcal, n.kcal, true) : `<div class="kring kring-empty"><div class="kring-c"><b>${fmtNum(Math.round(s.kcal))}</b><span>ккал</span></div></div>`}</div>`)}
-  <div class="date-pill"><button data-food="prev">‹</button><b>${label}</b><button data-food="next" ${date>=today?'disabled':''}>›</button></div>
+  <div class="date-row"><div class="date-pill"><button data-food="prev">‹</button><b>${label}</b><button data-food="next" ${date>=today?'disabled':''}>›</button></div>${date<today?`<button class="date-back" data-food="today" title="${trn('Вернуться к сегодняшнему дню')}">↺ ${trn('Сегодня')}</button>`:''}</div>
   <div class="card food-sum" style="margin-bottom:10px">
     ${n ? `<div class="muted" style="text-align:center;margin:0 0 12px"><span>Съедено</span> <b data-no-tr>${fmtNum(Math.round(s.kcal))} / ${fmtNum(n.kcal)}</b> <span>ккал</span></div>
       <div class="food-macros">${macro('Белки', s.p, n.p)}${macro('Жиры', s.f, n.f)}${macro('Углеводы', s.c, n.c)}</div>`
@@ -5843,6 +5866,7 @@ async function saveFoodEntry(){
 
 function foodClick(ds){
   const a = ds.food, m = State.modal;
+  if(a==='today'){ State.foodDate = dstr(new Date()); renderMain(); return; }
   if(a==='prev' || a==='next'){ const d = parseD(foodDate()); d.setDate(d.getDate() + (a==='next'?1:-1)); if(dstr(d)<=dstr(new Date())) State.foodDate = dstr(d); renderMain(); return; }
   if(a==='details'){ State.view='participants'; State.participantProfile=selfParticipantId(); rerender(); return; }
   if(a==='saveNorm') return saveFoodNorm();
@@ -6016,21 +6040,21 @@ function viewSettings(){
       ${isAdmin()?setRow('shield','Админ-панель','сертификаты, ачивки, ссылки, коды подписки','data-open-admin="1"'):''}
     </div>`;
 }
+// раздел настроек, свёрнутый по умолчанию; раскрытие запоминается
+function sfold(key, icon, title, html){ const open = (State.fold||{})['s_'+key];
+  return `<details class="sfold" data-fold="s_${key}" ${open?'open':''}><summary><span class="sr-ic">${ICON(icon)}</span><b>${title}</b><span class="sf-chev">›</span></summary><div class="sfold-b">${html}</div></details>`; }
 function settingsPage(pg){
   const s = DB.settings;
   if(pg==='look'){ const o = uiOpt();
-    return `<div class="card st-card"><div class="row" style="justify-content:space-between"><b>Цветовая палитра</b><button class="lnk" data-set-page="themes">${trn('все')} ›</button></div>${paletteStrip()}</div>
-    <div class="card st-card"><b>Шрифт</b><div class="q-row wrap">${UI_FONTS.map(([v,l])=>`<button class="q-chip ${o.font===v?'on':''}" data-q-font="${v}" style="font-family:'${v}'">${l}</button>`).join('')}</div>
-      <div class="muted" style="margin-top:12px">${trn('Размер текста')}</div><div class="q-row wrap" style="margin-top:6px">${UI_SIZES.map(([v,l],i)=>`<button class="q-chip ${o.size===v?'on':''}" data-q-size="${v}"><span style="font-size:${12+i*3}px">A</span> ${l}</button>`).join('')}</div></div>
-    <div class="card st-card"><b>Отметка дней</b><div class="q-row wrap">${DAY_MARKS.map(([v,l],i)=>`<button class="q-chip ${o.mark===v?'on':''}" data-q-mark="${v}">${['●','≋','╱'][i]} ${l}</button>`).join('')}</div></div>
-    <div class="set-group">
+    return sfold('pal','palette','Цветовая палитра', `<div class="row" style="justify-content:flex-end"><button class="lnk" data-set-page="themes">${trn('все')} ›</button></div>${paletteStrip()}`) + sfold('font','font','Шрифт и размер текста', `<div><div class="q-row wrap">${UI_FONTS.map(([v,l])=>`<button class="q-chip ${o.font===v?'on':''}" data-q-font="${v}" style="font-family:'${v}'">${l}</button>`).join('')}</div>
+      <div class="muted" style="margin-top:12px">${trn('Размер текста')}</div><div class="q-row wrap" style="margin-top:6px">${UI_SIZES.map(([v,l],i)=>`<button class="q-chip ${o.size===v?'on':''}" data-q-size="${v}"><span style="font-size:${12+i*3}px">A</span> ${l}</button>`).join('')}</div></div>`) + sfold('mark','mark','Отметка дней', `<div class="q-row wrap" style="margin-top:0">${DAY_MARKS.map(([v,l],i)=>`<button class="q-chip ${o.mark===v?'on':''}" data-q-mark="${v}">${['●','≋','╱'][i]} ${l}</button>`).join('')}</div>`) + sfold('lang','globe','Тема, язык и единицы', `<div class="set-group">
       ${(PRESET_THEMES.find(t=>t.id===s.themeColor)||{}).forceDark?'':`<label class="set-row-i"><span class="sr-ic">${ICON('moon')}</span><span class="sr-t"><b>Тема</b></span><select data-setting="theme"><option value="auto" ${s.theme==='auto'?'selected':''}>Системная</option><option value="light" ${s.theme==='light'?'selected':''}>Светлая</option><option value="dark" ${s.theme==='dark'?'selected':''}>Тёмная</option></select></label>`}
       <label class="set-row-i"><span class="sr-ic">${ICON('globe')}</span><span class="sr-t"><b>Язык</b></span>${I18N.select()}</label>
       <label class="set-row-i"><span class="sr-ic">${ICON('kettlebell')}</span><span class="sr-t"><b>Единицы веса</b></span><select data-setting="units"><option value="kg" ${s.units==='kg'?'selected':''}>Килограммы</option><option value="lb" ${s.units==='lb'?'selected':''}>Фунты</option></select></label>
-    </div>`; }
-  if(pg==='coach') return coachSettingsCard() + programsCard() + `<div class="card" style="margin-bottom:10px"><div class="field" style="margin:0"><label>Отдых между подходами по умолчанию, сек</label><input type="text" inputmode="numeric" data-setting="restDefault" value="${s.restDefault}"></div>
-    <div class="field" style="margin:10px 0 0"><label>Норма шагов в день (для календаря)</label><input type="text" inputmode="numeric" data-coach-steps="1" value="${stepsGoal()}"></div></div>`;
-  if(pg==='exercises') return `<div class="card ex-list" id="exList" style="margin-bottom:10px">
+    </div>`); }
+  if(pg==='coach') return sfold('mode','coach','Режим тренировки', coachSettingsCard()) + sfold('progs','stats','Свои программы', programsCard()) + sfold('rest','stopwatch','Отдых и шаги',  `<div class="card" style="margin-bottom:10px"><div class="field" style="margin:0"><label>Отдых между подходами по умолчанию, сек</label><input type="text" inputmode="numeric" data-setting="restDefault" value="${s.restDefault}"></div>
+    <div class="field" style="margin:10px 0 0"><label>Норма шагов в день (для календаря)</label><input type="text" inputmode="numeric" data-coach-steps="1" value="${stepsGoal()}"></div></div>`);
+  if(pg==='exercises') return sfold('exlist','dumbbell', TT('Список упражнений ({n})', {n:DB.exercises.length}), `<div class="card ex-list" id="exList" style="margin-bottom:10px">
     ${isAdmin() ? DB.exercises.map(e=>`<div class="ex-admin">
       <input type="text" data-ex-edit="${e.id}.name" value="${esc(e.name)}">
       <select data-ex-edit="${e.id}.mainGroup">${MUSCLE_GROUPS.map(([id,l])=>`<option value="${id}" ${e.mainGroup===id?'selected':''}>${l}</option>`).join('')}</select>
@@ -6041,9 +6065,9 @@ function settingsPage(pg){
     <table><thead><tr><th>Название</th><th>Группа</th><th>Тип</th><th>Свой вес</th></tr></thead><tbody>
     ${DB.exercises.map(e=>`<tr><td><span class="row" style="flex-wrap:nowrap">${exThumb(e,30)}${esc(e.name)}</span></td><td>${MG[e.mainGroup]||''}</td><td>${WT[e.type]||e.type}</td><td>${e.ownerId===selfParticipantId()?`<input type="checkbox" data-ex-edit="${e.id}.bodyweight" ${isBodyweightEx(e)?'checked':''}>`:(isBodyweightEx(e)?'✓':'')}</td></tr>`).join('')}
     </tbody></table>`}
-  </div>`;
+  </div>`);
   if(pg==='themes') return `<div class="card" style="margin-bottom:10px">
-      ${[['lw','Light Weight','графит, вишнёвый и цвет на выбор'],['','Классика','мягкие природные тона'],['luxe','Обсидиан','люкс: стекло, золото, градиентный фон'],['carbon','Карбон','спорт-премиум: неон, срезанные углы']].map(([d,dn,dd])=>`<details class="theme-group" data-theme-group="${d||'classic'}" ${(State.themeOpen||{})[d||'classic']!==undefined ? ((State.themeOpen||{})[d||'classic']?'open':'') : (d==='lw'?'open':'')}><summary style="margin:10px 0 6px;cursor:pointer"><b>${dn}</b> <span class="muted">— ${dd}</span></summary>
+      ${[['lw','Light Weight','графит, вишнёвый и цвет на выбор'],['','Классика','мягкие природные тона'],['luxe','Обсидиан','люкс: стекло, золото, градиентный фон'],['carbon','Карбон','спорт-премиум: неон, срезанные углы']].map(([d,dn,dd])=>`<details class="theme-group" data-theme-group="${d||'classic'}" ${(State.themeOpen||{})[d||'classic']?'open':''}><summary style="margin:10px 0 6px;cursor:pointer"><b>${dn}</b> <span class="muted">— ${dd}</span></summary>
       <div class="theme-grid">${PRESET_THEMES.filter(t=>(t.design||'')===d).map(t=>`<button class="theme-opt ${s.themeColor===t.id?'on':''}" data-pick-theme="${t.id}">
         ${(()=>{ const v = t.design ? t.D : t.L; return `<span class="theme-prev" style="background:${v.art?v.art+',':''}${v.bg}"><i style="background:${t.design?'linear-gradient(120deg,'+t.dark+','+t.accent2+')':t.accent}"></i><i style="background:${t.accent2}"></i><b style="background:${v.surface}"></b></span>`; })()}${esc(t.name)}<span class="muted" style="font-size:11px">${t.kind}</span></button>`).join('')}</div></details>`).join('')}
   </div>`;
@@ -7019,6 +7043,7 @@ function coach(){
   return DB.coach;
 }
 function saveCoach(){ try{ localStorage.setItem(COACH_KEY, JSON.stringify(DB.coach)); }catch(e){} Storage.saveCoach(DB.coach); }
+const LEVEL_IC = {beginner:'leaf', mid:'dumbbell', pro:'trophy'};
 const LEVELS = [['beginner','🌱 Новичок','занимаюсь меньше 6 месяцев или только начинаю'],['mid','💪 Есть опыт','тренируюсь от полугода, знаю основные упражнения'],['pro','🏆 Продвинутый атлет','много лет тренировок, сам составляю программу']];
 const FOCUS = [['chest','Грудь'],['back','Спина'],['legs','Ноги и ягодицы'],['shoulders','Плечи'],['arms','Руки']];
 // программы: [упражнение, рабочих подходов, повторений]. Стандарт — 8–12 повторений; статика — секунды
@@ -7370,7 +7395,7 @@ function renderCoachSetup(){
   const m = State.modal, c = m.c;
   let body = '';
   if(m.step==='level') body = `<h2>Какой у вас опыт тренировок?</h2><div class="muted" style="margin-bottom:10px">Подстроим приложение под вас. Изменить можно в Настройках.</div>
-    ${LEVELS.map(([id,t,d])=>`<button class="g-alt" data-gm="cs-level" data-v="${id}"><b>${t}</b><span class="muted">${d}</span></button>`).join('')}`;
+    ${LEVELS.map(([id,t,d])=>`<button class="g-alt" data-gm="cs-level" data-v="${id}"><b>${ICON(LEVEL_IC[id],'h3i')} ${t.replace(/^\S+\s/,'')}</b><span class="muted">${d}</span></button>`).join('')}`;
   else if(m.step==='help') body = `<h2>Нужна помощь с программой?</h2><div class="muted" style="margin-bottom:10px">Составим программу, подскажем веса и проведём по каждой тренировке: упражнение, подходы, отдых.</div>
     <button class="g-alt" data-gm="cs-help" data-v="1"><b>Да, помогите</b><span class="muted">приложение само ведёт тренировку</span></button>
     <button class="g-alt" data-gm="cs-help" data-v="0"><b>Нет, спасибо</b><span class="muted">буду записывать сам(а)</span></button>`;
@@ -7420,10 +7445,10 @@ function coachSettingsCard(){
   return `<div class="card" style="margin-bottom:10px">
     <h3>${ICON('coach','h3i')} Режим тренировки</h3>
     <p class="muted" style="margin-top:0">Упрощённый режим ведёт по тренировке шаг за шагом: упражнение, подход, сколько сделали, отдых. Подходит новичкам, но включить может каждый. Данные сохраняются так же, как в обычном режиме.</p>
-    <button class="btn ${c.minimal?'':'primary'}" data-gm="mintoggle">${c.minimal?'Выключить минималистичный режим тренировки':'Включить минималистичный режим тренировки'}</button>
+    <button class="btn ${c.minimal?'':'primary'}" data-gm="mintoggle" style="white-space:normal;height:auto;line-height:1.25;padding:10px 14px">${c.minimal?'Выключить минималистичный режим тренировки':'Включить минималистичный режим тренировки'}</button>
     <p class="muted" style="font-size:12.5px">Любую тренировку или шаблон можно пройти в этом режиме кнопкой ▶ — даже если он выключен.</p>
     <div class="muted" style="margin:10px 0 4px">Уровень</div>
-    <div class="row" style="gap:6px;flex-wrap:wrap">${LEVELS.map(([id,t])=>`<button class="btn sm ${c.level===id?'primary':''}" data-gm="setlevel" data-v="${id}">${t}</button>`).join('')}</div>
+    <div class="row" style="gap:6px;flex-wrap:wrap">${LEVELS.map(([id,t])=>`<button class="btn sm ${c.level===id?'primary':''}" data-gm="setlevel" data-v="${id}">${ICON(LEVEL_IC[id],'h3i'+(c.level===id?' flat':''))} ${t.replace(/^\S+\s/,'')}</button>`).join('')}</div>
     <div style="margin-top:10px">Программа: <b>${P?esc(P.title):'не выбрана'}</b>${P && c.program.focus && c.program.focus.length?` <span class="muted">· ${esc(TT('акцент: {x}', {x:c.program.focus.map(f=>trn((FOCUS.find(x=>x[0]===f)||[,f])[1])).join(', ')}))}</span>`:''}
       <button class="btn sm" style="margin-left:6px" data-gm="ask">${P?'Изменить':'Выбрать'}</button></div>
     <button class="btn sm ghost" style="margin-top:8px" data-gm="whyinfo">Как приложение подбирает вес?</button>
