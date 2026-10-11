@@ -7664,7 +7664,7 @@ function renderOnboarding(){
       <div>${ICON('food')}<span><b>${trn('Питание')}</b>${trn('«+» у приёма пищи — поиск продукта и граммы. Кольцо показывает, сколько осталось.')}</span></div>
       <div>${ICON('profile')}<span><b>${trn('Профиль')}</b>${trn('Прогресс, друзья и тренер, настройки и подписка.')}</span></div></div>`;
   else body = `${art('trophy')}<h1>${trn('Всё готово!')}</h1>
-    <p class="onb-p">${trn('Приложение в тестировании. Нашли ошибку или есть идея — напишите боту, мы читаем всё.')}</p>
+    <p class="onb-p">${trn('Приложение в тестировании. Нашли ошибку или есть идея — напишите в группе. Ссылка есть в «Поддержать автора» (Профиль → Настройки).')}</p>
     <p class="onb-p">${trn('Дальше выберем уровень подготовки и программу — это займёт минуту.')}</p>`;
   return `<div class="overlay g-overlay onb"><div class="modal g-modal onb-modal" data-stop>${dots}<div class="onb-body">${body}</div>
     <div class="onb-foot">${m.i>0?`<button class="btn ghost" data-onb="back">${trn('Назад')}</button>`:''}<button class="btn primary onb-next" data-onb="${last?'finish':'next'}">${trn(last?'Начать':'Далее')}</button></div>
