@@ -594,6 +594,40 @@ html,body{overflow-anchor:none;}
 .date-row .date-pill{margin:0;}
 .date-back{border:none;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:13px;border-radius:20px;padding:9px 13px;cursor:pointer;}
 #stepsIn{min-width:70px;}
+/* первый вход */
+.onb-modal{display:flex;flex-direction:column;}
+.onb-dots{display:flex;justify-content:center;gap:6px;padding:8px 0 4px;}
+.onb-dots i{width:7px;height:7px;border-radius:4px;background:var(--surface2);transition:width .2s;}
+.onb-dots i.on{width:26px;background:var(--accent);}
+.onb-body{flex:1;min-height:0;overflow:auto;padding:16px 6px 10px;}
+.onb-art{display:flex;justify-content:center;margin:18px 0 22px;}
+.onb-art .mi{width:120px;height:120px;}
+.onb-body h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:0 0 10px;color:var(--text);line-height:1.15;}
+.onb-p{color:var(--text-dim);font-size:15.5px;line-height:1.5;margin:0 0 8px;}
+.onb-list{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:12px;}
+.onb-list li{position:relative;padding-left:28px;font-size:15.5px;line-height:1.4;color:var(--text);}
+.onb-list li::before{content:'✓';position:absolute;left:2px;top:0;color:var(--work,var(--accent));font-weight:800;}
+.onb-row{margin-top:10px;}
+.onb-marks{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.onb-mark{display:flex;align-items:center;justify-content:space-between;gap:10px;border:none;background:var(--surface2);border-radius:16px;padding:10px 12px;cursor:pointer;color:var(--text);text-align:left;}
+.onb-mark.on{box-shadow:inset 0 0 0 2px var(--accent);}
+.onb-mark b{font-size:13px;}
+.onb-days{display:flex;gap:4px;}
+.onb-d{position:relative;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;}
+.onb-d.mk .mk-svg{position:absolute;inset:-2px;width:36px;height:36px;overflow:visible;}
+.onb-d.mk i{position:relative;font-style:normal;color:var(--text);text-shadow:0 1px 3px rgba(0,0,0,.6);}
+.onb-w{display:flex;align-items:baseline;gap:8px;margin:18px 0 8px;}
+.onb-w input{width:140px;font-size:34px!important;font-weight:800;text-align:center;background:var(--surface2)!important;border:none!important;border-radius:18px!important;padding:12px!important;color:var(--text);}
+.onb-w span{font-size:18px;color:var(--text-dim);font-weight:700;}
+.onb-how{display:flex;flex-direction:column;gap:14px;}
+.onb-how>div{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);border-radius:18px;padding:12px 14px;}
+.onb-how .mi{width:28px;height:28px;flex:none;margin-top:2px;}
+.onb-how span{display:flex;flex-direction:column;gap:3px;font-size:13.5px;color:var(--text-dim);line-height:1.4;}
+.onb-how b{color:var(--text);font-size:15px;}
+.onb-foot{display:flex;align-items:center;gap:10px;padding:10px 0 4px;}
+.onb-foot .btn.ghost{flex:none;}
+.onb-next{flex:1;height:56px;border-radius:18px!important;font-size:17px!important;justify-content:center;}
+.onb-skip{border:none;background:none;color:var(--accent);font-weight:700;font-size:14px;padding:10px;cursor:pointer;align-self:center;}
 .fg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
 .fg{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--surface2);border-left:4px solid var(--border)}
 .fg-n{font-size:13px;color:var(--text-dim)}.fg-d{font-size:16px;color:var(--text)}
@@ -2488,6 +2522,7 @@ function renderModalInner(root){
   else if(State.modal.kind==='achInfo') root.innerHTML = renderAchInfoModal();
   else if(State.modal.kind==='guided') root.innerHTML = renderGuided();
   else if(State.modal.kind==='coachSetup') root.innerHTML = renderCoachSetup();
+  else if(State.modal.kind==='onboard') root.innerHTML = renderOnboarding();
   else if(State.modal.kind==='guidedWhy') root.innerHTML = renderGuidedWhy();
   else if(State.modal.kind==='links') root.innerHTML = renderLinksModal();
 }
@@ -7590,6 +7625,74 @@ document.addEventListener('change', e=>{ const el = e.target.closest('#modalRoot
   if(k==='base'){ const d = m.days[+i], nd = el.value ? dayFromBase(el.value) : null; if(nd){ const keepTitle = d.title && d.title !== (d.base && (dayFromBase(d.base)||{}).title); m.days[+i] = {...nd, title: keepTitle ? d.title : nd.title}; } renderModalKeep(); }
 }, true);
 
+/* ===================== ПЕРВЫЙ ВХОД: короткое знакомство и настройки ===================== */
+// Шаги: приветствие → язык и единицы → шрифт, размер, отметка дней → вес (если не указан в боте) → как пользоваться → готово
+function onbSteps(){ const me = selfParticipantId(), hasW = bodyWeightOn(me, dstr(new Date())) > 0 || Number(((DB.details||[]).find(d=>d.user_id===me)||{}).weight_kg) > 0;
+  return ['welcome','lang','look'].concat(hasW ? [] : ['weight'], ['howto','done']); }
+function openOnboarding(){ State.modal = {kind:'onboard', i:0, steps:onbSteps(), back:null}; renderModal(); }
+function onbDays(mark){ const days = [['w',8],['s',9],['n',10],['sel',11],['',12]];
+  return `<div class="onb-days">${days.map(([k,n])=>{ const ds = '2026-10-'+String(n).padStart(2,'0');
+    const cols = k==='w' ? ['var(--work,var(--accent))'] : k==='s' ? ['var(--work,var(--accent))'] : k==='n' ? ['var(--cherry,#650E15)'] : [];
+    if(mark==='circle'){ const bg = k==='w' ? 'var(--work,var(--accent))' : k==='s' ? 'color-mix(in srgb,var(--work,var(--accent)) 22%,transparent)' : k==='n' ? 'var(--cherry,#650E15)' : k==='sel' ? 'var(--accent)' : 'transparent';
+      return `<span class="onb-d" style="background:${bg};color:${k==='w'?'#0E1A12':k==='n'?'#000':k==='sel'?'var(--on-accent)':k==='s'?'var(--work)':'var(--text)'}">${n}</span>`; }
+    return `<span class="onb-d mk">${markSvg(ds, cols, mark, k==='s'?.4:1, k==='sel'?'var(--accent)':'')}<i>${n}</i></span>`; }).join('')}</div>`; }
+function renderOnboarding(){
+  const m = State.modal, st = m.steps[m.i], o = uiOpt(), s = DB.settings, last = m.i===m.steps.length-1;
+  const dots = `<div class="onb-dots">${m.steps.map((_,k)=>`<i class="${k===m.i?'on':''}"></i>`).join('')}</div>`;
+  const art = n => `<div class="onb-art">${ICON(n)}</div>`;
+  let body = '';
+  if(st==='welcome') body = `${art('dumbbell')}<h1>${trn('Добро пожаловать!')}</h1>
+    <p class="onb-p">${trn('Light Weight — дневник тренировок и питания в Telegram.')}</p>
+    <ul class="onb-list"><li>${trn('Календарь тренировок: свои, друзей и подопечных')}</li><li>${trn('Запись подходов в пару нажатий и подбор весов')}</li><li>${trn('Калории и БЖУ — база из 3500 продуктов')}</li><li>${trn('Прогресс, рекорды и ачивки')}</li></ul>`;
+  else if(st==='lang') body = `${art('globe')}<h1>${trn('Язык и единицы')}</h1>
+    <div class="q-row wrap onb-row">${(I18N.LANGS||[]).map(([c,l])=>`<button class="q-chip ${I18N.lang===c?'on':''}" data-onb-lang="${c}" data-no-tr>${esc(l)}</button>`).join('')}</div>
+    <p class="onb-p" style="margin-top:18px">${trn('Вес на снарядах')}</p>
+    <div class="q-row onb-row"><button class="q-chip ${s.units==='kg'?'on':''}" data-onb-units="kg">${trn('Килограммы')}</button><button class="q-chip ${s.units==='lb'?'on':''}" data-onb-units="lb">${trn('Фунты')}</button></div>`;
+  else if(st==='look') body = `${art('font')}<h1>${trn('Как вам удобнее читать?')}</h1>
+    <div class="q-row wrap onb-row">${UI_FONTS.map(([v,l])=>`<button class="q-chip ${o.font===v?'on':''}" data-onb-font="${v}" style="font-family:'${v}'">${l}</button>`).join('')}</div>
+    <div class="q-row wrap onb-row">${UI_SIZES.map(([v,l],i)=>`<button class="q-chip ${o.size===v?'on':''}" data-onb-size="${v}"><span style="font-size:${12+i*3}px">A</span> ${trn(l)}</button>`).join('')}</div>
+    <p class="onb-p" style="margin-top:18px">${trn('Как отмечать дни в календаре')}</p>
+    <div class="onb-marks">${DAY_MARKS.map(([v,l])=>`<button class="onb-mark ${o.mark===v?'on':''}" data-onb-mark="${v}">${onbDays(v)}<b>${trn(l)}</b></button>`).join('')}</div>`;
+  else if(st==='weight') body = `${art('kettlebell')}<h1>${trn('Ваш вес')}</h1>
+    <p class="onb-p">${trn('Нужен для подсказки рабочих весов, тоннажа упражнений со своим весом и нормы калорий.')}</p>
+    <div class="onb-w"><input type="text" inputmode="decimal" id="onbWeight" placeholder="70" value="${m.weight||''}"><span>${trn('кг')}</span></div>
+    <p class="muted" style="font-size:12.5px">${trn('Можно пропустить и указать позже в профиле.')}</p>`;
+  else if(st==='howto') body = `${art('book')}<h1>${trn('Как пользоваться')}</h1>
+    <div class="onb-how">
+      <div>${ICON('calendar')}<span><b>${trn('Календарь')}</b>${trn('Нажмите на день — там его тренировки, «+ тренировку» и ▶ для старта.')}</span></div>
+      <div>${ICON('dumbbell')}<span><b>${trn('Подходы')}</b>${trn('−/+ меняют вес и повторы, нажатие на число — ввод с клавиатуры, ✓ закрывает подход и запускает отдых.')}</span></div>
+      <div>${ICON('food')}<span><b>${trn('Питание')}</b>${trn('«+» у приёма пищи — поиск продукта и граммы. Кольцо показывает, сколько осталось.')}</span></div>
+      <div>${ICON('profile')}<span><b>${trn('Профиль')}</b>${trn('Прогресс, друзья и тренер, настройки и подписка.')}</span></div></div>`;
+  else body = `${art('trophy')}<h1>${trn('Всё готово!')}</h1>
+    <p class="onb-p">${trn('Приложение в тестировании. Нашли ошибку или есть идея — напишите боту, мы читаем всё.')}</p>
+    <p class="onb-p">${trn('Дальше выберем уровень подготовки и программу — это займёт минуту.')}</p>`;
+  return `<div class="overlay g-overlay onb"><div class="modal g-modal onb-modal" data-stop>${dots}<div class="onb-body">${body}</div>
+    <div class="onb-foot">${m.i>0?`<button class="btn ghost" data-onb="back">${trn('Назад')}</button>`:''}<button class="btn primary onb-next" data-onb="${last?'finish':'next'}">${trn(last?'Начать':'Далее')}</button></div>
+    ${m.i===0?`<button class="onb-skip" data-onb="skip">${trn('Пропустить')}</button>`:''}</div></div>`;
+}
+async function onbSaveWeight(){ const el = document.getElementById('onbWeight'); if(!el) return true;
+  const v = parseFloat(String(el.value).replace(',','.')); State.modal.weight = el.value; if(!el.value.trim()) return true;
+  if(!(v>=25 && v<=300)){ toast(trn('Вес: от 25 до 300 кг')); return false; }
+  const uid = selfParticipantId(), c = Auth.getClient(), kg = Math.round(v*10)/10;
+  try{ const old = (DB.details||[]).find(x=>x.user_id===uid);
+    await c.from('profile_details').upsert({...(old||{}), user_id:uid, weight_kg:kg});
+    DB.details = (DB.details||[]).filter(x=>x.user_id!==uid).concat([{...(old||{user_id:uid}), weight_kg:kg}]);
+    const wrow = {user_id:uid, date:dstr(new Date()), weight_kg:kg}; await c.from('body_weights').upsert(wrow, {onConflict:'user_id,date'});
+    DB.weights = (DB.weights||[]).filter(x=>!(x.user_id===uid && x.date===wrow.date)).concat([wrow]); }catch(e){}
+  return true; }
+function onbFinish(){ const c = coach(); c.onboarded = true; saveCoach(); State.modal = null; renderModal(); rerender(); if(!c.asked) setTimeout(()=>{ if(!State.modal) openCoachSetup(); }, 400); }
+document.addEventListener('click', async e=>{
+  const el = e.target.closest('#modalRoot [data-onb],#modalRoot [data-onb-lang],#modalRoot [data-onb-units],#modalRoot [data-onb-font],#modalRoot [data-onb-size],#modalRoot [data-onb-mark]'); if(!el) return;
+  const m = State.modal; if(!m || m.kind!=='onboard') return; e.preventDefault(); e.stopPropagation(); const ds = el.dataset, c = coach();
+  if(ds.onbLang){ I18N.set(ds.onbLang); return; }
+  if(ds.onbUnits){ DB.settings.units = ds.onbUnits; Storage.save(); renderModal(); return; }
+  if(ds.onbFont || ds.onbSize || ds.onbMark){ if(ds.onbFont) c.font = ds.onbFont; if(ds.onbSize) c.textSize = ds.onbSize; if(ds.onbMark) c.dayMark = ds.onbMark; saveCoach(); applyUi(); renderModal(); return; }
+  const a = ds.onb;
+  if(a==='skip' || a==='finish'){ if(m.steps[m.i]==='weight' && !(await onbSaveWeight())) return; onbFinish(); return; }
+  if(a==='back'){ m.i = Math.max(0, m.i-1); renderModal(); return; }
+  if(a==='next'){ if(m.steps[m.i]==='weight' && !(await onbSaveWeight())) return; m.i = Math.min(m.steps.length-1, m.i+1); renderModal(); return; }
+}, true);
+
 // ===== советы после тренировки: по упражнениям (8–12), объёму, длительности, тоннажу и уровню =====
 function workoutAdvice(w){
   const out = [], lv = coach().level || 'mid', me = w.participantId;
@@ -7644,7 +7747,9 @@ function workoutAdvice(w){
   window.addEventListener('pagehide', ()=>Storage.flush());
   rerender();
   loadLinks();
-  if(!coach().asked) setTimeout(()=>{ if(!State.modal) openCoachSetup(); }, 1600);
+  // первый вход: знакомство с приложением и настройки, затем выбор уровня и программы
+  if(!coach().onboarded && !coach().asked) setTimeout(()=>{ if(!State.modal) openOnboarding(); }, 900);
+  else if(!coach().asked) setTimeout(()=>{ if(!State.modal) openCoachSetup(); }, 1600);
   // заранее и в фоне считаем свои ачивки, чтобы «Статистика» открывалась мгновенно
   const idle = window.requestIdleCallback || (fn=>setTimeout(fn, 1500));
   idle(()=>{ try{ const me = selfParticipantId(); achievementsCard(DB.workouts.filter(w=>w.participantId===me), me); }catch(e){} });
