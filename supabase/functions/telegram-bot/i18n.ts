@@ -345,7 +345,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "Light Weight Тренер": "Light Weight Тренер",
   "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Програми та спрощений режим, підбір ваг, детальний прогрес, рекомендації, звіти бота і власні БЖВ.",
   "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Усе з Pro + тренерський режим: підопічні, їхні тренування та харчування, редагування щоденника і сповіщення.",
-  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Дякуємо! Підписка «{plan}» активна до {date}. Усе вже відкрито в застосунку."
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Дякуємо! Підписка «{plan}» активна до {date}. Усе вже відкрито в застосунку.",
+  "{n} мес.": "{n} міс."
  },
  "en": {
   " ({d}% к прошлому периоду)": " ({d}% vs. the previous period)",
@@ -679,7 +680,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "Light Weight Тренер": "Light Weight Coach",
   "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Programs and guided mode, weight suggestions, detailed progress, tips, bot reports and custom macros.",
   "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Everything in Pro + coach mode: clients, their workouts and nutrition, diary editing and notifications.",
-  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Thank you! Your “{plan}” subscription is active until {date}. Everything is already unlocked in the app."
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Thank you! Your “{plan}” subscription is active until {date}. Everything is already unlocked in the app.",
+  "{n} мес.": "{n} mo"
  },
  "fr": {
   " ({d}% к прошлому периоду)": " ({d} % par rapport à la période précédente)",
@@ -1013,7 +1015,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "Light Weight Тренер": "Light Weight Coach",
   "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Programmes et mode guidé, charges conseillées, progrès détaillé, conseils, rapports du bot et macros perso.",
   "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Tout de Pro + mode coach : élèves, leurs séances et nutrition, modification du journal et notifications.",
-  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Merci ! L’abonnement « {plan} » est actif jusqu’au {date}. Tout est déjà débloqué dans l’app."
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Merci ! L’abonnement « {plan} » est actif jusqu’au {date}. Tout est déjà débloqué dans l’app.",
+  "{n} мес.": "{n} mois"
  },
  "es": {
   " ({d}% к прошлому периоду)": " ({d}% respecto al periodo anterior)",
@@ -1347,7 +1350,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "Light Weight Тренер": "Light Weight Entrenador",
   "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Programas y modo guiado, pesos sugeridos, progreso detallado, consejos, informes del bot y macros propios.",
   "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Todo lo de Pro + modo entrenador: alumnos, sus entrenos y nutrición, edición del diario y avisos.",
-  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ ¡Gracias! La suscripción «{plan}» está activa hasta el {date}. Todo ya está disponible en la app."
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ ¡Gracias! La suscripción «{plan}» está activa hasta el {date}. Todo ya está disponible en la app.",
+  "{n} мес.": "{n} meses"
  },
  "it": {
   " ({d}% к прошлому периоду)": " ({d}% rispetto al periodo precedente)",
@@ -1681,7 +1685,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "Light Weight Тренер": "Light Weight Coach",
   "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Programmi e modalità guidata, pesi consigliati, progressi dettagliati, consigli, report del bot e macro personali.",
   "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Tutto di Pro + modalità coach: allievi, loro allenamenti e alimentazione, modifica del diario e notifiche.",
-  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Grazie! L’abbonamento «{plan}» è attivo fino al {date}. Tutto è già sbloccato nell’app."
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Grazie! L’abbonamento «{plan}» è attivo fino al {date}. Tutto è già sbloccato nell’app.",
+  "{n} мес.": "{n} mesi"
  },
  "uz": {
   " ({d}% к прошлому периоду)": " (oldingi davrga nisbatan {d}%)",
@@ -2015,7 +2020,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "Light Weight Тренер": "Light Weight Murabbiy",
   "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Dasturlar va soddalashtirilgan rejim, vazn tanlash, batafsil natijalar, maslahatlar, bot hisobotlari va o‘z OYU.",
   "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Pro’dagi hammasi + murabbiy rejimi: shogirdlar, ularning mashg‘ulotlari va ovqatlanishi, kundalikni tahrirlash va bildirishnomalar.",
-  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Rahmat! «{plan}» obunasi {date} gacha faol. Ilovada hammasi ochildi."
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Rahmat! «{plan}» obunasi {date} gacha faol. Ilovada hammasi ochildi.",
+  "{n} мес.": "{n} oy"
  },
  "tr": {
   " ({d}% к прошлому периоду)": " (önceki döneme göre %{d})",
@@ -2349,7 +2355,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "Light Weight Тренер": "Light Weight Antrenör",
   "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Programlar ve rehberli mod, ağırlık önerileri, ayrıntılı ilerleme, ipuçları, bot raporları ve kendi makrolarınız.",
   "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Pro’daki her şey + antrenör modu: öğrenciler, antrenman ve beslenmeleri, günlük düzenleme ve bildirimler.",
-  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Teşekkürler! «{plan}» aboneliği {date} tarihine kadar etkin. Uygulamada her şey açıldı."
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Teşekkürler! «{plan}» aboneliği {date} tarihine kadar etkin. Uygulamada her şey açıldı.",
+  "{n} мес.": "{n} ay"
  },
  "zh": {
   " ({d}% к прошлому периоду)": "（较上一周期 {d}%）",
@@ -2683,7 +2690,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "Light Weight Тренер": "Light Weight 教练版",
   "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "训练计划和引导模式、重量推荐、详细进度、建议、机器人报告和自定义宏量营养素。",
   "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "包含 Pro 全部功能 + 教练模式：学员及其训练和饮食、编辑日记和通知。",
-  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ 谢谢！「{plan}」订阅有效期至 {date}，应用内所有功能已开放。"
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ 谢谢！「{plan}」订阅有效期至 {date}，应用内所有功能已开放。",
+  "{n} мес.": "{n} 个月"
  },
  "ja": {
   " ({d}% к прошлому периоду)": "（前期間比 {d}%）",
@@ -3017,7 +3025,8 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "Light Weight Тренер": "Light Weight コーチ",
   "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "プログラムとガイドモード、重量の提案、詳細な進捗、アドバイス、ボットのレポート、PFCの自由設定。",
   "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Pro のすべて + コーチモード：クライアント、そのトレーニングと食事、日記の編集と通知。",
-  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ ありがとうございます！「{plan}」は {date} まで有効です。アプリですべて利用できます。"
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ ありがとうございます！「{plan}」は {date} まで有効です。アプリですべて利用できます。",
+  "{n} мес.": "{n} か月"
  },
  "ko": {
   " ({d}% к прошлому периоду)": " ({d}% 지난 기간 대비)",
@@ -3351,6 +3360,7 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "Light Weight Тренер": "Light Weight 코치",
   "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "프로그램과 가이드 모드, 중량 추천, 상세 진행 상황, 팁, 봇 리포트, 탄단지 직접 설정.",
   "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Pro의 모든 기능 + 코치 모드: 회원, 회원의 운동과 식단, 일지 편집과 알림.",
-  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ 감사합니다! ‘{plan}’ 구독이 {date}까지 활성화됐어요. 앱에서 모든 기능을 이용할 수 있어요."
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ 감사합니다! ‘{plan}’ 구독이 {date}까지 활성화됐어요. 앱에서 모든 기능을 이용할 수 있어요.",
+  "{n} мес.": "{n}개월"
  }
 };

@@ -17,7 +17,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-10-11 · stars-subscriptions";
+const BOT_VERSION = "2026-10-11 · subscriptions-periods";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -803,14 +803,23 @@ async function cron(kind: string) {
 // ---------------- подписки за Telegram Stars ----------------
 // приложение просит ссылку на оплату → бот создаёт счёт в звёздах (XTR) с продлением раз в 30 дней
 const PLANS: Record<string, { title: string; desc: string; def: number }> = {
-  pro: { title: "Light Weight Pro", desc: "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.", def: 200 },
-  trainer: { title: "Light Weight Тренер", desc: "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.", def: 400 },
+  pro: { title: "Light Weight Pro", desc: "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.", def: 220 },
+  trainer: { title: "Light Weight Тренер", desc: "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.", def: 440 },
 };
 async function planPrice(plan: string) {
   const { data } = await admin.from("app_texts").select("value").eq("key", "price_" + plan).maybeSingle();
   const v = parseInt(String(data?.value ?? ""), 10);
   return v > 0 && v <= 10000 ? v : PLANS[plan].def;
 }
+// срок подписки: 1 месяц — автопродление звёздами; 3/6/12 месяцев — разовая оплата со скидкой
+const PERIOD_DISC: Record<number, number> = { 1: 0, 3: 0.10, 6: 0.125, 12: 0.15 };
+const REF_DISC = 0.05;   // ещё 5%, если пользователь пригласил друга или ученика (принятая дружба по его заявке / принятый ученик)
+async function hasInvited(uid: string) {
+  const a = await admin.from("friendships").select("id", { count: "exact", head: true }).eq("requester_id", uid).eq("status", "accepted");
+  const b = await admin.from("trainer_links").select("id", { count: "exact", head: true }).eq("trainer_id", uid).eq("status", "accepted");
+  return ((a.count ?? 0) + (b.count ?? 0)) > 0;
+}
+const periodPrice = (base: number, months: number, ref: boolean) => Math.max(1, Math.round(base * months * (1 - PERIOD_DISC[months]) * (ref ? 1 - REF_DISC : 1)));
 async function onInvoice(req: Request, body: any) {
   const jwt = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
   const { data: u } = await admin.auth.getUser(jwt);
@@ -818,19 +827,24 @@ async function onInvoice(req: Request, body: any) {
   const plan = String(body.plan ?? "");
   if (!PLANS[plan]) return json({ error: "unknown plan" }, 400);
   const { data: p } = await admin.from("profiles").select("*").eq("id", u.user.id).maybeSingle();
-  const lang = langOf(p), price = await planPrice(plan);
-  const r = await tg("createInvoiceLink", {
-    title: L(lang, PLANS[plan].title), description: L(lang, PLANS[plan].desc),
-    payload: JSON.stringify({ u: u.user.id, p: plan }), currency: "XTR",
-    prices: [{ label: L(lang, PLANS[plan].title), amount: price }], subscription_period: 2592000,
-  });
+  const months = Number(body.months ?? 1);
+  if (!(months in PERIOD_DISC)) return json({ error: "unknown period" }, 400);
+  const lang = langOf(p), ref = await hasInvited(u.user.id), price = periodPrice(await planPrice(plan), months, ref);
+  const title = L(lang, PLANS[plan].title) + (months > 1 ? " · " + L(lang, "{n} мес.", { n: months }) : "");
+  const inv: Record<string, unknown> = {
+    title, description: L(lang, PLANS[plan].desc),
+    payload: JSON.stringify({ u: u.user.id, p: plan, m: months }), currency: "XTR",
+    prices: [{ label: title, amount: price }],
+  };
+  if (months === 1) inv.subscription_period = 2592000;   // Telegram продлевает подписку звёздами только помесячно
+  const r = await tg("createInvoiceLink", inv);
   if (!r.ok) return json({ error: r.description ?? "invoice error" }, 500);
-  return json({ ok: true, link: r.result, price });
+  return json({ ok: true, link: r.result, price, months, ref });
 }
 // перед оплатой Telegram спрашивает, можно ли принять платёж
 async function onPreCheckout(q: any) {
   let ok = false;
-  try { const pl = JSON.parse(q.invoice_payload); ok = !!PLANS[pl.p] && !!(await admin.from("profiles").select("id").eq("id", pl.u).maybeSingle()).data; } catch (_) { ok = false; }
+  try { const pl = JSON.parse(q.invoice_payload); ok = !!PLANS[pl.p] && (Number(pl.m ?? 1) in PERIOD_DISC) && q.currency === "XTR" && !!(await admin.from("profiles").select("id").eq("id", pl.u).maybeSingle()).data; } catch (_) { ok = false; }
   await tg("answerPreCheckoutQuery", ok ? { pre_checkout_query_id: q.id, ok: true } : { pre_checkout_query_id: q.id, ok: false, error_message: "Не удалось оформить подписку, попробуйте ещё раз." });
 }
 // оплата прошла (и каждое ежемесячное продление) — продлеваем подписку
@@ -838,8 +852,12 @@ async function onPaid(m: any) {
   const sp = m.successful_payment; let pl: any = {};
   try { pl = JSON.parse(sp.invoice_payload); } catch (_) { return; }
   if (!PLANS[pl.p]) return;
-  const until = sp.subscription_expiration_date ? new Date(sp.subscription_expiration_date * 1000) : new Date(Date.now() + 30 * 86400000);
+  const months = Number(pl.m ?? 1) || 1;
   const { data: cur } = await admin.from("subscriptions").select("*").eq("user_id", pl.u).maybeSingle();
+  const curUntil = cur && cur.plan === pl.p && new Date(cur.until) > new Date() ? new Date(cur.until) : new Date();
+  // помесячная — до даты от Telegram; на 3/6/12 месяцев — прибавляем к оставшемуся сроку того же тарифа
+  let until = months === 1 && sp.subscription_expiration_date ? new Date(sp.subscription_expiration_date * 1000) : new Date(curUntil.getTime() + months * 30 * 86400000);
+  if (cur && cur.plan === pl.p && new Date(cur.until) > until) until = new Date(cur.until);
   const keep = cur && cur.plan === "trainer" && pl.p === "pro" && new Date(cur.until) > until;   // тренерский по коду не теряем
   if (!keep) await admin.from("subscriptions").upsert({ user_id: pl.u, plan: pl.p, until: until.toISOString(), source: "stars", charge_id: sp.telegram_payment_charge_id, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
   const { data: p } = await admin.from("profiles").select("*").eq("id", pl.u).maybeSingle();

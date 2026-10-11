@@ -176,7 +176,13 @@ details.fold:not([open]) .fold-sum::after{transform:rotate(0deg)}
 .food-macros{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;font-size:13px}
 /* ===== шрифт приложения: Manrope (локально, без внешних запросов) ===== */
 @font-face{font-family:'Manrope';src:url('img/fonts/manrope.woff') format('woff');font-weight:200 800;font-style:normal;font-display:swap;}
-body,button,input,select,textarea{font-family:'Manrope',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+@font-face{font-family:'Onest';src:url('img/fonts/onest.woff') format('woff');font-weight:100 900;font-style:normal;font-display:swap;}
+@font-face{font-family:'Golos Text';src:url('img/fonts/golos.woff') format('woff');font-weight:400 900;font-style:normal;font-display:swap;}
+@font-face{font-family:'Inter';src:url('img/fonts/inter.woff') format('woff');font-weight:100 900;font-style:normal;font-display:swap;}
+@font-face{font-family:'Nunito Sans';src:url('img/fonts/nunito.woff') format('woff');font-weight:200 1000;font-style:normal;font-display:swap;}
+body,button,input,select,textarea{font-family:var(--app-font,'Manrope'),-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+/* размер текста: весь экран и окна масштабируются (кроме полноэкранного режима тренировки) */
+#main,#modalRoot .modal:not(.g-modal){zoom:var(--ui-zoom,1);}
 /* ===== фирменный стиль Light Weight (тема «Light Weight») ===== */
 [data-brand]{--ink:#1a1e21;--lw-red:#e3262e;--lw-orange:#f08a24;--text:#1f2427;--text-dim:#69726d;--radius:16px;--shadow:0 1px 2px rgba(16,24,20,.04),0 8px 22px -14px rgba(16,24,20,.18);}
 [data-brand="dark"]{--ink:#f2f4f3;--text:#e8ebe9;--text-dim:#9aa39e;--shadow:0 8px 22px -14px rgba(0,0,0,.6);}
@@ -376,27 +382,30 @@ body,button,input,select,textarea{font-family:'Manrope',-apple-system,BlinkMacSy
 .mc-tx .muted{font-size:12.5px;}
 
 /* ===================== ДИЗАЙН LIGHT WEIGHT (тёмный графит, по умолчанию) ===================== */
+/* общие для всех тем: кнопки, карточки, календарь, меню — как в фирменной теме; цвета берутся из выбранной палитры */
+html[data-tid]{--cherry:#650E15;--cherry-d:#4B0A0E;--lw-red:#650E15;--danger:#650E15;}
+html[data-tid]:not([data-design="lw"]){--work:#3FAF74;}
 [data-design="lw"]{--text:#F2F1F0;--text-dim:#8E8C95;--ink:#F2F1F0;--cherry:#650E15;--cherry-d:#4B0A0E;--lw-red:#650E15;--danger:#650E15;--work:#5FC08F;
   --radius:22px;--shadow:none;color-scheme:dark;}
-[data-design="lw"] body{background:var(--bg);color:var(--text);}
-[data-design="lw"] .card{background:var(--surface);border:none;box-shadow:none;border-radius:22px;}
-[data-design="lw"] .card h3{font-weight:800;}
-[data-design="lw"] .muted{color:var(--text-dim);}
-[data-design="lw"] .btn{background:var(--surface2);color:var(--text);border:none;border-radius:14px;font-weight:700;}
-[data-design="lw"] .btn.ghost{background:transparent;}
-[data-design="lw"] .btn.primary{background:var(--accent);color:var(--on-accent);box-shadow:none;}
-[data-design="lw"] .btn.danger{background:var(--cherry);color:#000;}
-[data-design="lw"] .btn.finish{background:var(--text);color:var(--bg);}
-[data-design="lw"] .field input,[data-design="lw"] .field select,[data-design="lw"] .field textarea,[data-design="lw"] .sf input,[data-design="lw"] .card input[type="text"],[data-design="lw"] .card select{background:var(--surface2);border:1px solid transparent;color:var(--text);}
-[data-design="lw"] .field input:focus,[data-design="lw"] .sf input:focus,[data-design="lw"] .card input[type="text"]:focus{border-color:var(--accent);background:var(--surface2);box-shadow:none;}
-[data-design="lw"] .modal{background:var(--surface);border:none;}
-[data-design="lw"] .overlay{background:rgba(5,5,7,.72);}
-[data-design="lw"] .pill{background:var(--surface2);color:var(--text);}
-[data-design="lw"] .toast{background:var(--text);color:var(--bg);}
-[data-design="lw"] .set-box{background:var(--surface2);}
-[data-design="lw"] .tot-box{background:var(--surface2);color:var(--text);}
-[data-design="lw"] .g-card::before,[data-design="lw"] .g-run::before{background:var(--accent);}
-[data-design="lw"] .g-run,[data-design="lw"] .g-card{background:var(--surface);}
+html[data-tid] body{background:var(--bg);color:var(--text);}
+html[data-tid] .card{background:var(--surface);border:none;box-shadow:none;border-radius:22px;}
+html[data-tid] .card h3{font-weight:800;}
+html[data-tid] .muted{color:var(--text-dim);}
+html[data-tid] .btn{background:var(--surface2);color:var(--text);border:none;border-radius:14px;font-weight:700;}
+html[data-tid] .btn.ghost{background:transparent;}
+html[data-tid] .btn.primary{background:var(--accent);color:var(--on-accent);box-shadow:none;}
+html[data-tid] .btn.danger{background:var(--cherry);color:#000;}
+html[data-tid] .btn.finish{background:var(--text);color:var(--bg);}
+html[data-tid] .field input,html[data-tid] .field select,html[data-tid] .field textarea,html[data-tid] .sf input,html[data-tid] .card input[type="text"],html[data-tid] .card select{background:var(--surface2);border:1px solid transparent;color:var(--text);}
+html[data-tid] .field input:focus,html[data-tid] .sf input:focus,html[data-tid] .card input[type="text"]:focus{border-color:var(--accent);background:var(--surface2);box-shadow:none;}
+html[data-tid] .modal{background:var(--surface);border:none;}
+html[data-tid] .overlay{background:rgba(5,5,7,.72);}
+html[data-tid] .pill{background:var(--surface2);color:var(--text);}
+html[data-tid] .toast{background:var(--text);color:var(--bg);}
+html[data-tid] .set-box{background:var(--surface2);}
+html[data-tid] .tot-box{background:var(--surface2);color:var(--text);}
+html[data-tid] .g-card::before,html[data-tid] .g-run::before{background:var(--accent);}
+html[data-tid] .g-run,html[data-tid] .g-card{background:var(--surface);}
 /* шапка календаря: логотип, журнал, аватар */
 .app-top{display:flex;align-items:center;justify-content:space-between;margin:2px 2px 14px;}
 .app-logo{height:28px;}
@@ -415,67 +424,162 @@ body,button,input,select,textarea{font-family:'Manrope',-apple-system,BlinkMacSy
 .mc-head span{font-size:12px;text-transform:uppercase;letter-spacing:.02em;}
 .mc-grid{row-gap:10px;}
 .mc-day{width:min(42px,11.4vw);font-size:15px;}
-[data-design="lw"] .mc-day.w{color:#0E1A12;}
-[data-design="lw"] .mc-day.w span{text-shadow:none;}
-[data-design="lw"] .mc-day.w:not([style*="gradient"]){background:var(--work)!important;}
-[data-design="lw"] .mc-day.act{background:color-mix(in srgb,var(--work) 20%,transparent);color:var(--work);}
-[data-design="lw"] .mc-day.none{background:var(--cherry);color:#000;}
-[data-design="lw"] .mc-day.today:not(.w){box-shadow:inset 0 0 0 1.5px var(--text-dim);}
-[data-design="lw"] .mc-day.sel{background:var(--accent)!important;color:var(--on-accent)!important;box-shadow:none;}
-[data-design="lw"] .mc-day.sel.w{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent);background:var(--work)!important;color:#0E1A12!important;}
-[data-design="lw"] .mc-day.sel.w[style*="gradient"]{background:revert-layer;}
-[data-design="lw"] .mc-plan{background:var(--accent);}
-[data-design="lw"] .mc-more{background:var(--text);color:var(--bg);}
-[data-design="lw"] .lg-w{background:var(--work);}[data-design="lw"] .lg-s{background:color-mix(in srgb,var(--work) 35%,transparent);}[data-design="lw"] .lg-n{background:var(--cherry);}
+html[data-tid] .mc-day.w{color:#0E1A12;}
+html[data-tid] .mc-day.w span{text-shadow:none;}
+html[data-tid] .mc-day.act{background:color-mix(in srgb,var(--work) 20%,transparent);color:var(--work);}
+html[data-tid] .mc-day.none{background:var(--cherry);color:#000;}
+html[data-tid] .mc-day.today:not(.w){box-shadow:inset 0 0 0 1.5px var(--text-dim);}
+html[data-tid] .mc-day.sel:not(.w){background:var(--accent)!important;color:var(--on-accent)!important;box-shadow:none;}
+html[data-tid] .mc-day.sel.w{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent);color:#0E1A12;}
+html[data-tid] .mc-plan{background:var(--accent);}
+html[data-tid] .mc-more{background:var(--text);color:var(--bg);}
+html[data-tid] .lg-w{background:var(--work);}html[data-tid] .lg-s{background:color-mix(in srgb,var(--work) 35%,transparent);}html[data-tid] .lg-n{background:var(--cherry);}
 /* панель дня */
-[data-design="lw"] .dp-head b{font-size:16px;}
-[data-design="lw"] .dp-w{background:var(--surface);border:none;border-radius:22px;}
-[data-design="lw"] .dp-play{background:var(--accent);color:var(--on-accent);box-shadow:none;}
-[data-design="lw"] .dp-play.lock{background:var(--surface2);color:var(--text-dim);}
-[data-design="lw"] .dp-st.done{background:color-mix(in srgb,var(--work) 18%,transparent);color:var(--work);}
-[data-design="lw"] .dp-st.live{color:var(--accent);}
-[data-design="lw"] .dp-steps{background:var(--surface);}
-[data-design="lw"] .dp-steps.ok{background:color-mix(in srgb,var(--work) 16%,transparent);color:var(--work);}
-[data-design="lw"] .dp-prog{background:var(--surface);color:var(--text);}
-[data-design="lw"] .dp-prog .muted{color:var(--text-dim);}
-[data-design="lw"] .dp-prog .dp-play{background:var(--accent);color:var(--on-accent);}
-[data-design="lw"] .dp-actions .btn{height:50px;border-radius:16px;}
+html[data-tid] .dp-head b{font-size:16px;}
+html[data-tid] .dp-w{background:var(--surface);border:none;border-radius:22px;}
+html[data-tid] .dp-play{background:var(--accent);color:var(--on-accent);box-shadow:none;}
+html[data-tid] .dp-play.lock{background:var(--surface2);color:var(--text-dim);}
+html[data-tid] .dp-st.done{background:color-mix(in srgb,var(--work) 18%,transparent);color:var(--work);}
+html[data-tid] .dp-st.live{color:var(--accent);}
+html[data-tid] .dp-steps{background:var(--surface);}
+html[data-tid] .dp-steps.ok{background:color-mix(in srgb,var(--work) 16%,transparent);color:var(--work);}
+html[data-tid] .dp-prog{background:var(--surface);color:var(--text);}
+html[data-tid] .dp-prog .muted{color:var(--text-dim);}
+html[data-tid] .dp-prog .dp-play{background:var(--accent);color:var(--on-accent);}
+html[data-tid] .dp-actions .btn{height:50px;border-radius:16px;}
 /* меню снизу */
 @media (max-width:860px){
-  [data-design="lw"] #bottomnav.bottomnav{background:var(--surface)!important;border:none!important;box-shadow:0 12px 34px rgba(0,0,0,.55);height:64px;border-radius:32px;}
-  [data-design="lw"] .bottomnav button.active{background:var(--accent)!important;color:var(--on-accent)!important;}
+  html[data-tid] #bottomnav.bottomnav{background:var(--surface)!important;border:none!important;box-shadow:0 12px 34px rgba(0,0,0,.55);height:64px;border-radius:32px;}
+  html[data-tid] .bottomnav button.active{background:var(--accent)!important;color:var(--on-accent)!important;}
 }
 /* профиль, настройки, тарифы */
-[data-design="lw"] .ph-stats>div,[data-design="lw"] .set-group,[data-design="lw"] .plan-card,[data-design="lw"] .meal-card{background:var(--surface);border:none;}
-[data-design="lw"] .ph-ava{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--accent);}
-[data-design="lw"] .ph-plan.pro,[data-design="lw"] .ph-plan.trainer{background:var(--accent);color:var(--on-accent);}
-[data-design="lw"] .seg{background:var(--surface);}
-[data-design="lw"] .seg button.on{background:var(--surface2);color:var(--text);box-shadow:none;}
-[data-design="lw"] .set-row-i+.set-row-i{border-top-color:var(--surface2);}
-[data-design="lw"] .sr-ic,[data-design="lw"] .mc-ic{background:var(--surface2);}
-[data-design="lw"] .plan-card.on{box-shadow:inset 0 0 0 1.5px var(--accent);}
-[data-design="lw"] .plan-card.trainer{background:var(--surface);color:var(--text);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 45%,transparent);}
-[data-design="lw"] .plan-card.trainer li,[data-design="lw"] .plan-card.trainer .pc-price small{color:var(--text-dim);}
-[data-design="lw"] .plan-card.trainer .btn.primary{background:var(--accent);color:var(--on-accent);}
-[data-design="lw"] .plan-card.trainer .pc-cur,[data-design="lw"] .pc-cur{color:var(--accent);}
-[data-design="lw"] .note-soft{background:var(--surface);}
+html[data-tid] .ph-stats>div,html[data-tid] .set-group,html[data-tid] .plan-card,html[data-tid] .meal-card{background:var(--surface);border:none;}
+html[data-tid] .ph-ava{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--accent);}
+html[data-tid] .ph-plan.pro,html[data-tid] .ph-plan.trainer{background:var(--accent);color:var(--on-accent);}
+html[data-tid] .seg{background:var(--surface);}
+html[data-tid] .seg button.on{background:var(--surface2);color:var(--text);box-shadow:none;}
+html[data-tid] .set-row-i+.set-row-i{border-top-color:var(--surface2);}
+html[data-tid] .sr-ic,html[data-tid] .mc-ic{background:var(--surface2);}
+html[data-tid] .plan-card.on{box-shadow:inset 0 0 0 1.5px var(--accent);}
+html[data-tid] .plan-card.trainer{background:var(--surface);color:var(--text);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 45%,transparent);}
+html[data-tid] .plan-card.trainer li,html[data-tid] .plan-card.trainer .pc-price small{color:var(--text-dim);}
+html[data-tid] .plan-card.trainer .btn.primary{background:var(--accent);color:var(--on-accent);}
+html[data-tid] .plan-card.trainer .pc-cur,html[data-tid] .pc-cur{color:var(--accent);}
+html[data-tid] .note-soft{background:var(--surface);}
 /* питание */
-[data-design="lw"] .date-pill{background:var(--surface);color:var(--text);}
-[data-design="lw"] .date-pill button{background:var(--surface2);color:var(--text);}
-[data-design="lw"] .meal-add{background:var(--accent);color:var(--on-accent);box-shadow:none;}
-[data-design="lw"] .meal-snack{border-color:var(--surface2);}
-[data-design="lw"] .meal-snack .meal-add{background:var(--surface2);color:var(--accent);}
-[data-design="lw"] .kring circle:first-child{stroke:var(--surface2);}
+html[data-tid] .date-pill{background:var(--surface);color:var(--text);}
+html[data-tid] .date-pill button{background:var(--surface2);color:var(--text);}
+html[data-tid] .meal-add{background:var(--accent);color:var(--on-accent);box-shadow:none;}
+html[data-tid] .meal-snack{border-color:var(--surface2);}
+html[data-tid] .meal-snack .meal-add{background:var(--surface2);color:var(--accent);}
+html[data-tid] .kring circle:first-child{stroke:var(--surface2);}
 /* «Графит»: монохром, слои серого разделены тонкой светлой гранью */
 [data-tid="lw-graphite"] .card,[data-tid="lw-graphite"] .mcal,[data-tid="lw-graphite"] .dp-w,[data-tid="lw-graphite"] .dp-prog,[data-tid="lw-graphite"] .set-group,[data-tid="lw-graphite"] .ph-stats>div,[data-tid="lw-graphite"] .plan-card,[data-tid="lw-graphite"] .meal-card,[data-tid="lw-graphite"] .seg,[data-tid="lw-graphite"] .top-ava,[data-tid="lw-graphite"] .app-top .icb{box-shadow:inset 0 0 0 1px var(--border);}
-[data-tid="lw-graphite"] .mc-day.w{color:#0F1011;}
-[data-tid="lw-graphite"] .mc-day.act{background:#2C2D31;color:#C9CBD0;}
 [data-tid="lw-graphite"] .muted{color:#9C9EA5;}
 @media (max-width:860px){[data-tid="lw-graphite"] #bottomnav.bottomnav{box-shadow:inset 0 0 0 1px var(--border),0 12px 34px rgba(0,0,0,.6);}}
 [data-design="lw"] .steps-in,[data-design="lw"] .steps-ask{background:var(--surface2);border:none;color:var(--text);}
 [data-design="lw"] .act-legend i{height:4px;border-radius:2px;}
 /* вишнёвые элементы: текст чёрный */
 [data-design="lw"] .badge-cherry,[data-design="lw"] .pill.danger{background:var(--cherry);color:#000;}
+
+.play-ico{width:44%;height:44%;display:block;margin:auto;}
+.dp-play,.play-btn,.w-play-ico{display:inline-flex;align-items:center;justify-content:center;padding:0!important;}
+.w-play-ico .play-ico{width:20px;height:20px;}
+.play-btn .play-ico{width:16px;height:16px;}
+html[data-tid] .btn{text-transform:none;letter-spacing:0;font-family:inherit;clip-path:none;transform:none;}
+html[data-tid] .btn::before,html[data-tid] .btn::after{display:none;}
+/* календарь вытянут по высоте — пропорции ближе к референсу */
+.mcal{padding:24px 14px 20px;}
+.mc-top{margin-bottom:22px;}
+.mc-head{margin-bottom:6px;}
+.mc-grid{row-gap:17px!important;}
+.mc-legend{margin-top:18px;}
+.cd-btn{border:none;padding:0;cursor:pointer;width:22px!important;height:22px!important;box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--border);}
+.cd-btn.on{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--accent);}
+.sw-def{position:relative;}.sw-def::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;opacity:.0}
+.sw-def.on::after{opacity:1}
+.pm-seg{margin-bottom:10px;}
+.pm-seg button{display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;}
+.pm-seg small{font-size:10.5px;font-weight:800;color:var(--accent);}
+.pm-seg button.on small{color:var(--accent);}
+.pc-save{margin-top:4px;font-size:12.5px;color:var(--text-dim);display:flex;gap:8px;align-items:center;}
+.pc-save s{opacity:.7;}
+.mi{width:22px;height:22px;display:block;flex:none;overflow:visible;}
+.sr-ic .mi{width:21px;height:21px;}
+.bnicon .mi{width:24px;height:24px;}
+.navitem .mi{width:20px;height:20px;display:inline-block;vertical-align:-4px;}
+.mc-ic .mi{width:26px;height:26px;}.mc-ic.sm .mi{width:19px;height:19px;}
+.pc-ic .mi{width:26px;height:26px;}
+.ph-plan .mi{width:14px;height:14px;display:inline-block;vertical-align:-2px;}
+.dp-steps .mi{width:15px;height:15px;display:inline-block;vertical-align:-3px;}
+.app-top .icb .mi{width:21px;height:21px;}
+.dp-play.lock .mi{width:18px;height:18px;margin:auto;}
+html[data-tid]:not([data-theme="dark"]):not([data-brand="dark"]){--icon-red-hi:#650E15;--icon-red:#4B0A0E;}
+/* отметка маркером */
+html[data-tid] .mc-day.mk{background:transparent!important;color:var(--text)!important;}
+.mc-day.mk .mk-svg{position:absolute;inset:-3px;width:calc(100% + 6px);height:calc(100% + 6px);overflow:visible;pointer-events:none;}
+.mc-day.mk span{position:relative;z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.65);}
+html[data-tid] .mc-day.mk.sel{box-shadow:inset 0 0 0 1.5px var(--accent)!important;}
+html[data-tid] .mc-day.mk.today:not(.sel){box-shadow:inset 0 0 0 1.5px var(--text-dim);}
+/* «Тёмный графит»: почти чёрный, кнопки и выделения — полированный металл */
+[data-tid="lw-carbon"] .btn.primary,[data-tid="lw-carbon"] .dp-play:not(.lock),[data-tid="lw-carbon"] .meal-add,[data-tid="lw-carbon"] .bottomnav button.active,[data-tid="lw-carbon"] .mc-day.sel:not(.w):not(.mk){background:linear-gradient(180deg,#F7F7F9 0%,#C9CACF 55%,#9C9DA3 100%)!important;color:#0B0B0C!important;}
+[data-tid="lw-carbon"] .card,[data-tid="lw-carbon"] .mcal,[data-tid="lw-carbon"] .dp-w,[data-tid="lw-carbon"] .set-group,[data-tid="lw-carbon"] .plan-card,[data-tid="lw-carbon"] .meal-card{background:linear-gradient(180deg,#18181A,#131315);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);}
+.mi.h3i{display:inline-block;width:20px;height:20px;vertical-align:-4px;margin-right:4px;}
+/* подход: ✓ · −вес+ · −повт+ */
+.set-box.step{padding:8px 24px 8px 8px;position:relative;}
+.sx-row{display:flex;align-items:flex-start;gap:6px;justify-content:space-between;}
+.sx-n{width:30px;height:30px;flex:none;border-radius:50%;border:none;background:var(--surface);color:var(--text-dim);font-weight:800;font-size:13px;cursor:pointer;margin-top:3px;}
+.sx-n.on{background:var(--work,var(--accent));color:#0E1A12;}
+.sx-f{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;}
+
+.sx-in{display:flex;align-items:center;gap:4px;}
+.stp{width:28px;height:28px;flex:none;border-radius:10px;border:none;background:var(--surface);color:var(--text);font-size:18px;font-weight:700;line-height:1;cursor:pointer;padding:0 0 2px;}
+.stp:active{background:var(--accent);color:var(--on-accent);}
+.sx-v{width:52px;text-align:center;font-size:19px!important;font-weight:800;border:none!important;border-bottom:1.5px dashed var(--border)!important;border-radius:0!important;background:transparent!important;padding:3px 0!important;color:var(--text);}
+.sx-v.r{width:34px;}
+.sx-v:focus{outline:none;border-bottom-color:var(--accent)!important;border-bottom-style:solid!important;}
+.sx-v::placeholder{color:var(--text-dim);opacity:.6;font-weight:700;}
+.sx-u{font-size:12px;color:var(--text-dim);}
+.sx-sub{font-size:11px;color:var(--text-dim);white-space:nowrap;}
+.sx-x{position:absolute;top:2px;right:2px;border:none;background:none;color:var(--text-dim);font-size:12px;padding:4px 6px;cursor:pointer;}
+.bw-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 2px;}
+.bw-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:12.5px;padding:5px 10px 5px 6px;border-radius:12px;}
+.bw-chip .mi{width:18px;height:18px;}
+.bw-row .muted{font-size:11.5px;}
+@media (max-width:380px){.sx-v{width:44px;font-size:17px!important}.sx-v.r{width:30px}.stp{width:26px;height:26px}}
+body:has(#modalRoot .overlay:not(.g-overlay)) #bottomnav{display:none!important;}
+@media (max-width:860px){#modalRoot .overlay{bottom:0!important;}}
+/* настройки: плитки */
+.st-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.st-tile{display:flex;flex-direction:column;justify-content:space-between;gap:14px;min-height:108px;text-align:left;padding:14px;border:none;border-radius:22px;background:var(--surface);color:var(--text);cursor:pointer;}
+.st-tile.acc{background:var(--accent);color:var(--on-accent);}
+.st-ic{width:40px;height:40px;border-radius:13px;background:var(--surface2);display:flex;align-items:center;justify-content:center;}
+.st-tile.acc .st-ic{background:rgba(0,0,0,.18);}
+.st-ic .mi{width:24px;height:24px;}
+.st-tx{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.st-tx b{font-size:14.5px;font-weight:800;}
+.st-tx span{font-size:11.5px;opacity:.65;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.st-card{margin-bottom:10px;}
+.lnk{border:none;background:none;color:var(--text-dim);font-weight:700;font-size:13px;cursor:pointer;padding:0;}
+.pal-strip{display:flex;gap:10px;margin-top:12px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:none;}
+.pal-strip::-webkit-scrollbar{display:none;}
+.pal-sw{flex:none;width:46px;height:46px;border-radius:15px;border:none;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);}
+.pal-sw.on{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent);}
+.q-row{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+.q-row.wrap{flex-wrap:wrap;}
+.q-row select{margin-left:auto;background:var(--surface2);border:none;border-radius:10px;padding:7px 8px;font-weight:600;}
+.q-chip{flex:none;border:none;background:var(--surface2);color:var(--text);border-radius:12px;padding:8px 11px;font-weight:700;font-size:13px;cursor:pointer;min-width:38px;}
+.q-chip.on{background:var(--accent);color:var(--on-accent);}
+.q-sep{width:1px;height:22px;background:var(--border);flex:none;margin:0 2px;}
+#modalRoot .overlay{bottom:0!important;}
+.pg-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--surface2);}
+.pg-row>div{flex:1;min-width:0;display:flex;flex-direction:column;}
+.pg-row .muted{font-size:12px;}
+.pe-day{background:var(--surface2);border-radius:16px;padding:10px;margin-bottom:8px;}
+.pe-n{width:26px;height:26px;flex:none;border-radius:50%;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+.pe-day input,.pe-day select{background:var(--surface)!important;}
+.pe-day .q-chip{background:var(--surface);}
+.pe-day .q-chip.on{background:var(--accent);}
 .fg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
 .fg{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--surface2);border-left:4px solid var(--border)}
 .fg-n{font-size:13px;color:var(--text-dim)}.fg-d{font-size:16px;color:var(--text)}
@@ -1837,8 +1941,10 @@ const PRESET_THEMES = [
     D:{bg:'#131320', surface:'#1E1E2C', surface2:'#282837', border:'#30303F'}},
   {id:'lw-ice', design:'lw', brand:true, forceDark:true, name:'Лёд', kind:'Light Weight', accent:'#A6DCF2', accent2:'#650E15', dark:'#A6DCF2', on:'#0E2633',
     D:{bg:'#10151A', surface:'#1A2128', surface2:'#232B33', border:'#2B343D'}},
-  {id:'lw-graphite', design:'lw', brand:true, forceDark:true, name:'Графит', kind:'Light Weight · монохром', accent:'#ECECEE', accent2:'#650E15', dark:'#ECECEE', on:'#121314', work:'#9A9DA4',
+  {id:'lw-graphite', design:'lw', brand:true, forceDark:true, name:'Графит', kind:'Light Weight · цвет только в календаре', accent:'#ECECEE', accent2:'#650E15', dark:'#ECECEE', on:'#121314',
     D:{bg:'#0F1011', surface:'#1D1E21', surface2:'#2C2D31', border:'#3A3B40'}},
+  {id:'lw-carbon', design:'lw', brand:true, forceDark:true, name:'Тёмный графит', kind:'Light Weight · металл', accent:'#D9DADE', accent2:'#650E15', dark:'#D9DADE', on:'#0B0B0C',
+    D:{bg:'#09090A', surface:'#151517', surface2:'#202023', border:'#2B2B2F'}},
   {id:'lw-cherry', design:'lw', brand:true, forceDark:true, name:'Чистая вишня', kind:'Light Weight', accent:'#650E15', accent2:'#4B0A0E', dark:'#650E15', on:'#000000',
     D:{bg:'#141213', surface:'#211D1F', surface2:'#2B2629', border:'#342E31'}},
   {id:'pine', name:'Хвойный лес', kind:'сдержанная', accent:'#4f5641', accent2:'#a0562a', dark:'#b7a36a',
@@ -2007,13 +2113,13 @@ function goBack(){
 function renderNav(){
   const sb = document.getElementById('sidebar');
   sb.innerHTML = '<div class="brand"><img src="img/lwtext/100.webp" alt="" class="brand-lw"> GymDiary</div>' + NAV_ITEMS.map(([id,icon,label])=>
-    `<button class="navitem ${navActive(id)?'active':''}" data-nav="${id}">${icon} <span>${label}</span></button>`
+    `<button class="navitem ${navActive(id)?'active':''}" data-nav="${id}">${ICON(id)} <span>${label}</span></button>`
   ).join('');
   sb.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{State.view=navGo(b.dataset.nav); State.participantProfile=null; State.setPage=null; rerender();});
 
   const bn = document.getElementById('bottomnav');
   bn.innerHTML = NAV_ITEMS.map(([id,icon,label])=>
-    `<button class="${navActive(id)?'active':''}" data-nav="${id}"><span class="bnicon">${icon}</span><span class="bnl">${label}</span></button>`
+    `<button class="${navActive(id)?'active':''}" data-nav="${id}"><span class="bnicon">${ICON(id, navActive(id)?'flat':'')}</span><span class="bnl">${label}</span></button>`
   ).join('');
   bn.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{ const was = navActive(b.dataset.nav); State.view = was && b.dataset.nav==='profile' ? 'stats' : navGo(b.dataset.nav); State.participantProfile=null; State.setPage=null; State.modal=null; renderModal(); rerender();});
 }
@@ -2087,6 +2193,27 @@ function calDayTitle(d){ const L = I18N.lang||'ru';
 // заголовок уменьшается, пока не поместится рядом с кнопками
 function fitCalTitle(){ const h = document.querySelector('#main .cal-nav h2'); if(!h) return; let fs = 22; h.style.fontSize = fs+'px';
   while(h.scrollWidth > h.clientWidth && fs > 13){ fs--; h.style.fontSize = fs+'px'; } }
+// ▶ для круглых кнопок: центр тяжести треугольника точно в центре круга (символ «▶» в шрифтах смещён)
+const PLAY_ICO = '<svg class="play-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.2v11.6c0 .8.9 1.3 1.6.8l8.6-5.8c.6-.4.6-1.2 0-1.6L10.6 5.4C9.9 4.9 9 5.4 9 6.2z" fill="currentColor" transform="translate(-.6 0)"/></svg>';
+// ===== отметка дня маркером: зигзаг-штриховка или один мазок; у каждого участника свой штрих =====
+function rnd(seed){ let x = seed % 2147483647; if(x<=0) x += 2147483646; return () => (x = x*16807 % 2147483647) / 2147483647; }
+function markPath(seed, n){
+  const r = rnd(seed), u = (a,b) => a + (b-a)*r(), pts = [];
+  const step = n>1 ? 20/(n-1) : 0, base = n>1 ? 16 : 26;
+  for(let i=0;i<n;i++){ const yl = base+i*step+u(-1.5,1.5), yr = yl-15+u(-2,2); pts.push([4+u(-1.5,2), yl], [36+u(-2,1.5), yr]); }
+  let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+  for(let i=0;i<pts.length-1;i++){ const [ax,ay] = pts[i], [bx,by] = pts[i+1];
+    d += ` Q${((ax+bx)/2+u(-2,2)).toFixed(1)},${((ay+by)/2+(bx>ax?u(1,4):u(-1,1))).toFixed(1)} ${bx.toFixed(1)},${by.toFixed(1)}`; }
+  return d;
+}
+function markSvg(ds, cols, mode, op){
+  const seed = +ds.replace(/-/g,'') ;
+  const paths = cols.map((c,i)=>{ const y = cols.length>1 ? (i-(cols.length-1)/2)*6 : 0;
+    if(mode==='swipe'){ const r = rnd(seed*7+i), y1 = 30+(r()*4-2), y2 = 12+(r()*4-2);
+      return `<path d="M5,${y1.toFixed(1)} Q20,${((y1+y2)/2+(r()*6-3)).toFixed(1)} 36,${y2.toFixed(1)}" transform="translate(0,${y})" fill="none" stroke="${c}" stroke-width="${cols.length>1?7:11}" stroke-linecap="round" opacity="${op*.8}"/>`; }
+    return `<path d="${markPath(seed*13+i*5, cols.length>1?1:3)}" transform="translate(0,${y})" fill="none" stroke="${c}" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round" opacity="${op}"/>`; }).join('');
+  return `<svg class="mk-svg" viewBox="0 0 40 40" aria-hidden="true">${paths}</svg>`;
+}
 // ===== календарь: цвет дня =====
 // зелёный — тренировка; несколько участников — день делится на их цвета (2 — по диагонали, 3 — на трети, 4 — шахматкой, больше — 4 цвета и «+N»);
 // бледно-зелёный — без тренировки, но норма шагов / другая активность; красный — прошедший день без активности (начиная с первой записи)
@@ -2096,7 +2223,7 @@ function calSince(){ const me = selfParticipantId();
   const ds = DB.workouts.filter(w=>w.participantId===me && realWorkout(w)).map(w=>w.date).concat((DB.activity||[]).filter(a=>a.user_id===me).map(a=>a.date)).sort();
   return ds[0] || null; }
 function pColor(pid){ const me = selfParticipantId(), p = DB.participants.find(x=>x.id===pid);
-  return pid===me ? 'var(--work,var(--accent))' : String((p&&p.color)||'#888').split('/')[0]; }
+  return pid===me ? (coach().myColor ? String(coach().myColor).split('/')[0] : 'var(--work,var(--accent))') : String((p&&p.color)||'#888').split('/')[0]; }
 function dayInfo(ds, today, since){
   const me = selfParticipantId(), ws = DB.workouts.filter(w=>w.date===ds), real = ws.filter(realWorkout);
   const pids = [...new Set(real.map(w=>w.participantId))].sort((a,b)=>(a===me?-1:b===me?1:0));
@@ -2106,11 +2233,12 @@ function dayInfo(ds, today, since){
     const bg = n===1 ? c[0] : n===2 ? `linear-gradient(135deg,${c[0]} 50%,${c[1]} 50%)`
       : n===3 ? `conic-gradient(${c[0]} 0 120deg,${c[1]} 120deg 240deg,${c[2]} 240deg 360deg)`
       : `conic-gradient(${c[1]} 0 90deg,${c[3]} 90deg 180deg,${c[2]} 180deg 270deg,${c[0]} 270deg 360deg)`;
-    return {cls:'w', bg, more: pids.length>4 ? pids.length-4 : 0, planned};
+    const hx = /^#([0-9a-f]{6})$/i.exec(c[0]), lum = hx ? (parseInt(hx[1].slice(0,2),16)*.299 + parseInt(hx[1].slice(2,4),16)*.587 + parseInt(hx[1].slice(4,6),16)*.114) : 160;
+    return {cls:'w', bg, cols:c, fg: lum < 140 ? '#fff' : '#0E1A12', more: pids.length>4 ? pids.length-4 : 0, planned};
   }
   const act = (DB.activity||[]).find(a=>a.date===ds && a.user_id===me);
-  if(act && act.kind!=='none' && act.kind!=='sick' && ((Number(act.steps)||0) >= stepsGoal() || (act.kind && act.kind!=='steps' && act.kind!=='work'))) return {cls:'act', planned};
-  if(ds<today && since && ds>=since && !(act && (act.kind==='sick' || Number(act.steps)>0))) return {cls:'none', planned};
+  if(act && act.kind!=='none' && act.kind!=='sick' && ((Number(act.steps)||0) >= stepsGoal() || (act.kind && act.kind!=='steps' && act.kind!=='work'))) return {cls:'act', cols:['var(--work,var(--accent))'], op:.4, planned};
+  if(ds<today && since && ds>=since && !(act && (act.kind==='sick' || Number(act.steps)>0))) return {cls:'none', cols:['var(--cherry,#650E15)'], planned};
   return {cls:'', planned};
 }
 // панель выбранного дня: тренировки (▶ Начать внутри), шаги, «+ тренировку» и «Шаблон»
@@ -2123,17 +2251,17 @@ function dayPanel(ds, noTitle){
   const title = (diff===0?trn('Сегодня')+', ':diff===-1?trn('Вчера')+', ':diff===1?trn('Завтра')+', ':'') + dt.toLocaleDateString(I18N.locale,{day:'numeric',month:'long',weekday: Math.abs(diff)>1?'long':undefined});
   const card = w => { const p = DB.participants.find(x=>x.id===w.participantId), mine = w.participantId===me, ton = Calc.workoutTonnage(w);
     const st = w.status==='done' ? '<span class="dp-st done">✓</span>' : (run && run.id===w.id) ? '<span class="dp-st live">● '+trn('идёт')+'</span>' : '';
-    const play = mine && w.status!=='done' && ds>=today ? (plannedLock(w) ? `<button class="dp-play lock" data-gm="resume" data-id="${w.id}" title="${esc(plannedLock(w))}">🔒</button>` : `<button class="dp-play" data-gm="resume" data-id="${w.id}">▶</button>`) : '';
+    const play = mine && w.status!=='done' && ds>=today ? (plannedLock(w) ? `<button class="dp-play lock" data-gm="resume" data-id="${w.id}" title="${esc(plannedLock(w))}">${ICON('lock','flat')}</button>` : `<button class="dp-play" data-gm="resume" data-id="${w.id}">${PLAY_ICO}</button>`) : '';
     return `<div class="dp-w" data-open-workout="${w.id}">
       <span class="dp-ava" style="background:${colorBg(p&&p.color)}">${esc(((p&&p.name)||'?').slice(0,1).toUpperCase())}</span>
       <span class="dp-t"><b>${esc(trn(w.name||WT[w.type]||'Тренировка'))}</b><span class="muted">${w.time||'--:--'}${w.duration?' · '+w.duration+' '+trn('мин'):''}${ton>0?' · '+fmtNum(Math.round(convW(ton,DB.settings.units)))+' '+unitLabel(DB.settings.units):''}${mine?'':' · '+esc(p?p.name:'')}</span></span>
       ${st}${play}</div>`; };
   const c = coach(), P = c.minimal && PROGRAMS[progKey(c)], nd = P && ds===today && !items.some(w=>w.participantId===me) && nextProgramDay();
   return `<div class="dp">
-    ${noTitle?'':`<div class="dp-head"><b>${esc(capsT(title))}</b>${act && Number(act.steps)>0?`<span class="dp-steps ${Number(act.steps)>=stepsGoal()?'ok':''}">🚶 ${fmtNum(act.steps)}</span>`:act && act.kind && act.kind!=='none' && act.kind!=='steps'?`<span class="dp-steps ok">${ACTIVITY_LABELS[act.kind]||''}</span>`:''}</div>`}
+    ${noTitle?'':`<div class="dp-head"><b>${esc(capsT(title))}</b>${act && Number(act.steps)>0?`<span class="dp-steps ${Number(act.steps)>=stepsGoal()?'ok':''}">${ICON('steps')} ${fmtNum(act.steps)}</span>`:act && act.kind && act.kind!=='none' && act.kind!=='steps'?`<span class="dp-steps ok">${ACTIVITY_LABELS[act.kind]||''}</span>`:''}</div>`}
     ${ds===today ? runningCard() : ''}
     ${items.map(card).join('')}
-    ${nd ? `<div class="dp-prog"><div><span class="muted">${trn('По программе')}</span><b>${esc(nd.title)}</b><span class="muted">${TT('упражнений: {n}', {n:nd.ex.length})}</span></div><button class="dp-play big" data-gm="start">▶</button></div>
+    ${nd && nd.rest ? `<div class="dp-prog"><div><span class="muted">${trn('По программе')}</span><b>${trn('День восстановления')}</b><span class="muted">${esc(TT('вчера тренировались: {x} — лучше лёгкое кардио или растяжка', {x:nd.recent.map(z=>trn(ZONE_NAME[z]||z)).join(', ')}))}</span></div><button class="btn sm" data-gm="start" data-force="1">${trn('Всё равно')}</button></div>` : nd ? `<div class="dp-prog"><div><span class="muted">${trn('По программе')}</span><b>${esc(nd.title)}</b><span class="muted">${TT('упражнений: {n}', {n:nd.ex.length})}</span></div><button class="dp-play big" data-gm="start">${PLAY_ICO}</button></div>
       <div class="row" style="gap:6px;margin:-2px 0 8px"><button class="btn sm ghost" data-gm="pickday">${State.pickDay?'Скрыть':'Другая тренировка программы'}</button></div>
       ${State.pickDay?`<div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:8px">${P.days.map(x=>`<button class="btn sm" data-gm="start" data-day="${x.id}">${esc(x.title)}</button>`).join('')}</div>`:''}`
       : c.minimal && !P && ds===today ? `<div class="dp-prog"><div><b>${trn('Программа не выбрана')}</b><span class="muted">${trn('приложение подскажет упражнения и веса')}</span></div><button class="btn sm primary" data-gm="ask">Выбрать</button></div>` : ''}
@@ -2151,16 +2279,18 @@ function viewCalendar(){
     const startOffset = (first.getDay()+6)%7; // Monday-first
     const gridStart = new Date(y,m,1-startOffset);
     header = calMonthTitle(d).replace(/[гр]$/,'');
-    const today = dstr(new Date()), since = calSince();
+    const today = dstr(new Date()), since = calSince(), mark = uiOpt().mark;
     const weeks = Math.ceil((startOffset + new Date(y,m+1,0).getDate())/7);
     let cells='';
     for(let i=0;i<weeks*7;i++){
       const cd = new Date(gridStart); cd.setDate(gridStart.getDate()+i);
       const ds = dstr(cd), inf = dayInfo(ds, today, since), other = cd.getMonth()!==m;
-      cells += `<button class="mc-day ${inf.cls} ${other?'other':''} ${ds===today?'today':''} ${ds===sel?'sel':''}" data-day="${ds}" style="${inf.bg?'background:'+inf.bg:''}"><span>${cd.getDate()}</span>${inf.more?`<i class="mc-more">+${inf.more}</i>`:''}${inf.planned?'<i class="mc-plan"></i>':''}</button>`;
+      if(mark!=='circle'){ const cols = inf.cols || (ds===sel ? ['var(--accent)'] : []);
+        cells += `<button class="mc-day mk ${inf.cls} ${other?'other':''} ${ds===today?'today':''} ${ds===sel?'sel':''}" data-day="${ds}">${cols.length?markSvg(ds, cols, mark, inf.op||1):''}<span>${cd.getDate()}</span>${inf.more?`<i class="mc-more">+${inf.more}</i>`:''}${inf.planned?'<i class="mc-plan"></i>':''}</button>`; continue; }
+      cells += `<button class="mc-day ${inf.cls} ${other?'other':''} ${ds===today?'today':''} ${ds===sel?'sel':''}" data-day="${ds}" style="${inf.bg?'background:'+inf.bg+';color:'+inf.fg:''}"><span>${cd.getDate()}</span>${inf.more?`<i class="mc-more">+${inf.more}</i>`:''}${inf.planned?'<i class="mc-plan"></i>':''}</button>`;
     }
     body = `<div class="mcal"><div class="mc-top"><button class="mc-arr" data-cal-nav="prev" aria-label="prev">‹</button><div class="mc-ttl" data-cal-nav="today"><b class="cal-title" data-no-tr>${header}</b><span>${trn(sel===today?'выберите день':'к сегодняшнему дню')}</span></div><button class="mc-arr" data-cal-nav="next" aria-label="next">›</button></div><div class="mc-head">${WEEKDAYS.map(w=>`<span>${w}</span>`).join('')}</div><div class="mc-grid">${cells}</div>
-      <div class="mc-legend"><span><i class="lg-w"></i>${trn('тренировка')}</span><span><i class="lg-s"></i>${TT('шаги ≥ {n}', {n:fmtNum(stepsGoal())})}</span><span><i class="lg-n"></i>${trn('без активности')}</span></div></div>
+      <div class="mc-legend"><span><i class="lg-w" style="background:${pColor(selfParticipantId())}"></i>${trn('тренировка')}</span><span><i class="lg-s"></i>${TT('шаги ≥ {n}', {n:fmtNum(stepsGoal())})}</span><span><i class="lg-n"></i>${trn('без активности')}</span></div></div>
       ${dayPanel(sel)}`;
   } else if(State.calMode==='week'){
     const startOffset = (d.getDay()+6)%7;
@@ -2189,7 +2319,7 @@ function viewCalendar(){
   <div class="app-top">
     <img class="app-logo" src="img/lwtext/100.webp" alt="Light Weight">
     <div class="app-top-r">
-      <button class="icb" data-nav="history" title="Журнал тренировок" aria-label="Журнал"><svg class="lic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></button>
+      <button class="icb" data-nav="history" title="Журнал тренировок" aria-label="Журнал">${ICON('stopwatch')}</button>
       <button class="top-ava" data-nav="profile" aria-label="Профиль">${u && u.photo_url ? `<img src="${esc(u.photo_url)}" alt="">` : esc((me.name||'?').slice(0,1).toUpperCase())}</button>
     </div>
   </div>
@@ -2321,6 +2451,7 @@ function renderModalInner(root){
   else if(State.modal.kind==='cert') root.innerHTML = renderCertModal();
   else if(State.modal.kind==='result') root.innerHTML = renderResultModal();
   else if(State.modal.kind==='food') root.innerHTML = renderFoodModal();
+  else if(State.modal.kind==='progEdit') root.innerHTML = renderProgramEditor();
   else if(State.modal.kind==='achInfo') root.innerHTML = renderAchInfoModal();
   else if(State.modal.kind==='guided') root.innerHTML = renderGuided();
   else if(State.modal.kind==='coachSetup') root.innerHTML = renderCoachSetup();
@@ -2339,7 +2470,7 @@ function renderWorkoutModal(){
         <h2 style="margin:0">${isNew?'Новая тренировка':'Редактирование'}</h2>
         <span class="muted autosave-note">✓ сохраняется автоматически</span>
         <span class="pill ${w.status==='done'?'st-done':'st-plan'}">${w.status==='done'?'выполнена':w.startedAt?'идёт':(w.date>dstr(new Date())?'запланирована':'не завершена')}</span></div>
-      ${w.status==='done' ? '' : plannedLock(w) ? `<button class="btn w-play w-lock" data-gm="go" title="Тренировка запланирована"><span class="w-play-ico">🔒</span><span><small>Запланирована</small><br>${esc(plannedLock(w))}</span></button>` : `<button class="btn primary w-play" data-gm="go"><span class="w-play-ico">▶</span><span>${w.startedAt?'Продолжить':'Начать'}</span></button>`}
+      ${w.status==='done' ? '' : plannedLock(w) ? `<button class="btn w-play w-lock" data-gm="go" title="Тренировка запланирована"><span class="w-play-ico">🔒</span><span><small>Запланирована</small><br>${esc(plannedLock(w))}</span></button>` : `<button class="btn primary w-play" data-gm="go"><span class="w-play-ico">${PLAY_ICO}</span><span>${w.startedAt?'Продолжить':'Начать'}</span></button>`}
     </div>
     ${w.startedAt?`<div class="muted w-times">⏱ ${esc(TT('Начало {a}', {a:fmtClock(w.startedAt)}))}${w.finishedAt?' · '+esc(TT('окончание {b} · {m} мин', {b:fmtClock(w.finishedAt), m:w.duration||''})):''}</div>`:''}
     <div style="height:10px"></div>
@@ -2480,7 +2611,8 @@ function renderExerciseCard(ex,bi,ei,w,units){
       </div>
     </div>
     ${prev?`<div class="muted"><span>Пред.:</span> <span data-no-tr>${prev.sets.map(s=>isCardio?`${s.time||''}${s.distance?(' '+s.distance+'км'):''}`:`${convW(s.weight,units)}×${s.reps}`).join(', ')} (${fmtDateShort(prev.date)})</span></div>`:''}
-    ${ex.sets.map((s,si)=> setFolded(w,bi,ei,si,s) ? foldedSetHtml(s,si,bi,ei,round,isCardio,isStatic,bwEx,units) : `<div class="set-box ${isCardio?'cardio':''}">
+    ${bwEx && !isCardio ? `<div class="bw-row"><span class="bw-chip">${ICON('kettlebell')} ${bw>0 ? TT('свой вес {n} {u}', {n:fmtNum(convW(bw,units)), u}) : trn('свой вес не указан')}</span><span class="muted">${trn('в поле — добавленный вес, помощь — со знаком «−»')}</span></div>` : ''}
+    ${ex.sets.map((s,si)=> setFolded(w,bi,ei,si,s) ? foldedSetHtml(s,si,bi,ei,round,isCardio,isStatic,bwEx,units) : !isCardio ? stepSetHtml(s,si,bi,ei,round,isStatic,bwEx,bw,units,isDrop,hist,ex.sets[si-1]) : `<div class="set-box ${isCardio?'cardio':''}">
       <div class="set-head"><b>${TT(round?'{k}-й круг':'{k}-й подход', {k:si+1})}</b>${setDoneAny(s)?`<button class="btn sm ghost" data-set-open="${bi}.${ei}.${si}" title="Свернуть">▴</button>`:''}<button class="btn sm ghost" data-remove-set="${bi}.${ei}.${si}" title="Удалить ${round?'круг':'подход'}">✕</button></div>
       <div class="set-fields">${isCardio?`
         <label class="sf"><span>Время, мин</span><input type="text" inputmode="decimal" placeholder="${phOf(s,'time','')}" data-set="${bi}.${ei}.${si}.time" value="${s.time??''}"></label>
@@ -2506,6 +2638,59 @@ function renderExerciseCard(ex,bi,ei,w,units){
   </div>`;
 }
 
+// подход в обычном режиме: ✓ / −вес+ / −повторы+ ; нажатие на число — ввод с клавиатуры
+function stepSetHtml(s,si,bi,ei,round,isStatic,bwEx,bw,units,isDrop,hist,prevSet){
+  const k = `${bi}.${ei}.${si}`, u = unitLabel(units), done = setDoneAny(s);
+  const wv = s.weight!=='' && s.weight!=null ? convW(s.weight,units) : '';
+  const pw = prevSet && prevSet.weight!=='' && prevSet.weight!=null ? convW(prevSet.weight,units) : '';
+  const wph = phOf(s,'weight', pw!=='' ? String(pw).replace('.',',') : bwEx||isStatic ? '0' : '—', v=>convW(v,units));
+  const sb = (f,d,t) => `<button class="stp" data-step="${k}.${f}.${d}" aria-label="${t}">${t}</button>`;
+  const rf = isStatic ? 'time' : 'reps';
+  const total = bwEx && bw>0 ? convW(bw + (Number(s.weight)||0), units) : null;
+  return `<div class="set-box step ${done?'done':''}">
+    <div class="sx-row">
+      <button class="sx-n ${done?'on':''}" data-set-done="${k}" title="${trn('Подход сделан')}">${done?'✓':si+1}</button>
+      <div class="sx-f"><div class="sx-in">${sb('weight',-1,'−')}<input type="text" inputmode="decimal" class="sx-v" placeholder="${wph}" data-set="${k}.weight" value="${wv!==''&&bwEx&&Number(s.weight)>0?wv:wv}">${sb('weight',1,'+')}</div>
+        ${total!=null?`<div class="sx-sub" data-live="tw${k}">${Number(s.weight)?'':u+' · '}= ${fmtNum(total)} ${u} ${trn('всего')}</div>`:`<div class="sx-sub">${isStatic||bwEx?trn('отягощение')+', ':''}${u}</div>`}</div>
+      <div class="sx-f"><div class="sx-in">${sb(rf,-1,'−')}<input type="text" inputmode="numeric" class="sx-v r" placeholder="${phOf(s,rf, prevSet && prevSet[rf] ? prevSet[rf] : '')}" data-set="${k}.${rf}" value="${(isStatic?s.time:s.reps)??''}">${sb(rf,1,'+')}</div>
+        <div class="sx-sub">${isStatic?trn('сек'):trn('повт.')}</div></div>
+      <button class="sx-x" data-remove-set="${k}" title="${trn('Удалить')}">✕</button>
+    </div>
+  </div>
+  ${!isStatic && !isDrop && !s.isDrop ? `<button class="drop-add" data-set-drop="${k}">+ дроп-сет в этом подходе</button>` : ''}
+  ${(isDrop || s.isDrop)?`<div class="drops">${!isDrop?`<button class="drop-add rm" data-set-drop="${k}">убрать дропы</button>`:''}${[0,1,2].map(q=>{ const d = (s.drops||[])[q]||{}; const base = Number(s.weight)||0;
+    return `<div class="drop-row"><span>↓${q+1}</span>
+      <input type="text" inputmode="decimal" placeholder="${phOf(d,'weight', base?convW(Math.round(base*(0.8-0.2*q)/2.5)*2.5,units):'вес', v=>convW(v,units))}" data-set="${k}.drop.${q}.weight" value="${d.weight!==''&&d.weight!=null?convW(d.weight,units):''}">
+      <input type="text" inputmode="numeric" placeholder="${phOf(d,'reps','повт.')}" data-set="${k}.drop.${q}.reps" value="${d.reps??''}"></div>`; }).join('')}</div>`:''}
+  <div data-live="st${k}">${(()=>{ const t = setRecordText(hist, si, s, units); return t?`<div class="set-rec">${t}</div>`:''; })()}${(()=>{ const dd = isDrop || s.isDrop; return Number(s.reps)>0 && (dd || bw>0) && Calc.setTonnage(s,bw,dd)>0?`<div class="set-ton">${bw>0?`(свой вес ${convW(bw,units)}${Number(s.weight)?' '+(Number(s.weight)>0?'+ ':'− ')+convW(Math.abs(s.weight),units):''})`:convW(s.weight,units)} × ${s.reps}${dd&&(s.drops||[]).some(d=>Number(d.reps)>0)?' + дропы':''} = ${fmtNum(convW(Calc.setTonnage(s,bw,dd),units))} ${unitLabel(units)}</div>`:''; })()}</div>`;
+}
+// −/+ у подхода: шаг 2,5 кг (5 фунтов) и 1 повтор / 5 сек; пустое поле начинается с подсказки (шаблон, прошлый подход)
+function stepSet(k, field, dir){
+  const m = State.modal; if(!m || m.kind!=='workout') return;
+  const [bi,ei,si] = k.split('.').map(Number), ex = m.w.blocks[bi].exercises[ei], st = ex.sets[si]; if(!st) return;
+  const info = DB.exercises.find(x=>x.id===ex.exerciseId)||{}, bwEx = isBodyweightEx(info) || ex.withBw;
+  const el = document.querySelector(`#modalRoot [data-set="${k}.${field}"]`); if(!el) return;
+  const units = DB.settings.units, num = v => parseFloat(String(v??'').replace(',','.'));
+  let cur = num(el.value);
+  if(!isFinite(cur)){ const ph = num(el.placeholder); const prevSet = ex.sets[si-1]; cur = isFinite(ph) ? ph : prevSet && isFinite(num(prevSet[field])) ? (field==='weight'?convW(prevSet[field],units):num(prevSet[field])) : 0; if(isFinite(ph) || prevSet){ dir = 0; } }
+  const step = field==='weight' ? (units==='lb'?5:2.5) : field==='time' ? 5 : 1;
+  let v = Math.round((cur + dir*step)*100)/100;
+  if(v < 0 && !(field==='weight' && bwEx)) v = 0;
+  el.value = String(v).replace('.', ','); el.dispatchEvent(new Event('input', {bubbles:true}));
+}
+// ✓ у подхода: пустые поля заполняются подсказкой (из шаблона / прошлого подхода), подход сворачивается, стартует отдых
+function doneSet(k){
+  const m = State.modal; if(!m || m.kind!=='workout') return;
+  const [bi,ei,si] = k.split('.').map(Number), ex = m.w.blocks[bi].exercises[ei], st = ex.sets[si]; if(!st) return;
+  if(setDoneAny(st)){ const key = setKey(m.w,bi,ei,si); State.openSets = State.openSets||{}; State.openSets[key] = false; renderModalKeep(); return; }
+  const info = DB.exercises.find(x=>x.id===ex.exerciseId)||{}, rf = isStaticEx(info.name) ? 'time' : 'reps';
+  const fill = f => { const el = document.querySelector(`#modalRoot [data-set="${k}.${f}"]`); if(el && el.value.trim()==='' && el.placeholder && /\d/.test(el.placeholder)){ el.value = el.placeholder; el.dispatchEvent(new Event('input', {bubbles:true})); } return el; };
+  fill('weight'); const r = fill(rf);
+  if(!setDoneAny(st)){ toast(trn(rf==='time'?'Укажите секунды':'Укажите повторения')); if(r) r.focus(); return; }
+  if(r) restAfterSet(r);
+  renderModalKeep();
+}
+function renderModalKeep(){ const o = document.querySelector('#modalRoot .overlay'), y = o ? o.scrollTop : 0; renderModal(); const o2 = document.querySelector('#modalRoot .overlay'); if(o2) o2.scrollTop = y; }
 // выполненные подходы сворачиваются в одну строку; нажатие — развернуть для правки
 const setDoneAny = s => !!s && (Number(s.reps)>0 || Number(s.time)>0 || Number(s.distance)>0);
 const setKey = (w,bi,ei,si) => w.id+'.'+bi+'.'+ei+'.'+si;
@@ -2612,6 +2797,8 @@ function handleModalClick(e, ds){
     if(ds.saveWorkout!==undefined){ saveWorkoutFromModal(); return true; }
     if(ds.closeEditor!==undefined){ closeWorkoutEditor(); return true; }
     if(ds.finishWorkout!==undefined){ finishWorkout(); return true; }
+    if(ds.step!==undefined){ const p = ds.step.split('.'); stepSet(p.slice(0,3).join('.'), p[3], +p[4]); return true; }
+    if(ds.setDone!==undefined){ doneSet(ds.setDone); return true; }
     if(ds.setOpen!==undefined){ const [bi,ei,si] = ds.setOpen.split('.'); const k = setKey(modal.w,bi,ei,si); State.openSets = State.openSets||{}; State.openSets[k] = !State.openSets[k]; renderModal(); return true; }
     if(ds.saveAsTemplate!==undefined){ autosaveWorkout(); State.modal={kind:'saveTemplate', suggestedName:w.name, sourceBlocks:w.blocks, back:modal}; renderModal(); return true; }
     if(ds.deleteWorkout!==undefined){
@@ -2827,10 +3014,10 @@ function renderResultModal(){
     <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h2 style="margin:0">💪 Итоги тренировки</h2><button class="btn sm ghost" data-close-modal="1">✕</button></div>
     <div class="muted" style="margin-top:2px">${esc(w.name||'Тренировка')} · ${fmtDate(w.date)}</div>
     <div class="tot-box"><div>Тоннаж</div><div class="big">${fmtNum(convW(t,units))} ${unitLabel(units)}</div>${cmp?`<div style="font-size:12.5px;margin-top:4px">≈ ${cmp[1]}</div>`:''}</div>
-    ${recs.length?`<h3 style="margin-top:14px">🏆 Новые рекорды</h3>${recs.map(r=>`<div class="help-row" style="cursor:default"><span class="grow">${esc(r.name)}</span><b>${convW(r.weight,units)} ${unitLabel(units)} × ${r.reps}</b><span class="muted">было ${convW(r.prev,units)}</span></div>`).join('')}`:''}
-    <h3 style="margin-top:14px">🏅 Получено за тренировку ${achs.length?`<span class="muted">${achs.length}</span>`:''}</h3>
+    ${recs.length?`<h3 style="margin-top:14px">${ICON('trophy','h3i')} Новые рекорды</h3>${recs.map(r=>`<div class="help-row" style="cursor:default"><span class="grow">${esc(r.name)}</span><b>${convW(r.weight,units)} ${unitLabel(units)} × ${r.reps}</b><span class="muted">было ${convW(r.prev,units)}</span></div>`).join('')}`:''}
+    <h3 style="margin-top:14px">${ICON('trophy','h3i')} Получено за тренировку ${achs.length?`<span class="muted">${achs.length}</span>`:''}</h3>
     ${achs.length?`<div class="ach-grid" style="max-height:none">${achs.map(a=>achTile(a, col(a.cat))).join('')}</div>`:'<div class="muted">В этот раз без новых ачивок — но каждая тренировка приближает к следующей!</div>'}
-    ${(()=>{ const adv = workoutAdvice(w); if(adv.length && paywallOn() && planOf().rank<1 && !isAdmin()) return `<div class="note-soft" data-set-page="plans">🧠 Советы по тренировке — в тарифе Pro</div>`; return adv.length?`<h3 style="margin-top:14px">🧠 Рекомендации</h3><ul class="advice">${adv.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''; })()}
+    ${(()=>{ const adv = workoutAdvice(w); if(adv.length && paywallOn() && planOf().rank<1 && !isAdmin()) return `<div class="note-soft" data-set-page="plans">🧠 Советы по тренировке — в тарифе Pro</div>`; return adv.length?`<h3 style="margin-top:14px">${ICON('coach','h3i')} Рекомендации</h3><ul class="advice">${adv.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''; })()}
     <div class="bot-status" id="botStatus" style="${State.botStatus&&State.botStatus.err?'color:var(--danger)':''}">${esc((State.botStatus||{}).text||'⏳ Отправляем итог в бот…')}</div>
     <button class="btn primary" style="width:100%;margin-top:14px" data-close-modal="1">Отлично!</button>
   </div></div>`;
@@ -2980,7 +3167,7 @@ function templateCard(t){
     <div class="muted">${t.blocks.length} блок(ов), ${exCount} упражнений${!mine?` · ${t.ownerId?('автор: '+esc(t.authorName||'участник')):'базовая программа'}`:''}</div>
     <div class="row" style="margin-top:8px;flex-wrap:wrap">
       <button class="btn sm primary" data-use-template="${t.id}">Создать тренировку</button>
-      <button class="btn sm play-btn" data-gm="tpl" data-id="${t.id}" title="Начать тренировку по шаблону в минималистичном режиме">▶</button>
+      <button class="btn sm play-btn" data-gm="tpl" data-id="${t.id}" title="Начать тренировку по шаблону в минималистичном режиме">${PLAY_ICO}</button>
       ${canEdit?`<button class="btn sm" data-rename-template="${t.id}">Переименовать</button>`:''}
       ${mine?`<button class="btn sm" data-toggle-public="${t.id}">${t.isPublic?'Сделать личным':'Сделать общим'}</button>`:''}
       ${!mine?`<button class="btn sm" data-copy-template="${t.id}">В мои шаблоны</button>`:''}
@@ -3187,10 +3374,11 @@ function viewParticipants(){
     const wCount = DB.workouts.filter(w=>w.participantId===p.id).length;
     const canSee = p.id===me || (linkWith(p.id).asTrainer||{}).active;
     return `<div class="card" data-open-participant="${p.id}" style="cursor:pointer">
-      <div class="row"><span class="color-dot" style="background:${colorBg(p.color)}"></span><b>${esc(p.name)}</b></div>
+      <div class="row">${p.id===me || (linkWith(p.id).asTrainer||{}).active ? `<button class="color-dot cd-btn ${State.colorOpen===p.id?'on':''}" style="background:${colorBg(p.id===me ? (coach().myColor||p.color) : p.color)}" data-color-open="${p.id}" title="Изменить цвет"></button>` : `<span class="color-dot" style="background:${colorBg(p.color)}"></span>`}<b>${esc(p.name)}</b></div>
       <div class="muted">${canSee? wCount+' тренировок' : 'тренировки видны только тренеру'}</div>
       <div style="margin-top:4px">${roleBadges(p.id)}</div>
-      ${(linkWith(p.id).asTrainer||{}).active?`<div class="swatches" title="Цвет в вашем календаре">${TRAINEE_COLORS.map(c=>`<span class="swatch ${p.color===c?'on':''}" style="background:${colorBg(c)}" data-trainee-color="${linkWith(p.id).asTrainer.id}|${c}"></span>`).join('')}</div>`:''}
+      ${State.colorOpen!==p.id ? '' : p.id===me ? `<div class="swatches" title="Ваш цвет в календаре">${[''].concat(TRAINEE_COLORS).map(c=>`<span class="swatch ${(coach().myColor||'')===c?'on':''} ${c?'':'sw-def'}" style="background:${c?colorBg(c):'var(--work,var(--accent))'}" data-self-color="${c}" title="${c?'':'по умолчанию (зелёный)'}"></span>`).join('')}</div>`
+        : (linkWith(p.id).asTrainer||{}).active?`<div class="swatches" title="Цвет в вашем календаре">${TRAINEE_COLORS.map(c=>`<span class="swatch ${p.color===c?'on':''}" style="background:${colorBg(c)}" data-trainee-color="${linkWith(p.id).asTrainer.id}|${c}"></span>`).join('')}</div>`:''}
     </div>`;
   }).join('')}
   </div>`;
@@ -3221,7 +3409,7 @@ function friendSharedCard(pid){
   const addEx = f.exercises.filter(e=>!DB.exercises.some(x=>x.id===e.id)); DB.exercises.push(...addEx);
   const units = DB.settings.units;
   try {
-    return `<div class="card" style="margin-bottom:10px"><h3>💪 Тренировки</h3>
+    return `<div class="card" style="margin-bottom:10px"><h3>${ICON('dumbbell','h3i')} Тренировки</h3>
     ${list.map(w=>{ const t = Calc.workoutTonnage(w);
       return `<details class="shared-w" style="border-top:1px solid var(--border);padding:8px 0"><summary><b>${esc(w.name||WT[w.type]||'Тренировка')}</b> <span class="muted">· ${fmtDateShort(w.date)}${w.duration?' · '+w.duration+' мин':''}${t>0?' · '+fmtNum(convW(t,units))+' '+unitLabel(units):''}</span></summary>
       ${(w.blocks||[]).map(b=>(b.exercises||[]).map(ex=>{ const info = DB.exercises.find(e=>e.id===ex.exerciseId);
@@ -3501,7 +3689,7 @@ function archiveCard(pid){
   const rows = years.map(y=>{ const l = yearSummary(ws, y); if(l) return l; const r = server.find(x=>x.year===y);
     return r && { year:y, first:r.first_workout||{}, best:r.best_workout||{}, avgDur:+r.avg_duration_min||0, stability:+r.stability_percent||0, total:r.total_workouts, tonnage:+r.total_tonnage||0 }; }).filter(Boolean);
   return `<div class="card" style="margin-top:10px">
-    <h3>📚 Архив по годам</h3>
+    <h3>${ICON('book','h3i')} Архив по годам</h3>
     <div class="muted" style="margin-bottom:8px">Итоги каждого года. Прошлые годы сервер пересчитывает каждую ночь; тренировки при этом не удаляются.</div>
     ${rows.map(r=>`<div class="year-card">
       <div class="row" style="justify-content:space-between"><b style="font-size:18px">${r.year}${r.current?' <span class="pill">идёт сейчас</span>':''}</b><span class="muted">${r.total} ${plural(r.total,'тренировка','тренировки','тренировок')}</span></div>
@@ -5497,7 +5685,7 @@ function viewFood(){
       ${own?'<button class="btn sm" style="margin-top:8px" data-food="details">Заполнить личные данные</button>':''}`}
     ${burn?`<div class="muted" style="margin-top:10px">🔥 На тренировке сожжено примерно ${burn} ккал (уже учтено в норме через уровень активности)</div>`:''}
   </div>
-  ${MEALS.map(([m,l])=>{ const list = rows.filter(r=>r.meal===m), ms = sumFood(list), ic = l.split(' ')[0], name = l.slice(ic.length+1);
+  ${MEALS.map(([m,l])=>{ const list = rows.filter(r=>r.meal===m), ms = sumFood(list), ic0 = l.split(' ')[0], name = l.slice(ic0.length+1), ic = ICON(ic0) || ic0;
     const rec = n ? Math.round(n.kcal * (MEAL_SHARE[m]||0.1) / 10) * 10 : 0;
     if(!list.length && m.startsWith('snack')) return `<button class="meal-snack" data-food="add" data-meal="${m}"><span class="meal-add" aria-hidden="true">+</span><span>${name}</span></button>`;
     if(!list.length) return `<button class="meal-card" data-food="add" data-meal="${m}"><span class="mc-ic">${ic}</span><span class="mc-tx"><b>${TT('Добавить: {x}', {x:trn(name).toLowerCase()})}</b>${rec?`<span class="muted">${TT('рекомендуется {a}–{b} ккал', {a:fmtNum(Math.round(rec*0.85/10)*10), b:fmtNum(Math.round(rec*1.15/10)*10)})}</span>`:''}</span><span class="meal-add" aria-hidden="true">+</span></button>`;
@@ -5572,22 +5760,36 @@ const FOOD_ALIASES = {
   'Йогурт питьевой':'актимель актива activia actimel', 'Хлопья кукурузные':'корнфлейкс cornflakes', 'Холодный кофе в банке':'нескафе nescafe starbucks старбакс'
 };
 // окно добавления: поиск по справочнику + недавние, граммы или штуки, либо свой продукт
-function foodMatches(q){
-  const recent = []; const seen = new Set();
-  (State.foodRows||[]).filter(r=>r.user_id===foodUid()).reverse().forEach(r=>{ const k = normName(r.name); if(!seen.has(k) && +r.grams>0){ seen.add(k);
-    const g = +r.grams/100; const cat0 = FOOD_DB.find(x=>normName(x.name)===k);
-    recent.push({name:r.name, kcal:+r.kcal/g, p:+r.protein/g, f:+r.fat/g, c:+r.carbs/g, lastGrams:+r.grams, recent:true, unit:r.unit, pc:cat0&&cat0.pc, pcName:cat0&&cat0.pcName}); } });
-  const nq = normName(q||'');
-  const cat = FOOD_DB.filter(x=>!seen.has(normName(x.name)));
-  if(!nq) return [...recent.slice(0,8), ...cat].slice(0,40);
-  const stem = w => w.length>=4 ? w.slice(0,-1) : w;
-  const words = nq.split(' ');
-  const tn = x => { const t = I18N.lang!=='ru' ? I18N.t(x.name) : '', al = FOOD_ALIASES[x.name];
-    return normName(x.name) + (t && t!==x.name ? ' '+normName(t) : '') + (al ? ' '+normName(al) : ''); };
-  const hit = x => { const n = tn(x), nw = n.split(/[\s(),%]+/);
-    return words.every(w => n.includes(w) || nw.some(t => t.startsWith(stem(w)))); };
-  return [...recent, ...cat].filter(hit).sort((a,b)=>(tn(b).startsWith(nq)) - (tn(a).startsWith(nq))).slice(0,40);
+// индекс продуктов строится один раз на язык: поиск по 3500 позициям без пересчёта названий на каждое нажатие
+let FOOD_IDX = null;
+function foodIdx(){
+  if(FOOD_IDX && FOOD_IDX.lang===I18N.lang) return FOOD_IDX;
+  const byKey = new Map(), items = FOOD_DB.map(x=>{ const key = normName(x.name), t = I18N.lang!=='ru' ? I18N.t(x.name) : '', al = FOOD_ALIASES[x.name];
+    const hay = key + (t && t!==x.name ? ' '+normName(t) : '') + (al ? ' '+normName(al) : '');
+    const it = {x, key, hay, words: hay.split(/[\s(),%]+/)}; if(!byKey.has(key)) byKey.set(key, x); return it; });
+  return FOOD_IDX = {lang:I18N.lang, items, byKey};
 }
+const foodByName = name => foodIdx().byKey.get(normName(name));
+function foodMatches(q){
+  const I = foodIdx(), recent = [], seen = new Set();
+  (State.foodRows||[]).filter(r=>r.user_id===foodUid()).reverse().forEach(r=>{ const k = normName(r.name); if(!seen.has(k) && +r.grams>0){ seen.add(k);
+    const g = +r.grams/100, cat0 = I.byKey.get(k), al = FOOD_ALIASES[r.name];
+    recent.push({it:{key:k, hay:k+(al?' '+normName(al):''), words:k.split(/[\s(),%]+/)}, x:{name:r.name, kcal:+r.kcal/g, p:+r.protein/g, f:+r.fat/g, c:+r.carbs/g, lastGrams:+r.grams, recent:true, unit:r.unit, pc:cat0&&cat0.pc, pcName:cat0&&cat0.pcName}}); } });
+  const nq = normName(q||'');
+  if(!nq){ const out = recent.slice(0,8).map(r=>r.x); for(const it of I.items){ if(out.length>=40) break; if(!seen.has(it.key)) out.push(it.x); } return out; }
+  const stem = w => w.length>=4 ? w.slice(0,-1) : w, words = nq.split(' ').filter(Boolean), stems = words.map(stem);
+  const hit = it => words.every((w,i) => it.hay.includes(w) || it.words.some(t => t.startsWith(stems[i])));
+  const found = [];
+  recent.forEach(r=>{ if(hit(r.it)) found.push({x:r.x, top:r.it.hay.startsWith(nq)?1:0}); });
+  for(const it of I.items){ if(seen.has(it.key) || !hit(it)) continue; found.push({x:it.x, top:it.hay.startsWith(nq)?1:0}); if(found.length>400) break; }
+  return found.sort((a,b)=>b.top-a.top).slice(0,40).map(f=>f.x);
+}
+function foodListHtml(m){
+  const list = m.list = foodMatches(m.q);
+  return list.map((x,i)=>`<button class="food-pick" data-food="pick" data-i="${i}"><b>${esc(x.name)}</b>${x.recent?' <span class="pill">недавнее</span>':''}<div class="muted">${Math.round(x.kcal)} ккал / 100 ${unitOf(x)} · Б ${fmtNum(x.p)} · Ж ${fmtNum(x.f)} · У ${fmtNum(x.c)}</div></button>`).join('')
+    || '<div class="muted" style="margin-bottom:8px">Ничего не найдено — добавьте свой продукт.</div>';
+}
+let foodQT = null;
 function foodCalc(item, g){ const k = g/100; return {kcal:item.kcal*k, p:item.p*k, f:item.f*k, c:item.c*k}; }
 function renderFoodModal(){
   const m = State.modal, meal = (MEALS.find(x=>x[0]===m.meal)||[])[1];
@@ -5610,13 +5812,11 @@ function renderFoodModal(){
       <div class="field" style="margin-top:10px"><label>${unitOf(it)==='мл'?'Сколько выпили, мл':'Сколько съели, г'}</label><input type="text" inputmode="decimal" data-food-in="grams" value="${m.grams||''}" id="foodGrams"></div>
       ${it.pc?`<div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:8px">${[0.5,1,2,3].map(k=>`<button class="btn sm" data-food="pc" data-k="${k}">${esc(it.pcName)}${k===1?'':' ×'+(k===0.5?'½':k)} (${Math.round(it.pc*k)} ${unitOf(it)})</button>`).join('')}</div>`:''}
       <div id="foodCalc" class="card" style="background:var(--surface2)">${foodCalcText(r)}</div>
-      ${m.editId ? `<div class="field" style="margin-top:10px"><label>Приём пищи</label><select data-food-in="meal">${MEALS.map(([k,l])=>`<option value="${k}" ${m.meal===k?'selected':''}>${l}</option>`).join('')}</select></div>` : ''}
+      ${m.editId ? `<div class="field" style="margin-top:10px"><label>Приём пищи</label><select data-food-in="meal">${MEALS.map(([k,l])=>`<option value="${k}" ${m.meal===k?'selected':''}>${l.replace(/^\S+\s/,'')}</option>`).join('')}</select></div>` : ''}
       <div class="row" style="justify-content:space-between;margin-top:10px">${m.editId ? '<span></span>' : '<button class="btn ghost" data-food="back">‹ К поиску</button>'}<button class="btn primary" data-food="save">${m.editId ? 'Сохранить' : 'Добавить'}</button></div>`;
   } else {
-    const list = m.list = foodMatches(m.q);
-    body = `<input type="search" data-food-in="q" value="${esc(m.q||'')}" placeholder="Поиск: гречка, плов, банан…" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:10px">
-      <div style="max-height:52vh;overflow:auto">${list.map((x,i)=>`<button class="food-pick" data-food="pick" data-i="${i}"><b>${esc(x.name)}</b>${x.recent?' <span class="pill">недавнее</span>':''}<div class="muted">${Math.round(x.kcal)} ккал / 100 ${unitOf(x)} · Б ${fmtNum(x.p)} · Ж ${fmtNum(x.f)} · У ${fmtNum(x.c)}</div></button>`).join('')
-        || '<div class="muted" style="margin-bottom:8px">Ничего не найдено — добавьте свой продукт.</div>'}</div>
+    body = `<input type="search" data-food-in="q" value="${esc(m.q||'')}" placeholder="Поиск: гречка, плов, банан…" autocomplete="off" autocorrect="off" spellcheck="false" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:10px">
+      <div id="foodList" style="max-height:52vh;overflow:auto">${foodListHtml(m)}</div>
       <button class="btn" style="margin-top:6px" data-food="custom">+ Свой продукт</button>`;
   }
   return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:480px">
@@ -5652,7 +5852,7 @@ function foodClick(ds){
       State.foodRows = State.foodRows.filter(r=>r.id!==id); renderMain(); });
     return; }
   if(a==='add'){ State.modal = {kind:'food', uid: foodUid(), meal: ds.meal, date: foodDate(), q:''}; renderModal(); return; }
-  if(a==='edit'){ const r = State.foodRows.find(x=>x.id===ds.id); if(!r) return; const g = +r.grams/100, cat0 = FOOD_DB.find(x=>normName(x.name)===normName(r.name));
+  if(a==='edit'){ const r = State.foodRows.find(x=>x.id===ds.id); if(!r) return; const g = +r.grams/100, cat0 = foodByName(r.name);
     State.modal = {kind:'food', uid: r.user_id, meal: r.meal, date: r.date, editId: r.id, grams: +r.grams,
       sel: {name:r.name, kcal:+r.kcal/g, p:+r.protein/g, f:+r.fat/g, c:+r.carbs/g, unit:r.unit, pc:cat0&&cat0.pc, pcName:cat0&&cat0.pcName}};
     renderModal(); return; }
@@ -5666,7 +5866,8 @@ function foodClick(ds){
 }
 function foodInput(e){
   const m = State.modal, key = e.target.dataset.foodIn; if(!m || m.kind!=='food') return;
-  if(key==='q'){ m.q = e.target.value; renderModal(); const el = document.querySelector('[data-food-in="q"]'); if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); } return; }
+  if(key==='q'){ m.q = e.target.value; if(e.isComposing) return; clearTimeout(foodQT);
+    foodQT = setTimeout(()=>{ const box = document.getElementById('foodList'); if(box && State.modal===m) box.innerHTML = foodListHtml(m); }, 140); return; }
   if(key==='grams'){ m.grams = e.target.value; const box = document.getElementById('foodCalc'); if(box) box.innerHTML = foodCalcText(foodCalc(m.sel, parseFloat(String(m.grams).replace(',','.'))||0)); return; }
   if(key==='meal'){ m.meal = e.target.value; return; }
   if(key.startsWith('cu.')) m.cu[key.slice(3)] = e.target.value;
@@ -5676,9 +5877,9 @@ function foodInput(e){
 // Тариф берётся из таблицы subscriptions (пишет бот после оплаты звёздами или redeem_promo по коду).
 // Пока в app_texts paywall = off — все функции открыты всем, страница подписки просто показывает тарифы.
 const PLAN_DEF = {
-  free:    {name:'Free', icon:'🌱', rank:0},
-  pro:     {name:'Pro', icon:'⚡', rank:1},
-  trainer: {name:'Тренер', icon:'🏆', rank:2},
+  free:    {name:'Free', ic:'leaf', rank:0, get icon(){ return ICON('leaf'); }},
+  pro:     {name:'Pro', ic:'bolt', rank:1, get icon(){ return ICON('bolt'); }},
+  trainer: {name:'Тренер', ic:'trophy', rank:2, get icon(){ return ICON('trophy'); }},
 };
 const PLAN_FEATS = {
   free:    ['Дневник тренировок и календарь','Шаблоны и свои упражнения','Питание и калории','Друзья и общие тренировки','Базовый прогресс и ачивки'],
@@ -5691,7 +5892,12 @@ function planOf(){
   return {id:'free', ...PLAN_DEF.free, until:null};
 }
 const paywallOn = () => DB.linkTexts && DB.linkTexts.paywall === 'on';
-const planPrice = id => parseInt((DB.linkTexts||{})['price_'+id], 10) || (id==='trainer' ? 400 : 200);
+const planPrice = id => parseInt((DB.linkTexts||{})['price_'+id], 10) || (id==='trainer' ? 440 : 220);
+// срок: 1 месяц — автопродление звёздами; 3/6/12 — разовая оплата со скидкой. Ещё −5% за приглашённого друга/ученика
+const PERIOD_DISC = {1:0, 3:0.10, 6:0.125, 12:0.15}, REF_DISC = 0.05;
+function hasInvited(){ const me = selfParticipantId();
+  return (DB.friends||[]).some(f=>f.status==='accepted' && !f.incoming) || (DB.trainerLinks||[]).some(l=>l.trainer_id===me && l.status==='accepted'); }
+const periodPrice = (id, m) => Math.max(1, Math.round(planPrice(id) * m * (1 - PERIOD_DISC[m]) * (hasInvited() ? 1 - REF_DISC : 1)));
 // доступна ли функция уровня pro/trainer; если нет — подсказка и переход к тарифам
 function needPlan(level){
   if(!paywallOn() || isAdmin() || planOf().rank >= PLAN_DEF[level].rank) return true;
@@ -5699,19 +5905,23 @@ function needPlan(level){
   State.modal = null; renderModal(); State.view = 'settings'; State.setPage = 'plans'; renderMain(); syncBackButton(); return false;
 }
 function plansPage(){
-  const cur = planOf(), on = paywallOn();
+  const cur = planOf(), on = paywallOn(), pm = State.planMonths || 1, ref = hasInvited();
   const card = id => { const P = PLAN_DEF[id], mine = cur.id===id;
     return `<div class="plan-card ${id} ${mine?'on':''}">
-      <div class="pc-top"><span class="pc-ic">${P.icon}</span><b>${P.name}</b>${id==='free'?`<span class="pc-price">0 ⭐</span>`:`<span class="pc-price">${planPrice(id)} ⭐<small>/ ${trn('мес')}</small></span>`}</div>
+      <div class="pc-top"><span class="pc-ic">${P.icon}</span><b>${P.name}</b>${id==='free'?`<span class="pc-price">0 ⭐</span>`:`<span class="pc-price">${periodPrice(id,pm)} ⭐<small>/ ${pm===1?trn('мес'):TT('{n} мес.', {n:pm})}</small></span>`}</div>
+      ${id!=='free' && (pm>1 || ref) ? `<div class="pc-save"><s>${planPrice(id)*pm} ⭐</s> ${pm>1?`<span>≈ ${Math.round(periodPrice(id,pm)/pm)} ⭐ / ${trn('мес')}</span>`:''}</div>` : ''}
       <ul>${PLAN_FEATS[id].map(f=>`<li>${f}</li>`).join('')}</ul>
       ${mine ? `<div class="pc-cur">${cur.until?TT('Ваш тариф · до {d}', {d:fmtDate(cur.until.slice(0,10))}):'Ваш тариф'}</div>`
-        : id!=='free' ? `<button class="btn primary" data-buy-plan="${id}">${trn(cur.rank>P.rank?'Перейти':'Оформить')} · ${planPrice(id)} ⭐</button>` : ''}
+        : id!=='free' ? `<button class="btn primary" data-buy-plan="${id}">${trn(cur.rank>P.rank?'Перейти':'Оформить')} · ${periodPrice(id,pm)} ⭐</button>` : ''}
+      ${mine && id!=='free' && pm>1 ? `<button class="btn" style="margin-top:8px" data-buy-plan="${id}">${trn('Продлить')} · ${periodPrice(id,pm)} ⭐</button>` : ''}
     </div>`; };
-  return `${on?'':`<div class="note-soft">🎁 Сейчас все функции открыты бесплатно. Подписка — способ поддержать проект.</div>`}
+  return `${on?'':`<div class="note-soft">${ICON('star','h3i')} Сейчас все функции открыты бесплатно. Подписка — способ поддержать проект.</div>`}
+    <div class="seg pm-seg">${[1,3,6,12].map(m=>`<button class="${pm===m?'on':''}" data-plan-months="${m}">${m===1?trn('Месяц'):TT('{n} мес.', {n:m})}${PERIOD_DISC[m]?`<small>−${String(PERIOD_DISC[m]*100).replace('.',',')}%</small>`:''}</button>`).join('')}</div>
+    <div class="note-soft" style="font-size:12.5px">${pm===1?trn('Помесячно: продлевается автоматически, отменить можно в любой момент.'):trn('Оплата сразу за весь срок, без автопродления.')} ${ref?`<b>${trn('−5% за приглашённого друга или ученика уже учтено.')}</b>`:trn('Пригласите друга или ученика — получите ещё −5%.')}</div>
     ${['free','pro','trainer'].map(card).join('')}
     <div class="card" style="margin-bottom:10px"><h3>Код подписки</h3>
       <div class="row" style="gap:6px;flex-wrap:nowrap"><input type="text" id="promoInput" placeholder="Например, LW-PRO-7K2Q" style="flex:1;min-width:0;text-transform:uppercase" autocomplete="off"><button class="btn" data-redeem="1">Активировать</button></div>
-      <p class="muted" style="font-size:12px;margin:6px 0 0">Оплата — звёздами Telegram, продление раз в 30 дней. Отменить можно в Telegram: Настройки → Мои звёзды.</p></div>`;
+      <p class="muted" style="font-size:12px;margin:6px 0 0">Оплата — звёздами Telegram. Помесячную подписку можно отменить в Telegram: Настройки → Мои звёзды.</p></div>`;
 }
 async function loadSubscription(){
   try{ const c = Auth.getClient(); if(!c) return;
@@ -5723,7 +5933,7 @@ async function buyPlan(id){
   try{
     const r = await fetch(SUPABASE_URL + '/functions/v1/telegram-bot', { method:'POST',
       headers:{'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+(await Auth.freshToken())},
-      body: JSON.stringify({action:'invoice', plan:id}) });
+      body: JSON.stringify({action:'invoice', plan:id, months: State.planMonths || 1}) });
     const j = await r.json().catch(()=>({}));
     if(!r.ok || !j.link) return toast('Не удалось создать счёт: '+(j.error||r.status));
     if(tg && tg.openInvoice) tg.openInvoice(j.link, async st=>{
@@ -5775,42 +5985,50 @@ async function loadPromos(){
 
 /* ===================== SETTINGS VIEW ===================== */
 // ===== Настройки (раздел «Профиль»): короткий список строк, каждая открывает свою страницу =====
-const SET_PAGES = {coach:'Режим тренировки', exercises:'Упражнения', themes:'Цветовая палитра', plans:'Подписка', backup:'Резервная копия', transfer:'Перенос аккаунта'};
-function setRow(icon, title, sub, attrs, right){ return `<button class="set-row-i" ${attrs}><span class="sr-ic">${icon}</span><span class="sr-t"><b>${title}</b>${sub?`<span class="muted">${sub}</span>`:''}</span>${right||'<span class="sr-go">›</span>'}</button>`; }
+const SET_PAGES = {look:'Оформление', coach:'Режим тренировки', exercises:'Упражнения', themes:'Цветовая палитра', plans:'Подписка', backup:'Резервная копия', transfer:'Перенос аккаунта'};
+function setRow(icon, title, sub, attrs, right){ return `<button class="set-row-i" ${attrs}><span class="sr-ic">${(icon && icon.startsWith('<svg')) ? icon : (ICON(icon)||icon)}</span><span class="sr-t"><b>${title}</b>${sub?`<span class="muted">${sub}</span>`:''}</span>${right||'<span class="sr-go">›</span>'}</button>`; }
+function setTile(icon, title, sub, attrs, accent){ return `<button class="st-tile ${accent?'acc':''}" ${attrs}><span class="st-ic">${ICON(icon)||icon}</span><span class="st-tx"><b>${title}</b>${sub?`<span>${sub}</span>`:''}</span></button>`; }
+// образцы палитр: половина — фон темы, половина — акцент; нажатие сразу применяет
+function paletteStrip(){ const cur = DB.settings.themeColor;
+  const list = PRESET_THEMES.filter(t=>t.design==='lw').concat(PRESET_THEMES.filter(t=>t.design!=='lw').slice(0,0));
+  return `<div class="pal-strip">${list.map(t=>{ const v = t.D||t.L; return `<button class="pal-sw ${cur===t.id?'on':''}" data-pick-theme="${t.id}" title="${esc(t.name)}" style="background:linear-gradient(135deg,${v.surface} 50%,${t.dark||t.accent} 50%)"></button>`; }).join('')}</div>`; }
 function viewSettings(){
   const s = DB.settings, pg = State.setPage;
   if(pg && SET_PAGES[pg]) return `<div class="sub-head"><button class="btn sm ghost back-up" data-set-page="">← Настройки</button><h2>${SET_PAGES[pg]}</h2></div>${settingsPage(pg)}`;
-  const c = coach(), plan = planOf();
-  return `<div class="set-list">
-    <div class="set-group-t">Тренировки</div>
-    <div class="set-group">
-      ${setRow('🧭','Режим тренировки', c.minimal?'упрощённый · '+(PROGRAMS[progKey(c)]?PROGRAMS[progKey(c)].title:'без программы'):'обычный', 'data-set-page="coach"')}
-      ${setRow('🏋️','Упражнения', TT('{n} · свои и общие', {n:DB.exercises.length}), 'data-set-page="exercises"')}
-      ${setRow('📖','Справка по упражнениям', 'техника и мышцы', 'data-nav="help"')}
+  const c = coach(), plan = planOf(), o = uiOpt(), th = PRESET_THEMES.find(t=>t.id===s.themeColor)||PRESET_THEMES[0];
+  const chip = (attr, val, on, label) => `<button class="q-chip ${on?'on':''}" ${attr}="${val}">${label}</button>`;
+  return `<div class="st-grid">
+      ${setTile('coach','Режим тренировки', c.minimal?'упрощённый · '+(PROGRAMS[progKey(c)]?PROGRAMS[progKey(c)].title:'без программы'):'обычный', 'data-set-page="coach"', true)}
+      ${setTile('dumbbell','Упражнения', TT('{n} · свои и общие', {n:DB.exercises.length}), 'data-set-page="exercises"')}
+      ${setTile('palette','Оформление', esc(trn(th.name))+' · '+esc(o.font), 'data-set-page="look"')}
+      ${setTile(plan.ic||'leaf', 'Подписка', esc(plan.name)+(plan.until?' · '+TT('до {d}', {d:fmtDate(plan.until.slice(0,10))}):''), 'data-set-page="plans"')}
+      ${setTile('download','Резервная копия', 'файл в чат с ботом', 'data-set-page="backup"')}
+      ${setTile('transfer','Перенос аккаунта', 'на новый Telegram', 'data-set-page="transfer"')}
     </div>
-    <div class="set-group-t">Оформление</div>
+    <div class="card st-card"><div class="row" style="justify-content:space-between"><b>Цветовая палитра</b><button class="lnk" data-set-page="themes">${trn('все')} ›</button></div>${paletteStrip()}</div>
+    <div class="card st-card"><b>Быстро</b>
+      <div class="q-row">${chip('data-q-units','kg',s.units==='kg','кг')}${chip('data-q-units','lb',s.units==='lb','lb')}<span class="q-sep"></span>${UI_SIZES.map(([v,l],i)=>chip('data-q-size',v,o.size===v,`<span style="font-size:${12+i*3}px">A</span>`)).join('')}<span class="q-sep"></span>${DAY_MARKS.map(([v,l],i)=>chip('data-q-mark',v,o.mark===v,['●','≋','╱'][i])).join('')}</div>
+      <div class="q-row"><span class="muted">${trn('Язык')}</span>${I18N.select()}</div></div>
     <div class="set-group">
-      <label class="set-row-i"><span class="sr-ic">🌐</span><span class="sr-t"><b>Язык</b></span>${I18N.select()}</label>
-      <label class="set-row-i"><span class="sr-ic">⚖️</span><span class="sr-t"><b>Единицы веса</b></span><select data-setting="units"><option value="kg" ${s.units==='kg'?'selected':''}>Килограммы</option><option value="lb" ${s.units==='lb'?'selected':''}>Фунты</option></select></label>
-      ${(PRESET_THEMES.find(t=>t.id===s.themeColor)||{}).forceDark?'':`<label class="set-row-i"><span class="sr-ic">🌓</span><span class="sr-t"><b>Тема</b></span><select data-setting="theme"><option value="auto" ${s.theme==='auto'?'selected':''}>Системная</option><option value="light" ${s.theme==='light'?'selected':''}>Светлая</option><option value="dark" ${s.theme==='dark'?'selected':''}>Тёмная</option></select></label>`}
-      ${setRow('🎨','Цветовая палитра', esc((PRESET_THEMES.find(t=>t.id===s.themeColor)||PRESET_THEMES[0]).name), 'data-set-page="themes"')}
-    </div>
-    <div class="set-group-t">Подписка</div>
-    <div class="set-group">${setRow(plan.icon, plan.name, plan.until?TT('до {d}', {d:fmtDate(plan.until.slice(0,10))}):'Pro и Тренер — больше возможностей', 'data-set-page="plans"')}</div>
-    <div class="set-group-t">Данные</div>
-    <div class="set-group">
-      ${setRow('📦','Резервная копия', 'сохранить или загрузить из файла', 'data-set-page="backup"')}
-      ${setRow('🔁','Перенос аккаунта', 'на новый Telegram', 'data-set-page="transfer"')}
-    </div>
-    ${(DB.links||[]).length?`<div class="set-group-t">Автор</div><div class="set-group">
-      ${(DB.links||[]).some(x=>x.section==='support')?setRow('💛', esc(linkText('support_title')||'Поддержать автора'), '', 'data-links="support"'):''}
-      ${(DB.links||[]).some(x=>x.section==='bloggers')?setRow('⭐', esc(linkText('bloggers_title')||'Рекомендации автора'), '', 'data-links="bloggers"'):''}</div>`:''}
-    ${isAdmin()?`<div class="set-group-t">Администратор</div><div class="set-group">${setRow('🛡️','Админ-панель','сертификаты, ачивки, ссылки, коды подписки','data-open-admin="1"')}</div>`:''}
-  </div>`;
+      ${setRow('book','Справка по упражнениям', 'техника и мышцы', 'data-nav="help"')}
+      ${(DB.links||[]).some(x=>x.section==='support')?setRow('heart', esc(linkText('support_title')||'Поддержать автора'), '', 'data-links="support"'):''}
+      ${(DB.links||[]).some(x=>x.section==='bloggers')?setRow('star', esc(linkText('bloggers_title')||'Рекомендации автора'), '', 'data-links="bloggers"'):''}
+      ${isAdmin()?setRow('shield','Админ-панель','сертификаты, ачивки, ссылки, коды подписки','data-open-admin="1"'):''}
+    </div>`;
 }
 function settingsPage(pg){
   const s = DB.settings;
-  if(pg==='coach') return coachSettingsCard() + `<div class="card" style="margin-bottom:10px"><div class="field" style="margin:0"><label>Отдых между подходами по умолчанию, сек</label><input type="text" inputmode="numeric" data-setting="restDefault" value="${s.restDefault}"></div>
+  if(pg==='look'){ const o = uiOpt();
+    return `<div class="card st-card"><div class="row" style="justify-content:space-between"><b>Цветовая палитра</b><button class="lnk" data-set-page="themes">${trn('все')} ›</button></div>${paletteStrip()}</div>
+    <div class="card st-card"><b>Шрифт</b><div class="q-row wrap">${UI_FONTS.map(([v,l])=>`<button class="q-chip ${o.font===v?'on':''}" data-q-font="${v}" style="font-family:'${v}'">${l}</button>`).join('')}</div>
+      <div class="muted" style="margin-top:12px">${trn('Размер текста')}</div><div class="q-row wrap" style="margin-top:6px">${UI_SIZES.map(([v,l],i)=>`<button class="q-chip ${o.size===v?'on':''}" data-q-size="${v}"><span style="font-size:${12+i*3}px">A</span> ${l}</button>`).join('')}</div></div>
+    <div class="card st-card"><b>Отметка дней</b><div class="q-row wrap">${DAY_MARKS.map(([v,l],i)=>`<button class="q-chip ${o.mark===v?'on':''}" data-q-mark="${v}">${['●','≋','╱'][i]} ${l}</button>`).join('')}</div></div>
+    <div class="set-group">
+      ${(PRESET_THEMES.find(t=>t.id===s.themeColor)||{}).forceDark?'':`<label class="set-row-i"><span class="sr-ic">${ICON('moon')}</span><span class="sr-t"><b>Тема</b></span><select data-setting="theme"><option value="auto" ${s.theme==='auto'?'selected':''}>Системная</option><option value="light" ${s.theme==='light'?'selected':''}>Светлая</option><option value="dark" ${s.theme==='dark'?'selected':''}>Тёмная</option></select></label>`}
+      <label class="set-row-i"><span class="sr-ic">${ICON('globe')}</span><span class="sr-t"><b>Язык</b></span>${I18N.select()}</label>
+      <label class="set-row-i"><span class="sr-ic">${ICON('kettlebell')}</span><span class="sr-t"><b>Единицы веса</b></span><select data-setting="units"><option value="kg" ${s.units==='kg'?'selected':''}>Килограммы</option><option value="lb" ${s.units==='lb'?'selected':''}>Фунты</option></select></label>
+    </div>`; }
+  if(pg==='coach') return coachSettingsCard() + programsCard() + `<div class="card" style="margin-bottom:10px"><div class="field" style="margin:0"><label>Отдых между подходами по умолчанию, сек</label><input type="text" inputmode="numeric" data-setting="restDefault" value="${s.restDefault}"></div>
     <div class="field" style="margin:10px 0 0"><label>Норма шагов в день (для календаря)</label><input type="text" inputmode="numeric" data-coach-steps="1" value="${stepsGoal()}"></div></div>`;
   if(pg==='exercises') return `<div class="card ex-list" id="exList" style="margin-bottom:10px">
     ${isAdmin() ? DB.exercises.map(e=>`<div class="ex-admin">
@@ -5839,7 +6057,7 @@ function settingsPage(pg){
     <p class="muted">Копия (тренировки, шаблоны, свои упражнения, вес, личные данные, питание) придёт файлом в чат с ботом. Загрузка из файла добавляет данные к текущим — ничего не удаляется, повторы пропускаются.</p>
   </div>`;
   if(pg==='transfer') return `<div class="card" style="margin-bottom:10px">
-    <h3>🔁 Перенос на новый аккаунт Telegram</h3>
+    <h3>${ICON('transfer','h3i')} Перенос на новый аккаунт Telegram</h3>
     <p class="muted">Сменили номер или аккаунт Telegram? В старом аккаунте нажмите «Получить код», затем в новом введите его — все тренировки, вес, питание, шаблоны, сертификаты и ачивки переедут. Код действует 24 часа. Смена номера в том же аккаунте Telegram ничего не меняет — данные остаются.</p>
     ${State.transferCode?`<div class="transfer-code" data-no-tr>${esc(State.transferCode)}</div><div class="row" style="gap:6px;margin-bottom:8px"><button class="btn sm" data-copy-transfer="1">Скопировать код</button></div>`:''}
     <div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn" data-transfer-code="1">Получить код (старый аккаунт)</button></div>
@@ -5864,7 +6082,7 @@ async function loadLinks(){
     const [{data:l, error:e1}, {data:t}] = await Promise.all([c.from('app_links').select('*').order('sort'), c.from('app_texts').select('*')]);
     if(e1) return;   // таблиц ещё нет (не запущен stage18) — блок просто не показывается
     DB.links = l||[]; DB.linkTexts = Object.fromEntries((t||[]).map(x=>[x.key, x.value]));
-    await loadSubscription();
+    await loadSubscription(); loadPrograms();
     const {data:cb} = await c.from('custom_badges').select('*').order('created_at');   // свои ачивки за соревнования
     DB.customBadges = cb||[];
     const {data:ub} = await c.from('user_badges').select('*');   // выданные ачивки (свои и тех, кто открыл мне данные)
@@ -5917,7 +6135,7 @@ function adminLinksEditor(){
         <div class="row" style="margin-top:6px;gap:6px"><button class="btn sm" data-lk-move="${i}.-1" ${k===0?'disabled':''}>↑</button><button class="btn sm" data-lk-move="${i}.1" ${k===rows.length-1?'disabled':''}>↓</button>
           <span class="grow"></span><button class="btn sm danger" data-lk-del="${i}">Удалить</button></div></div>`).join('') || '<div class="muted" style="margin-bottom:6px">Ссылок пока нет.</div>'}
       <button class="btn sm" data-lk-add="${id}">+ Добавить ссылку</button></div>`; };
-  return `<div class="card" style="margin-bottom:10px"><h3>🔗 Ссылки внизу страниц</h3>
+  return `<div class="card" style="margin-bottom:10px"><h3>${ICON('transfer','h3i')} Ссылки внизу страниц</h3>
     <div class="muted">Показываются внизу страниц: календарь, тренировки, участники, статистика, калории, настройки. Кнопка — название ссылки, под ней ваш комментарий.</div>
     ${sec('support','Поддержать автора','Boosty, YouTube («просто посмотрите, оставьте комментарий, послушайте музыку») и т. п.')}
     ${sec('bloggers','Рекомендованные блогеры','Instagram, YouTube, Telegram-каналы; в комментарии — ник или имя блогера.')}
@@ -6083,7 +6301,7 @@ function certsCard(uid){
   const list = (DB.certs||[]).filter(c=>c.user_id===uid);
   if(!mine && !list.length) return '';
   return `<div class="card" style="margin-bottom:10px">
-    <div class="row" style="justify-content:space-between"><h3 style="margin:0">🏅 Сертификаты соревнований</h3>
+    <div class="row" style="justify-content:space-between"><h3 style="margin:0">${ICON('trophy','h3i')} Сертификаты соревнований</h3>
       ${mine?'<button class="btn sm primary" data-add-cert="1">+ Добавить</button>':''}</div>
     ${mine?'<div class="muted" style="margin:4px 0 8px">После проверки администратором сертификат появится в «Достижениях → Соревнования».</div>':''}
     ${list.map(c=>`<div class="cert-row">
@@ -6264,7 +6482,7 @@ function adminApprovedCerts(A, nameOf){
 function adminPersonalBadges(A){
   const u = State.pbUser, res = State.pbResults || [];
   const mine = u ? (A.userBadges||[]).filter(x=>x.user_id===u.id && !x.cert_id) : [];
-  return `<div class="card" style="margin-bottom:10px"><h3>🎖️ Персональные ачивки</h3>
+  return `<div class="card" style="margin-bottom:10px"><h3>${ICON('star','h3i')} Персональные ачивки</h3>
     <div class="muted" style="margin-bottom:6px">Выдайте любому пользователю одну или несколько ачивок из библиотеки (или загрузите новую) — за что угодно. Они появятся во вкладке «Персональные», в бот придёт сообщение с картинкой.</div>
     <div class="row" style="gap:6px"><input type="text" id="pbQ" value="${esc(State.pbQ||'')}" placeholder="Имя или @username" style="flex:1;padding:7px;border:1px solid var(--border);border-radius:6px;background:var(--surface)"><button class="btn sm" data-pb-find="1">Найти</button></div>
     ${res.length?`<div class="cb-users">${res.map(p=>`<button class="btn sm ${u&&u.id===p.id?'primary':''}" data-pb-user="${p.id}">${esc(p.name||'Без имени')}${p.telegram_username?' @'+esc(p.telegram_username):''}</button>`).join('')}</div>`:State.pbQ?'<div class="muted" style="margin-top:6px">Никого не нашлось.</div>':''}
@@ -6282,7 +6500,7 @@ function adminMoveAccount(){
   const side = (k, label) => `<div style="margin-top:8px"><div class="muted">${label}</div>
     <div class="row" style="gap:6px"><input type="text" id="mvQ_${k}" value="${esc(M['q_'+k]||'')}" placeholder="Имя или @username" style="flex:1;padding:7px;border:1px solid var(--border);border-radius:6px;background:var(--surface)"><button class="btn sm" data-mv-find="${k}">Найти</button></div>
     ${(M['res_'+k]||[]).length?`<div class="cb-users">${M['res_'+k].map(p=>`<button class="btn sm ${M[k]&&M[k].id===p.id?'primary':''}" data-mv-pick="${k}|${p.id}">${esc(p.name||'Без имени')}${p.telegram_username?' @'+esc(p.telegram_username):''} · ${fmtDate(String(p.created_at||'').slice(0,10))}</button>`).join('')}</div>`:''}</div>`;
-  return `<div class="card" style="margin-bottom:10px"><h3>🔁 Перенос данных между аккаунтами</h3>
+  return `<div class="card" style="margin-bottom:10px"><h3>${ICON('transfer','h3i')} Перенос данных между аккаунтами</h3>
     <div class="muted">Если человек сменил аккаунт Telegram и не может войти в старый: выберите старый и новый аккаунт — тренировки, вес, питание, шаблоны, сертификаты и ачивки переедут в новый.</div>
     ${side('from','Откуда (старый аккаунт)')}${side('to','Куда (новый аккаунт)')}
     ${M.from&&M.to?`<div style="margin-top:8px"><b>${esc(M.from.name)}</b> → <b>${esc(M.to.name)}</b></div>`:''}
@@ -6428,7 +6646,64 @@ async function socialAction(fn, args, msgFn){
 }
 
 /* ===================== MAIN VIEW EVENT HANDLERS (delegated) ===================== */
+/* ===================== ИКОНКИ: металл (серебро) + вишнёвые акценты, как в референсе ===================== */
+// металлическая заливка/обводка + вишнёвый акцент; градиенты лежат один раз в скрытом <svg id="lwIconDefs">
+const IM = 'url(#lwMetal)', IA = 'url(#lwCherry)';
+const st = (w) => `fill="none" stroke="${IM}" stroke-width="${w||2}" stroke-linecap="round" stroke-linejoin="round"`;
+const sa = (w) => `fill="none" stroke="${IA}" stroke-width="${w||2}" stroke-linecap="round" stroke-linejoin="round"`;
+const ICON_SVG = {
+  calendar: `<rect x="3.5" y="5" width="17" height="15.5" rx="3.2" ${st()}/><path d="M8 3v3.6M16 3v3.6" ${st()}/><rect x="7" y="10.5" width="3" height="3" rx=".8" fill="${IM}"/><rect x="11" y="10.5" width="3" height="3" rx=".8" fill="${IM}"/><rect x="7" y="14.8" width="3" height="3" rx=".8" fill="${IM}"/><rect x="11" y="14.8" width="3" height="3" rx=".8" fill="${IM}"/><rect x="15" y="14.8" width="3" height="3" rx=".8" fill="${IA}"/>`,
+  food: `<path d="M12 21c-4.3 0-7.3-3.4-7.3-7.9 0-3.8 2.4-6.3 5.1-6.3 1 0 1.6.4 2.2.4s1.2-.4 2.2-.4c2.7 0 5.1 2.5 5.1 6.3 0 4.5-3 7.9-7.3 7.9z" ${st()}/><path d="M12 6.8c.1-1.9 1.1-3.3 2.9-3.9" ${sa()}/><path d="M8.2 12.2c.3-1.2 1-2 2-2.3" ${st(1.6)} opacity=".7"/>`,
+  profile: `<circle cx="10" cy="8.2" r="3.9" fill="${IM}"/><path d="M3 20.5c.6-4 3.4-6.3 7-6.3s6.4 2.3 7 6.3z" fill="${IM}"/><path d="M15.6 5.3a3.4 3.4 0 1 1 1.9 6.2" ${sa(1.9)}/><path d="M18.4 14.6c1.7.8 2.6 2.6 2.9 5.4h-2.4" ${sa(1.9)}/>`,
+  stats: `<rect x="4" y="15" width="2.8" height="5" rx=".8" fill="${IM}"/><rect x="8.6" y="12.5" width="2.8" height="7.5" rx=".8" fill="${IM}"/><rect x="13.2" y="13.5" width="2.8" height="6.5" rx=".8" fill="${IM}"/><rect x="17.8" y="10" width="2.8" height="10" rx=".8" fill="${IM}"/><path d="M3.5 11.5 8 7.5l4 2.5 7.5-6" ${sa()}/><path d="M16 4h3.6v3.6" ${sa()}/>`,
+  gear: `<path d="M12 2.8l1.5 2.1 2.5-.6.9 2.4 2.4.9-.6 2.5 2.1 1.5-2.1 1.5.6 2.5-2.4.9-.9 2.4-2.5-.6L12 21.2l-1.5-2.1-2.5.6-.9-2.4-2.4-.9.6-2.5L3.2 12l2.1-1.5-.6-2.5 2.4-.9.9-2.4 2.5.6z" ${st(1.8)}/><circle cx="12" cy="12" r="3.6" ${sa(2)}/>`,
+  coach: `<circle cx="12" cy="12" r="7.5" ${st()}/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" ${st()}/><circle cx="12" cy="12" r="2.6" fill="${IA}"/>`,
+  dumbbell: `<rect x="2.5" y="9.5" width="2" height="5" rx=".8" fill="${IM}"/><rect x="5" y="7" width="2.8" height="10" rx="1" fill="${IM}"/><rect x="16.2" y="7" width="2.8" height="10" rx="1" fill="${IM}"/><rect x="19.5" y="9.5" width="2" height="5" rx=".8" fill="${IM}"/><path d="M8.3 12h7.4" ${sa(2.4)}/>`,
+  book: `<path d="M12 6.5c-2-1.6-4.7-2-7.5-1.6v13.4c2.8-.4 5.5 0 7.5 1.6 2-1.6 4.7-2 7.5-1.6V4.9c-2.8-.4-5.5 0-7.5 1.6z" ${st(1.8)}/><path d="M12 6.5v13.4" ${st(1.6)}/><path d="M15 5v5.5l1.4-1 1.4 1V4.7" fill="${IA}"/>`,
+  globe: `<circle cx="12" cy="12" r="8.5" ${st(1.8)}/><path d="M3.8 9.5h16.4M3.8 14.5h16.4" ${st(1.5)}/><path d="M12 3.5c-2.6 2.4-3.8 5.2-3.8 8.5s1.2 6.1 3.8 8.5c2.6-2.4 3.8-5.2 3.8-8.5S14.6 5.9 12 3.5z" ${sa(1.7)}/>`,
+  kettlebell: `<path d="M8.4 9.2A3.8 3.8 0 0 1 12 4.5a3.8 3.8 0 0 1 3.6 4.7" ${st(2)}/><path d="M7 9.3h10c1.6 1.4 2.5 3.3 2.5 5.4 0 2.4-1.2 4.4-3 5.8H7.5c-1.8-1.4-3-3.4-3-5.8 0-2.1.9-4 2.5-5.4z" fill="${IM}"/><path d="M8.5 16.6h7" stroke="${IA}" stroke-width="2" stroke-linecap="round"/>`,
+  moon: `<circle cx="12" cy="12" r="8.3" ${st(1.8)}/><path d="M12 3.7a8.3 8.3 0 0 1 0 16.6z" fill="${IM}"/><circle cx="8" cy="9.5" r="1.3" fill="${IA}"/>`,
+  palette: `<path d="M12 3.5c-4.9 0-8.6 3.6-8.6 8.2 0 4.4 3.5 7.8 7.8 7.8 1.4 0 2-.8 1.6-1.9-.5-1.2.3-2.3 1.6-2.3h2.3c2.4 0 3.9-1.6 3.9-3.8 0-4.4-3.8-8-8.6-8z" ${st(1.8)}/><circle cx="8" cy="11" r="1.4" fill="${IA}"/><circle cx="10.5" cy="7.4" r="1.3" fill="${IM}"/><circle cx="14.6" cy="7.6" r="1.3" fill="${IM}"/>`,
+  star: `<path d="M12 3.2l2.6 5.5 6 .8-4.4 4.1 1.1 6-5.3-2.9-5.3 2.9 1.1-6-4.4-4.1 6-.8z" ${st(1.8)}/><path d="M12 8.2l1.3 2.7 3 .4-2.2 2 .6 3-2.7-1.5-2.7 1.5.6-3-2.2-2 3-.4z" fill="${IA}"/>`,
+  download: `<path d="M8 4.5H6.3a2.8 2.8 0 0 0-2.8 2.8v10.4a2.8 2.8 0 0 0 2.8 2.8h11.4a2.8 2.8 0 0 0 2.8-2.8V7.3a2.8 2.8 0 0 0-2.8-2.8H16" ${st(1.9)}/><path d="M12 3v10.5M8.4 10l3.6 3.6 3.6-3.6" ${sa(2.2)}/>`,
+  transfer: `<path d="M4 8.5h13.5M14 5l3.5 3.5L14 12" ${st(2)}/><path d="M20 15.5H6.5M10 12l-3.5 3.5L10 19" ${sa(2)}/>`,
+  shield: `<path d="M12 3l7.5 2.8v5.6c0 4.6-3.1 8.3-7.5 9.6-4.4-1.3-7.5-5-7.5-9.6V5.8z" ${st(1.8)}/><path d="M8.6 12.2l2.4 2.4 4.6-4.8" ${sa(2.2)}/>`,
+  heart: `<path d="M12 20s-7.8-4.6-7.8-10.4A4.4 4.4 0 0 1 12 7a4.4 4.4 0 0 1 7.8 2.6C19.8 15.4 12 20 12 20z" ${st(1.8)}/><path d="M12 16.5s-4.3-2.6-4.3-5.8A2.4 2.4 0 0 1 12 9.2a2.4 2.4 0 0 1 4.3 1.5c0 3.2-4.3 5.8-4.3 5.8z" fill="${IA}"/>`,
+  leaf: `<path d="M5 19C5 10.5 10.3 5 19.5 4.5 19.5 13.7 14 19 5 19z" ${st(1.8)}/><path d="M5 19l9-9" ${sa(2)}/>`,
+  bolt: `<path d="M13.5 2.8L5.5 13.5h6l-1.3 7.7 8.3-11h-6z" fill="${IM}"/><path d="M11.8 8.2l-2.6 3.6M13.6 13.3l-1.4 2.2" ${sa(1.6)}/>`,
+  trophy: `<path d="M7 4h10v5.2a5 5 0 0 1-10 0z" fill="${IM}"/><path d="M7 6H4.2c0 2.8 1.2 4.4 3.3 4.8M17 6h2.8c0 2.8-1.2 4.4-3.3 4.8" ${st(1.7)}/><path d="M12 14.2v3.3M8.3 20.5h7.4M9.8 17.5h4.4" ${st(2)}/><path d="M12 5.7l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z" fill="${IA}"/>`,
+  sunrise: `<path d="M5.5 16.5a6.5 6.5 0 0 1 13 0" ${st(2)}/><path d="M3 19.5h18" ${st(2)}/><path d="M12 3.5v3.2M5.2 7.2l2 2M18.8 7.2l-2 2" ${sa(2)}/>`,
+  bowl: `<path d="M3.5 11.5h17c0 4.8-3.6 8.5-8.5 8.5s-8.5-3.7-8.5-8.5z" fill="${IM}"/><path d="M9 3.5c-.8 1.2.8 2.2 0 3.6M12.5 3c-.8 1.2.8 2.2 0 3.6M16 3.5c-.8 1.2.8 2.2 0 3.6" ${sa(1.7)}/>`,
+  dinner: `<path d="M15.5 3.8A8.2 8.2 0 1 0 20.2 15 6.6 6.6 0 0 1 15.5 3.8z" ${st(1.8)}/><path d="M17.5 5.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z" fill="${IA}"/>`,
+  apple: `<path d="M12 21c-4 0-6.8-3.2-6.8-7.3 0-3.5 2.2-5.8 4.7-5.8.9 0 1.5.4 2.1.4s1.2-.4 2.1-.4c2.5 0 4.7 2.3 4.7 5.8 0 4.1-2.8 7.3-6.8 7.3z" fill="${IM}"/><path d="M12 7.9c0-2 1-3.5 3-4.2" ${sa(1.9)}/>`,
+  stopwatch: `<circle cx="12" cy="13.5" r="7.3" ${st(1.9)}/><path d="M10 2.8h4M12 2.8v3.4M18.3 6.8l1.3-1.3" ${st(1.9)}/><path d="M12 13.5l3.2-3.4" ${sa(2.2)}/><circle cx="12" cy="13.5" r="1.3" fill="${IA}"/>`,
+  lock: `<rect x="5" y="10.5" width="14" height="10" rx="2.6" fill="${IM}"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" ${st(2)}/><path d="M12 14.3v2.6" stroke="${IA}" stroke-width="2.4" stroke-linecap="round"/>`,
+  steps: `<path d="M8.4 3.5c1.7 0 2.7 1.8 2.6 4.4-.1 2-.9 3.4-2.5 3.4S6 10.1 5.9 8.2C5.8 5.5 6.8 3.5 8.4 3.5z" fill="${IM}"/><path d="M6.4 13h4.2l-.3 2.2c-.2 1.1-1 1.7-1.9 1.7s-1.7-.7-1.9-1.8z" fill="${IM}"/><path d="M15.6 7.5c1.6 0 2.6 2 2.5 4.6-.1 1.9-1 3.2-2.5 3.2s-2.5-1.3-2.6-3.2c-.1-2.6.9-4.6 2.6-4.6z" ${sa(1.7)}/><path d="M13.5 17h4.2l-.3 1.9c-.2 1-1 1.6-1.8 1.6s-1.6-.6-1.8-1.6z" fill="${IA}"/>`,
+  fire: `<path d="M12 21c-3.9 0-6.8-2.7-6.8-6.5 0-3 1.8-5 3.4-6.8C10 6.1 11 4.5 11 2.8c2.3 1.4 3.8 3.4 4 5.6.6-.6 1-1.4 1.1-2.3 1.6 1.7 2.8 4.2 2.8 6.9C18.9 17.6 16 21 12 21z" fill="${IM}"/><path d="M12 19.2c-1.8 0-3.1-1.2-3.1-3 0-1.9 1.6-3 2.4-4.6.9.9 1.4 1.8 1.6 2.9.4-.3.7-.8.8-1.3.9 1 1.4 2.1 1.4 3.3 0 1.6-1.3 2.7-3.1 2.7z" fill="${IA}"/>`,
+  font: `<path d="M5 19.5L10.2 5h1.6l5.2 14.5M7.2 14h7.6" ${st(2)}/><path d="M17.5 12.5v7M15.3 15h4.4" ${sa(2)}/>`,
+  size: `<path d="M3.5 19L7.5 8l4 11M5 15.3h5" ${st(1.9)}/><path d="M12.5 19l4.3-14 4.3 14M14.2 14h5.2" ${sa(2)}/>`,
+  mark: `<rect x="3.5" y="4.5" width="17" height="16" rx="3" ${st(1.7)}/><path d="M7 16.5l4.5-5.5M9 17l6.5-7.5M12 16.8l4.7-5.4" ${sa(1.8)}/>`,
+  clock: `<circle cx="12" cy="12" r="8.4" ${st(1.9)}/><path d="M12 7.2V12l3.2 2" ${sa(2.1)}/>`,
+};
+// эмодзи старых подписей → металлические иконки
+const EMOJI_ICON = {'🧭':'coach','🏋️':'dumbbell','📖':'book','🎨':'palette','📦':'download','🔁':'transfer','💛':'heart','⭐':'star','🛡️':'shield','🌐':'globe','⚖️':'kettlebell','🌓':'moon','🌅':'sunrise','🍎':'apple','🍲':'bowl','🌙':'dinner','🔒':'lock','🚶':'steps'};
+// flat — одноцветная иконка цветом текста (на цветной кнопке, где серебро не видно)
+function ICON(name, cls){ name = EMOJI_ICON[name] || name; let b = ICON_SVG[name]; if(!b) return '';
+  if(cls && cls.includes('flat')) b = b.split(IM).join('currentColor').split(IA).join('currentColor'); return `<svg class="mi ${cls||''}" viewBox="0 0 24 24" aria-hidden="true">${b}</svg>`; }
+function iconDefs(){ if(document.getElementById('lwIconDefs')) return;
+  document.body.insertAdjacentHTML('afterbegin', `<svg id="lwIconDefs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <linearGradient id="lwMetal" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="22"><stop offset="0" style="stop-color:var(--metal-hi,#fff)"/><stop offset=".55" style="stop-color:var(--metal-mid,#cfcfcf)"/><stop offset="1" style="stop-color:var(--metal-lo,#8a8a8a)"/></linearGradient>
+    <linearGradient id="lwCherry" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="22"><stop offset="0" style="stop-color:var(--icon-red-hi,#8a1420)"/><stop offset="1" style="stop-color:var(--icon-red,#650E15)"/></linearGradient></defs></svg>`); }
+// шрифт, размер текста и отметка дней — личные настройки (хранятся вместе с режимом тренировки)
+const UI_FONTS = [['Manrope','Manrope'],['Onest','Onest'],['Golos Text','Golos Text'],['Inter','Inter'],['Nunito Sans','Nunito Sans']];
+const UI_SIZES = [['m','Обычный',1],['l','Крупный',1.08],['xl','Очень крупный',1.15]];
+const DAY_MARKS = [['circle','Кружки'],['scribble','Штриховка маркером'],['swipe','Мазок маркером']];
+const uiOpt = () => { const c = coach(); return {font: c.font || 'Manrope', size: c.textSize || 'l', mark: c.dayMark || 'circle'}; };
+function applyUi(){ const o = uiOpt(), root = document.documentElement;
+  root.style.setProperty('--app-font', `'${o.font}'`);
+  root.style.setProperty('--ui-zoom', String((UI_SIZES.find(x=>x[0]===o.size)||UI_SIZES[1])[2])); }
 function applyTheme(){
+  try{ applyUi(); iconDefs(); }catch(e){}
   const root = document.documentElement;
   root.setAttribute('data-theme', DB.settings.theme==='auto' ? '' : DB.settings.theme);
   const t = PRESET_THEMES.find(x=>x.id===DB.settings.themeColor) || PRESET_THEMES[0];
@@ -6560,9 +6835,11 @@ function handleMainClick(e, ds){
   if(ds.achBeast!==undefined){ State.modal={kind:'achBeast', beast:(State.achBeasts||[]).find(a=>a.title===ds.achBeast)}; renderModal(); return true; }
   if(ds.achInfo!==undefined){ const [t,d,st]=ds.achInfo.split('|'); const a = (State.achAll||[]).find(x=>x.title===t) || {title:t, desc:d};
     State.modal = {kind:'achInfo', a, status:st}; renderModal(); return true; }
+  if(ds.colorOpen!==undefined){ State.colorOpen = State.colorOpen===ds.colorOpen ? null : ds.colorOpen; renderMain(); return true; }
+  if(ds.selfColor!==undefined){ const c = coach(); c.myColor = ds.selfColor || null; saveCoach(); if(ds.selfColor){ DB.participants[0].color = ds.selfColor; Storage.save(); } State.colorOpen = null; renderMain(); return true; }
   if(ds.traineeColor!==undefined){
     const [linkId,color]=ds.traineeColor.split('|'); const l=DB.trainerLinks.find(x=>x.id===linkId);
-    const p=DB.participants.find(x=>x.id===l.trainee_id); l.color=color; p.color=color; renderMain();
+    const p=DB.participants.find(x=>x.id===l.trainee_id); l.color=color; p.color=color; State.colorOpen = null; renderMain();
     Auth.getClient().rpc('set_trainee_color',{p_link:linkId,p_color:color}).then(({error})=>{ if(error) toast('Цвет не сохранён: '+error.message); });
     return true;
   }
@@ -6615,7 +6892,10 @@ function handleMainClick(e, ds){
       toast(`✅ Перенесено: тренировок ${data.workouts}, веса ${data.weights}, продуктов ${data.food}, сертификатов ${data.certificates}`); State.mv = {}; renderMain(); });
     return true; }
   if(ds.setPage!==undefined){ State.setPage = ds.setPage || null; State.view = 'settings'; renderMain(); window.scrollTo(0,0); syncBackButton(); return true; }
+  if(ds.qUnits!==undefined){ DB.settings.units = ds.qUnits; Storage.save(); renderMain(); return true; }
+  if(ds.qSize!==undefined || ds.qMark!==undefined || ds.qFont!==undefined){ const c = coach(); if(ds.qSize!==undefined) c.textSize = ds.qSize; if(ds.qMark!==undefined) c.dayMark = ds.qMark; if(ds.qFont!==undefined) c.font = ds.qFont; saveCoach(); applyUi(); renderMain(); return true; }
   if(ds.buyPlan!==undefined){ buyPlan(ds.buyPlan); return true; }
+  if(ds.planMonths!==undefined){ State.planMonths = +ds.planMonths; renderMain(); return true; }
   if(ds.redeem!==undefined){ redeemPromo(); return true; }
   if(ds.pcCreate!==undefined){ createPromos(); return true; }
   if(ds.pcCopy!==undefined){ copyText(ds.pcCopy).then(ok=>toast(ok?'Код скопирован':'Не удалось скопировать')); return true; }
@@ -6651,6 +6931,7 @@ function handleMainChange(e, ds){
   }
   if(ds.statsParticipant!==undefined){ State.statsParticipant=e.target.value; renderMain(); return true; }
   if(ds.statsPeriod!==undefined){ State.statsPeriod=e.target.value; renderMain(); return true; }
+  if(ds.ui!==undefined){ const c = coach(), v = e.target.value; if(ds.ui==='font') c.font = v; if(ds.ui==='size') c.textSize = v; if(ds.ui==='mark') c.dayMark = v; saveCoach(); applyUi(); renderMain(); return true; }
   if(ds.coachSteps!==undefined){ const v = parseInt(e.target.value,10); const c = coach(); c.stepsGoal = v>=1000 && v<=50000 ? v : null; saveCoach(); toast(TT('Норма шагов: {n}', {n:fmtNum(stepsGoal())})); return true; }
   if(ds.setting!==undefined){
     const key = ds.setting; const val = e.target.value;
@@ -6685,11 +6966,11 @@ function initEvents(){
   document.addEventListener('click', (e)=>{
     const foodEl = e.target.closest('#main [data-food],#modalRoot [data-food]');
     if(foodEl){ if(!foodEl.disabled) foodClick(foodEl.dataset); return; }
-    const modalEl = e.target.closest('#modalRoot [data-ext],#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-ach-info],#modalRoot [data-set-drop],#modalRoot [data-move-ex],#modalRoot [data-move-block],#modalRoot [data-add-cardio],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-close-editor],#modalRoot [data-finish-workout],#modalRoot [data-set-open],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom],#modalRoot [data-send-cert]');
+    const modalEl = e.target.closest('#modalRoot [data-ext],#modalRoot [data-close-overlay],#modalRoot [data-close-modal],#modalRoot [data-add-block],#modalRoot [data-ach-info],#modalRoot [data-set-drop],#modalRoot [data-move-ex],#modalRoot [data-move-block],#modalRoot [data-add-cardio],#modalRoot [data-remove-block],#modalRoot [data-add-exercise],#modalRoot [data-remove-exercise],#modalRoot [data-add-set],#modalRoot [data-remove-set],#modalRoot [data-save-workout],#modalRoot [data-close-editor],#modalRoot [data-finish-workout],#modalRoot [data-set-open],#modalRoot [data-step],#modalRoot [data-set-done],#modalRoot [data-save-as-template],#modalRoot [data-delete-workout],#modalRoot [data-pick-exercise],#modalRoot [data-create-exercise],#modalRoot [data-confirm-yes],#modalRoot [data-recur-scope],#modalRoot [data-confirm-template],#modalRoot [data-import-example],#modalRoot [data-import-run],#modalRoot [data-help],#modalRoot [data-zoom],#modalRoot [data-send-cert]');
     if(modalEl){ if(handleModalClick({target:e.target, currentTarget:modalEl, preventDefault:()=>e.preventDefault()}, modalEl.dataset)) return; }
     const overlay = e.target.closest('.overlay');
     if(overlay && e.target===overlay){ closeModal(); return; }
-    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme],[data-shared-more],[data-steps-save],[data-links],[data-set-page],[data-buy-plan],[data-redeem],[data-pc-create],[data-pc-copy],[data-pc-del],[data-hist-more],[data-lk-add],[data-lk-del],[data-lk-move],[data-lk-save],[data-lk-reset],[data-cb-pick],[data-cb-new],[data-cb-create],[data-cb-open],[data-cb-save],[data-cb-del],[data-pb-find],[data-pb-user],[data-pb-give],[data-ub-del],[data-transfer-code],[data-copy-transfer],[data-transfer-claim],[data-mv-find],[data-mv-pick],[data-mv-go]');
+    const mainEl = e.target.closest('#main [data-nav],#sidebar [data-nav],#bottomnav [data-nav],[data-cal-nav],[data-cal-mode],[data-open-workout],[data-add-day],[data-day],[data-repeat-workout],[data-use-template],[data-delete-template],[data-toggle-public],[data-copy-template],[data-import-templates],[data-rename-template],[data-open-participant],[data-back-participants],[data-save-participant],[data-save-details],[data-add-cert],[data-del-cert],[data-review-cert],[data-open-admin],#main img[data-cert-path],#main img[data-zoom],[data-ach-tab],[data-ach-info],[data-ach-beast],[data-trainee-color],[data-color-open],[data-self-color],#main [data-help],[data-ext],[data-copy-code],[data-paste-code],[data-add-friend],[data-friend-respond],[data-trainer-respond],[data-offer-trainer],[data-drop-link],[data-remove-friend],[data-delete-exercise],[data-export],[data-timer],[data-pick-theme],[data-shared-more],[data-steps-save],[data-links],[data-set-page],[data-buy-plan],[data-plan-months],[data-q-units],[data-q-size],[data-q-mark],[data-q-font],[data-redeem],[data-pc-create],[data-pc-copy],[data-pc-del],[data-hist-more],[data-lk-add],[data-lk-del],[data-lk-move],[data-lk-save],[data-lk-reset],[data-cb-pick],[data-cb-new],[data-cb-create],[data-cb-open],[data-cb-save],[data-cb-del],[data-pb-find],[data-pb-user],[data-pb-give],[data-ub-del],[data-transfer-code],[data-copy-transfer],[data-transfer-claim],[data-mv-find],[data-mv-pick],[data-mv-go]');
     if(mainEl){ handleMainClick(e, mainEl.dataset); }
   });
   function onChangeOrInput(e){
@@ -6716,7 +6997,7 @@ function initEvents(){
     if(modalEl){ if(handleModalChange(e, modalEl.dataset)) return; }
     const lk = e.target.closest('#main [data-lk]');
     if(lk && State.linkDraft){ State.linkDraft.dirty = true; const [a,b]=lk.dataset.lk.split('.'); if(a==='t') State.linkDraft.texts[b]=e.target.value; else if(State.linkDraft.links[+a]) State.linkDraft.links[+a][b]=e.target.value; return; }
-    const mainEl = e.target.closest('[data-admin-days],#pdMemTerm,#importTplFile,[data-hf],[data-ex-edit],[data-stats-participant],[data-stats-period],[data-setting],[data-coach-steps],#importFile');
+    const mainEl = e.target.closest('[data-admin-days],#pdMemTerm,#importTplFile,[data-hf],[data-ex-edit],[data-stats-participant],[data-stats-period],[data-setting],[data-coach-steps],[data-ui],#importFile');
     if(mainEl){ handleMainChange(e, mainEl.dataset); }
   }
   // помним раскрытую группу базовых программ между перерисовками
@@ -6758,7 +7039,7 @@ const PROGRAMS = {
     {id:'s4legs', title:'Ноги', focus:['legs'], ex:[['Присед со штангой',4,'8–12'],['Жим ногами',3,'8–12'],['Румынская тяга',3,'8–12'],['Выпады',3,'8–12'],['Икры стоя',4,'12–15']]},
     {id:'s4sh', title:'Плечи и пресс', focus:['shoulders'], ex:[['Жим штанги стоя',3,'8–12'],['Жим гантелей сидя',3,'8–12'],['Махи гантелями в стороны',3,'8–12'],['Тяга штанги к подбородку',3,'8–12'],['Подъём ног в висе',3,'10–15'],['Планка',3,'30–60']]}]}
 };
-const progKey = c => !c.program ? null : c.program.type==='split' ? 'split'+(c.program.days||3) : 'fullbody';
+const progKey = c => !c.program ? null : c.program.type==='custom' ? 'custom:'+c.program.id : c.program.type==='split' ? 'split'+(c.program.days||3) : 'fullbody';
 // стартовый вес без истории: доля от веса тела × уровень — осторожная оценка для первой (пробной) тренировки
 const START_RATIO = {'Присед со штангой':.5,'Жим лёжа':.4,'Тяга верхнего блока':.4,'Жим гантелей сидя':.1,'Румынская тяга':.45,'Жим ногами':1,'Жим гантелей на наклонной':.1,'Тяга гантели в наклоне':.14,
   'Подъём штанги на бицепс':.2,'Французский жим':.15,'Становая тяга':.6,'Тяга штанги в наклоне':.35,'Махи гантелями в стороны':.05,'Молотки':.1,'Выпады':.1,'Сгибание ног':.25,'Разгибание ног':.3,
@@ -6814,13 +7095,33 @@ function recommendFor(exId, target, excludeId){
     why:TT('Пробный вес: {p}% от вашего веса тела ({b} кг) с поправкой на уровень. Легко сделать 12 — добавьте, не получается 8 — снизьте.', {p:Math.round(r*(LEVEL_K[lv]||1)*100), b:fmtNum(body)})};
 }
 // какую тренировку программы делать сегодня: по очереди; после долгой паузы (5+ дней) — сначала акцентная группа
-function nextProgramDay(){
+// мышечные группы тренировки → крупные зоны программы (ноги, руки и т. д.)
+const MG_ZONE = {quads:'legs', hamstrings:'legs', glutes:'legs', calves:'legs', biceps:'arms', triceps:'arms', forearms:'arms'};
+function workoutZones(w){ const z = new Set();
+  (w.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{ const e = DB.exercises.find(x=>x.id===ex.exerciseId); if(e && e.mainGroup && e.mainGroup!=='other' && e.mainGroup!=='abs' && (ex.sets||[]).some(setDoneAny)) z.add(MG_ZONE[e.mainGroup]||e.mainGroup); }));
+  if(!z.size){ const P = Object.values(PROGRAMS).flatMap(p=>p.days).find(d=>d.title===w.name); if(P) P.focus.forEach(f=>z.add(f)); }
+  return z; }
+// что тренировалось вчера и сегодня (любые тренировки, не только по программе) — эти зоны отдыхают
+function recentZones(){ const me = selfParticipantId(), t = new Date(), y = new Date(t.getFullYear(), t.getMonth(), t.getDate()-1), from = dstr(y), to = dstr(t);
+  const z = new Set(); DB.workouts.filter(w=>w.participantId===me && w.date>=from && w.date<=to && realWorkout(w)).forEach(w=>workoutZones(w).forEach(x=>z.add(x))); return z; }
+const BIG_ZONES = ['chest','back','legs','shoulders'];
+const ZONE_NAME = {chest:'грудь', back:'спина', legs:'ноги', shoulders:'плечи', arms:'руки'};
+function nextProgramDay(opts){
+  const d0 = nextProgramDayRaw(); if(!d0 || (opts && opts.force)) return d0;
+  const c = coach(), P = PROGRAMS[progKey(c)], rz = recentZones();
+  const clash = d => d.focus.filter(f=>BIG_ZONES.includes(f) && rz.has(f));
+  if(!clash(d0).length) return d0;
+  const i0 = P.days.indexOf(d0), alt = P.days.map((_,k)=>P.days[(i0+k)%P.days.length]).find(d=>!clash(d).length);
+  if(alt) return alt;
+  return {...d0, rest:true, recent:[...rz].filter(z=>BIG_ZONES.includes(z))};
+}
+function nextProgramDayRaw(){
   const c = coach(), P = PROGRAMS[progKey(c)]; if(!P) return null;
   const me = selfParticipantId(), titles = P.days.map(d=>d.title);
   const done = DB.workouts.filter(w=>w.participantId===me && w.status==='done' && titles.includes(w.name)).sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
   if(!done.length) return P.days[0];
   const last = done[0], gap = Math.round((new Date() - parseD(last.date))/86400000);
-  const focus = (c.program.focus||[]);
+  const focus = (c.program.type==='custom' ? (P.focus||c.program.focus||[]) : (c.program.focus||[]));
   if(gap >= 5 && focus.length){
     const fd = P.days.filter(d=>d.focus.some(f=>focus.includes(f)));
     const lastOf = d => (done.find(w=>w.name===d.title)||{}).date || '';
@@ -6997,7 +7298,7 @@ function swTick(){ const m = State.modal, el = document.getElementById('gSw'); i
 function guidedClick(a, el){
   const m = State.modal;
   if(a==='ask'){ openCoachSetup(); return; }
-  if(a==='start'){ const d = el.dataset.day ? PROGRAMS[progKey(coach())].days.find(x=>x.id===el.dataset.day) : nextProgramDay(); if(d) startGuided(newGuidedWorkout(d.title, programBlocks(d))); return; }
+  if(a==='start'){ const d = el.dataset.day ? PROGRAMS[progKey(coach())].days.find(x=>x.id===el.dataset.day) : nextProgramDay({force: !!el.dataset.force}); if(d) startGuided(newGuidedWorkout(d.title, programBlocks(d))); return; }
   if(a==='resume'){ const w = DB.workouts.find(x=>x.id===el.dataset.id); if(w) startGuided(w); return; }
   if(a==='tpl'){ const t = DB.templates.find(x=>x.id===el.dataset.id); if(!t) return;
     const blocks = templatePlaceholders(t.blocks).map(b=>({...b, id:Storage.uid()}));
@@ -7075,7 +7376,8 @@ function renderCoachSetup(){
     <button class="g-alt" data-gm="cs-help" data-v="0"><b>Нет, спасибо</b><span class="muted">буду записывать сам(а)</span></button>`;
   else if(m.step==='prog') body = `<h2>Выберите программу</h2>
     <button class="g-alt" data-gm="cs-prog" data-v="fullbody"><b>Фулбади</b><span class="muted">всё тело за тренировку, 2 варианта чередуются автоматически. 2–3 раза в неделю — лучший старт</span></button>
-    <button class="g-alt" data-gm="cs-prog" data-v="split"><b>Сплит по дням</b><span class="muted">разные группы мышц в разные дни: 2 (верх / низ), 3 или 4 тренировки в неделю</span></button>`;
+    <button class="g-alt" data-gm="cs-prog" data-v="split"><b>Сплит по дням</b><span class="muted">разные группы мышц в разные дни: 2 (верх / низ), 3 или 4 тренировки в неделю</span></button>
+    ${(DB.programs||[]).filter(r=>!r.trainee_id || r.trainee_id===selfParticipantId()).map(r=>`<button class="g-alt" data-gm="cs-custom" data-v="${r.id}"><b>${esc(r.title)}</b><span class="muted">${r.owner_id!==selfParticipantId()?trn('от тренера')+' · ':''}${TT('{n} дн.', {n:(r.days||[]).length})}</span></button>`).join('')}`;
   else if(m.step==='split') body = `<h2>Сколько тренировок в неделю?</h2>
     <div class="row" style="gap:8px;margin-bottom:14px">${[2,3,4].map(n=>`<button class="btn ${(c.program.days||3)===n?'primary':''}" data-gm="cs-days" data-v="${n}">${TT('{n} дня', {n})}</button>`).join('')}</div>
     ${(c.program.days||3)===2?`<div class="muted" style="margin:-6px 0 12px">День 1 — верх тела, день 2 — низ тела, по очереди.</div>`:''}
@@ -7093,6 +7395,7 @@ function coachSetupClick(a, el){
   if(a==='cs-later'){ c.asked = true; if(!c.level) c.level='mid'; finish(); return; }
   if(a==='cs-level'){ c.level = v; if(v==='pro'){ c.help=false; finish(); return; } m.step='help'; renderModal(); return; }
   if(a==='cs-help'){ c.help = v==='1'; if(!c.help){ finish(); return; } c.minimal = true; m.step='prog'; renderModal(); return; }
+  if(a==='cs-custom'){ const r = (DB.programs||[]).find(x=>x.id===v); if(r){ c.program = {type:'custom', id:r.id, focus:r.focus||[]}; c.minimal = true; } finish(); return; }
   if(a==='cs-prog'){ c.program = {type:v, days:(c.program||{}).days||3, focus:(c.program||{}).focus||[]}; if(v==='fullbody'){ finish(); return; } m.step='split'; renderModal(); return; }
   if(a==='cs-days'){ c.program.days = +v; renderModal(); return; }
   if(a==='cs-focus'){ const f = c.program.focus = c.program.focus||[]; const i = f.indexOf(v); if(i<0) f.push(v); else f.splice(i,1); renderModal(); return; }
@@ -7102,7 +7405,7 @@ function coachSetupClick(a, el){
 function runningCard(){
   const r = runningWorkout(); if(!r) return '';
   const st = new Date(r.startedAt), mins = Math.max(0, Math.round((Date.now()-st)/60000));
-  return `<div class="card g-run"><div><b>⏱ ${esc(TT('Идёт тренировка: {x}', {x:trn(r.name||'Тренировка')}))}</b><div class="muted" style="font-size:12.5px">${esc(TT('начата в {t} · {m} мин', {t:pad(st.getHours())+':'+pad(st.getMinutes()), m:mins}))}</div></div>
+  return `<div class="card g-run"><div><b>${ICON('stopwatch','h3i')} ${esc(TT('Идёт тренировка: {x}', {x:trn(r.name||'Тренировка')}))}</b><div class="muted" style="font-size:12.5px">${esc(TT('начата в {t} · {m} мин', {t:pad(st.getHours())+':'+pad(st.getMinutes()), m:mins}))}</div></div>
     <div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm" data-open-workout="${r.id}">Открыть</button><button class="btn primary" data-gm="resume" data-id="${r.id}">▶ Продолжить</button></div></div>`;
 }
 document.addEventListener('click', e=>{
@@ -7115,7 +7418,7 @@ document.addEventListener('click', e=>{
 function coachSettingsCard(){
   const c = coach(), P = PROGRAMS[progKey(c)];
   return `<div class="card" style="margin-bottom:10px">
-    <h3>🧭 Режим тренировки</h3>
+    <h3>${ICON('coach','h3i')} Режим тренировки</h3>
     <p class="muted" style="margin-top:0">Упрощённый режим ведёт по тренировке шаг за шагом: упражнение, подход, сколько сделали, отдых. Подходит новичкам, но включить может каждый. Данные сохраняются так же, как в обычном режиме.</p>
     <button class="btn ${c.minimal?'':'primary'}" data-gm="mintoggle">${c.minimal?'Выключить минималистичный режим тренировки':'Включить минималистичный режим тренировки'}</button>
     <p class="muted" style="font-size:12.5px">Любую тренировку или шаблон можно пройти в этом режиме кнопкой ▶ — даже если он выключен.</p>
@@ -7128,6 +7431,129 @@ function coachSettingsCard(){
       <span><b>Показывать мои тренировки друзьям</b><br><span class="muted">Завершённые тренировки (упражнения, подходы, тоннаж) видны друзьям в вашем профиле. Спрашивать каждый раз не будем.</span></span></label>
   </div>`;
 }
+
+/* ===================== СВОИ ПРОГРАММЫ (СПЛИТЫ): для себя или для подопечного ===================== */
+// Программа = порядок тренировок (дней) + приоритетные группы мышц. День берётся из готового дня программы или своего шаблона.
+// Хранится в таблице programs (stage32); у подопечного назначенная тренером программа выбирается автоматически.
+const ZONES = [['chest','Грудь'],['back','Спина'],['legs','Ноги'],['shoulders','Плечи'],['arms','Руки']];
+const PROG_PRESETS = [
+  ['lul', '3 дня: низ · верх · низ', ['s2low','s2up','s2low'], ['legs']],
+  ['ulu', '3 дня: верх · низ · верх', ['s2up','s2low','s2up'], ['chest','back']],
+  ['ul4', '4 дня: верх / низ × 2', ['s2up','s2low','s2up','s2low'], []],
+  ['fb3', '3 дня: фулбади A · B · A', ['fbA','fbB','fbA'], []],
+];
+const builtinDays = () => Object.entries(PROGRAMS).filter(([k])=>!k.startsWith('custom:')).flatMap(([k,P])=>P.days.map(d=>({...d, prog:P.title})));
+const builtinDay = id => builtinDays().find(d=>d.id===id);
+function tplToEx(t){ return (t.blocks||[]).flatMap(b=>(b.exercises||[]).map(ex=>{ const e = DB.exercises.find(x=>x.id===ex.exerciseId)||{};
+  const s0 = (ex.sets||[])[0]||{}, r = s0.reps || (s0.ph&&s0.ph.reps) || '8–12'; return [e.name||'—', Math.max(1,(ex.sets||[]).length||3), String(r)]; })).filter(x=>x[0]!=='—'); }
+function tplZones(t){ const z = new Set(); (t.blocks||[]).forEach(b=>(b.exercises||[]).forEach(ex=>{ const e = DB.exercises.find(x=>x.id===ex.exerciseId); if(e && e.mainGroup && !['other','abs'].includes(e.mainGroup)) z.add(MG_ZONE[e.mainGroup]||e.mainGroup); })); return [...z]; }
+function dayFromBase(base){
+  if(base.startsWith('d:')){ const d = builtinDay(base.slice(2)); return d ? {title:d.title, base, focus:[...d.focus], ex:d.ex.map(x=>[...x])} : null; }
+  if(base.startsWith('t:')){ const t = DB.templates.find(x=>x.id===base.slice(2)); return t ? {title:t.ownerId ? t.name : t.name.split(' · ').slice(2).join(' · ')||t.name, base, focus:tplZones(t), ex:tplToEx(t)} : null; }
+  return null;
+}
+function registerPrograms(rows){
+  Object.keys(PROGRAMS).filter(k=>k.startsWith('custom:')).forEach(k=>delete PROGRAMS[k]);
+  (rows||[]).forEach(r=>{ PROGRAMS['custom:'+r.id] = {id:r.id, custom:true, title:r.title, ownerId:r.owner_id, traineeId:r.trainee_id, focus:r.focus||[], updated:r.updated_at,
+    days:(r.days||[]).map((d,i)=>({id:'c'+i+'_'+String(r.id).slice(0,6), title:d.title, focus:d.focus||[], ex:d.ex||[]})).filter(d=>d.ex.length)}; });
+  DB.programs = rows||[];
+}
+async function loadPrograms(){
+  try{ const c = Auth.getClient(); if(!c) return;
+    const {data, error} = await c.from('programs').select('*').order('created_at');
+    if(error) return; registerPrograms(data);
+    const me = selfParticipantId(), cc = coach();
+    // тренер назначил программу — она выбирается у подопечного автоматически
+    const mine = (data||[]).filter(r=>r.trainee_id===me && r.owner_id!==me).sort((a,b)=>String(b.updated_at).localeCompare(String(a.updated_at)))[0];
+    if(mine && String(mine.updated_at) > String(cc.progSeen||'')){
+      cc.program = {type:'custom', id:mine.id, focus:mine.focus||[]}; cc.progSeen = String(mine.updated_at); cc.asked = true; if(cc.minimal===undefined) cc.minimal = true; saveCoach();
+      toast(TT('Тренер назначил программу «{x}»', {x:mine.title})); }
+  }catch(e){}
+}
+const myTrainees = () => { const me = selfParticipantId(); return (DB.trainerLinks||[]).filter(l=>l.trainer_id===me && l.status==='accepted').map(l=>({id:l.trainee_id, name:((DB.participants.find(p=>p.id===l.trainee_id))||{}).name || 'Подопечный'})); };
+function programsCard(){
+  const me = selfParticipantId(), list = (DB.programs||[]).filter(r=>r.owner_id===me), cur = coach().program;
+  const forName = r => !r.trainee_id || r.trainee_id===me ? trn('для себя') : TT('для: {x}', {x:(myTrainees().find(t=>t.id===r.trainee_id)||{}).name || trn('подопечного')});
+  const fromTrainer = (DB.programs||[]).filter(r=>r.trainee_id===me && r.owner_id!==me);
+  return `<div class="card" style="margin-bottom:10px"><h3>${ICON('stats','h3i')} Свои программы</h3>
+    <p class="muted" style="margin-top:0">Соберите сплит из готовых дней или своих шаблонов: порядок тренировок и приоритетные группы мышц. Тренер может назначить программу подопечному.</p>
+    ${fromTrainer.map(r=>`<div class="pg-row"><div><b>${esc(r.title)}</b><span class="muted">${trn('от тренера')} · ${TT('{n} дн.', {n:(r.days||[]).length})}</span></div>${cur&&cur.id===r.id?`<span class="pill">${trn('выбрана')}</span>`:`<button class="btn sm" data-pg-use="${r.id}">${trn('Выбрать')}</button>`}</div>`).join('')}
+    ${list.map(r=>`<div class="pg-row"><div><b>${esc(r.title)}</b><span class="muted">${esc(forName(r))} · ${TT('{n} дн.', {n:(r.days||[]).length})}</span></div>
+      ${(!r.trainee_id||r.trainee_id===me) && !(cur&&cur.id===r.id) ? `<button class="btn sm" data-pg-use="${r.id}">${trn('Выбрать')}</button>` : (cur&&cur.id===r.id ? `<span class="pill">${trn('выбрана')}</span>` : '')}
+      <button class="btn sm ghost" data-pg-edit="${r.id}">✎</button></div>`).join('')}
+    <button class="btn primary" style="margin-top:6px" data-pg-new="1">+ ${trn('Создать программу')}</button>
+  </div>`;
+}
+function openProgramEditor(id){
+  const r = id && (DB.programs||[]).find(x=>x.id===id);
+  State.modal = {kind:'progEdit', id: r ? r.id : null, title: r ? r.title : '', trainee: r && r.trainee_id && r.trainee_id!==selfParticipantId() ? r.trainee_id : '',
+    focus: r ? [...(r.focus||[])] : [], days: r ? JSON.parse(JSON.stringify(r.days||[])) : [], back: null};
+  renderModal();
+}
+function renderProgramEditor(){
+  const m = State.modal, tr = myTrainees();
+  const opts = sel => `<option value="">${trn('— выберите тренировку —')}</option><optgroup label="${trn('Готовые дни')}">${builtinDays().filter((d,i,a)=>a.findIndex(x=>x.id===d.id)===i).map(d=>`<option value="d:${d.id}" ${sel==='d:'+d.id?'selected':''}>${esc(d.title)} · ${esc(d.prog)}</option>`).join('')}</optgroup>
+    ${DB.templates.filter(t=>t.ownerId===selfParticipantId()).length?`<optgroup label="${trn('Мои шаблоны')}">${DB.templates.filter(t=>t.ownerId===selfParticipantId()).map(t=>`<option value="t:${t.id}" ${sel==='t:'+t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</optgroup>`:''}`;
+  const zchips = (arr, attr) => ZONES.map(([z,l])=>`<button class="q-chip ${arr.includes(z)?'on':''}" ${attr}="${z}">${l}</button>`).join('');
+  return `<div class="overlay" data-close-overlay="1"><div class="modal" data-stop style="max-width:520px">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">${m.id?trn('Программа'):trn('Новая программа')}</h2><button class="btn ghost sm" data-close-modal="1">✕</button></div>
+    <div class="field"><label>Название</label><input type="text" data-pe="title" value="${esc(m.title)}" placeholder="${trn('Например, Сплит 3 дня для Анны')}"></div>
+    <div class="field"><label>Для кого</label><select data-pe="trainee"><option value="">${trn('Для себя')}</option>${tr.map(t=>`<option value="${t.id}" ${m.trainee===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select>${tr.length?'':`<div class="muted" style="font-size:12px;margin-top:4px">${trn('Подопечные появятся здесь, когда примут ваше предложение тренировать их.')}</div>`}</div>
+    ${m.days.length?'':`<div class="muted" style="margin:4px 0 6px">${trn('Быстрый старт:')}</div><div class="q-row wrap" style="margin-top:0">${PROG_PRESETS.map(([k,l])=>`<button class="q-chip" data-pe-preset="${k}">${l}</button>`).join('')}</div>`}
+    <div class="pe-days">${m.days.map((d,i)=>`<div class="pe-day">
+      <div class="row" style="gap:6px;flex-wrap:nowrap"><span class="pe-n">${i+1}</span><input type="text" data-pe="dtitle.${i}" value="${esc(d.title||'')}" placeholder="${trn('Название дня')}" style="flex:1;min-width:0">
+        <button class="btn sm ghost" data-pe-move="${i}.-1" ${i===0?'disabled':''}>↑</button><button class="btn sm ghost" data-pe-move="${i}.1" ${i===m.days.length-1?'disabled':''}>↓</button><button class="btn sm ghost" data-pe-del="${i}">✕</button></div>
+      <select data-pe="base.${i}" style="width:100%;margin-top:6px">${opts(d.base||'')}</select>
+      <div class="muted" style="font-size:12px;margin-top:6px">${(d.ex||[]).length ? esc(d.ex.map(x=>x[0]).join(', ')) : trn('упражнения появятся после выбора тренировки')}</div>
+      <div class="q-row wrap" style="margin-top:6px">${zchips(d.focus||[], `data-pe-dz="${i}" data-z`)}</div></div>`).join('')}</div>
+    <button class="btn" style="margin:6px 0 12px" data-pe-add="1">+ ${trn('день')}</button>
+    <div><b>${trn('Приоритетные группы мышц')}</b><div class="muted" style="font-size:12px">${trn('после перерыва приложение сначала предложит тренировку на эти группы')}</div><div class="q-row wrap">${zchips(m.focus, 'data-pe-pz')}</div></div>
+    ${m.error?`<div class="muted" style="color:var(--danger);margin-top:8px">${esc(m.error)}</div>`:''}
+    <div class="row" style="justify-content:space-between;margin-top:14px">${m.id?`<button class="btn danger" data-pe-remove="1">${trn('Удалить')}</button>`:'<span></span>'}<button class="btn primary" data-pe-save="1">${trn(m.trainee?'Назначить подопечному':'Сохранить')}</button></div>
+  </div></div>`;
+}
+async function saveProgram(){
+  const m = State.modal, me = selfParticipantId();
+  const days = m.days.filter(d=>(d.ex||[]).length);
+  if(!m.title.trim()) { m.error = trn('Укажите название'); renderModal(); return; }
+  if(!days.length){ m.error = trn('Добавьте хотя бы один день с тренировкой'); renderModal(); return; }
+  if(m.trainee && !needPlan('trainer')) return;
+  const row = {owner_id: me, trainee_id: m.trainee || null, title: m.title.trim().slice(0,80), days: days.map(d=>({title:d.title||'—', base:d.base||'', focus:d.focus||[], ex:d.ex})), focus: m.focus, updated_at: new Date().toISOString()};
+  const c = Auth.getClient();
+  const {data, error} = m.id ? await c.from('programs').update(row).eq('id', m.id).select().single() : await c.from('programs').insert(row).select().single();
+  if(error){ m.error = /programs|relation/.test(error.message) ? trn('Запустите в Supabase файл stage32_programs.sql') : error.message; renderModal(); return; }
+  DB.programs = (DB.programs||[]).filter(r=>r.id!==data.id).concat([data]); registerPrograms(DB.programs);
+  if(!data.trainee_id){ const cc = coach(); cc.program = {type:'custom', id:data.id, focus:data.focus||[]}; cc.asked = true; saveCoach(); toast(TT('Программа «{x}» выбрана', {x:data.title})); }
+  else toast(TT('Программа назначена: {x}', {x:(myTrainees().find(t=>t.id===data.trainee_id)||{}).name||''}));
+  State.modal = null; renderModal(); renderMain();
+}
+document.addEventListener('click', e=>{
+  const el = e.target.closest('[data-pg-new],[data-pg-edit],[data-pg-use],#modalRoot [data-pe-preset],#modalRoot [data-pe-move],#modalRoot [data-pe-del],#modalRoot [data-pe-add],#modalRoot [data-pe-dz],#modalRoot [data-pe-pz],#modalRoot [data-pe-save],#modalRoot [data-pe-remove]'); if(!el) return;
+  const ds = el.dataset; e.preventDefault(); e.stopPropagation();
+  if(ds.pgNew!==undefined){ if(!needPlan('pro')) return; openProgramEditor(null); return; }
+  if(ds.pgEdit!==undefined){ openProgramEditor(ds.pgEdit); return; }
+  if(ds.pgUse!==undefined){ const r = (DB.programs||[]).find(x=>x.id===ds.pgUse); if(!r) return; const cc = coach(); cc.program = {type:'custom', id:r.id, focus:r.focus||[]}; cc.asked = true; saveCoach(); toast(TT('Программа «{x}» выбрана', {x:r.title})); renderMain(); return; }
+  const m = State.modal; if(!m || m.kind!=='progEdit') return;
+  if(ds.pePreset!==undefined){ const p = PROG_PRESETS.find(x=>x[0]===ds.pePreset); m.days = p[2].map(id=>dayFromBase('d:'+id)).filter(Boolean); m.focus = [...p[3]]; if(!m.title) m.title = p[1]; }
+  else if(ds.peMove!==undefined){ const [i,d] = ds.peMove.split('.').map(Number), j = i+d; if(j>=0 && j<m.days.length){ const t = m.days[i]; m.days[i] = m.days[j]; m.days[j] = t; } }
+  else if(ds.peDel!==undefined){ m.days.splice(+ds.peDel,1); }
+  else if(ds.peAdd!==undefined){ m.days.push({title:'', base:'', focus:[], ex:[]}); }
+  else if(ds.peDz!==undefined){ const d = m.days[+ds.peDz], z = ds.z; d.focus = d.focus||[]; d.focus = d.focus.includes(z) ? d.focus.filter(x=>x!==z) : d.focus.concat([z]); }
+  else if(ds.pePz!==undefined){ const z = ds.pePz; m.focus = m.focus.includes(z) ? m.focus.filter(x=>x!==z) : m.focus.concat([z]); }
+  else if(ds.peSave!==undefined){ saveProgram(); return; }
+  else if(ds.peRemove!==undefined){ Auth.getClient().from('programs').delete().eq('id', m.id).then(({error})=>{ if(error) return toast(error.message);
+      DB.programs = (DB.programs||[]).filter(r=>r.id!==m.id); registerPrograms(DB.programs); const cc = coach(); if(cc.program && cc.program.id===m.id){ cc.program = null; saveCoach(); } State.modal = null; renderModal(); renderMain(); toast(trn('Программа удалена')); }); return; }
+  m.error = null; renderModalKeep();
+}, true);
+document.addEventListener('input', e=>{ const el = e.target.closest('#modalRoot [data-pe]'); const m = State.modal; if(!el || !m || m.kind!=='progEdit') return;
+  const [k,i] = el.dataset.pe.split('.');
+  if(k==='title') m.title = el.value; else if(k==='dtitle') m.days[+i].title = el.value;
+}, true);
+document.addEventListener('change', e=>{ const el = e.target.closest('#modalRoot [data-pe]'); const m = State.modal; if(!el || !m || m.kind!=='progEdit') return;
+  const [k,i] = el.dataset.pe.split('.');
+  if(k==='trainee'){ m.trainee = el.value; renderModalKeep(); }
+  if(k==='base'){ const d = m.days[+i], nd = el.value ? dayFromBase(el.value) : null; if(nd){ const keepTitle = d.title && d.title !== (d.base && (dayFromBase(d.base)||{}).title); m.days[+i] = {...nd, title: keepTitle ? d.title : nd.title}; } renderModalKeep(); }
+}, true);
 
 // ===== советы после тренировки: по упражнениям (8–12), объёму, длительности, тоннажу и уровню =====
 function workoutAdvice(w){
