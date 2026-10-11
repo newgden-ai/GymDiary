@@ -622,6 +622,7 @@ html,body{overflow-anchor:none;}
 .onb-how{display:flex;flex-direction:column;gap:14px;}
 .onb-how>div{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);border-radius:18px;padding:12px 14px;}
 .onb-how .mi{width:28px;height:28px;flex:none;margin-top:2px;}
+.onb-how span.onb-num{display:block;flex:none;margin-top:2px;padding:4px 9px;border-radius:999px;background:var(--work,var(--accent));color:#0E1A12;font-weight:800;font-size:13px;white-space:nowrap;}
 .onb-how span{display:flex;flex-direction:column;gap:3px;font-size:13.5px;color:var(--text-dim);line-height:1.4;}
 .onb-how b{color:var(--text);font-size:15px;}
 .onb-foot{display:flex;align-items:center;gap:10px;padding:10px 0 4px;}
@@ -6097,6 +6098,7 @@ function viewSettings(){
       <div class="q-row">${chip('data-q-units','kg',s.units==='kg','кг')}${chip('data-q-units','lb',s.units==='lb','lb')}<span class="q-sep"></span>${UI_SIZES.map(([v,l],i)=>chip('data-q-size',v,o.size===v,`<span style="font-size:${12+i*3}px">A</span>`)).join('')}<span class="q-sep"></span>${DAY_MARKS.map(([v,l],i)=>chip('data-q-mark',v,o.mark===v,['●','≋','╱'][i])).join('')}</div>
       <div class="q-row"><span class="muted">${trn('Язык')}</span>${I18N.select()}</div></div>
     <div class="set-group">
+      ${setRow('mark','Инструкция по приложению', 'как пользоваться · подходы и галочка', 'data-app-guide="1"')}
       ${setRow('book','Справка по упражнениям', 'техника и мышцы', 'data-nav="help"')}
       ${(DB.links||[]).some(x=>x.section==='support')?setRow('heart', esc(linkText('support_title')||'Поддержать автора'), '', 'data-links="support"'):''}
       ${(DB.links||[]).some(x=>x.section==='bloggers')?setRow('star', esc(linkText('bloggers_title')||'Рекомендации автора'), '', 'data-links="bloggers"'):''}
@@ -7646,8 +7648,11 @@ document.addEventListener('change', e=>{ const el = e.target.closest('#modalRoot
 /* ===================== ПЕРВЫЙ ВХОД: короткое знакомство и настройки ===================== */
 // Шаги: приветствие → язык и единицы → шрифт, размер, отметка дней → вес (если не указан в боте) → как пользоваться → готово
 function onbSteps(){ const me = selfParticipantId(), hasW = bodyWeightOn(me, dstr(new Date())) > 0 || Number(((DB.details||[]).find(d=>d.user_id===me)||{}).weight_kg) > 0;
-  return ['welcome','lang','look'].concat(hasW ? [] : ['weight'], ['howto','done']); }
+  return ['welcome','lang','look'].concat(hasW ? [] : ['weight'], ['howto','train','done']); }
 function openOnboarding(){ State.modal = {kind:'onboard', i:0, steps:onbSteps(), back:null}; renderModal(); }
+// инструкция из настроек: те же слайды «Как пользоваться» и «Во время тренировки», без настроек первого входа
+function openAppGuide(){ State.modal = {kind:'onboard', i:0, steps:['howto','train'], guide:true, back:null}; renderModal(); }
+document.addEventListener('click', e=>{ if(e.target.closest('[data-app-guide]')){ e.preventDefault(); e.stopPropagation(); openAppGuide(); } }, true);
 function onbDays(mark){ const days = [['w',8],['s',9],['n',10],['sel',11],['',12]];
   return `<div class="onb-days">${days.map(([k,n])=>{ const ds = '2026-10-'+String(n).padStart(2,'0');
     const cols = k==='w' ? ['var(--work,var(--accent))'] : k==='s' ? ['var(--work,var(--accent))'] : k==='n' ? ['var(--cherry,#650E15)'] : [];
@@ -7681,11 +7686,17 @@ function renderOnboarding(){
       <div>${ICON('dumbbell')}<span><b>${trn('Подходы')}</b>${trn('−/+ меняют вес и повторы, нажатие на число — ввод с клавиатуры, ✓ закрывает подход и запускает отдых.')}</span></div>
       <div>${ICON('food')}<span><b>${trn('Питание')}</b>${trn('«+» у приёма пищи — поиск продукта и граммы. Кольцо показывает, сколько осталось.')}</span></div>
       <div>${ICON('profile')}<span><b>${trn('Профиль')}</b>${trn('Прогресс, друзья и тренер, настройки и подписка.')}</span></div></div>`;
+  else if(st==='train') body = `${art('stopwatch')}<h1>${trn('Во время тренировки')}</h1>
+    <div class="onb-how">
+      <div><span class="onb-num">1 → ✓</span><span><b>${trn('Номер подхода')}</b>${trn('Нажмите на номер подхода — появится галочка ✓: подход записан и запускается отдых. Пустые поля заполнятся подсказкой.')}</span></div>
+      <div>${ICON('dumbbell')}<span><b>${trn('Готовые подходы')}</b>${trn('Выполненные подходы сворачиваются в одну строку. Нажмите на строку, чтобы исправить.')}</span></div>
+      <div>${ICON('coach')}<span><b>${trn('Режим с подсказками')}</b>${trn('▶ ведёт по тренировке шаг за шагом и подбирает рабочий вес.')}</span></div>
+      <div>${ICON('trophy')}<span><b>${trn('Завершить тренировку')}</b>${trn('Кнопка внизу: время тренировки посчитается, итог придёт в бот.')}</span></div></div>`;
   else body = `${art('trophy')}<h1>${trn('Всё готово!')}</h1>
     <p class="onb-p">${trn('Приложение в тестировании. Нашли ошибку или есть идея — напишите в группе. Ссылка есть в «Поддержать автора» (Профиль → Настройки).')}</p>
     <p class="onb-p">${trn('Дальше выберем уровень подготовки и программу — это займёт минуту.')}</p>`;
   return `<div class="overlay g-overlay onb"><div class="modal g-modal onb-modal" data-stop>${dots}<div class="onb-body">${body}</div>
-    <div class="onb-foot">${m.i>0?`<button class="btn ghost" data-onb="back">${trn('Назад')}</button>`:''}<button class="btn primary onb-next" data-onb="${last?'finish':'next'}">${trn(last?'Начать':'Далее')}</button></div>
+    <div class="onb-foot">${m.i>0?`<button class="btn ghost" data-onb="back">${trn('Назад')}</button>`:''}<button class="btn primary onb-next" data-onb="${last?'finish':'next'}">${trn(last?(m.guide?'Готово':'Начать'):'Далее')}</button></div>
     ${m.i===0?`<button class="onb-skip" data-onb="skip">${trn('Пропустить')}</button>`:''}</div></div>`;
 }
 async function onbSaveWeight(){ const el = document.getElementById('onbWeight'); if(!el) return true;
@@ -7706,6 +7717,7 @@ document.addEventListener('click', async e=>{
   if(ds.onbUnits){ DB.settings.units = ds.onbUnits; Storage.save(); renderModal(); return; }
   if(ds.onbFont || ds.onbSize || ds.onbMark){ if(ds.onbFont) c.font = ds.onbFont; if(ds.onbSize) c.textSize = ds.onbSize; if(ds.onbMark) c.dayMark = ds.onbMark; saveCoach(); applyUi(); renderModal(); return; }
   const a = ds.onb;
+  if(m.guide && (a==='skip' || a==='finish')){ State.modal = null; renderModal(); return; }
   if(a==='skip' || a==='finish'){ if(m.steps[m.i]==='weight' && !(await onbSaveWeight())) return; onbFinish(); return; }
   if(a==='back'){ m.i = Math.max(0, m.i-1); renderModal(); return; }
   if(a==='next'){ if(m.steps[m.i]==='weight' && !(await onbSaveWeight())) return; m.i = Math.min(m.steps.length-1, m.i+1); renderModal(); return; }
