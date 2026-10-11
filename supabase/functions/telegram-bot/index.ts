@@ -17,7 +17,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-10-01 · steps-daily · macros";
+const BOT_VERSION = "2026-10-11 · stars-subscriptions";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -800,6 +800,53 @@ async function cron(kind: string) {
   return sent;
 }
 
+// ---------------- подписки за Telegram Stars ----------------
+// приложение просит ссылку на оплату → бот создаёт счёт в звёздах (XTR) с продлением раз в 30 дней
+const PLANS: Record<string, { title: string; desc: string; def: number }> = {
+  pro: { title: "Light Weight Pro", desc: "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.", def: 200 },
+  trainer: { title: "Light Weight Тренер", desc: "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.", def: 400 },
+};
+async function planPrice(plan: string) {
+  const { data } = await admin.from("app_texts").select("value").eq("key", "price_" + plan).maybeSingle();
+  const v = parseInt(String(data?.value ?? ""), 10);
+  return v > 0 && v <= 10000 ? v : PLANS[plan].def;
+}
+async function onInvoice(req: Request, body: any) {
+  const jwt = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  const { data: u } = await admin.auth.getUser(jwt);
+  if (!u?.user) return json({ error: "not authorized" }, 401);
+  const plan = String(body.plan ?? "");
+  if (!PLANS[plan]) return json({ error: "unknown plan" }, 400);
+  const { data: p } = await admin.from("profiles").select("*").eq("id", u.user.id).maybeSingle();
+  const lang = langOf(p), price = await planPrice(plan);
+  const r = await tg("createInvoiceLink", {
+    title: L(lang, PLANS[plan].title), description: L(lang, PLANS[plan].desc),
+    payload: JSON.stringify({ u: u.user.id, p: plan }), currency: "XTR",
+    prices: [{ label: L(lang, PLANS[plan].title), amount: price }], subscription_period: 2592000,
+  });
+  if (!r.ok) return json({ error: r.description ?? "invoice error" }, 500);
+  return json({ ok: true, link: r.result, price });
+}
+// перед оплатой Telegram спрашивает, можно ли принять платёж
+async function onPreCheckout(q: any) {
+  let ok = false;
+  try { const pl = JSON.parse(q.invoice_payload); ok = !!PLANS[pl.p] && !!(await admin.from("profiles").select("id").eq("id", pl.u).maybeSingle()).data; } catch (_) { ok = false; }
+  await tg("answerPreCheckoutQuery", ok ? { pre_checkout_query_id: q.id, ok: true } : { pre_checkout_query_id: q.id, ok: false, error_message: "Не удалось оформить подписку, попробуйте ещё раз." });
+}
+// оплата прошла (и каждое ежемесячное продление) — продлеваем подписку
+async function onPaid(m: any) {
+  const sp = m.successful_payment; let pl: any = {};
+  try { pl = JSON.parse(sp.invoice_payload); } catch (_) { return; }
+  if (!PLANS[pl.p]) return;
+  const until = sp.subscription_expiration_date ? new Date(sp.subscription_expiration_date * 1000) : new Date(Date.now() + 30 * 86400000);
+  const { data: cur } = await admin.from("subscriptions").select("*").eq("user_id", pl.u).maybeSingle();
+  const keep = cur && cur.plan === "trainer" && pl.p === "pro" && new Date(cur.until) > until;   // тренерский по коду не теряем
+  if (!keep) await admin.from("subscriptions").upsert({ user_id: pl.u, plan: pl.p, until: until.toISOString(), source: "stars", charge_id: sp.telegram_payment_charge_id, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  const { data: p } = await admin.from("profiles").select("*").eq("id", pl.u).maybeSingle();
+  const lang = langOf(p);
+  await send(m.chat.id, L(lang, "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.", { plan: L(lang, PLANS[pl.p].title), date: until.toISOString().slice(0, 10).split("-").reverse().join(".") }), appKb(undefined, lang));
+}
+
 // ---------------- вход ----------------
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
@@ -810,7 +857,9 @@ Deno.serve(async (req) => {
       const upd = await req.json();
       const chatId = upd.message?.chat?.id ?? upd.callback_query?.message?.chat?.id;
       try {
-        if (upd.message) await onMessage(upd.message);
+        if (upd.pre_checkout_query) await onPreCheckout(upd.pre_checkout_query);
+        else if (upd.message?.successful_payment) await onPaid(upd.message);
+        else if (upd.message) await onMessage(upd.message);
         else if (upd.callback_query) await onCallback(upd.callback_query);
       } catch (e) {
         console.log("BOT_UPDATE_ERROR", String(e));
@@ -821,6 +870,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     if (body.action === "workout_done") return await onWorkoutDone(req, body);
     if (body.action === "backup") return await onBackup(req, body);
+    if (body.action === "invoice") return await onInvoice(req, body);
     if (body.action === "cron") {
       if (!CRON_SECRET || req.headers.get("x-cron-secret") !== CRON_SECRET) return json({ error: "forbidden" }, 403);
       return json({ ok: true, sent: await cron(String(body.kind)) });

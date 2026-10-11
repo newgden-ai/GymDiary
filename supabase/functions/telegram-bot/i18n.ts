@@ -341,7 +341,11 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "😴 Без активности": "😴 Без активності",
   "Сколько шагов вы прошли сегодня? Напишите число, например: 8000.": "Скільки кроків ви пройшли сьогодні? Напишіть число, наприклад: 8000.",
   "🤷 Не считал(а)": "🤷 Не рахував(ла)",
-  "Хорошо 👍 Спрошу завтра.": "Добре 👍 Запитаю завтра."
+  "Хорошо 👍 Спрошу завтра.": "Добре 👍 Запитаю завтра.",
+  "Light Weight Тренер": "Light Weight Тренер",
+  "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Програми та спрощений режим, підбір ваг, детальний прогрес, рекомендації, звіти бота і власні БЖВ.",
+  "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Усе з Pro + тренерський режим: підопічні, їхні тренування та харчування, редагування щоденника і сповіщення.",
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Дякуємо! Підписка «{plan}» активна до {date}. Усе вже відкрито в застосунку."
  },
  "en": {
   " ({d}% к прошлому периоду)": " ({d}% vs. the previous period)",
@@ -671,7 +675,11 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "😴 Без активности": "😴 No activity",
   "Сколько шагов вы прошли сегодня? Напишите число, например: 8000.": "How many steps did you walk today? Reply with a number, e.g. 8000.",
   "🤷 Не считал(а)": "🤷 Didn’t count",
-  "Хорошо 👍 Спрошу завтра.": "OK 👍 I’ll ask tomorrow."
+  "Хорошо 👍 Спрошу завтра.": "OK 👍 I’ll ask tomorrow.",
+  "Light Weight Тренер": "Light Weight Coach",
+  "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Programs and guided mode, weight suggestions, detailed progress, tips, bot reports and custom macros.",
+  "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Everything in Pro + coach mode: clients, their workouts and nutrition, diary editing and notifications.",
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Thank you! Your “{plan}” subscription is active until {date}. Everything is already unlocked in the app."
  },
  "fr": {
   " ({d}% к прошлому периоду)": " ({d} % par rapport à la période précédente)",
@@ -1001,7 +1009,11 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "😴 Без активности": "😴 Pas d’activité",
   "Сколько шагов вы прошли сегодня? Напишите число, например: 8000.": "Combien de pas avez-vous faits aujourd’hui ? Répondez par un nombre, par ex. 8000.",
   "🤷 Не считал(а)": "🤷 Pas compté",
-  "Хорошо 👍 Спрошу завтра.": "D’accord 👍 Je demanderai demain."
+  "Хорошо 👍 Спрошу завтра.": "D’accord 👍 Je demanderai demain.",
+  "Light Weight Тренер": "Light Weight Coach",
+  "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Programmes et mode guidé, charges conseillées, progrès détaillé, conseils, rapports du bot et macros perso.",
+  "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Tout de Pro + mode coach : élèves, leurs séances et nutrition, modification du journal et notifications.",
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Merci ! L’abonnement « {plan} » est actif jusqu’au {date}. Tout est déjà débloqué dans l’app."
  },
  "es": {
   " ({d}% к прошлому периоду)": " ({d}% respecto al periodo anterior)",
@@ -1331,7 +1343,11 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "😴 Без активности": "😴 Sin actividad",
   "Сколько шагов вы прошли сегодня? Напишите число, например: 8000.": "¿Cuántos pasos diste hoy? Responde con un número, por ejemplo: 8000.",
   "🤷 Не считал(а)": "🤷 No los conté",
-  "Хорошо 👍 Спрошу завтра.": "Vale 👍 Te pregunto mañana."
+  "Хорошо 👍 Спрошу завтра.": "Vale 👍 Te pregunto mañana.",
+  "Light Weight Тренер": "Light Weight Entrenador",
+  "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Programas y modo guiado, pesos sugeridos, progreso detallado, consejos, informes del bot y macros propios.",
+  "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Todo lo de Pro + modo entrenador: alumnos, sus entrenos y nutrición, edición del diario y avisos.",
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ ¡Gracias! La suscripción «{plan}» está activa hasta el {date}. Todo ya está disponible en la app."
  },
  "it": {
   " ({d}% к прошлому периоду)": " ({d}% rispetto al periodo precedente)",
@@ -1661,7 +1677,11 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "😴 Без активности": "😴 Nessuna attività",
   "Сколько шагов вы прошли сегодня? Напишите число, например: 8000.": "Quanti passi hai fatto oggi? Rispondi con un numero, ad esempio 8000.",
   "🤷 Не считал(а)": "🤷 Non li ho contati",
-  "Хорошо 👍 Спрошу завтра.": "Ok 👍 Te lo chiedo domani."
+  "Хорошо 👍 Спрошу завтра.": "Ok 👍 Te lo chiedo domani.",
+  "Light Weight Тренер": "Light Weight Coach",
+  "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Programmi e modalità guidata, pesi consigliati, progressi dettagliati, consigli, report del bot e macro personali.",
+  "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Tutto di Pro + modalità coach: allievi, loro allenamenti e alimentazione, modifica del diario e notifiche.",
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Grazie! L’abbonamento «{plan}» è attivo fino al {date}. Tutto è già sbloccato nell’app."
  },
  "uz": {
   " ({d}% к прошлому периоду)": " (oldingi davrga nisbatan {d}%)",
@@ -1991,7 +2011,11 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "😴 Без активности": "😴 Faolliksiz",
   "Сколько шагов вы прошли сегодня? Напишите число, например: 8000.": "Bugun necha qadam yurdingiz? Raqam yozing, masalan: 8000.",
   "🤷 Не считал(а)": "🤷 Sanamadim",
-  "Хорошо 👍 Спрошу завтра.": "Yaxshi 👍 Ertaga so‘rayman."
+  "Хорошо 👍 Спрошу завтра.": "Yaxshi 👍 Ertaga so‘rayman.",
+  "Light Weight Тренер": "Light Weight Murabbiy",
+  "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Dasturlar va soddalashtirilgan rejim, vazn tanlash, batafsil natijalar, maslahatlar, bot hisobotlari va o‘z OYU.",
+  "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Pro’dagi hammasi + murabbiy rejimi: shogirdlar, ularning mashg‘ulotlari va ovqatlanishi, kundalikni tahrirlash va bildirishnomalar.",
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Rahmat! «{plan}» obunasi {date} gacha faol. Ilovada hammasi ochildi."
  },
  "tr": {
   " ({d}% к прошлому периоду)": " (önceki döneme göre %{d})",
@@ -2321,7 +2345,11 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "😴 Без активности": "😴 Aktivite yok",
   "Сколько шагов вы прошли сегодня? Напишите число, например: 8000.": "Bugün kaç adım attınız? Bir sayı yazın, örneğin: 8000.",
   "🤷 Не считал(а)": "🤷 Saymadım",
-  "Хорошо 👍 Спрошу завтра.": "Tamam 👍 Yarın sorarım."
+  "Хорошо 👍 Спрошу завтра.": "Tamam 👍 Yarın sorarım.",
+  "Light Weight Тренер": "Light Weight Antrenör",
+  "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "Programlar ve rehberli mod, ağırlık önerileri, ayrıntılı ilerleme, ipuçları, bot raporları ve kendi makrolarınız.",
+  "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Pro’daki her şey + antrenör modu: öğrenciler, antrenman ve beslenmeleri, günlük düzenleme ve bildirimler.",
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ Teşekkürler! «{plan}» aboneliği {date} tarihine kadar etkin. Uygulamada her şey açıldı."
  },
  "zh": {
   " ({d}% к прошлому периоду)": "（较上一周期 {d}%）",
@@ -2651,7 +2679,11 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "😴 Без активности": "😴 没有活动",
   "Сколько шагов вы прошли сегодня? Напишите число, например: 8000.": "你今天走了多少步？请回复数字，例如：8000。",
   "🤷 Не считал(а)": "🤷 没有统计",
-  "Хорошо 👍 Спрошу завтра.": "好的 👍 明天再问你。"
+  "Хорошо 👍 Спрошу завтра.": "好的 👍 明天再问你。",
+  "Light Weight Тренер": "Light Weight 教练版",
+  "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "训练计划和引导模式、重量推荐、详细进度、建议、机器人报告和自定义宏量营养素。",
+  "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "包含 Pro 全部功能 + 教练模式：学员及其训练和饮食、编辑日记和通知。",
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ 谢谢！「{plan}」订阅有效期至 {date}，应用内所有功能已开放。"
  },
  "ja": {
   " ({d}% к прошлому периоду)": "（前期間比 {d}%）",
@@ -2981,7 +3013,11 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "😴 Без активности": "😴 運動なし",
   "Сколько шагов вы прошли сегодня? Напишите число, например: 8000.": "今日は何歩歩きましたか？数字で返信してください（例：8000）。",
   "🤷 Не считал(а)": "🤷 数えていない",
-  "Хорошо 👍 Спрошу завтра.": "了解です 👍 明日また聞きますね。"
+  "Хорошо 👍 Спрошу завтра.": "了解です 👍 明日また聞きますね。",
+  "Light Weight Тренер": "Light Weight コーチ",
+  "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "プログラムとガイドモード、重量の提案、詳細な進捗、アドバイス、ボットのレポート、PFCの自由設定。",
+  "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Pro のすべて + コーチモード：クライアント、そのトレーニングと食事、日記の編集と通知。",
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ ありがとうございます！「{plan}」は {date} まで有効です。アプリですべて利用できます。"
  },
  "ko": {
   " ({d}% к прошлому периоду)": " ({d}% 지난 기간 대비)",
@@ -3311,6 +3347,10 @@ export const BOT_I18N: Record<string, Record<string, string>> = {
   "😴 Без активности": "😴 활동 없음",
   "Сколько шагов вы прошли сегодня? Напишите число, например: 8000.": "오늘 몇 걸음 걸으셨나요? 숫자로 답해 주세요. 예: 8000",
   "🤷 Не считал(а)": "🤷 안 셌어요",
-  "Хорошо 👍 Спрошу завтра.": "좋아요 👍 내일 다시 물어볼게요."
+  "Хорошо 👍 Спрошу завтра.": "좋아요 👍 내일 다시 물어볼게요.",
+  "Light Weight Тренер": "Light Weight 코치",
+  "Программы и упрощённый режим, подбор весов, подробный прогресс, рекомендации, отчёты бота и своё БЖУ.": "프로그램과 가이드 모드, 중량 추천, 상세 진행 상황, 팁, 봇 리포트, 탄단지 직접 설정.",
+  "Всё из Pro + тренерский режим: подопечные, их тренировки и питание, правка дневника и уведомления.": "Pro의 모든 기능 + 코치 모드: 회원, 회원의 운동과 식단, 일지 편집과 알림.",
+  "⭐ Спасибо! Подписка «{plan}» активна до {date}. Всё уже открыто в приложении.": "⭐ 감사합니다! ‘{plan}’ 구독이 {date}까지 활성화됐어요. 앱에서 모든 기능을 이용할 수 있어요."
  }
 };
