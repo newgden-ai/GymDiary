@@ -2764,7 +2764,7 @@ const setDoneAny = s => !!s && (Number(s.reps)>0 || Number(s.time)>0 || Number(s
 const setKey = (w,bi,ei,si) => w.id+'.'+bi+'.'+ei+'.'+si;
 function setFolded(w,bi,ei,si,s){ return setDoneAny(s) && !(State.openSets||{})[setKey(w,bi,ei,si)]; }
 function foldedSetHtml(s,si,bi,ei,round,isCardio,isStatic,bwEx,units){
-  const u = unitLabel(units), wt = Number(s.weight)>0 ? (bwEx?'+':'')+fmtNum(convW(s.weight,units))+' '+u : (bwEx?trn('свой вес'):'');
+  const u = trn(unitLabel(units)), wt = Number(s.weight)>0 ? (bwEx?'+':'')+fmtNum(convW(s.weight,units))+' '+u : (bwEx?trn('свой вес'):'');
   const val = isCardio ? [s.time?s.time+' '+trn('мин'):'', s.distance?s.distance+' '+trn('км'):''].filter(Boolean).join(' · ')
     : isStatic ? (wt?wt+' · ':'')+s.time+' '+trn('сек') : (wt?wt+' × ':'')+s.reps;
   const drops = (s.drops||[]).filter(d=>Number(d.reps)>0).length;
