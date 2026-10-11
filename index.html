@@ -2578,7 +2578,7 @@ function renderWorkoutModal(){
 
 
     <div class="w-actions">
-      ${w.status==='done' || w.startedAt ? `<button class="btn finish big-finish" data-finish-workout="1">${w.status==='done'?'📨 Отправить итог в бот ещё раз':'✅ Завершить тренировку'}</button>` : ''}
+      ${w.status==='done' || w.startedAt || (w.date===dstr(new Date()) && hasFilledSets(w)) ? `<button class="btn finish big-finish" data-finish-workout="1">${w.status==='done'?'📨 Отправить итог в бот ещё раз':'✅ Завершить тренировку'}</button>` : ''}
       <div class="w-actions-row w-actions-3">
         ${!isNew?'<button class="btn danger w-ico" data-delete-workout="1" title="Удалить тренировку">🗑</button>':''}
         <button class="btn primary w-close" data-close-editor="1">Закрыть</button>
@@ -2735,6 +2735,7 @@ function stepSetHtml(s,si,bi,ei,round,isStatic,bwEx,bw,units,isDrop,hist,prevSet
 // −/+ у подхода: шаг 2,5 кг (5 фунтов) и 1 повтор / 5 сек; пустое поле начинается с подсказки (шаблон, прошлый подход)
 function stepSet(k, field, dir){
   const m = State.modal; if(!m || m.kind!=='workout') return;
+  leaveSet(k);
   const [bi,ei,si] = k.split('.').map(Number), ex = m.w.blocks[bi].exercises[ei], st = ex.sets[si]; if(!st) return;
   const info = DB.exercises.find(x=>x.id===ex.exerciseId)||{}, bwEx = isBodyweightEx(info) || ex.withBw;
   const el = document.querySelector(`#modalRoot [data-set="${k}.${field}"]`); if(!el) return;
@@ -2750,6 +2751,7 @@ function stepSet(k, field, dir){
 function doneSet(k){
   const m = State.modal; if(!m || m.kind!=='workout') return;
   const [bi,ei,si] = k.split('.').map(Number), ex = m.w.blocks[bi].exercises[ei], st = ex.sets[si]; if(!st) return;
+  m.curSet = k;
   if(setDoneAny(st)){ const key = setKey(m.w,bi,ei,si); State.openSets = State.openSets||{}; State.openSets[key] = false; renderModalKeep(); return; }
   const info = DB.exercises.find(x=>x.id===ex.exerciseId)||{}, rf = isStaticEx(info.name) ? 'time' : 'reps';
   const fill = f => { const el = document.querySelector(`#modalRoot [data-set="${k}.${f}"]`); if(el && el.value.trim()==='' && el.placeholder && /\d/.test(el.placeholder)){ el.value = el.placeholder; el.dispatchEvent(new Event('input', {bubbles:true})); } return el; };
@@ -2758,6 +2760,18 @@ function doneSet(k){
   if(r) restAfterSet(r);
   renderModalKeep();
 }
+// переход к другому подходу (фокус, −/+): заполненный предыдущий подход сворачивается, поле под пальцем остаётся на месте
+function leaveSet(k){
+  const m = State.modal; if(!m || m.kind!=='workout') return;
+  const prev = m.curSet; m.curSet = k; if(!prev || prev===k) return;
+  const [bi,ei,si] = prev.split('.').map(Number), ex = (m.w.blocks[bi]||{}).exercises, s = ex && ex[ei] && ex[ei].sets[si];
+  if(!setDoneAny(s) || !document.querySelector(`#modalRoot [data-set^="${prev}."]`)) return;
+  State.openSets = State.openSets||{}; State.openSets[setKey(m.w,bi,ei,si)] = false;
+  const q = () => document.querySelector(`#modalRoot [data-set^="${k}."], #modalRoot [data-set-done="${k}"]`), a = q(), y0 = a ? a.getBoundingClientRect().top : null;
+  preserveFocusAndRerender(renderModalKeep);
+  const a2 = q(), o = document.querySelector('#modalRoot .overlay'); if(a2 && o && y0!=null) o.scrollTop += a2.getBoundingClientRect().top - y0;
+}
+document.addEventListener('focusin', e=>{ const el = e.target.closest && e.target.closest('#modalRoot [data-set]'); if(el) leaveSet(el.dataset.set.split('.').slice(0,3).join('.')); });
 function renderModalKeep(){ const o = document.querySelector('#modalRoot .overlay'), y = o ? o.scrollTop : 0; renderModal(); const o2 = document.querySelector('#modalRoot .overlay'); if(o2) o2.scrollTop = y; }
 // выполненные подходы сворачиваются в одну строку; нажатие — развернуть для правки
 const setDoneAny = s => !!s && (Number(s.reps)>0 || Number(s.time)>0 || Number(s.distance)>0);
@@ -2867,7 +2881,7 @@ function handleModalClick(e, ds){
     if(ds.finishWorkout!==undefined){ finishWorkout(); return true; }
     if(ds.step!==undefined){ const p = ds.step.split('.'); stepSet(p.slice(0,3).join('.'), p[3], +p[4]); return true; }
     if(ds.setDone!==undefined){ doneSet(ds.setDone); return true; }
-    if(ds.setOpen!==undefined){ const [bi,ei,si] = ds.setOpen.split('.'); const k = setKey(modal.w,bi,ei,si); State.openSets = State.openSets||{}; State.openSets[k] = !State.openSets[k]; renderModal(); return true; }
+    if(ds.setOpen!==undefined){ const [bi,ei,si] = ds.setOpen.split('.'); const k = setKey(modal.w,bi,ei,si); State.openSets = State.openSets||{}; State.openSets[k] = !State.openSets[k]; modal.curSet = ds.setOpen; renderModalKeep(); return true; }
     if(ds.saveAsTemplate!==undefined){ autosaveWorkout(); State.modal={kind:'saveTemplate', suggestedName:w.name, sourceBlocks:w.blocks, back:modal}; renderModal(); return true; }
     if(ds.deleteWorkout!==undefined){
       State.modal={kind:'confirmDelete', title:'Удалить тренировку?', text:'Это действие нельзя отменить.', back:modal, onYes:()=>{
@@ -3104,6 +3118,10 @@ async function finishWorkout(){
   if(!hasFilledSets(w)){ toast('Заполните хотя бы один подход'); return; }
   if(!w.name) w.name = WT[w.type] || 'Тренировка';
   // время окончания и длительность — по нажатию «Завершить» (если тренировка была начата кнопкой ▶)
+  // без ▶ (подходы записаны прямо в редакторе): началом считаем время тренировки, если оно сегодня и не дальше 6 часов назад
+  if(!w.startedAt && !w.finishedAt && !(Number(w.duration)>0) && w.status!=='done' && w.date===dstr(new Date()) && /^\d{1,2}:\d{2}/.test(w.time||'')){
+    const [h,mi] = w.time.split(':').map(Number), st = parseD(w.date); st.setHours(h, mi, 0, 0); const mins = (Date.now()-st)/60000;
+    if(mins > 0 && mins <= 360) w.startedAt = st.toISOString(); }
   if(w.startedAt && !w.finishedAt){ w.finishedAt = new Date().toISOString(); w.duration = Math.max(1, Math.round((Date.parse(w.finishedAt)-Date.parse(w.startedAt))/60000)); }
   if(w.shared===undefined || w.shared===null) w.shared = !!coach().shareAll;   // показ друзьям — по настройке в профиле
   w.status = 'done';
