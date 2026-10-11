@@ -17,7 +17,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BOT_I18N } from "./i18n.ts";
 
 // номер сборки: бот называет его по /version и пишет в лог — сразу видно, развернулась ли новая версия
-const BOT_VERSION = "2026-10-11 · subscriptions-periods";
+const BOT_VERSION = "2026-10-12 · open-tab";
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const WEBHOOK_SECRET = Deno.env.get("BOT_WEBHOOK_SECRET") ?? "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
@@ -62,7 +62,9 @@ async function sendPhotoSafe(chat_id: number, url: string, caption: string, extr
   return { ok: false, status };
 }
 const kb = (rows: [string, string][][]) => ({ reply_markup: { inline_keyboard: rows.map((r) => r.map(([text, callback_data]) => ({ text, callback_data }))) } });
-const appKb = (text = "📒 Открыть дневник", lang = "ru") => APP_URL ? { reply_markup: { inline_keyboard: [[{ text: L(lang, text), web_app: { url: APP_URL } }]] } } : {};
+// кнопка открывает нужную вкладку приложения: ?open=food | stats | admin
+const OPEN_VIEW: Record<string, string> = { "🍽 Открыть калории": "food", "📊 Открыть статистику": "stats", "🛡️ Открыть админ-панель": "admin" };
+const appKb = (text = "📒 Открыть дневник", lang = "ru") => APP_URL ? { reply_markup: { inline_keyboard: [[{ text: L(lang, text), web_app: { url: APP_URL + (OPEN_VIEW[text] ? "?open=" + OPEN_VIEW[text] : "") } }]] } } : {};
 const esc = (s: unknown) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
 const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 

@@ -7775,6 +7775,9 @@ function workoutAdvice(w){
   // свернули или закрыли приложение — сразу отправляем несохранённое
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') Storage.flush(); });
   window.addEventListener('pagehide', ()=>Storage.flush());
+  // кнопка бота «Открыть калории / статистику / админ-панель» — сразу нужная вкладка
+  const openV = new URLSearchParams(location.search).get('open');
+  if(openV==='food' || openV==='stats' || (openV==='admin' && isAdmin())){ State.view = openV; if(openV==='stats') State.profTab = 'stats'; }
   rerender();
   loadLinks();
   // первый вход: знакомство с приложением и настройки, затем выбор уровня и программы
